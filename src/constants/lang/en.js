@@ -1,0 +1,15 @@
+export default {
+  SIGNUP_TITLE: 'Sign Up',
+  SIGNUP_FULL_NAME: 'Full Name',
+  SIGNUP_PHONE_NUMBER: 'Phone Number',
+  SIGNUP_DRIVERS_BUSINESS_DETAILS: "Driver's Business Details",
+  SIGNUP_EMAIL_ID: 'Email ID',
+  SIGNUP_EMERGENCY_NUMBER_ONE: 'Emergency Number 1',
+  SIGNUP_EMERGENCY_NUMBER_TWO: 'Emergency Number 2',
+  SIGNUP_PASSWORD: 'Password',
+  SIGNUP_CONFIRM_PASSWORD: 'Confirm Password',
+  SIGNUP_BUTTON: 'Next',
+  SIGN_IN_EMAIL_OR_PHONE: 'Email or Phone Number',
+  SIGN_IN_PASSWORD: 'Enter Your Password',
+  SIGN_IN_BUTTON: 'Sign In',
+};

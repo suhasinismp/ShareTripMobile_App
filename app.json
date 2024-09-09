@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "st_mobile_application",
-    "slug": "st_mobile_application",
+    "name": "Share Trip",
+    "slug": "sharetripprod",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,10 +18,33 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ganakalabs.sharetripprod"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "11cd866b-60b2-456c-83a1-deb9e114181b"
+      }
+    },
+    "owner": "ganakalabs",
+    "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Poppins-Light.ttf",
+            "./assets/fonts/Poppins-Regular.ttf",
+            "./assets/fonts/Poppins-Medium.ttf",
+            "./assets/fonts/Poppins-SemiBold.ttf",
+            "./assets/fonts/Poppins-Bold.ttf",
+            "./assets/fonts/Poppins-ExtraBold.ttf"
+          ]
+        }
+      ],
+      "expo-localization"
+    ]
   }
 }

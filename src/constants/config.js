@@ -1,3 +1,3 @@
 export default {
-  API_BASE_URL: 'https://api.themoviedb.org/3',
+  API_BASE_URL: 'https://stapi.sbittravels.com',
 };
