@@ -9,8 +9,7 @@ export const signupScheme = yup.object({
     .max(50, 'Name must be less than 50 characters'),
   [inputFieldNames.PHONE_NUMBER]: yup
     .number()
-    .required('Phone number is required')
-    .min(10, 'Phone number must be at least 10 characters'),
+    .required('Phone number is required'),
   [inputFieldNames.DRIVERS_BUSINESS_DETAILS]: yup
     .string()
     .min(3, 'Business details must be at least 3 characters')
@@ -29,25 +28,4 @@ export const signupScheme = yup.object({
     .string()
     .required('Confirm password is required')
     .oneOf([yup.ref('password'), null], 'Passwords must match'),
-  [inputFieldNames.EMAIL_OR_PHONE]: yup
-    .string()
-    .required('Email or Phone is required')
-    .test('email-or-phone', 'Invalid input', function (value) {
-      const phoneRegex = /^\d+$/;
-      const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-
-      if (phoneRegex.test(value)) {
-        if (value.length !== 10) {
-          return this.createError({
-            message: 'Phone number must be exactly 10 digits',
-          });
-        }
-        return true;
-      } else {
-        if (!emailRegex.test(value)) {
-          return this.createError({ message: 'Enter a valid email address' });
-        }
-        return true;
-      }
-    }),
 });

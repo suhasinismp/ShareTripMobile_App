@@ -14,6 +14,8 @@ import { inputFieldNames } from '../../constants/strings/inputFieldNames';
 import { i18n } from '../../constants/lang/index';
 import CustomButton from '../../components/ui/CustomButton';
 import { useTheme } from '../../hooks/useTheme';
+import CustomText from '../../components/ui/CustomText';
+import { useNavigation } from '@react-navigation/native';
 
 const inputFields = [
   { name: inputFieldNames.FULL_NAME, placeholder: i18n.t('SIGNUP_FULL_NAME') },
@@ -47,14 +49,22 @@ const inputFields = [
 ];
 
 const SignUpScreen = () => {
+  const navigation = useNavigation();
   const { theme } = useTheme();
-  const { control, handleSubmit } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(signupScheme),
   });
 
   const submit = (data) => {
-    console.log(data);
+    // console.log(data);
+    navigation.navigate('OTPVerify', { data });
   };
+
+  console.log('Form errors:', errors);
 
   return (
     <KeyboardAwareScrollView
@@ -87,6 +97,20 @@ const SignUpScreen = () => {
               onPress={handleSubmit(submit)}
             />
           </View>
+          <View style={styles.captionContainer}>
+            <CustomText
+              text={i18n.t('SIGN_IN_ALREADY_HAVE_ACCOUNT')}
+              variant="captionText"
+            />
+            <CustomButton
+              title={i18n.t('SIGN_IN_TITLE')}
+              onPress={() => {
+                Keyboard.dismiss();
+                navigation.navigate('SignIn');
+              }}
+              variant="text"
+            />
+          </View>
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAwareScrollView>
@@ -108,6 +132,11 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 20,
+  },
+  captionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

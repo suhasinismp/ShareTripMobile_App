@@ -5,11 +5,13 @@ export const themes = {
     backgroundColor: '#F3F5FD',
     primaryColor: '#005680',
     inputBackgroundColor: '#FAFBFF',
+    white: 'white',
   },
   dark: {
     backgroundColor: '#F3F5FD',
     primaryColor: '#005680',
     inputBackgroundColor: '#FAFBFF',
+    white: 'white',
   },
 };
 

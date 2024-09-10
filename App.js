@@ -9,6 +9,8 @@ import store from './src/store/store';
 import { ThemeContext } from './src/styles/theme';
 import { useTheme, useThemeProvider } from './src/hooks/useTheme';
 import AuthStackNavigator from './src/routes/AuthStack';
+import RegistrationNavigator from './src/routes/RegistrationStack';
+import AppStack from './src/routes/AppStack';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -56,7 +58,7 @@ export default function App() {
     <Provider store={store}>
       <ThemeContext.Provider value={themeContext}>
         <NavigationContainer>
-          <AuthStackNavigator />
+          <AppStack />
           {/* <ThemeSwitcher /> */}
           <StatusBar style="auto" />
         </NavigationContainer>

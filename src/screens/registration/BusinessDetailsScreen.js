@@ -5,41 +5,54 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import AppLogo from '../../../assets/svgs/shareTripLogo.svg';
 import { inputFieldNames } from '../../constants/strings/inputFieldNames';
 import { i18n } from '../../constants/lang';
-import CustomTextInput from '../../components/ui/CustomTextInput';
-import CustomButton from '../../components/ui/CustomButton';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '../../hooks/useTheme';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-
-import { useTheme } from '../../hooks/useTheme';
-import { signInScheme } from '../../constants/schema/loginScheme';
-import CustomText from '../../components/ui/CustomText';
-import { useNavigation } from '@react-navigation/native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import CustomTextInput from '../../components/ui/CustomTextInput';
+import CustomButton from '../../components/ui/CustomButton';
 
 const inputFields = [
   {
-    name: inputFieldNames.EMAIL_OR_PHONE,
-    placeholder: i18n.t('SIGN_IN_EMAIL_OR_PHONE'),
+    id: 1,
+    name: inputFieldNames.FULL_NAME,
+    placeholder: i18n.t('BUSINESS_DETAILS_NAME'),
   },
   {
-    name: inputFieldNames.PASSWORD,
-    placeholder: i18n.t('SIGN_IN_PASSWORD'),
-    secureTextEntry: true,
+    id: 2,
+    name: inputFieldNames.FULL_NAME,
+    placeholder: i18n.t('BUSINESS_DETAILS_ADDRESS'),
+  },
+
+  {
+    id: 3,
+    name: inputFieldNames.FULL_NAME,
+    placeholder: i18n.t('BUSINESS_DETAILS_AREA'),
+  },
+  {
+    id: 4,
+    name: inputFieldNames.FULL_NAME,
+    placeholder: i18n.t('BUSINESS_DETAILS_CITY'),
+  },
+  {
+    id: 5,
+    name: inputFieldNames.FULL_NAME,
+    placeholder: i18n.t('BUSINESS_DETAILS_STATE'),
   },
 ];
-
-const SignInScreen = () => {
+const BusinessDetailsScreen = () => {
   const navigation = useNavigation();
   const { theme } = useTheme();
   const { control, handleSubmit } = useForm({
-    resolver: yupResolver(signInScheme),
+    resolver: yupResolver(),
   });
 
   const onSubmit = (data) => {
     // console.log('Form data:', data);
+    navigation.navigate('VehicleAndDriverDocuments');
   };
 
   return (
@@ -54,13 +67,11 @@ const SignInScreen = () => {
       enableAutomaticScroll={true}
       keyboardShouldPersistTaps="handled"
     >
-      <AppLogo style={{ alignSelf: 'center' }} />
-
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
           {inputFields.map((item) => (
             <CustomTextInput
-              key={item.name}
+              key={item.id}
               control={control}
               name={item.name}
               placeholder={item.placeholder}
@@ -69,23 +80,15 @@ const SignInScreen = () => {
           ))}
           <View style={styles.buttonContainer}>
             <CustomButton
-              title={i18n.t('SIGN_IN_BUTTON')}
-              onPress={handleSubmit(onSubmit)}
-            />
-          </View>
-          <View style={styles.captionContainer}>
-            <CustomText
-              text={i18n.t('SIGNUP_DONT_HAVE_ACCOUNT')}
-              variant="captionText"
-            />
-            <CustomButton
-              title={i18n.t('SIGNUP_TITLE')}
-              onPress={() => {
-                Keyboard.dismiss();
-                navigation.navigate('UserType');
-              }}
+              title={i18n.t('SKIP')}
+              onPress={() => {}}
               variant="text"
             />
+            {/* <CustomButton
+              title={i18n.t('SIGNUP_BUTTON')}
+              onPress={handleSubmit(onSubmit)}
+            /> */}
+            <CustomButton title={i18n.t('SIGNUP_BUTTON')} onPress={onSubmit} />
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -99,7 +102,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
     padding: 20,
   },
   innerContainer: {
@@ -108,12 +110,10 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 20,
-  },
-  captionContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
 });
 
-export default SignInScreen;
+export default BusinessDetailsScreen;

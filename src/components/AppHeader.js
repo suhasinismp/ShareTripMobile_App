@@ -14,7 +14,7 @@ const AppHeader = ({ title, backIcon, rightIcon, onRightIconPress }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.leftContainer}>
+      <View>
         {backIcon && (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Image
@@ -24,10 +24,10 @@ const AppHeader = ({ title, backIcon, rightIcon, onRightIconPress }) => {
           </TouchableOpacity>
         )}
       </View>
-      <View style={styles.centerContainer}>
+      <View>
         <CustomText text={title} variant="headerTitle" />
       </View>
-      <View style={styles.rightContainer}>
+      <View>
         {rightIcon && (
           <TouchableOpacity onPress={onRightIconPress}>
             <Image
@@ -48,18 +48,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#F3F5FD',
     justifyContent: 'space-between',
-    elevation: 5,
+    elevation: 2,
+    paddingHorizontal: 20,
   },
 
-  leftContainer: {
-    alignSelf: 'flex-start',
-  },
-  centerContainer: {
-    alignSelf: 'center',
-  },
-  rightContainer: {
-    alignSelf: 'flex-end',
-  },
+  // leftContainer: {
+  //   alignSelf: 'flex-start',
+  // },
+  // centerContainer: {
+  //   alignSelf: 'center',
+  // },
+  // rightContainer: {
+  //   alignSelf: 'flex-end',
+  // },
   icon: {
     width: 24,
     height: 24,

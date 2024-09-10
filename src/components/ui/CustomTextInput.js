@@ -1,14 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import { Controller } from 'react-hook-form';
 import {
+  Pressable,
   StyleSheet,
   TextInput,
-  View,
-  TouchableWithoutFeedback,
-  Pressable,
+  View
 } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import CustomText from './CustomText';
-import { Controller } from 'react-hook-form';
 
 const CustomTextInput = ({
   placeholder,
