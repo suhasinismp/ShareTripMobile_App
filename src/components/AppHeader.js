@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomText from './ui/CustomText';
+import BackIcon from '../../assets/svgs/back.svg';
 
 const AppHeader = ({ title, backIcon, rightIcon, onRightIconPress }) => {
   const navigation = useNavigation();
@@ -17,10 +18,7 @@ const AppHeader = ({ title, backIcon, rightIcon, onRightIconPress }) => {
       <View>
         {backIcon && (
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image
-              source={require('../../assets/icon.png')}
-              style={styles.icon}
-            />
+            <BackIcon width={24} height={24} />
           </TouchableOpacity>
         )}
       </View>
@@ -49,6 +47,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F5FD',
     justifyContent: 'space-between',
     elevation: 2,
+    alignItems: 'center',
     paddingHorizontal: 20,
   },
 

@@ -1,10 +1,12 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import AppHeader from '../components/AppHeader';
-import VehicleDetailsScreen from '../screens/registration/VehicleDetailsScreen';
 import BusinessDetailsScreen from '../screens/registration/BusinessDetailsScreen';
-import UploadDocuments from '../screens/registration/UploadDocuments';
+import VehicleDetailsScreen from '../screens/registration/VehicleDetailsScreen';
+
+import UploadDocumentsScreen from '../screens/registration/UploadDocumentsScreen';
+import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansScreen';
 
 const RegistrationStack = createStackNavigator();
 
@@ -44,8 +46,13 @@ const RegistrationNavigator = () => {
       />
       <RegistrationStack.Screen
         name="VehicleAndDriverDocuments"
-        component={UploadDocuments}
+        component={UploadDocumentsScreen}
         options={{ title: 'Upload Documents' }}
+      />
+      <RegistrationStack.Screen
+        name="SubscriptionPlans"
+        component={SubscriptionPlansScreen}
+        options={{ title: 'Choose Subscription' }}
       />
     </RegistrationStack.Navigator>
   );

@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, AppState, Keyboard } from 'react-native';
+import { StyleSheet, View, AppState, Keyboard, Alert } from 'react-native';
 import CustomOTPFields from '../../components/CustomOTPFieldsComponent';
 import CustomText from '../../components/ui/CustomText';
 import CustomButton from '../../components/ui/CustomButton';
 import { i18n } from '../../constants/lang';
 import { useNavigation } from '@react-navigation/native';
 
-const OTPVerifyScreen = () => {
+const OTPVerifyScreen = ({ route }) => {
+  const { phoneNumber, userId } = route.params;
   const navigation = useNavigation();
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const appState = useRef(AppState.currentState);
   const timerRef = useRef(null);
+  const [otp, setOtp] = useState('');
 
   useEffect(() => {
     startTimer();
@@ -62,9 +64,24 @@ const OTPVerifyScreen = () => {
     }
   };
 
+  const verifyOTP = () => {
+    const last4Digits = phoneNumber.slice(-4);
+    if (otp === last4Digits) {
+      navigation.navigate('Register', {
+        screen: 'VehicleDetails',
+      });
+    } else {
+      Alert.alert(
+        'Invalid OTP',
+        'The entered OTP is incorrect. Please try again.',
+        [{ text: 'OK' }],
+      );
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <CustomOTPFields onChangeOTP={(otp) => console.log(otp)} />
+      <CustomOTPFields onChangeOTP={setOtp} />
       <CustomText
         variant="captionText"
         text={`${String(Math.floor(timer / 60)).padStart(2, '0')}:${String(timer % 60).padStart(2, '0')}`}
@@ -78,14 +95,7 @@ const OTPVerifyScreen = () => {
           onPress={handleResend}
         />
       </View>
-      <CustomButton
-        title={i18n.t('OTP_VERIFY_BUTTON')}
-        onPress={() => {
-          navigation.navigate('Register', {
-            screen: 'VehicleDetails',
-          });
-        }}
-      />
+      <CustomButton title={i18n.t('OTP_VERIFY_BUTTON')} onPress={verifyOTP} />
       <View style={styles.captionContainer}>
         <CustomText
           text={i18n.t('OTP_VERIFY_ENTERED_WRONG_NUMBER')}

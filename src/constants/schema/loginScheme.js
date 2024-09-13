@@ -1,8 +1,8 @@
 import * as yup from 'yup';
-import { inputFieldNames } from '../strings/inputFieldNames';
+import { fieldNames } from '../strings/fieldNames';
 
 export const signInScheme = yup.object({
-  [inputFieldNames.EMAIL_OR_PHONE]: yup
+  [fieldNames.EMAIL_OR_PHONE]: yup
     .string()
     .required('Email or Phone is required')
     .test('email-or-phone', 'Invalid input', function (value) {
@@ -23,5 +23,5 @@ export const signInScheme = yup.object({
         return true;
       }
     }),
-  [inputFieldNames.PASSWORD]: yup.string().required('Password is required'),
+  [fieldNames.PASSWORD]: yup.string().required('Password is required'),
 });

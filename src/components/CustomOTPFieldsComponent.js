@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { FlatList, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 
 const CustomOTPFields = ({ onChangeOTP }) => {
@@ -15,12 +15,10 @@ const CustomOTPFields = ({ onChangeOTP }) => {
       newOtp[index] = text;
       setOtp(newOtp);
 
-      // Move to the next input if available
       if (text && index < noOfFields - 1) {
         inputs.current[index + 1].focus();
       }
 
-      // Callback to pass OTP to parent component
       if (onChangeOTP) {
         onChangeOTP(newOtp.join(''));
       }
@@ -38,7 +36,6 @@ const CustomOTPFields = ({ onChangeOTP }) => {
       }
       setOtp(newOtp);
 
-      // Callback to pass OTP to parent component
       if (onChangeOTP) {
         onChangeOTP(newOtp.join(''));
       }
@@ -53,45 +50,56 @@ const CustomOTPFields = ({ onChangeOTP }) => {
     setOtp(newOtp);
   };
 
-  const renderItem = ({ item, index }) => (
-    <TextInput
-      key={index}
-      ref={(ref) => (inputs.current[index] = ref)}
-      style={[styles.input, { backgroundColor: theme.inputBackgroundColor }]}
-      keyboardType="numeric"
-      maxLength={1}
-      value={otp[index]}
-      onChangeText={(text) => handleChange(text, index)}
-      onKeyPress={(e) => handleKeyPress(e, index)}
-      onFocus={() => handleFocus(index)}
-      cursorColor={theme.primaryColor}
-      autoFocus={index === 0}
-    />
-  );
-
   return (
     <View style={styles.container}>
-      <FlatList
-        data={otp}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{ alignSelf: 'center' }}
-      />
+      {otp.map((_, index) => (
+        <View key={index} style={styles.inputContainer}>
+          <TextInput
+            ref={(ref) => (inputs.current[index] = ref)}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.inputBackgroundColor,
+                color: theme.textColor,
+              },
+            ]}
+            keyboardType="numeric"
+            maxLength={1}
+            value={otp[index]}
+            onChangeText={(text) => handleChange(text, index)}
+            onKeyPress={(e) => handleKeyPress(e, index)}
+            onFocus={() => handleFocus(index)}
+            cursorColor={theme.primaryColor}
+            autoFocus={index === 0}
+          />
+        </View>
+      ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginVertical: 32,
+  },
+  inputContainer: {
+    marginHorizontal: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   input: {
     borderRadius: 8,
     fontSize: 24,
     textAlign: 'center',
-    marginHorizontal: 5,
     width: 50,
     height: 50,
     elevation: 4,

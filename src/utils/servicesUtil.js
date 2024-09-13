@@ -1,4 +1,5 @@
-import { api } from './APIInterceptorUtil';
+import { api } from './apiInterceptorUtil';
+
 export const getAPI = async (endURL, token) => {
   let prepareHeader = {
     'Content-Type': 'application/json',
@@ -52,6 +53,32 @@ export const postAPI = async (endUrl, body, token) => {
   }
 };
 
+export const patchAPI = async (endUrl, body, token) => {
+  let prepareHeader = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    prepareHeader['Authorization'] = `Bearer ${token}`;
+  } else {
+    console.log('Token is missing');
+  }
+
+  var apiConfig = {
+    method: 'patch',
+    url: endUrl,
+    headers: prepareHeader,
+    data: JSON.stringify(body),
+  };
+
+  try {
+    const response = await api(apiConfig);
+    return response?.data || {};
+  } catch (error) {
+    // console.log('Error occurred while posting data');
+    return null;
+  }
+};
 export const deleteAPI = async ({ endURL, token }) => {
   let prepareHeader = {
     'Content-Type': 'application/json',

@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Keyboard,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { inputFieldNames } from '../../constants/strings/inputFieldNames';
+import { fieldNames } from '../../constants/strings/fieldNames';
 import { i18n } from '../../constants/lang';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../hooks/useTheme';
@@ -14,32 +14,35 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomTextInput from '../../components/ui/CustomTextInput';
 import CustomButton from '../../components/ui/CustomButton';
+import { businessDetailsScheme } from '../../constants/schema/businessDetailsScheme';
+import ImagePickerGrid from '../../components/ImagePickerGrid';
+import CustomText from '../../components/ui/CustomText';
 
 const inputFields = [
   {
     id: 1,
-    name: inputFieldNames.FULL_NAME,
+    name: fieldNames.BUSINESS_DETAILS_NAME,
     placeholder: i18n.t('BUSINESS_DETAILS_NAME'),
   },
   {
     id: 2,
-    name: inputFieldNames.FULL_NAME,
+    name: fieldNames.BUSINESS_DETAILS_ADDRESS,
     placeholder: i18n.t('BUSINESS_DETAILS_ADDRESS'),
   },
 
   {
     id: 3,
-    name: inputFieldNames.FULL_NAME,
+    name: fieldNames.BUSINESS_DETAILS_AREA,
     placeholder: i18n.t('BUSINESS_DETAILS_AREA'),
   },
   {
     id: 4,
-    name: inputFieldNames.FULL_NAME,
+    name: fieldNames.BUSINESS_DETAILS_CITY,
     placeholder: i18n.t('BUSINESS_DETAILS_CITY'),
   },
   {
     id: 5,
-    name: inputFieldNames.FULL_NAME,
+    name: fieldNames.BUSINESS_DETAILS_STATE,
     placeholder: i18n.t('BUSINESS_DETAILS_STATE'),
   },
 ];
@@ -47,11 +50,12 @@ const BusinessDetailsScreen = () => {
   const navigation = useNavigation();
   const { theme } = useTheme();
   const { control, handleSubmit } = useForm({
-    resolver: yupResolver(),
+    resolver: yupResolver(businessDetailsScheme),
   });
 
+  const [logo, setLogo] = useState([]);
   const onSubmit = (data) => {
-    // console.log('Form data:', data);
+    console.log('Form data:', data);
     navigation.navigate('VehicleAndDriverDocuments');
   };
 
@@ -78,17 +82,27 @@ const BusinessDetailsScreen = () => {
               secureTextEntry={item.secureTextEntry}
             />
           ))}
+          <CustomText
+            text={'Upload Business Logo'}
+            variant={'activeText'}
+            style={{ marginTop: 20 }}
+          />
+          <ImagePickerGrid
+            noOfPhotos={1}
+            onImagesPicked={setLogo}
+            images={logo}
+          />
           <View style={styles.buttonContainer}>
             <CustomButton
               title={i18n.t('SKIP')}
               onPress={() => {}}
               variant="text"
             />
-            {/* <CustomButton
+
+            <CustomButton
               title={i18n.t('SIGNUP_BUTTON')}
               onPress={handleSubmit(onSubmit)}
-            /> */}
-            <CustomButton title={i18n.t('SIGNUP_BUTTON')} onPress={onSubmit} />
+            />
           </View>
         </View>
       </TouchableWithoutFeedback>

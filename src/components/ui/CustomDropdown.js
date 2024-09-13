@@ -1,12 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
   TextInput,
+  Pressable,
+  ScrollView,
 } from 'react-native';
+import { useTheme } from '../../hooks/useTheme';
+import CustomText from './CustomText';
 
 const CustomDropdown = ({
   placeholder,
@@ -19,13 +22,21 @@ const CustomDropdown = ({
   searchInputStyle,
   itemStyle,
   itemTextStyle,
+  height = 56,
+  control,
+  name,
+  label,
+  isOpen,
+  onToggle,
+  onSelect,
+  ...props
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredData, setFilteredData] = useState(data);
+  const { theme } = useTheme();
+  const [selectedItem, setSelectedItem] = React.useState(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [filteredData, setFilteredData] = React.useState(data);
   const dropdownRef = useRef(null);
-  const [dropdownLayout, setDropdownLayout] = useState(null);
+  const [dropdownLayout, setDropdownLayout] = React.useState(null);
 
   useEffect(() => {
     if (search) {
@@ -40,7 +51,9 @@ const CustomDropdown = ({
   }, [searchQuery, data, search]);
 
   const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+    if (onToggle) {
+      onToggle();
+    }
     if (!isOpen) {
       dropdownRef.current.measure((fx, fy, width, height, px, py) => {
         setDropdownLayout({ width, height });
@@ -50,30 +63,59 @@ const CustomDropdown = ({
 
   const onItemPress = (item) => {
     setSelectedItem(item);
-    setIsOpen(false);
     setSearchQuery('');
+    if (onSelect) {
+      onSelect(item);
+    }
+    if (onToggle) {
+      onToggle();
+    }
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = (item) => (
     <TouchableOpacity
+      key={item.created_at.toString()}
       style={[styles.item, itemStyle]}
       onPress={() => onItemPress(item)}
     >
-      <Text style={itemTextStyle}>{item.label}</Text>
+      <Text style={itemTextStyle}>{item[label]}</Text>
     </TouchableOpacity>
   );
 
   return (
     <View style={[styles.container, containerStyle]}>
-      <TouchableOpacity
-        ref={dropdownRef}
-        style={[styles.dropdown, dropdownStyle]}
-        onPress={toggleDropdown}
-      >
-        <Text style={[styles.dropdownText, placeholderStyle]}>
-          {selectedItem ? selectedItem.label : placeholder}
-        </Text>
-      </TouchableOpacity>
+      <Pressable onPress={toggleDropdown}>
+        <CustomText
+          variant="placeHolderText"
+          style={[
+            styles.label,
+            { backgroundColor: theme.backgroundColor },
+            {
+              top: !isOpen && !selectedItem ? height / 2 - 11 : -9,
+            },
+            (isOpen || selectedItem) && styles.labelRaised,
+            isOpen && styles.labelFocused,
+          ]}
+          text={placeholder}
+        />
+
+        <View
+          ref={dropdownRef}
+          style={[
+            styles.dropdown,
+            { height: height, backgroundColor: theme.backgroundColor },
+            dropdownStyle,
+            isOpen && styles.dropdownFocused,
+          ]}
+        >
+          <Text style={[styles.dropdownText, placeholderStyle]}>
+            {selectedItem ? selectedItem[label] : ''}
+          </Text>
+          <View style={styles.arrowContainer}>
+            <View style={[styles.arrow, isOpen && styles.arrowUp]} />
+          </View>
+        </View>
+      </Pressable>
 
       {isOpen && dropdownLayout && (
         <View
@@ -94,12 +136,9 @@ const CustomDropdown = ({
               onChangeText={setSearchQuery}
             />
           )}
-          <FlatList
-            data={filteredData}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.value.toString()}
-            keyboardShouldPersistTaps="handled"
-          />
+          <ScrollView keyboardShouldPersistTaps="handled">
+            {filteredData.map(renderItem)}
+          </ScrollView>
         </View>
       )}
     </View>
@@ -111,23 +150,32 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   dropdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    elevation: 4,
+  },
+  dropdownFocused: {
+    borderColor: '#6750A4',
   },
   dropdownText: {
     fontSize: 16,
+    flex: 1,
   },
   dropdownList: {
     position: 'absolute',
     backgroundColor: 'white',
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 8,
     maxHeight: 200,
     zIndex: 1000,
     width: '100%',
+    elevation: 5,
   },
   searchInput: {
     borderBottomWidth: 1,
@@ -138,6 +186,38 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+  },
+  label: {
+    position: 'absolute',
+    left: 12,
+    paddingHorizontal: 4,
+    zIndex: 1,
+  },
+  labelRaised: {
+    fontSize: 12,
+  },
+  labelFocused: {
+    color: '#6750A4',
+  },
+  arrowContainer: {
+    marginLeft: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  arrow: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 6,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#005581',
+  },
+  arrowUp: {
+    transform: [{ rotate: '180deg' }],
   },
 });
 

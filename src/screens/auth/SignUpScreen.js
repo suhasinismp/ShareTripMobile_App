@@ -10,41 +10,51 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomTextInput from '../../components/ui/CustomTextInput';
 import { signupScheme } from '../../constants/schema/signupScheme';
-import { inputFieldNames } from '../../constants/strings/inputFieldNames';
+import { fieldNames } from '../../constants/strings/fieldNames';
 import { i18n } from '../../constants/lang/index';
 import CustomButton from '../../components/ui/CustomButton';
 import { useTheme } from '../../hooks/useTheme';
 import CustomText from '../../components/ui/CustomText';
 import { useNavigation } from '@react-navigation/native';
+import { registerUser } from '../../services/RegistrationService';
 
 const inputFields = [
-  { name: inputFieldNames.FULL_NAME, placeholder: i18n.t('SIGNUP_FULL_NAME') },
   {
-    name: inputFieldNames.PHONE_NUMBER,
+    name: fieldNames.FULL_NAME,
+    placeholder: i18n.t('SIGNUP_FULL_NAME'),
+    keyboardType: 'default',
+  },
+  {
+    name: fieldNames.PHONE_NUMBER,
     placeholder: i18n.t('SIGNUP_PHONE_NUMBER'),
+    keyboardType: 'numeric',
   },
   {
-    name: inputFieldNames.DRIVERS_BUSINESS_DETAILS,
-    placeholder: i18n.t('SIGNUP_DRIVERS_BUSINESS_DETAILS'),
+    name: fieldNames.EMAIL,
+    placeholder: i18n.t('SIGNUP_EMAIL_ID'),
+    keyboardType: 'email-address',
   },
-  { name: inputFieldNames.EMAIL, placeholder: i18n.t('SIGNUP_EMAIL_ID') },
   {
-    name: inputFieldNames.EMERGENCY_NUMBER_ONE,
+    name: fieldNames.EMERGENCY_NUMBER_ONE,
     placeholder: i18n.t('SIGNUP_EMERGENCY_NUMBER_ONE'),
+    keyboardType: 'numeric',
   },
   {
-    name: inputFieldNames.EMERGENCY_NUMBER_TWO,
+    name: fieldNames.EMERGENCY_NUMBER_TWO,
     placeholder: i18n.t('SIGNUP_EMERGENCY_NUMBER_TWO'),
+    keyboardType: 'numeric',
   },
   {
-    name: inputFieldNames.PASSWORD,
+    name: fieldNames.PASSWORD,
     placeholder: i18n.t('SIGNUP_PASSWORD'),
     secureTextEntry: true,
+    keyboardType: 'default',
   },
   {
-    name: inputFieldNames.CONFIRM_PASSWORD,
+    name: fieldNames.CONFIRM_PASSWORD,
     placeholder: i18n.t('SIGNUP_CONFIRM_PASSWORD'),
     secureTextEntry: true,
+    keyboardType: 'default',
   },
 ];
 
@@ -59,9 +69,23 @@ const SignUpScreen = () => {
     resolver: yupResolver(signupScheme),
   });
 
-  const submit = (data) => {
-    // console.log(data);
-    navigation.navigate('OTPVerify', { data });
+  const submit = async (data) => {
+    console.log(data);
+    let finalData = {
+      u_name: data[fieldNames.FULL_NAME],
+      u_mob_num: data[fieldNames.PHONE_NUMBER].toString(),
+      u_email_id: data[fieldNames.EMAIL],
+      u_emergency_num1: data[fieldNames.EMERGENCY_NUMBER_ONE].toString(),
+      u_emergency_num2: data[fieldNames.EMERGENCY_NUMBER_TWO].toString(),
+      u_pswd: data[fieldNames.PASSWORD],
+    };
+    const response = await registerUser(finalData);
+    if (response?.message == 'Registered Successfully') {
+      navigation.navigate('OTPVerify', {
+        userId: response.data[0].id,
+        phoneNumber: response.data[0].u_mob_num,
+      });
+    }
   };
 
   console.log('Form errors:', errors);
@@ -70,12 +94,12 @@ const SignUpScreen = () => {
     <KeyboardAwareScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={
-        ([styles.contentContainer],
+      contentContainerStyle={[
+        styles.contentContainer,
         {
           backgroundColor: theme.backgroundColor,
-        })
-      }
+        },
+      ]}
       enableOnAndroid={true}
       enableAutomaticScroll={true}
       keyboardShouldPersistTaps="handled"
@@ -89,6 +113,7 @@ const SignUpScreen = () => {
               name={item.name}
               placeholder={item.placeholder}
               secureTextEntry={item.secureTextEntry}
+              keyboardType={item.keyboardType}
             />
           ))}
           <View style={styles.buttonContainer}>

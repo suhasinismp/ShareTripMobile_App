@@ -4,10 +4,12 @@ import {
   Pressable,
   StyleSheet,
   TextInput,
-  View
+  View,
+  TouchableOpacity,
 } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import CustomText from './CustomText';
+import { Ionicons } from '@expo/vector-icons';
 
 const CustomTextInput = ({
   placeholder,
@@ -15,10 +17,13 @@ const CustomTextInput = ({
   height = 56,
   control,
   name,
+  keyboardType,
+  secureTextEntry,
   ...props
 }) => {
   const { theme } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(!secureTextEntry);
   const inputRef = useRef(null);
 
   const handleFocus = () => {
@@ -29,6 +34,20 @@ const CustomTextInput = ({
   const handleBlur = () => {
     setIsFocused(false);
   };
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
+  const renderEyeIcon = () => (
+    <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIcon}>
+      <Ionicons
+        name={isPasswordVisible ? 'eye-outline' : 'eye-off-outline'}
+        size={24}
+        color={theme.textColor}
+      />
+    </TouchableOpacity>
+  );
 
   return (
     <Controller
@@ -67,8 +86,11 @@ const CustomTextInput = ({
               onBlur={handleBlur}
               onChangeText={onChange}
               value={value}
+              keyboardType={keyboardType}
+              secureTextEntry={secureTextEntry && !isPasswordVisible}
               {...props}
             />
+            {secureTextEntry && renderEyeIcon()}
             {rightItem && (
               <View style={styles.rightItemContainer}>{rightItem}</View>
             )}
@@ -101,7 +123,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
   },
-
   label: {
     position: 'absolute',
     left: 12,
@@ -116,6 +137,9 @@ const styles = StyleSheet.create({
   },
   rightItemContainer: {
     paddingHorizontal: 12,
+  },
+  eyeIcon: {
+    padding: 8,
   },
 });
 

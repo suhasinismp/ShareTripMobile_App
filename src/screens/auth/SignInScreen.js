@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import AppLogo from '../../../assets/svgs/shareTripLogo.svg';
-import { inputFieldNames } from '../../constants/strings/inputFieldNames';
+import { fieldNames } from '../../constants/strings/fieldNames';
 import { i18n } from '../../constants/lang';
 import CustomTextInput from '../../components/ui/CustomTextInput';
 import CustomButton from '../../components/ui/CustomButton';
@@ -21,11 +21,11 @@ import { useNavigation } from '@react-navigation/native';
 
 const inputFields = [
   {
-    name: inputFieldNames.EMAIL_OR_PHONE,
+    name: fieldNames.EMAIL_OR_PHONE,
     placeholder: i18n.t('SIGN_IN_EMAIL_OR_PHONE'),
   },
   {
-    name: inputFieldNames.PASSWORD,
+    name: fieldNames.PASSWORD,
     placeholder: i18n.t('SIGN_IN_PASSWORD'),
     secureTextEntry: true,
   },
