@@ -6,7 +6,7 @@ export const fieldNames = {
   EMERGENCY_NUMBER_TWO: 'emergencyNumberTwo',
   PASSWORD: 'password',
   CONFIRM_PASSWORD: 'confirmPassword',
-  EMAIL_OR_PHONE: 'emailOrPhone',
+  PHONE: 'Phone',
   VEHICLE_NAME: 'vehicleName',
   VEHICLE_TYPE: 'vehicleType',
   VEHICLE_MODEL: 'vehicleModel',

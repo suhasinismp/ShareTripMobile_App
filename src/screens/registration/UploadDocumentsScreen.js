@@ -48,7 +48,7 @@ const UploadDocumentsScreen = () => {
   };
 
   const handleDriverDocsSubmit = () => {
-    navigation.navigate('SubscriptionPlans');
+    // navigation.navigate('SubscriptionPlans');
   };
 
   const renderUploadSection = (

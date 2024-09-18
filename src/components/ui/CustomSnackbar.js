@@ -1,9 +1,12 @@
 import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { hideSnackbar } from '../store/slices/snackBarSlice';
-import { appTheme } from '../styles/theme';
-import { snackBarConfigSelector } from '../store/selectors';
+
+
+
+import { hideSnackbar } from '../../store/slices/snackBarSlice';
+import { snackBarConfigSelector } from '../../store/selectors';
+import { colors } from '../../styles/globalStyles';
 
 const CustomSnackbar = () => {
   const dispatch = useDispatch();
@@ -47,7 +50,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     marginHorizontal: 15,
-    backgroundColor: appTheme.colors.primaryColor,
+    backgroundColor: 'red',
   },
   topContainer: {
     top: 15,
@@ -57,12 +60,12 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
-    color: appTheme.colors.heading,
+    color: 'white',
   },
   actionText: {
     marginLeft: 8,
     fontSize: 14,
-    color: appTheme.colors.heading,
+    color: 'white',
   },
 });
 

@@ -6,8 +6,9 @@ export const businessDetailsScheme = yup.object({
     .string()
     .min(3, 'Business name must be at least 3 characters'),
 
-  [fieldNames.BUSINESS_DETAILS_ADDRESS]: yup.string(),
-  [fieldNames.BUSINESS_DETAILS_AREA]: yup.string(),
-  [fieldNames.BUSINESS_DETAILS_CITY]: yup.string(),
-  [fieldNames.BUSINESS_DETAILS_STATE]: yup.string(),
+  [fieldNames.BUSINESS_DETAILS_ADDRESS]: yup.string().min(3, 'Address must be at least 3 characters'),
+
+  [fieldNames.BUSINESS_DETAILS_AREA]: yup.string(). min(3, 'Area must be at least 3 characters'),
+  [fieldNames.BUSINESS_DETAILS_CITY]: yup.string(). min(3, 'City must be at least 3 characters'),
+  [fieldNames.BUSINESS_DETAILS_STATE]: yup.string(). min(3,'State must be at least 3 characters'),
 });

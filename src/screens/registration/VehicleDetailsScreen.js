@@ -1,3 +1,7 @@
+
+
+
+
 import React, { useEffect, useState } from 'react';
 import {
   Keyboard,
@@ -18,13 +22,16 @@ import {
   fetchVehicleNames,
   fetchVehicleTypes,
 } from '../../services/vehicleDetailsService';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { VehicleDetailSchema } from '../../constants/schema/VehicleDetailSchema';
+import { getIdByName } from '../../utils/getIdByNameUtil';
 
 const inputFields = [
   {
-    id: 1,
-    name: fieldNames.VEHICLE_NAME,
-    placeholder: i18n.t('VEHICLE_NAME'),
-    fieldType: 'dropDown',
+    id: 3,
+    name: fieldNames.VEHICLE_REGISTRATION_NUMBER,
+    placeholder: i18n.t('VEHICLE_REGISTRATION_NUMBER'),
+    fieldType: 'input',
   },
   {
     id: 2,
@@ -33,10 +40,17 @@ const inputFields = [
     fieldType: 'dropDown',
   },
   {
-    id: 3,
-    name: fieldNames.VEHICLE_REGISTRATION_NUMBER,
-    placeholder: i18n.t('VEHICLE_REGISTRATION_NUMBER'),
+    id: 1,
+    name: fieldNames.VEHICLE_NAME,
+    placeholder: i18n.t('VEHICLE_NAME'),
+    fieldType: 'dropDown',
+  },
+  {
+    id: 5,
+    name: fieldNames.VEHICLE_MODEL,
+    placeholder: i18n.t('VEHICLE_MODEL'),
     fieldType: 'input',
+    keyboardType: 'numeric',
   },
   {
     id: 4,
@@ -62,8 +76,13 @@ const VehicleDetailsScreen = () => {
   const { theme } = useTheme();
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [vehicleNames, setVehicleNames] = useState([]);
+  const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
+  const [selectedVehicleType, setSelectedVehicleType] = useState(null);
+
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
-  const { control, handleSubmit, setValue, watch } = useForm();
+  const { control, handleSubmit, setValue, watch } = useForm({
+    resolver: yupResolver(VehicleDetailSchema),
+  });
   const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
@@ -96,7 +115,6 @@ const VehicleDetailsScreen = () => {
   const handleDropdownToggle = (id) => {
     setOpenDropdown(openDropdown === id ? null : id);
   };
-
   const handleDropdownSelect = (id, item) => {
     const field = inputFields.find((field) => field.id === id);
     if (field) {
@@ -104,9 +122,29 @@ const VehicleDetailsScreen = () => {
       switch (field.name) {
         case fieldNames.VEHICLE_TYPE:
           value = item.v_type;
+          setSelectedVehicleType(item.v_type);
+          filterVehicleNames(item.v_type);
           break;
         case fieldNames.VEHICLE_NAME:
           value = item.v_name;
+  
+          // Prefill seating capacity based on the selected vehicle name
+          const selectedVehicle = vehicleNames.data.find(
+            (vehicle) => vehicle.v_name === item.v_name
+          );
+          if (selectedVehicle) {
+            const matchingCapacity = seatingCapacityData.find(
+              (cap) => cap.seating_capacity === selectedVehicle.seating_capacity
+            );
+            if (matchingCapacity) {
+              setSeatingCapacityData([matchingCapacity]); // Prefill dropdown with matching capacity
+              setValue(
+                fieldNames.VEHICLE_SEATING_CAPACITY,
+                matchingCapacity.seating_capacity,
+                { shouldValidate: true }
+              );
+            }
+          }
           break;
         case fieldNames.VEHICLE_SEATING_CAPACITY:
           value = item.seating_capacity;
@@ -114,38 +152,74 @@ const VehicleDetailsScreen = () => {
         default:
           value = item.value;
       }
-
+  
       setValue(field.name, value, { shouldValidate: true });
     }
+  };
+  
+  // const handleDropdownSelect = (id, item) => {
+  //   const field = inputFields.find((field) => field.id === id);
+  //   if (field) {
+  //     let value;
+  //     switch (field.name) {
+  //       case fieldNames.VEHICLE_TYPE:
+  //         value = item.v_type;
+  //         setSelectedVehicleType(item.v_type); // Set selected vehicle type
+  //         filterVehicleNames(item.v_type); // Filter vehicle names based on selected type
+  //         break;
+  //       case fieldNames.VEHICLE_NAME:
+  //         value = item.v_name;
+  //         break;
+  //       case fieldNames.VEHICLE_SEATING_CAPACITY:
+  //         value = item.seating_capacity;
+  //         break;
+  //       default:
+  //         value = item.value;
+  //     }
 
-    if (id === 1) {
-      // VEHICLE_NAME
-      const selectedVehicle = vehicleNames.data.find(
-        (vehicle) => vehicle.v_name === item.v_name,
-      );
-      if (selectedVehicle) {
-        setValue(fieldNames.VEHICLE_TYPE, selectedVehicle.vehicleType.v_type, {
-          shouldValidate: true,
-        });
-        const matchingCapacity = seatingCapacityData.find(
-          (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
-        );
-        if (matchingCapacity) {
-          setSeatingCapacityData([matchingCapacity]);
-          setValue(
-            fieldNames.VEHICLE_SEATING_CAPACITY,
-            matchingCapacity.seating_capacity,
-            { shouldValidate: true },
-          );
-        }
-      }
-    }
+  //     setValue(field.name, value, { shouldValidate: true });
+  //   }
+
+  //   if (id === 1) {
+  //     // VEHICLE_NAME
+  //     const selectedVehicle = vehicleNames.data.find(
+  //       (vehicle) => vehicle.v_name === item.v_name,
+  //     );
+  //     if (selectedVehicle) {
+  //       setValue(fieldNames.VEHICLE_TYPE, selectedVehicle.vehicleType.v_type, {
+  //         shouldValidate: true,
+  //       });
+  //       const matchingCapacity = seatingCapacityData.find(
+  //         (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
+  //       );
+  //       if (matchingCapacity) {
+  //         setSeatingCapacityData([matchingCapacity]);
+  //         setValue(
+  //           fieldNames.VEHICLE_SEATING_CAPACITY,
+  //           matchingCapacity.seating_capacity,
+  //           { shouldValidate: true },
+  //         );
+  //       }
+  //     }
+  //   }
+  // };
+   
+  // Function to filter vehicle names based on selected vehicle type
+  const filterVehicleNames = (vehicleType) => {
+    const filteredNames = vehicleNames.data.filter(
+      (vehicle) => vehicle.vehicleType.v_type === vehicleType,
+    );
+    setFilteredVehicleNames(filteredNames);
   };
 
-  const onSubmit = (data) => {
-    // console.log('Form data:', data);
-    
-    navigation.navigate('BusinessDetails');
+  const onSubmit = async (data) => {
+    console.log('Form data:', data);
+    const vehicleNameId = await getIdByName(
+      vehicleNames.data,
+      data.vehicleName,
+    );
+    console.log({ vehicleNameId });
+    // navigation.navigate('BusinessDetails');
   };
 
   const renderField = (item) => {
@@ -163,7 +237,7 @@ const VehicleDetailsScreen = () => {
                   (item.placeholder === i18n.t('VEHICLE_TYPE') &&
                     vehicleTypes.data) ||
                   (item.placeholder === i18n.t('VEHICLE_NAME') &&
-                    vehicleNames.data) ||
+                    filteredVehicleNames) || // Use filtered vehicle names
                   (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
                     seatingCapacityData)
                 }
@@ -191,6 +265,7 @@ const VehicleDetailsScreen = () => {
             name={item.name}
             placeholder={item.placeholder}
             secureTextEntry={item.secureTextEntry}
+            keyboardType={item.keyboardType}
           />
         );
       default:
@@ -251,4 +326,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VehicleDetailsScreen;
+export default VehicleDetailsScreen

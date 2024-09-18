@@ -18,11 +18,16 @@ import { useTheme } from '../../hooks/useTheme';
 import { signInScheme } from '../../constants/schema/loginScheme';
 import CustomText from '../../components/ui/CustomText';
 import { useNavigation } from '@react-navigation/native';
+import { doLogin } from '../../services/signinService';
+import { useDispatch } from 'react-redux';
+import { showSnackbar } from '../../store/slices/snackBarSlice';
+import { setUserDataToStore } from '../../store/slices/loginSlice';
 
 const inputFields = [
   {
-    name: fieldNames.EMAIL_OR_PHONE,
-    placeholder: i18n.t('SIGN_IN_EMAIL_OR_PHONE'),
+    name: fieldNames.PHONE,
+    placeholder: i18n.t('SIGN_IN_PHONE'),
+    keyboardType: 'numeric',
   },
   {
     name: fieldNames.PASSWORD,
@@ -31,17 +36,47 @@ const inputFields = [
   },
 ];
 
+
+
+
 const SignInScreen = () => {
   const navigation = useNavigation();
+  const dispatch= useDispatch()
   const { theme } = useTheme();
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit,
+    formState: { errors }
+
+   } = useForm({
+    
     resolver: yupResolver(signInScheme),
   });
 
-  const onSubmit = (data) => {
-    // console.log('Form data:', data);
+  const onSignin = async(data) => {
+   const finalData ={
+    
+      "u_mob_num":data.Phone,
+      "u_pswd":data.password
+    }
+    const response =await doLogin(finalData)
+  
+     if(response?.token){
+      await dispatch(setUserDataToStore({
+        userId:response.id,
+        userName:response.u_name,
+        userEmail:response.u_email_id,
+        userRole:response.role_id,
+        userMobile:response.u_mob_num,
+        userToken:response.token,
+      }))
+      navigation.navigate('Register',{screen:'VehicleDetails'})
+     }
+     else{ 
+      dispatch(showSnackbar({visible:true,message:'Invalid login credentials', type:'Error'}))
+      
+     }
   };
 
+  // console.log('Form errors:', errors);
   return (
     <KeyboardAwareScrollView
       style={styles.container}
@@ -65,12 +100,13 @@ const SignInScreen = () => {
               name={item.name}
               placeholder={item.placeholder}
               secureTextEntry={item.secureTextEntry}
+              keyboardType={item.keyboardType}
             />
           ))}
           <View style={styles.buttonContainer}>
             <CustomButton
               title={i18n.t('SIGN_IN_BUTTON')}
-              onPress={handleSubmit(onSubmit)}
+              onPress={handleSubmit(onSignin)}
             />
           </View>
           <View style={styles.captionContainer}>

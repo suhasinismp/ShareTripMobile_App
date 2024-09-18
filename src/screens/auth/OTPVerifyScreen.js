@@ -5,6 +5,7 @@ import CustomText from '../../components/ui/CustomText';
 import CustomButton from '../../components/ui/CustomButton';
 import { i18n } from '../../constants/lang';
 import { useNavigation } from '@react-navigation/native';
+import { verifyOTP } from '../../services/registrationService';
 
 const OTPVerifyScreen = ({ route }) => {
   const { phoneNumber, userId } = route.params;
@@ -64,19 +65,28 @@ const OTPVerifyScreen = ({ route }) => {
     }
   };
 
-  const verifyOTP = () => {
-    const last4Digits = phoneNumber.slice(-4);
-    if (otp === last4Digits) {
+  const validateOTP =async () => {
+    // const last4Digits = phoneNumber.slice(-4);
+    // if (otp === last4Digits) {
       navigation.navigate('Register', {
-        screen: 'VehicleDetails',
+        screen: 'SubscriptionPlans',
       });
-    } else {
-      Alert.alert(
-        'Invalid OTP',
-        'The entered OTP is incorrect. Please try again.',
-        [{ text: 'OK' }],
-      );
-    }
+    // } else {
+    //   Alert.alert(
+    //     'Invalid OTP',
+    //     'The entered OTP is incorrect. Please try again.',
+    //     [{ text: 'OK' }],
+    //   );
+    // }
+
+    // const  finalData={
+    //   u_mob_num:phoneNumber,
+    // otp_numb:otp
+    // }
+    // const response = await verifyOTP(finalData)
+   
+   
+    
   };
 
   return (
@@ -95,7 +105,7 @@ const OTPVerifyScreen = ({ route }) => {
           onPress={handleResend}
         />
       </View>
-      <CustomButton title={i18n.t('OTP_VERIFY_BUTTON')} onPress={verifyOTP} />
+      <CustomButton title={i18n.t('OTP_VERIFY_BUTTON')} onPress={validateOTP} />
       <View style={styles.captionContainer}>
         <CustomText
           text={i18n.t('OTP_VERIFY_ENTERED_WRONG_NUMBER')}

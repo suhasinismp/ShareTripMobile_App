@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, View} from 'react-native';
 import CustomText from './CustomText';
 import { useTheme } from '../../hooks/useTheme';
 
@@ -12,6 +12,7 @@ const CustomSelect = ({
   unselectedStyle,
   textStyle,
   selectedTextStyle,
+  icon,
 }) => {
   const { theme } = useTheme();
 
@@ -30,14 +31,20 @@ const CustomSelect = ({
       ]}
       onPress={onPress}
     >
+      <View style={{flex:1, flexDirection:'row', alignItems:'center'}}>
+        {icon? icon:null}
+       
       <CustomText
         text={text}
         variant={'captionTextActive'}
         style={[
+          { flex:1,textAlign:'center'},
           textStyle,
           isSelected && { color: theme.white, ...selectedTextStyle },
         ]}
       />
+     
+      </View>
     </TouchableOpacity>
   );
 };
@@ -47,9 +54,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
+    minHeight: 80,
+
+    
+   
     elevation: 2,
   },
 });

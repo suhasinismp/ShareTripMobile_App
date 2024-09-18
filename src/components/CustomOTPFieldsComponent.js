@@ -5,7 +5,7 @@ import { useTheme } from '../hooks/useTheme';
 const CustomOTPFields = ({ onChangeOTP }) => {
   const { theme } = useTheme();
 
-  const noOfFields = 4;
+  const noOfFields = 6;
   const [otp, setOtp] = useState(Array(noOfFields).fill(''));
   const inputs = useRef([]);
 

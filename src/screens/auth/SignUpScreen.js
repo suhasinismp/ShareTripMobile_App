@@ -16,7 +16,8 @@ import CustomButton from '../../components/ui/CustomButton';
 import { useTheme } from '../../hooks/useTheme';
 import CustomText from '../../components/ui/CustomText';
 import { useNavigation } from '@react-navigation/native';
-import { registerUser } from '../../services/RegistrationService';
+import { registerUser } from '../../services/registrationService';
+
 
 const inputFields = [
   {
@@ -58,8 +59,10 @@ const inputFields = [
   },
 ];
 
-const SignUpScreen = () => {
+const SignUpScreen = ({route}) => {
   const navigation = useNavigation();
+  const userType =route.params.userType
+ 
   const { theme } = useTheme();
   const {
     control,
@@ -70,16 +73,24 @@ const SignUpScreen = () => {
   });
 
   const submit = async (data) => {
-    console.log(data);
+   
+  
     let finalData = {
       u_name: data[fieldNames.FULL_NAME],
       u_mob_num: data[fieldNames.PHONE_NUMBER].toString(),
-      u_email_id: data[fieldNames.EMAIL],
-      u_emergency_num1: data[fieldNames.EMERGENCY_NUMBER_ONE].toString(),
-      u_emergency_num2: data[fieldNames.EMERGENCY_NUMBER_TWO].toString(),
+      u_email_id: data[fieldNames.EMAIL].toString(),
+      // u_emergency_num1: data[fieldNames.EMERGENCY_NUMBER_ONE].toString(),
+      u_emergency_num1: data[fieldNames.EMERGENCY_NUMBER_ONE] 
+      ? data[fieldNames.EMERGENCY_NUMBER_ONE].toString() 
+      : null,
+      u_emergency_num2: data[fieldNames.EMERGENCY_NUMBER_TWO]?data[fieldNames.EMERGENCY_NUMBER_TWO].toString():null,
       u_pswd: data[fieldNames.PASSWORD],
+      role_id:userType== 'Driver'?3000:4000
     };
+    
+    
     const response = await registerUser(finalData);
+   
     if (response?.message == 'Registered Successfully') {
       navigation.navigate('OTPVerify', {
         userId: response.data[0].id,
@@ -88,7 +99,7 @@ const SignUpScreen = () => {
     }
   };
 
-  console.log('Form errors:', errors);
+  // console.log('Form errors:', errors);
 
   return (
     <KeyboardAwareScrollView

@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
   View,
@@ -12,6 +13,7 @@ import {
 const { width, height } = Dimensions.get('window');
 
 const SubscriptionPlansScreen = () => {
+  const navigation =useNavigation()
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
@@ -62,7 +64,7 @@ const SubscriptionPlansScreen = () => {
       setSuccessModalVisible(true);
     } else {
       // You might want to show an alert or some feedback if no plan is selected
-      console.log('Please select a plan first');
+      
     }
   };
 
@@ -150,7 +152,12 @@ const SubscriptionPlansScreen = () => {
             </Text>
             <TouchableOpacity
               style={styles.okButton}
-              onPress={() => setSuccessModalVisible(false)}
+              onPress={() => 
+               {
+                setSuccessModalVisible(false)
+                navigation.navigate('SignIn')
+               }
+              }
             >
               <Text style={styles.okButtonText}>OK</Text>
             </TouchableOpacity>

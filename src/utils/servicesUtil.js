@@ -8,7 +8,7 @@ export const getAPI = async (endURL, token) => {
   if (token) {
     prepareHeader['Authorization'] = `Bearer ${token}`;
   } else {
-    console.log('Token is missing');
+   
   }
 
   var apiConfig = {
@@ -52,6 +52,10 @@ export const postAPI = async (endUrl, body, token) => {
     return null;
   }
 };
+
+
+
+
 
 export const patchAPI = async (endUrl, body, token) => {
   let prepareHeader = {
@@ -101,6 +105,33 @@ export const deleteAPI = async ({ endURL, token }) => {
     return response.data;
   } catch (error) {
     console.log('Error occurred while fetching data');
+    return null;
+  }
+};
+
+
+export const postFormDataAPI = async (endUrl, formData, token) => {
+  
+  const headers = {
+   'Content-Type': 'multipart/form-data',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const apiConfig = {
+    method: 'post',
+    url: endUrl,
+    headers: headers, // Do not set Content-Type, Axios will set it automatically
+    data: formData, // FormData is sent directly
+  };
+
+  try {
+    const response = await api(apiConfig);
+    return response?.data || {};
+  } catch (error) {
+    console.error('Error occurred while posting FormData', error);
     return null;
   }
 };

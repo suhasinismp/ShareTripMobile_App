@@ -11,6 +11,7 @@ export const signupScheme = yup.object({
     .string()
     .required('Phone number is required')
     .matches(/^\d{10}$/, 'Phone number must be exactly 10 digits'),
+    
   [fieldNames.EMAIL]: yup.string().email('Email is not valid'),
   [fieldNames.EMERGENCY_NUMBER_ONE]: yup
     .string()

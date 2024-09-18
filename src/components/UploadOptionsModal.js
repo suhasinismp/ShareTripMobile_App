@@ -24,11 +24,11 @@ const UploadOptionsModal = ({ visible, onClose, onSelectFile }) => {
   const compressImage = async (uri, quality = 0.9, width = 1080) => {
     try {
       const originalSize = await getFileSize(uri);
-      console.log(`Original file size: ${originalSize} bytes`);
+     
 
       // Skip compression for files smaller than 1.5 MB
       if (originalSize <= 0.7 * 1024 * 1024) {
-        console.log('File is smaller than 0.7 MB, skipping compression');
+     
         return uri;
       }
 
@@ -39,10 +39,8 @@ const UploadOptionsModal = ({ visible, onClose, onSelectFile }) => {
       );
 
       const compressedSize = await getFileSize(manipulatedImage.uri);
-      console.log(`Compressed file size: ${compressedSize} bytes`);
-      console.log(
-        `Compression ratio: ${((compressedSize / originalSize) * 100).toFixed(2)}%`,
-      );
+     
+     
 
       return compressedSize < originalSize ? manipulatedImage.uri : uri;
     } catch (error) {

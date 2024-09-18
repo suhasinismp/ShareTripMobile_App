@@ -5,10 +5,18 @@ import { i18n } from '../../constants/lang/index';
 import CustomSelect from '../../components/ui/CustomSelect';
 import CustomButton from '../../components/ui/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import DriverActiveIcon from '../../../assets/svgs/driverActive.svg';
+import DriverInActiveIcon from '../../../assets/svgs/driverInActive.svg';
+import TravelAgencyActiveIcon from '../../../assets/svgs/travelAgencyActive.svg';
+import TravelAgencyInActiveIcon from '../../../assets/svgs/travelAgencyInActive.svg';
+
+
 
 const UserTypeScreen = () => {
   const navigation = useNavigation();
-  const [userType, setUserType] = useState('');
+  const [userType, setUserType] = useState('Driver');
+  const driverIcon =userType === 'Driver'?<DriverActiveIcon style={{width:24, height:24, }}/>:<DriverInActiveIcon style={{width:24, height:24}}/> 
+  const travelAgencyIcon =userType ==='Travel Agency'?<TravelAgencyActiveIcon style={{width:24, height:24}}/>:<TravelAgencyInActiveIcon style={{width:24, height:24}}/>
   const [error, setError] = useState('');
 
   const handleNext = () => {
@@ -33,6 +41,8 @@ const UserTypeScreen = () => {
             setError('');
           }}
           containerStyle={{ width: '80%' }}
+          icon={driverIcon}
+         
         />
         <CustomSelect
           text={i18n.t('USER_TYPE_TRAVEL_AGENCY')}
@@ -42,6 +52,7 @@ const UserTypeScreen = () => {
             setError('');
           }}
           containerStyle={{ width: '80%' }}
+          icon={travelAgencyIcon}
         />
 
         {/* Error Message */}

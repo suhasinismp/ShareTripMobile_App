@@ -11,6 +11,7 @@ import { useTheme, useThemeProvider } from './src/hooks/useTheme';
 import AuthStackNavigator from './src/routes/AuthStack';
 import RegistrationNavigator from './src/routes/RegistrationStack';
 import AppStack from './src/routes/AppStack';
+import CustomSnackbar from './src/components/ui/CustomSnackbar';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -60,6 +61,7 @@ export default function App() {
         <NavigationContainer>
           <AppStack />
           {/* <ThemeSwitcher /> */}
+          <CustomSnackbar/>
           <StatusBar style="auto" />
         </NavigationContainer>
       </ThemeContext.Provider>
