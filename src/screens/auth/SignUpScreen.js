@@ -16,8 +16,7 @@ import CustomButton from '../../components/ui/CustomButton';
 import { useTheme } from '../../hooks/useTheme';
 import CustomText from '../../components/ui/CustomText';
 import { useNavigation } from '@react-navigation/native';
-import { registerUser } from '../../services/registrationService';
-
+import { registerUser } from '../../services/RegistrationService';
 
 const inputFields = [
   {
@@ -77,7 +76,7 @@ const SignUpScreen = ({ route }) => {
       u_name: data[fieldNames.FULL_NAME],
       u_mob_num: data[fieldNames.PHONE_NUMBER].toString(),
       u_email_id: data[fieldNames.EMAIL].toString(),
-      // u_emergency_num1: data[fieldNames.EMERGENCY_NUMBER_ONE].toString(),
+
       u_emergency_num1: data[fieldNames.EMERGENCY_NUMBER_ONE]
         ? data[fieldNames.EMERGENCY_NUMBER_ONE].toString()
         : null,
@@ -97,8 +96,6 @@ const SignUpScreen = ({ route }) => {
       });
     }
   };
-
-  // console.log('Form errors:', errors);
 
   return (
     <KeyboardAwareScrollView
