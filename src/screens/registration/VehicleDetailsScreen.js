@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Keyboard,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -69,19 +70,32 @@ const removeDuplicatesBySeatingCapacity = (data) => {
 const VehicleDetailsScreen = () => {
   const navigation = useNavigation();
   const { theme } = useTheme();
-  const [vehicleTypes, setVehicleTypes] = useState([]);
-  const [vehicleNames, setVehicleNames] = useState([]);
+  const [vehicleTypes, setVehicleTypes] = useState(null);
+  const [vehicleNames, setVehicleNames] = useState(null);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
-  const [seatingCapacityData, setSeatingCapacityData] = useState([]);
-  const { control, handleSubmit, setValue, watch, getValues } = useForm({
+  const [seatingCapacityData, setSeatingCapacityData] = useState(null);
+  const[isLoading, setIsLoading]= useState(false);
+  console.log({isLoading})
+  const { control, handleSubmit, setValue, watch, getValues,formState } = useForm({
     resolver: yupResolver(VehicleDetailSchema),
+    defaultValues:{
+      [fieldNames.VEHICLE_REGISTRATION_NUMBER]:'',
+      [fieldNames.VEHICLE_TYPE]:'',
+      [fieldNames.VEHICLE_NAME]:'',
+      [fieldNames.VEHICLE_MODEL]:'',
+      [fieldNames.VEHICLE_SEATING_CAPACITY]:'',
+
+    }
   });
+  
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const watchVehicleType = watch(fieldNames.VEHICLE_TYPE);
   const watchVehicleName = watch(fieldNames.VEHICLE_NAME);
-
+ 
+  
   useEffect(() => {
+    console.log('in useEffect')
     getVehicleDetails();
   }, []);
 
@@ -110,13 +124,16 @@ const VehicleDetailsScreen = () => {
     }
   }, [watchVehicleType, vehicleNames.data, setValue]);
 
-  useEffect(() => {
-    if (watchVehicleName) {
-      updateSeatingCapacity(watchVehicleName);
-    }
-  }, [watchVehicleName]);
+  // useEffect(() => {
+  //   if (watchVehicleName) {
+  //     console.log({watchVehicleName})
+  //     updateSeatingCapacity(watchVehicleName);
+  //   }
+  // }, [watchVehicleName]);
 
   const getVehicleDetails = async () => {
+    console.log('hi')
+    setIsLoading(true)
     try {
       const vehicleTypeResponse = await fetchVehicleTypes();
       const vehicleNameResponse = await fetchVehicleNames();
@@ -137,6 +154,7 @@ const VehicleDetailsScreen = () => {
     } catch (error) {
       console.error('Error fetching vehicle details:', error);
     }
+    setIsLoading(false)
   };
 
   const handleDropdownToggle = (id) => {
@@ -166,7 +184,7 @@ const VehicleDetailsScreen = () => {
   };
 
   const updateSeatingCapacity = (vehicleName) => {
-    const selectedVehicle = vehicleNames.data.find(
+    const selectedVehicle = vehicleNames?.data?.find(
       (vehicle) => vehicle.v_name === vehicleName,
     );
     if (selectedVehicle) {
@@ -185,11 +203,11 @@ const VehicleDetailsScreen = () => {
   };
   const onSubmit = async (data) => {
     console.log('Form data:', data);
-    const vehicleNameId = await getIdByName(
+    const {nameId, typeId} = await getIdByName(
       vehicleNames.data,
       data.vehicleName,
     );
-    console.log({ vehicleNameId });
+    console.log({ nameId, typeId });
     // navigation.navigate('BusinessDetails');
   };
 
@@ -246,7 +264,9 @@ const VehicleDetailsScreen = () => {
         return null;
     }
   };
-  return (
+  return isLoading?(
+    <ActivityIndicator size='large' style={{flex:1, justifyContent:'center', alignItems:'center'}}/>
+  ):(
     <KeyboardAwareScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}

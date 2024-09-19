@@ -18,6 +18,7 @@ import CustomText from '../../components/ui/CustomText';
 import { useNavigation } from '@react-navigation/native';
 import { registerUser } from '../../services/registrationService';
 
+
 const inputFields = [
   {
     name: fieldNames.FULL_NAME,
