@@ -10,7 +10,12 @@ export const updateUserProfile = async (data) => {
   return response;
 };
 
+export const sendOTP = async (data) => {
+  const response = await postAPI('share-trip/auth/users/send-sms', data);
+  return response;
+};
 export const verifyOTP = async (data) => {
   const response = await postAPI('share-trip/auth/users/verify-otp', data);
+
   return response;
 };

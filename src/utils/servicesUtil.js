@@ -8,7 +8,6 @@ export const getAPI = async (endURL, token) => {
   if (token) {
     prepareHeader['Authorization'] = `Bearer ${token}`;
   } else {
-   
   }
 
   var apiConfig = {
@@ -52,10 +51,6 @@ export const postAPI = async (endUrl, body, token) => {
     return null;
   }
 };
-
-
-
-
 
 export const patchAPI = async (endUrl, body, token) => {
   let prepareHeader = {
@@ -109,11 +104,9 @@ export const deleteAPI = async ({ endURL, token }) => {
   }
 };
 
-
 export const postFormDataAPI = async (endUrl, formData, token) => {
-  
   const headers = {
-   'Content-Type': 'multipart/form-data',
+    'Content-Type': 'multipart/form-data',
   };
 
   if (token) {
