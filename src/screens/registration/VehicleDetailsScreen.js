@@ -15,12 +15,16 @@ import CustomTextInput from '../../components/ui/CustomTextInput';
 import CustomButton from '../../components/ui/CustomButton';
 import CustomDropdown from '../../components/ui/CustomDropdown';
 import {
+  createVehicleDetail,
   fetchVehicleNames,
   fetchVehicleTypes,
 } from '../../services/vehicleDetailsService';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { VehicleDetailSchema } from '../../constants/schema/VehicleDetailSchema';
 import { getIdByName } from '../../utils/getIdByNameUtil';
+import { useDispatch, useSelector } from 'react-redux';
+import { getUserDataSelector } from '../../store/selectors';
+import { showSnackbar } from '../../store/slices/snackBarSlice';
 
 const inputFields = [
   {
@@ -68,7 +72,11 @@ const removeDuplicatesBySeatingCapacity = (data) => {
 };
 const VehicleDetailsScreen = () => {
   const navigation = useNavigation();
-  const { theme } = useTheme();
+  const dispatch = useDispatch()
+  const userData = useSelector(getUserDataSelector)
+ const userId =userData.userId
+ const userToken = userData.userToken
+  const { theme } = useTheme()
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [vehicleNames, setVehicleNames] = useState([]);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
@@ -182,15 +190,36 @@ const VehicleDetailsScreen = () => {
         );
       }
     }
+    setFilteredVehicleNames(filteredNames);
   };
   const onSubmit = async (data) => {
-    console.log('Form data:', data);
-    const { nameId, typeId } = await getIdByName(
+
+    const {nameId, typeId} = await getIdByName(
       vehicleNames.data,
       data.vehicleName,
     );
-    console.log({ nameId, typeId });
-    // navigation.navigate('BusinessDetails');
+   
+    const finalData ={
+      "vehicle_names_id":nameId,
+     
+      "vehicle_types_id":typeId,
+      "v_registration_number":data.vehicleRegistrationNumber,
+      "v_model":data.vehicleModel,
+      "v_seating_cpcty":data.vehicleSeatingCapacity,
+      "user_id": userId,
+    "driver_id": userId,
+  }
+
+  const response =await createVehicleDetail(finalData,userToken )
+  
+   if (response?.newVehicle.created_at){
+    navigation.navigate('BusinessDetails');
+   }
+   else{
+    dispatch(showSnackbar({visible:true,message:'something went wrong', type:'Error'}))
+   }
+   
+    
   };
 
   const renderField = (item) => {

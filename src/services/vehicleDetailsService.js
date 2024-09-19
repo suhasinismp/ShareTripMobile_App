@@ -1,5 +1,5 @@
 import config from '../constants/config';
-import { getAPI } from '../utils/servicesUtil';
+import { getAPI, postAPI } from '../utils/servicesUtil';
 
 export const fetchVehicleTypes = async () => {
   const response = await getAPI(
@@ -16,3 +16,8 @@ export const fetchVehicleNames = async () => {
   );
   return response;
 };
+
+export const createVehicleDetail = async(data, token)=>{
+  const response = await postAPI('share-trip/vehicles/', data, token);
+  return response;
+}
