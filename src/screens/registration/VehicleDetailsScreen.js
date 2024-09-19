@@ -173,25 +173,6 @@ const VehicleDetailsScreen = () => {
     }
   };
 
-  // const updateSeatingCapacity = (vehicleName) => {
-  //   const selectedVehicle = vehicleNames.data.find(
-  //     (vehicle) => vehicle.v_name === vehicleName,
-  //   );
-  //   if (selectedVehicle) {
-  //     const matchingCapacity = seatingCapacityData.find(
-  //       (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
-  //     );
-  //     if (matchingCapacity) {
-  //       setSeatingCapacityData([matchingCapacity]);
-  //       setValue(
-  //         fieldNames.VEHICLE_SEATING_CAPACITY,
-  //         matchingCapacity.seating_capacity,
-  //         { shouldValidate: true },
-  //       );
-  //     }
-  //   }
-  //   setFilteredVehicleNames(filteredNames);
-  // };
   const updateSeatingCapacity = (vehicleName) => {
     const selectedVehicle = vehicleNames.data.find(
       (vehicle) => vehicle.v_name === vehicleName,
@@ -217,29 +198,39 @@ const VehicleDetailsScreen = () => {
       data.vehicleName,
     );
 
-    const finalData = {
-      vehicle_names_id: nameId,
-      vehicle_types_id: typeId,
-      v_registration_number: data.vehicleRegistrationNumber,
-      v_model: data.vehicleModel,
-      v_seating_cpcty: data.vehicleSeatingCapacity,
-      user_id: userId,
-      driver_id: userId,
-    };
-
-    const response = await createVehicleDetail(finalData, userToken);
-
-    if (response?.newVehicle.created_at) {
+    if (
+      !data.vehicleName &&
+      !data.vehicleRegistrationNumber &&
+      !data.vehicleModel &&
+      !data.vehicleSeatingCapacity
+    ) {
       navigation.navigate('BusinessDetails');
       reset();
     } else {
-      dispatch(
-        showSnackbar({
-          visible: true,
-          message: 'something went wrong',
-          type: 'Error',
-        }),
-      );
+      const finalData = {
+        vehicle_names_id: nameId,
+        vehicle_types_id: typeId,
+        v_registration_number: data.vehicleRegistrationNumber,
+        v_model: data.vehicleModel,
+        v_seating_cpcty: data.vehicleSeatingCapacity,
+        user_id: userId,
+        driver_id: userId,
+      };
+
+      const response = await createVehicleDetail(finalData, userToken);
+
+      if (response?.newVehicle.created_at) {
+        navigation.navigate('BusinessDetails');
+        reset();
+      } else {
+        dispatch(
+          showSnackbar({
+            visible: true,
+            message: 'something went wrong',
+            type: 'Error',
+          }),
+        );
+      }
     }
   };
 
@@ -314,7 +305,7 @@ const VehicleDetailsScreen = () => {
           <View style={styles.buttonContainer}>
             <CustomButton
               title={i18n.t('SKIP')}
-              onPress={() => {}}
+              onPress={onSubmit}
               variant="text"
             />
             <CustomButton

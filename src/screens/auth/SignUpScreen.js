@@ -1,23 +1,22 @@
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 import {
+  Keyboard,
   StyleSheet,
   TouchableWithoutFeedback,
-  Keyboard,
   View,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import CustomButton from '../../components/ui/CustomButton';
+import CustomText from '../../components/ui/CustomText';
 import CustomTextInput from '../../components/ui/CustomTextInput';
+import { i18n } from '../../constants/lang/index';
 import { signupScheme } from '../../constants/schema/signupScheme';
 import { fieldNames } from '../../constants/strings/fieldNames';
-import { i18n } from '../../constants/lang/index';
-import CustomButton from '../../components/ui/CustomButton';
 import { useTheme } from '../../hooks/useTheme';
-import CustomText from '../../components/ui/CustomText';
-import { useNavigation } from '@react-navigation/native';
-import { registerUser } from '../../services/registrationService';
-
+import { registerUser, sendOTP } from '../../services/registrationService';
 
 const inputFields = [
   {
@@ -62,6 +61,7 @@ const inputFields = [
 const SignUpScreen = ({ route }) => {
   const navigation = useNavigation();
   const userType = route.params.userType;
+  const userRoleId = route.params.userRoleId;
 
   const { theme } = useTheme();
   const {
@@ -77,7 +77,7 @@ const SignUpScreen = ({ route }) => {
       u_name: data[fieldNames.FULL_NAME],
       u_mob_num: data[fieldNames.PHONE_NUMBER].toString(),
       u_email_id: data[fieldNames.EMAIL].toString(),
-      // u_emergency_num1: data[fieldNames.EMERGENCY_NUMBER_ONE].toString(),
+
       u_emergency_num1: data[fieldNames.EMERGENCY_NUMBER_ONE]
         ? data[fieldNames.EMERGENCY_NUMBER_ONE].toString()
         : null,
@@ -91,14 +91,17 @@ const SignUpScreen = ({ route }) => {
     const response = await registerUser(finalData);
 
     if (response?.message == 'Registered Successfully') {
+      const finalData = {
+        phoneNumber: data[fieldNames.PHONE_NUMBER].toString(),
+      };
+      const otpResponse = await sendOTP(finalData);
       navigation.navigate('OTPVerify', {
         userId: response.data[0].id,
         phoneNumber: response.data[0].u_mob_num,
+        userRoleId: response.data[0].role_id,
       });
     }
   };
-
-  // console.log('Form errors:', errors);
 
   return (
     <KeyboardAwareScrollView
