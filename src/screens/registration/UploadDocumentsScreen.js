@@ -128,7 +128,6 @@ const UploadDocumentsScreen = () => {
           'licenseFileName',
           driverLicenseFiles,
           setDriverLicenseFiles,
-          ['Front', 'Back'],
         )}
         {renderUploadSection(
           'Aadhaar Card',
@@ -157,7 +156,9 @@ const UploadDocumentsScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.backgroundColor }]}
+    >
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
@@ -198,7 +199,11 @@ const UploadDocumentsScreen = () => {
         <View style={styles.buttonContainer}>
           <CustomButton
             title={i18n.t('SKIP')}
-            onPress={() => {}}
+            onPress={
+              documentsType === 'vehicle'
+                ? handleVehicleDocsSubmit
+                : handleDriverDocsSubmit
+            }
             variant="text"
           />
           <CustomButton
@@ -218,7 +223,6 @@ const UploadDocumentsScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'white',
   },
   scrollView: {
     flex: 1,

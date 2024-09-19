@@ -46,10 +46,10 @@ const SignInScreen = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(signInScheme),
-    defaultValues: {
-      [fieldNames.PHONE]: '9878987694',
-      [fieldNames.PASSWORD]: 'ravi@123',
-    },
+    // defaultValues: {
+    //   [fieldNames.PHONE]: '9878987694',
+    //   [fieldNames.PASSWORD]: 'ravi@123',
+    // },
   });
 
   const onSignin = async (data) => {

@@ -18,10 +18,9 @@ import { businessDetailsScheme } from '../../constants/schema/businessDetailsSch
 import ImagePickerGrid from '../../components/ImagePickerGrid';
 import CustomText from '../../components/ui/CustomText';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
-import {createBusinessDetails} from '../../services/businessDetailService';
+import { createBusinessDetails } from '../../services/businessDetailService';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
-
 
 const inputFields = [
   {
@@ -53,37 +52,49 @@ const inputFields = [
 ];
 const BusinessDetailsScreen = () => {
   const navigation = useNavigation();
-  const dispatch= useDispatch()
-  const userData=useSelector(getUserDataSelector)
-  const userId=userData.userId
-  const userToken=userData.userToken
+  const dispatch = useDispatch();
+  const userData = useSelector(getUserDataSelector);
+  const userId = userData.userId;
+  const userToken = userData.userToken;
 
-  
   const { theme } = useTheme();
   const { control, handleSubmit } = useForm({
     resolver: yupResolver(businessDetailsScheme),
   });
 
   const [logo, setLogo] = useState([]);
-  const onSubmit = async(data) => {
-   
-    const  finalData ={
-    "business_name":data.businessName,
-    "business_address": data.businessAddress,
-    "area" :data.businessArea,
-    "city":data.businessCity,
-    "state":data.businessState,
-    "user_id":userId,
+  const onSubmit = async (data) => {
+    if (
+      !data.businessName &&
+      !data.businessAddress &&
+      !data.businessArea &&
+      !data.businessCity &&
+      !data.businessState
+    ) {
+      navigation.navigate('VehicleAndDriverDocuments');
+    } else {
+      const finalData = {
+        business_name: data.businessName,
+        business_address: data.businessAddress,
+        area: data.businessArea,
+        city: data.businessCity,
+        state: data.businessState,
+        user_id: userId,
+      };
 
-  }
-   
-  const response = await createBusinessDetails(finalData,userToken, logo)
- 
-  if(response?.status === 200){
-    navigation.navigate('VehicleAndDriverDocuments');
-  }
-   else{
-      dispatch(showSnackbar({visible:true, message:'Failed to create business details', type:'error'}))
+      const response = await createBusinessDetails(finalData, userToken, logo);
+
+      if (response?.created_at) {
+        navigation.navigate('VehicleAndDriverDocuments');
+      } else {
+        dispatch(
+          showSnackbar({
+            visible: true,
+            message: 'Failed to create business details',
+            type: 'error',
+          }),
+        );
+      }
     }
   };
 
@@ -123,7 +134,7 @@ const BusinessDetailsScreen = () => {
           <View style={styles.buttonContainer}>
             <CustomButton
               title={i18n.t('SKIP')}
-              onPress={() => {}}
+              onPress={onSubmit}
               variant="text"
             />
 

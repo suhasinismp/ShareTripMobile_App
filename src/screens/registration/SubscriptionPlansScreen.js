@@ -1,19 +1,24 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Modal,
-  Dimensions,
   FlatList,
 } from 'react-native';
+import { getSubscriptionPlans } from '../../services/subscriptionPlansService';
+import { useDispatch } from 'react-redux';
+import { showSnackbar } from '../../store/slices/snackBarSlice';
 
-const { width, height } = Dimensions.get('window');
-
-const SubscriptionPlansScreen = () => {
-  const navigation =useNavigation()
+const SubscriptionPlansScreen = ({ route }) => {
+  const userRoleId = route.params.userRoleId;
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const [plansData, setPlansData] = useState([]);
+  const [driverPlans, setDriverPlans] = useState([]);
+  const [travelAgencyPlans, setTravelAgencyPlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
@@ -22,32 +27,30 @@ const SubscriptionPlansScreen = () => {
 
   const cardColors = ['#3498db', '#f39c12', '#2ecc71'];
 
-  const plans = [
-    {
-      id: 18,
-      plan_name: 'Yearly',
-      plan_price: 1000,
-      plan_validity: 365,
-      plan_details:
-        'Unlimited Posts\nUnlimited Trips\nPriority Customer Support',
-    },
-    {
-      id: 17,
-      plan_name: 'Monthly',
-      plan_price: 100,
-      plan_validity: 30,
-      plan_details:
-        'Unlimited Posts\nUnlimited Trips\nPriority Customer Support',
-    },
-    {
-      id: 16,
-      plan_name: 'Free Plan',
-      plan_price: 0,
-      plan_validity: 15,
-      plan_details:
-        'Unlimited Posts\nUnlimited Trips\nPriority Customer Support',
-    },
-  ];
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  useEffect(() => {
+    if (plansData.length > 0) {
+      const activePlans = plansData.filter((plan) => plan.is_active === true);
+      const driverPlans = activePlans.filter((plan) => plan.role_id === 3000);
+      const agencyPlans = activePlans.filter((plan) => plan.role_id === 4000);
+      setDriverPlans(driverPlans);
+      setTravelAgencyPlans(agencyPlans);
+    }
+  }, [plansData]);
+
+  const fetchPlans = async () => {
+    try {
+      const response = await getSubscriptionPlans();
+      if (response?.data) {
+        setPlansData(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching plans:', error);
+    }
+  };
 
   const selectPlan = (plan) => {
     setSelectedPlan(plan.id);
@@ -63,8 +66,13 @@ const SubscriptionPlansScreen = () => {
     if (selectedPlan) {
       setSuccessModalVisible(true);
     } else {
-      // You might want to show an alert or some feedback if no plan is selected
-      
+      dispatch(
+        showSnackbar({
+          visible: true,
+          message: 'Please select a plan',
+          type: 'error',
+        }),
+      );
     }
   };
 
@@ -104,10 +112,12 @@ const SubscriptionPlansScreen = () => {
     );
   };
 
+  const plansToShow = userRoleId === 3000 ? driverPlans : travelAgencyPlans;
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={plans}
+        data={plansToShow}
         renderItem={renderCard}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
@@ -152,12 +162,10 @@ const SubscriptionPlansScreen = () => {
             </Text>
             <TouchableOpacity
               style={styles.okButton}
-              onPress={() => 
-               {
-                setSuccessModalVisible(false)
-                navigation.navigate('SignIn')
-               }
-              }
+              onPress={() => {
+                setSuccessModalVisible(false);
+                navigation.navigate('SignIn');
+              }}
             >
               <Text style={styles.okButtonText}>OK</Text>
             </TouchableOpacity>
