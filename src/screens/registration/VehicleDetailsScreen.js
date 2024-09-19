@@ -72,16 +72,16 @@ const removeDuplicatesBySeatingCapacity = (data) => {
 };
 const VehicleDetailsScreen = () => {
   const navigation = useNavigation();
-  const dispatch = useDispatch()
-  const userData = useSelector(getUserDataSelector)
- const userId =userData.userId
- const userToken = userData.userToken
-  const { theme } = useTheme()
+  const dispatch = useDispatch();
+  const userData = useSelector(getUserDataSelector);
+  const userId = userData.userId;
+  const userToken = userData.userToken;
+  const { theme } = useTheme();
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [vehicleNames, setVehicleNames] = useState([]);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
-  const { control, handleSubmit, setValue, watch, getValues } = useForm({
+  const { control, handleSubmit, setValue, watch, reset } = useForm({
     resolver: yupResolver(VehicleDetailSchema),
   });
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -173,6 +173,25 @@ const VehicleDetailsScreen = () => {
     }
   };
 
+  // const updateSeatingCapacity = (vehicleName) => {
+  //   const selectedVehicle = vehicleNames.data.find(
+  //     (vehicle) => vehicle.v_name === vehicleName,
+  //   );
+  //   if (selectedVehicle) {
+  //     const matchingCapacity = seatingCapacityData.find(
+  //       (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
+  //     );
+  //     if (matchingCapacity) {
+  //       setSeatingCapacityData([matchingCapacity]);
+  //       setValue(
+  //         fieldNames.VEHICLE_SEATING_CAPACITY,
+  //         matchingCapacity.seating_capacity,
+  //         { shouldValidate: true },
+  //       );
+  //     }
+  //   }
+  //   setFilteredVehicleNames(filteredNames);
+  // };
   const updateSeatingCapacity = (vehicleName) => {
     const selectedVehicle = vehicleNames.data.find(
       (vehicle) => vehicle.v_name === vehicleName,
@@ -190,36 +209,38 @@ const VehicleDetailsScreen = () => {
         );
       }
     }
-    setFilteredVehicleNames(filteredNames);
   };
-  const onSubmit = async (data) => {
 
-    const {nameId, typeId} = await getIdByName(
+  const onSubmit = async (data) => {
+    const { nameId, typeId } = await getIdByName(
       vehicleNames.data,
       data.vehicleName,
     );
-   
-    const finalData ={
-      "vehicle_names_id":nameId,
-     
-      "vehicle_types_id":typeId,
-      "v_registration_number":data.vehicleRegistrationNumber,
-      "v_model":data.vehicleModel,
-      "v_seating_cpcty":data.vehicleSeatingCapacity,
-      "user_id": userId,
-    "driver_id": userId,
-  }
 
-  const response =await createVehicleDetail(finalData,userToken )
-  
-   if (response?.newVehicle.created_at){
-    navigation.navigate('BusinessDetails');
-   }
-   else{
-    dispatch(showSnackbar({visible:true,message:'something went wrong', type:'Error'}))
-   }
-   
-    
+    const finalData = {
+      vehicle_names_id: nameId,
+      vehicle_types_id: typeId,
+      v_registration_number: data.vehicleRegistrationNumber,
+      v_model: data.vehicleModel,
+      v_seating_cpcty: data.vehicleSeatingCapacity,
+      user_id: userId,
+      driver_id: userId,
+    };
+
+    const response = await createVehicleDetail(finalData, userToken);
+
+    if (response?.newVehicle.created_at) {
+      navigation.navigate('BusinessDetails');
+      reset();
+    } else {
+      dispatch(
+        showSnackbar({
+          visible: true,
+          message: 'something went wrong',
+          type: 'Error',
+        }),
+      );
+    }
   };
 
   const renderField = (item) => {
