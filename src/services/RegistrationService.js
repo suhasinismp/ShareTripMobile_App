@@ -10,8 +10,7 @@ export const updateUserProfile = async (data) => {
   return response;
 };
 
-
-export const verifyOTP = async(data)=>{
+export const verifyOTP = async (data) => {
   const response = await postAPI('share-trip/auth/users/verify-otp', data);
   return response;
 };

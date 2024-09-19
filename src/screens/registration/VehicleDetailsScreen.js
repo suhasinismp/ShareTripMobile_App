@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useEffect, useState } from 'react';
 import {
   Keyboard,
@@ -74,28 +70,59 @@ const removeDuplicatesBySeatingCapacity = (data) => {
     return false;
   });
 };
-
 const VehicleDetailsScreen = () => {
   const navigation = useNavigation();
-  const dispatch = useDispatch()
-  const userData = useSelector(getUserDataSelector)
- const userId =userData.userId
- const userToken = userData.userToken
-  const { theme } = useTheme()
+  const dispatch = useDispatch();
+  const userData = useSelector(getUserDataSelector);
+  const userId = userData.userId;
+  const userToken = userData.userToken;
+  const { theme } = useTheme();
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [vehicleNames, setVehicleNames] = useState([]);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
-  const [selectedVehicleType, setSelectedVehicleType] = useState(null);
-
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
-  const { control, handleSubmit, setValue, watch } = useForm({
+  const { control, handleSubmit, setValue, watch, reset } = useForm({
     resolver: yupResolver(VehicleDetailSchema),
   });
   const [openDropdown, setOpenDropdown] = useState(null);
 
+  const watchVehicleType = watch(fieldNames.VEHICLE_TYPE);
+  const watchVehicleName = watch(fieldNames.VEHICLE_NAME);
+
   useEffect(() => {
     getVehicleDetails();
   }, []);
+
+  useEffect(() => {
+    if (watchVehicleType) {
+      // Filter vehicle names based on the selected vehicle type
+      const filteredNames = vehicleNames.data.filter(
+        (vehicle) => vehicle.vehicleType.v_type === watchVehicleType,
+      );
+      setFilteredVehicleNames(filteredNames);
+
+      // Clear vehicle name and seating capacity in the form
+      setValue(fieldNames.VEHICLE_NAME, undefined, { shouldValidate: true });
+      setValue(fieldNames.VEHICLE_SEATING_CAPACITY, undefined, {
+        shouldValidate: true,
+      });
+
+      // Reset the seating capacity data to the original full list
+      setSeatingCapacityData(
+        removeDuplicatesBySeatingCapacity(vehicleNames.data).map((vehicle) => ({
+          value: vehicle.seating_capacity,
+          label: vehicle.seating_capacity,
+          ...vehicle,
+        })),
+      );
+    }
+  }, [watchVehicleType, vehicleNames.data, setValue]);
+
+  useEffect(() => {
+    if (watchVehicleName) {
+      updateSeatingCapacity(watchVehicleName);
+    }
+  }, [watchVehicleName]);
 
   const getVehicleDetails = async () => {
     try {
@@ -123,6 +150,7 @@ const VehicleDetailsScreen = () => {
   const handleDropdownToggle = (id) => {
     setOpenDropdown(openDropdown === id ? null : id);
   };
+
   const handleDropdownSelect = (id, item) => {
     const field = inputFields.find((field) => field.id === id);
     if (field) {
@@ -130,29 +158,9 @@ const VehicleDetailsScreen = () => {
       switch (field.name) {
         case fieldNames.VEHICLE_TYPE:
           value = item.v_type;
-          setSelectedVehicleType(item.v_type);
-          filterVehicleNames(item.v_type);
           break;
         case fieldNames.VEHICLE_NAME:
           value = item.v_name;
-  
-          // Prefill seating capacity based on the selected vehicle name
-          const selectedVehicle = vehicleNames.data.find(
-            (vehicle) => vehicle.v_name === item.v_name
-          );
-          if (selectedVehicle) {
-            const matchingCapacity = seatingCapacityData.find(
-              (cap) => cap.seating_capacity === selectedVehicle.seating_capacity
-            );
-            if (matchingCapacity) {
-              setSeatingCapacityData([matchingCapacity]); // Prefill dropdown with matching capacity
-              setValue(
-                fieldNames.VEHICLE_SEATING_CAPACITY,
-                matchingCapacity.seating_capacity,
-                { shouldValidate: true }
-              );
-            }
-          }
           break;
         case fieldNames.VEHICLE_SEATING_CAPACITY:
           value = item.seating_capacity;
@@ -160,48 +168,79 @@ const VehicleDetailsScreen = () => {
         default:
           value = item.value;
       }
-  
+
       setValue(field.name, value, { shouldValidate: true });
     }
   };
-  
-  
-  
-  const filterVehicleNames = (vehicleType) => {
-    const filteredNames = vehicleNames.data.filter(
-      (vehicle) => vehicle.vehicleType.v_type === vehicleType,
+
+  // const updateSeatingCapacity = (vehicleName) => {
+  //   const selectedVehicle = vehicleNames.data.find(
+  //     (vehicle) => vehicle.v_name === vehicleName,
+  //   );
+  //   if (selectedVehicle) {
+  //     const matchingCapacity = seatingCapacityData.find(
+  //       (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
+  //     );
+  //     if (matchingCapacity) {
+  //       setSeatingCapacityData([matchingCapacity]);
+  //       setValue(
+  //         fieldNames.VEHICLE_SEATING_CAPACITY,
+  //         matchingCapacity.seating_capacity,
+  //         { shouldValidate: true },
+  //       );
+  //     }
+  //   }
+  //   setFilteredVehicleNames(filteredNames);
+  // };
+  const updateSeatingCapacity = (vehicleName) => {
+    const selectedVehicle = vehicleNames.data.find(
+      (vehicle) => vehicle.v_name === vehicleName,
     );
-    setFilteredVehicleNames(filteredNames);
+    if (selectedVehicle) {
+      const matchingCapacity = seatingCapacityData.find(
+        (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
+      );
+      if (matchingCapacity) {
+        setSeatingCapacityData([matchingCapacity]);
+        setValue(
+          fieldNames.VEHICLE_SEATING_CAPACITY,
+          matchingCapacity.seating_capacity,
+          { shouldValidate: true },
+        );
+      }
+    }
   };
 
   const onSubmit = async (data) => {
-
-    const {nameId, typeId} = await getIdByName(
+    const { nameId, typeId } = await getIdByName(
       vehicleNames.data,
       data.vehicleName,
     );
-   
-    const finalData ={
-      "vehicle_names_id":nameId,
-     
-      "vehicle_types_id":typeId,
-      "v_registration_number":data.vehicleRegistrationNumber,
-      "v_model":data.vehicleModel,
-      "v_seating_cpcty":data.vehicleSeatingCapacity,
-      "user_id": userId,
-    "driver_id": userId,
-  }
 
-  const response =await createVehicleDetail(finalData,userToken )
-  
-   if (response?.newVehicle.created_at){
-    navigation.navigate('BusinessDetails');
-   }
-   else{
-    dispatch(showSnackbar({visible:true,message:'something went wrong', type:'Error'}))
-   }
-   
-    
+    const finalData = {
+      vehicle_names_id: nameId,
+      vehicle_types_id: typeId,
+      v_registration_number: data.vehicleRegistrationNumber,
+      v_model: data.vehicleModel,
+      v_seating_cpcty: data.vehicleSeatingCapacity,
+      user_id: userId,
+      driver_id: userId,
+    };
+
+    const response = await createVehicleDetail(finalData, userToken);
+
+    if (response?.newVehicle.created_at) {
+      navigation.navigate('BusinessDetails');
+      reset();
+    } else {
+      dispatch(
+        showSnackbar({
+          visible: true,
+          message: 'something went wrong',
+          type: 'Error',
+        }),
+      );
+    }
   };
 
   const renderField = (item) => {
@@ -212,31 +251,33 @@ const VehicleDetailsScreen = () => {
             key={item.id}
             control={control}
             name={item.name}
-            render={({ field: { onChange, value } }) => (
-              <CustomDropdown
-                placeholder={item.placeholder}
-                data={
-                  (item.placeholder === i18n.t('VEHICLE_TYPE') &&
-                    vehicleTypes.data) ||
-                  (item.placeholder === i18n.t('VEHICLE_NAME') &&
-                    filteredVehicleNames) || // Use filtered vehicle names
-                  (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
-                    seatingCapacityData)
-                }
-                isOpen={openDropdown === item.id}
-                onToggle={() => handleDropdownToggle(item.id)}
-                onSelect={(selectedItem) => {
-                  handleDropdownSelect(item.id, selectedItem);
-                }}
-                label={
-                  (item.placeholder === i18n.t('VEHICLE_TYPE') && 'v_type') ||
-                  (item.placeholder === i18n.t('VEHICLE_NAME') && 'v_name') ||
-                  (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
-                    'seating_capacity')
-                }
-                value={value}
-              />
-            )}
+            render={({ field: { onChange, value } }) => {
+              return (
+                <CustomDropdown
+                  placeholder={item.placeholder}
+                  data={
+                    (item.placeholder === i18n.t('VEHICLE_TYPE') &&
+                      vehicleTypes.data) ||
+                    (item.placeholder === i18n.t('VEHICLE_NAME') &&
+                      filteredVehicleNames) ||
+                    (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
+                      seatingCapacityData)
+                  }
+                  isOpen={openDropdown === item.id}
+                  onToggle={() => handleDropdownToggle(item.id)}
+                  onSelect={(selectedItem) => {
+                    handleDropdownSelect(item.id, selectedItem);
+                  }}
+                  label={
+                    (item.placeholder === i18n.t('VEHICLE_TYPE') && 'v_type') ||
+                    (item.placeholder === i18n.t('VEHICLE_NAME') && 'v_name') ||
+                    (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
+                      'seating_capacity')
+                  }
+                  value={value}
+                />
+              );
+            }}
           />
         );
       case 'input':
@@ -254,7 +295,6 @@ const VehicleDetailsScreen = () => {
         return null;
     }
   };
-
   return (
     <KeyboardAwareScrollView
       style={styles.container}
@@ -308,4 +348,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VehicleDetailsScreen
+export default VehicleDetailsScreen;

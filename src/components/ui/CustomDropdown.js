@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -23,32 +23,31 @@ const CustomDropdown = ({
   itemStyle,
   itemTextStyle,
   height = 56,
-  control,
-  name,
   label,
   isOpen,
   onToggle,
   onSelect,
+  value,
+  onChange,
   ...props
 }) => {
   const { theme } = useTheme();
-  const [selectedItem, setSelectedItem] = React.useState(null);
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [filteredData, setFilteredData] = React.useState(data);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredData, setFilteredData] = useState(data);
   const dropdownRef = useRef(null);
-  const [dropdownLayout, setDropdownLayout] = React.useState(null);
+  const [dropdownLayout, setDropdownLayout] = useState(null);
 
   useEffect(() => {
     if (search) {
       setFilteredData(
         data.filter((item) =>
-          item.label.toLowerCase().includes(searchQuery.toLowerCase()),
+          item[label].toLowerCase().includes(searchQuery.toLowerCase()),
         ),
       );
     } else {
       setFilteredData(data);
     }
-  }, [searchQuery, data, search]);
+  }, [searchQuery, data, search, label]);
 
   const toggleDropdown = () => {
     if (onToggle) {
@@ -62,10 +61,12 @@ const CustomDropdown = ({
   };
 
   const onItemPress = (item) => {
-    setSelectedItem(item);
     setSearchQuery('');
     if (onSelect) {
       onSelect(item);
+    }
+    if (onChange) {
+      onChange(item[label]);
     }
     if (onToggle) {
       onToggle();
@@ -91,9 +92,9 @@ const CustomDropdown = ({
             styles.label,
             { backgroundColor: theme.backgroundColor },
             {
-              top: !isOpen && !selectedItem ? height / 2 - 11 : -9,
+              top: !isOpen && !value ? height / 2 - 11 : -9,
             },
-            (isOpen || selectedItem) && styles.labelRaised,
+            (isOpen || value) && styles.labelRaised,
             isOpen && styles.labelFocused,
           ]}
           text={placeholder}
@@ -109,7 +110,7 @@ const CustomDropdown = ({
           ]}
         >
           <Text style={[styles.dropdownText, placeholderStyle]}>
-            {selectedItem ? selectedItem[label] : ''}
+            {value || ''}
           </Text>
           <View style={styles.arrowContainer}>
             <View style={[styles.arrow, isOpen && styles.arrowUp]} />

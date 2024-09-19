@@ -36,44 +36,50 @@ const inputFields = [
   },
 ];
 
-
-
-
 const SignInScreen = () => {
   const navigation = useNavigation();
-  const dispatch= useDispatch()
+  const dispatch = useDispatch();
   const { theme } = useTheme();
-  const { control, handleSubmit,
-    formState: { errors }
-
-   } = useForm({
-    
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(signInScheme),
+    defaultValues: {
+      [fieldNames.PHONE]: '9878987694',
+      [fieldNames.PASSWORD]: 'ravi@123',
+    },
   });
 
-  const onSignin = async(data) => {
-   const finalData ={
-    
-      "u_mob_num":data.Phone,
-      "u_pswd":data.password
+  const onSignin = async (data) => {
+    const finalData = {
+      u_mob_num: data.Phone,
+      u_pswd: data.password,
+    };
+    const response = await doLogin(finalData);
+
+    if (response?.token) {
+      await dispatch(
+        setUserDataToStore({
+          userId: response.id,
+          userName: response.u_name,
+          userEmail: response.u_email_id,
+          userRole: response.role_id,
+          userMobile: response.u_mob_num,
+          userToken: response.token,
+        }),
+      );
+      navigation.navigate('Register', { screen: 'VehicleDetails' });
+    } else {
+      dispatch(
+        showSnackbar({
+          visible: true,
+          message: 'Invalid login credentials',
+          type: 'Error',
+        }),
+      );
     }
-    const response =await doLogin(finalData)
-  
-     if(response?.token){
-      await dispatch(setUserDataToStore({
-        userId:response.id,
-        userName:response.u_name,
-        userEmail:response.u_email_id,
-        userRole:response.role_id,
-        userMobile:response.u_mob_num,
-        userToken:response.token,
-      }))
-      navigation.navigate('Register',{screen:'VehicleDetails'})
-     }
-     else{ 
-      dispatch(showSnackbar({visible:true,message:'Invalid login credentials', type:'Error'}))
-      
-     }
   };
 
   // console.log('Form errors:', errors);
