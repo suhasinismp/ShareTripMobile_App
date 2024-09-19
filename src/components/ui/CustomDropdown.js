@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -32,10 +32,10 @@ const CustomDropdown = ({
   ...props
 }) => {
   const { theme } = useTheme();
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [filteredData, setFilteredData] = React.useState(data);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredData, setFilteredData] = useState(data);
   const dropdownRef = useRef(null);
-  const [dropdownLayout, setDropdownLayout] = React.useState(null);
+  const [dropdownLayout, setDropdownLayout] = useState(null);
 
   useEffect(() => {
     if (search) {
@@ -82,8 +82,6 @@ const CustomDropdown = ({
       <Text style={itemTextStyle}>{item[label]}</Text>
     </TouchableOpacity>
   );
-
-  const selectedItem = data.find((item) => item[label] === value);
 
   return (
     <View style={[styles.container, containerStyle]}>
