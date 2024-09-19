@@ -19,12 +19,16 @@ import CustomTextInput from '../../components/ui/CustomTextInput';
 import CustomButton from '../../components/ui/CustomButton';
 import CustomDropdown from '../../components/ui/CustomDropdown';
 import {
+  createVehicleDetail,
   fetchVehicleNames,
   fetchVehicleTypes,
 } from '../../services/vehicleDetailsService';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { VehicleDetailSchema } from '../../constants/schema/VehicleDetailSchema';
 import { getIdByName } from '../../utils/getIdByNameUtil';
+import { useDispatch, useSelector } from 'react-redux';
+import { getUserDataSelector } from '../../store/selectors';
+import { showSnackbar } from '../../store/slices/snackBarSlice';
 
 const inputFields = [
   {
@@ -73,7 +77,11 @@ const removeDuplicatesBySeatingCapacity = (data) => {
 
 const VehicleDetailsScreen = () => {
   const navigation = useNavigation();
-  const { theme } = useTheme();
+  const dispatch = useDispatch()
+  const userData = useSelector(getUserDataSelector)
+ const userId =userData.userId
+ const userToken = userData.userToken
+  const { theme } = useTheme()
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [vehicleNames, setVehicleNames] = useState([]);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
@@ -157,54 +165,8 @@ const VehicleDetailsScreen = () => {
     }
   };
   
-  // const handleDropdownSelect = (id, item) => {
-  //   const field = inputFields.find((field) => field.id === id);
-  //   if (field) {
-  //     let value;
-  //     switch (field.name) {
-  //       case fieldNames.VEHICLE_TYPE:
-  //         value = item.v_type;
-  //         setSelectedVehicleType(item.v_type); // Set selected vehicle type
-  //         filterVehicleNames(item.v_type); // Filter vehicle names based on selected type
-  //         break;
-  //       case fieldNames.VEHICLE_NAME:
-  //         value = item.v_name;
-  //         break;
-  //       case fieldNames.VEHICLE_SEATING_CAPACITY:
-  //         value = item.seating_capacity;
-  //         break;
-  //       default:
-  //         value = item.value;
-  //     }
-
-  //     setValue(field.name, value, { shouldValidate: true });
-  //   }
-
-  //   if (id === 1) {
-  //     // VEHICLE_NAME
-  //     const selectedVehicle = vehicleNames.data.find(
-  //       (vehicle) => vehicle.v_name === item.v_name,
-  //     );
-  //     if (selectedVehicle) {
-  //       setValue(fieldNames.VEHICLE_TYPE, selectedVehicle.vehicleType.v_type, {
-  //         shouldValidate: true,
-  //       });
-  //       const matchingCapacity = seatingCapacityData.find(
-  //         (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
-  //       );
-  //       if (matchingCapacity) {
-  //         setSeatingCapacityData([matchingCapacity]);
-  //         setValue(
-  //           fieldNames.VEHICLE_SEATING_CAPACITY,
-  //           matchingCapacity.seating_capacity,
-  //           { shouldValidate: true },
-  //         );
-  //       }
-  //     }
-  //   }
-  // };
-   
-  // Function to filter vehicle names based on selected vehicle type
+  
+  
   const filterVehicleNames = (vehicleType) => {
     const filteredNames = vehicleNames.data.filter(
       (vehicle) => vehicle.vehicleType.v_type === vehicleType,
@@ -213,13 +175,33 @@ const VehicleDetailsScreen = () => {
   };
 
   const onSubmit = async (data) => {
-    console.log('Form data:', data);
-    const vehicleNameId = await getIdByName(
+
+    const {nameId, typeId} = await getIdByName(
       vehicleNames.data,
       data.vehicleName,
     );
-    console.log({ vehicleNameId });
-    // navigation.navigate('BusinessDetails');
+   
+    const finalData ={
+      "vehicle_names_id":nameId,
+     
+      "vehicle_types_id":typeId,
+      "v_registration_number":data.vehicleRegistrationNumber,
+      "v_model":data.vehicleModel,
+      "v_seating_cpcty":data.vehicleSeatingCapacity,
+      "user_id": userId,
+    "driver_id": userId,
+  }
+
+  const response =await createVehicleDetail(finalData,userToken )
+  
+   if (response?.newVehicle.created_at){
+    navigation.navigate('BusinessDetails');
+   }
+   else{
+    dispatch(showSnackbar({visible:true,message:'something went wrong', type:'Error'}))
+   }
+   
+    
   };
 
   const renderField = (item) => {
