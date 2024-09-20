@@ -25,6 +25,7 @@ import { getIdByName } from '../../utils/getIdByNameUtil';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
+import { set } from 'lodash';
 
 const inputFields = [
   {
@@ -76,9 +77,11 @@ const VehicleDetailsScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const userId = userData.userId;
   const userToken = userData.userToken;
+
   const { theme } = useTheme();
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [vehicleNames, setVehicleNames] = useState([]);
+  const [userRoleId, setUserRoleId] = useState(null);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
   const { control, handleSubmit, setValue, watch, reset } = useForm({
@@ -92,6 +95,12 @@ const VehicleDetailsScreen = () => {
   useEffect(() => {
     getVehicleDetails();
   }, []);
+
+  useEffect(() => {
+    if (userData) {
+      setUserRoleId(userData.userRoleId);
+    }
+  }, [userData]);
 
   useEffect(() => {
     if (watchVehicleType) {
@@ -204,7 +213,9 @@ const VehicleDetailsScreen = () => {
       !data.vehicleModel &&
       !data.vehicleSeatingCapacity
     ) {
-      navigation.navigate('BusinessDetails');
+      userRoleId == 3000
+        ? navigation.navigate('BusinessDetails')
+        : navigation.navigate('VehicleAndDriverDocuments');
       reset();
     } else {
       const finalData = {
@@ -220,7 +231,9 @@ const VehicleDetailsScreen = () => {
       const response = await createVehicleDetail(finalData, userToken);
 
       if (response?.newVehicle.created_at) {
-        navigation.navigate('BusinessDetails');
+        userRoleId == 3000
+          ? navigation.navigate('BusinessDetails')
+          : navigation.navigate('VehicleAndDriverDocuments');
         reset();
       } else {
         dispatch(
