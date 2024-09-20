@@ -25,6 +25,7 @@ import { getIdByName } from '../../utils/getIdByNameUtil';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
+import { set } from 'lodash';
 
 const inputFields = [
   {
@@ -76,9 +77,11 @@ const VehicleDetailsScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const userId = userData.userId;
   const userToken = userData.userToken;
+
   const { theme } = useTheme();
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [vehicleNames, setVehicleNames] = useState([]);
+  const [userRoleId, setUserRoleId] = useState(null);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
   const { control, handleSubmit, setValue, watch, reset } = useForm({
@@ -92,6 +95,12 @@ const VehicleDetailsScreen = () => {
   useEffect(() => {
     getVehicleDetails();
   }, []);
+
+  useEffect(() => {
+    if (userData) {
+      setUserRoleId(userData.userRoleId);
+    }
+  }, [userData]);
 
   useEffect(() => {
     if (watchVehicleType) {
@@ -173,25 +182,6 @@ const VehicleDetailsScreen = () => {
     }
   };
 
-  // const updateSeatingCapacity = (vehicleName) => {
-  //   const selectedVehicle = vehicleNames.data.find(
-  //     (vehicle) => vehicle.v_name === vehicleName,
-  //   );
-  //   if (selectedVehicle) {
-  //     const matchingCapacity = seatingCapacityData.find(
-  //       (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
-  //     );
-  //     if (matchingCapacity) {
-  //       setSeatingCapacityData([matchingCapacity]);
-  //       setValue(
-  //         fieldNames.VEHICLE_SEATING_CAPACITY,
-  //         matchingCapacity.seating_capacity,
-  //         { shouldValidate: true },
-  //       );
-  //     }
-  //   }
-  //   setFilteredVehicleNames(filteredNames);
-  // };
   const updateSeatingCapacity = (vehicleName) => {
     const selectedVehicle = vehicleNames.data.find(
       (vehicle) => vehicle.v_name === vehicleName,
@@ -217,29 +207,43 @@ const VehicleDetailsScreen = () => {
       data.vehicleName,
     );
 
-    const finalData = {
-      vehicle_names_id: nameId,
-      vehicle_types_id: typeId,
-      v_registration_number: data.vehicleRegistrationNumber,
-      v_model: data.vehicleModel,
-      v_seating_cpcty: data.vehicleSeatingCapacity,
-      user_id: userId,
-      driver_id: userId,
-    };
-
-    const response = await createVehicleDetail(finalData, userToken);
-
-    if (response?.newVehicle.created_at) {
-      navigation.navigate('BusinessDetails');
+    if (
+      !data.vehicleName &&
+      !data.vehicleRegistrationNumber &&
+      !data.vehicleModel &&
+      !data.vehicleSeatingCapacity
+    ) {
+      userRoleId == 3000
+        ? navigation.navigate('BusinessDetails')
+        : navigation.navigate('VehicleAndDriverDocuments');
       reset();
     } else {
-      dispatch(
-        showSnackbar({
-          visible: true,
-          message: 'something went wrong',
-          type: 'Error',
-        }),
-      );
+      const finalData = {
+        vehicle_names_id: nameId,
+        vehicle_types_id: typeId,
+        v_registration_number: data.vehicleRegistrationNumber,
+        v_model: data.vehicleModel,
+        v_seating_cpcty: data.vehicleSeatingCapacity,
+        user_id: userId,
+        driver_id: userId,
+      };
+
+      const response = await createVehicleDetail(finalData, userToken);
+
+      if (response?.newVehicle.created_at) {
+        userRoleId == 3000
+          ? navigation.navigate('BusinessDetails')
+          : navigation.navigate('VehicleAndDriverDocuments');
+        reset();
+      } else {
+        dispatch(
+          showSnackbar({
+            visible: true,
+            message: 'something went wrong',
+            type: 'Error',
+          }),
+        );
+      }
     }
   };
 
@@ -314,7 +318,7 @@ const VehicleDetailsScreen = () => {
           <View style={styles.buttonContainer}>
             <CustomButton
               title={i18n.t('SKIP')}
-              onPress={() => {}}
+              onPress={onSubmit}
               variant="text"
             />
             <CustomButton

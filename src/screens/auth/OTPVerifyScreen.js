@@ -12,6 +12,7 @@ import { verifyOTP } from '../../services/registrationService';
 
 const OTPVerifyScreen = ({ route }) => {
   const { phoneNumber } = route.params;
+  const { userRoleId } = route.params;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const [timer, setTimer] = useState(60);
@@ -75,10 +76,11 @@ const OTPVerifyScreen = ({ route }) => {
       otp_numb: otp,
     };
     const response = await verifyOTP(finalData);
-    console.log('response', response);
+
     if (response?.message == 'OTP Matched!') {
       navigation.navigate('Register', {
         screen: 'SubscriptionPlans',
+        params: { userRoleId: userRoleId },
       });
     } else {
       dispatch(

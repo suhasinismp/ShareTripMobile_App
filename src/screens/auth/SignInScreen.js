@@ -46,10 +46,10 @@ const SignInScreen = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(signInScheme),
-    defaultValues: {
-      [fieldNames.PHONE]: '9878987694',
-      [fieldNames.PASSWORD]: 'ravi@123',
-    },
+    // defaultValues: {
+    //   [fieldNames.PHONE]: '9878987694',
+    //   [fieldNames.PASSWORD]: 'ravi@123',
+    // },
   });
 
   const onSignin = async (data) => {
@@ -65,12 +65,14 @@ const SignInScreen = () => {
           userId: response.id,
           userName: response.u_name,
           userEmail: response.u_email_id,
-          userRole: response.role_id,
+          userRoleId: response.role_id,
           userMobile: response.u_mob_num,
           userToken: response.token,
         }),
       );
-      navigation.navigate('Register', { screen: 'VehicleDetails' });
+      response.role_id == 3000
+        ? navigation.navigate('Register', { screen: 'VehicleDetails' })
+        : navigation.navigate('Register', { screen: 'BusinessDetails' });
     } else {
       dispatch(
         showSnackbar({

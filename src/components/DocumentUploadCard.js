@@ -120,7 +120,7 @@ const DocumentUploadCard = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: '#F3F5FD',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',

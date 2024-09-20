@@ -9,20 +9,38 @@ import DriverActiveIcon from '../../../assets/svgs/driverActive.svg';
 import DriverInActiveIcon from '../../../assets/svgs/driverInActive.svg';
 import TravelAgencyActiveIcon from '../../../assets/svgs/travelAgencyActive.svg';
 import TravelAgencyInActiveIcon from '../../../assets/svgs/travelAgencyInActive.svg';
-
-
+import userTypesAndRoleIds from '../../constants/strings/userTypesAndRoleIds';
 
 const UserTypeScreen = () => {
   const navigation = useNavigation();
-  const [userType, setUserType] = useState('Driver');
-  const driverIcon =userType === 'Driver'?<DriverActiveIcon style={{width:24, height:24, }}/>:<DriverInActiveIcon style={{width:24, height:24}}/> 
-  const travelAgencyIcon =userType ==='Travel Agency'?<TravelAgencyActiveIcon style={{width:24, height:24}}/>:<TravelAgencyInActiveIcon style={{width:24, height:24}}/>
+  const [userType, setUserType] = useState(userTypesAndRoleIds.DRIVER);
+  const driverIcon =
+    userType === userTypesAndRoleIds.DRIVER ? (
+      <DriverActiveIcon style={{ width: 24, height: 24 }} />
+    ) : (
+      <DriverInActiveIcon style={{ width: 24, height: 24 }} />
+    );
+  const travelAgencyIcon =
+    userType === userTypesAndRoleIds.TRAVEL_AGENCY ? (
+      <TravelAgencyActiveIcon style={{ width: 24, height: 24 }} />
+    ) : (
+      <TravelAgencyInActiveIcon style={{ width: 24, height: 24 }} />
+    );
   const [error, setError] = useState('');
 
   const handleNext = () => {
-    if (userType === 'Driver' || userType === 'Travel Agency') {
+    if (
+      userType === userTypesAndRoleIds.DRIVER ||
+      userType === userTypesAndRoleIds.TRAVEL_AGENCY
+    ) {
       setError('');
-      navigation.navigate('SignUp', { userType });
+      navigation.navigate('SignUp', {
+        userType,
+        userRoleId:
+          userType === userTypesAndRoleIds.DRIVER
+            ? userTypesAndRoleIds.DRIVER_ROLE_ID
+            : userTypesAndRoleIds.TRAVEL_AGENCY_ROLE_ID,
+      });
     } else {
       setError(i18n.t('USER_TYPE_ERROR'));
     }
@@ -35,18 +53,17 @@ const UserTypeScreen = () => {
         <CustomText text={i18n.t('USER_TYPE_TEXT')} variant="headerTitle" />
         <CustomSelect
           text={i18n.t('USER_TYPE_DRIVER')}
-          isSelected={userType === 'Driver'}
+          isSelected={userType === userTypesAndRoleIds.DRIVER}
           onPress={() => {
-            setUserType('Driver');
+            setUserType(userTypesAndRoleIds.DRIVER);
             setError('');
           }}
           containerStyle={{ width: '80%' }}
           icon={driverIcon}
-         
         />
         <CustomSelect
           text={i18n.t('USER_TYPE_TRAVEL_AGENCY')}
-          isSelected={userType === 'Travel Agency'}
+          isSelected={userType === userTypesAndRoleIds.TRAVEL_AGENCY}
           onPress={() => {
             setUserType('Travel Agency');
             setError('');
