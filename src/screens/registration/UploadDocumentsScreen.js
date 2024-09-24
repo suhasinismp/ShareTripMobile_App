@@ -1,5 +1,11 @@
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  SafeAreaView,
+  FlatList,
+} from 'react-native';
 import CustomSelect from '../../components/ui/CustomSelect';
 import { useTheme } from '../../hooks/useTheme';
 import CustomText from '../../components/ui/CustomText';
@@ -10,6 +16,10 @@ import { i18n } from '../../constants/lang';
 import { useNavigation } from '@react-navigation/native';
 import ImagePickerGrid from '../../components/ImagePickerGrid';
 import { useForm } from 'react-hook-form';
+import {
+  getUserDocTypes,
+  getVehicleDocTypes,
+} from '../../services/docsUploadService';
 
 const UploadDocumentsScreen = () => {
   const navigation = useNavigation();
@@ -18,29 +28,118 @@ const UploadDocumentsScreen = () => {
   const [documentsType, setDocumentsType] = useState('vehicle');
   const [width, setWidth] = useState(0);
 
-  // Vehicle section states
-  const [vehicleRcFiles, setVehicleRcFiles] = useState([]);
-  const [vehicleInsuranceFiles, setVehicleInsuranceFiles] = useState([]);
-  const [vehicleEmissionFiles, setVehicleEmissionFiles] = useState([]);
+  const [vehicleDocTypes, setVehicleDocTypes] = useState([]);
+  const [driverDocTypes, setDriverDocTypes] = useState([]);
+  const [vehicleFiles, setVehicleFiles] = useState({});
+  const [driverFiles, setDriverFiles] = useState({});
   const [vehicleImages, setVehicleImages] = useState(Array(4).fill(null));
-
-  // Driver section states
-  const [driverLicenseFiles, setDriverLicenseFiles] = useState([]);
-  const [driverAadhaarFiles, setDriverAadhaarFiles] = useState([]);
-  const [driverVerificationFiles, setDriverVerificationFiles] = useState([]);
   const [driverImages, setDriverImages] = useState(Array(1).fill(null));
 
-  const handleUpload = (setFiles) => (fileName, fileUri) => {
-    setFiles((previousFiles) => {
-      const newFile = { name: fileName, uri: fileUri };
-      return [...previousFiles, newFile];
-    });
+  useEffect(() => {
+    fetchDocs();
+  }, []);
+
+  const fetchDocs = async () => {
+    const vehicleDocs = await getVehicleDocTypes();
+    const sortedVehicleDocs = vehicleDocs?.response.sort(
+      (a, b) => a.display_order - b.display_order,
+    );
+    setVehicleDocTypes(sortedVehicleDocs);
+
+    const driverDocs = await getUserDocTypes();
+    const sortedDriverDocs = driverDocs?.response.sort(
+      (a, b) => a.display_order - b.display_order,
+    );
+    setDriverDocTypes(sortedDriverDocs);
   };
 
-  const handleDelete = (setFiles) => (indexToDelete) => {
-    setFiles((previousFiles) => {
-      return previousFiles.filter((_, index) => index !== indexToDelete);
-    });
+  const handleUpload =
+    (formDataKey, isDriver = false) =>
+    (fileName, fileUri) => {
+      const setFiles = isDriver ? setDriverFiles : setVehicleFiles;
+      setFiles((prev) => ({
+        ...prev,
+        [formDataKey]: [
+          ...(prev[formDataKey] || []),
+          { name: fileName, uri: fileUri },
+        ],
+      }));
+    };
+
+  const handleDelete =
+    (formDataKey, isDriver = false) =>
+    (indexToDelete) => {
+      const setFiles = isDriver ? setDriverFiles : setVehicleFiles;
+      setFiles((prev) => ({
+        ...prev,
+        [formDataKey]: prev[formDataKey].filter(
+          (_, index) => index !== indexToDelete,
+        ),
+      }));
+    };
+
+  const renderUploadSection = ({ item }) => {
+    const isDriver = documentsType === 'driver';
+    const files = isDriver ? driverFiles : vehicleFiles;
+    const images = isDriver ? driverImages : vehicleImages;
+    const setImages = isDriver ? setDriverImages : setVehicleImages;
+
+    if (
+      item.doc_id.includes(4) ||
+      item.doc_id.includes(5) ||
+      item.doc_id.includes(6) ||
+      item.doc_id.includes(7)
+    ) {
+      return (
+        <View style={styles.uploadSection}>
+          <CustomText
+            text={isDriver ? 'Upload Driver Photo' : 'Upload Car Photos'}
+            variant={'activeText'}
+          />
+          <ImagePickerGrid
+            noOfPhotos={isDriver ? 1 : 4}
+            onImagesPicked={setImages}
+            images={images}
+            fileType={item.fileType}
+          />
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.uploadSection}>
+          <CustomText text={item.doc_label[0]} variant={'activeText'} />
+          <View style={styles.uploadContainer}>
+            <CustomTextInput
+              control={control}
+              name={`${item.doc_label[0]}Number`}
+              placeholder={`${item.doc_label[0]} Number`}
+            />
+            <DocumentUploadCard
+              title={item.doc_label[0]}
+              fileNames={(files[item.formData_key[0]] || []).map(
+                (file) => file.name,
+              )}
+              onUpload={handleUpload(item.formData_key[0], isDriver)}
+              onDelete={handleDelete(item.formData_key[0], isDriver)}
+              placeholders={[item.doc_label[0]]}
+              maxFiles={1}
+              fileType={item.fileType}
+            />
+          </View>
+        </View>
+      );
+    }
+  };
+
+  const renderDocumentSection = () => {
+    const data = documentsType === 'vehicle' ? vehicleDocTypes : driverDocTypes;
+    return (
+      <FlatList
+        data={data}
+        renderItem={renderUploadSection}
+        keyExtractor={(item) => item.display_order.toString()}
+      />
+    );
   };
 
   const handleVehicleDocsSubmit = () => {
@@ -49,110 +148,6 @@ const UploadDocumentsScreen = () => {
 
   const handleDriverDocsSubmit = () => {
     // navigation.navigate('SubscriptionPlans');
-  };
-
-  const renderUploadSection = (
-    title,
-    numberName,
-    fileName,
-    files,
-    setFiles,
-    placeholders,
-  ) => (
-    <View style={styles.uploadSection}>
-      <CustomText text={title} variant={'activeText'} />
-      <View style={styles.uploadContainer}>
-        <CustomTextInput
-          control={control}
-          name={numberName}
-          placeholder={`${title} Number`}
-        />
-        <CustomTextInput
-          control={control}
-          name={fileName}
-          placeholder={'File name'}
-        />
-        <DocumentUploadCard
-          title={title}
-          fileNames={files.map((file) => file.name)}
-          onUpload={handleUpload(setFiles)}
-          onDelete={handleDelete(setFiles)}
-          placeholders={placeholders}
-        />
-      </View>
-    </View>
-  );
-
-  const renderVehicleSection = () => {
-    return (
-      <View>
-        {renderUploadSection(
-          'RC Copy',
-          'rcNumber',
-          'rcFileName',
-          vehicleRcFiles,
-          setVehicleRcFiles,
-        )}
-        {renderUploadSection(
-          'Insurance Copy',
-          'insuranceNumber',
-          'insuranceFileName',
-          vehicleInsuranceFiles,
-          setVehicleInsuranceFiles,
-        )}
-        {renderUploadSection(
-          'Emission or Pollution',
-          'emissionNumber',
-          'emissionFileName',
-          vehicleEmissionFiles,
-          setVehicleEmissionFiles,
-        )}
-        <View style={styles.uploadSection}>
-          <CustomText text={'Upload Car Photos'} variant={'activeText'} />
-          <ImagePickerGrid
-            noOfPhotos={4}
-            onImagesPicked={setVehicleImages}
-            images={vehicleImages}
-          />
-        </View>
-      </View>
-    );
-  };
-
-  const renderDriverSection = () => {
-    return (
-      <View>
-        {renderUploadSection(
-          'Driver License',
-          'licenseNumber',
-          'licenseFileName',
-          driverLicenseFiles,
-          setDriverLicenseFiles,
-        )}
-        {renderUploadSection(
-          'Aadhaar Card',
-          'aadhaarNumber',
-          'aadhaarFileName',
-          driverAadhaarFiles,
-          setDriverAadhaarFiles,
-        )}
-        {renderUploadSection(
-          'Police Verification',
-          'verificationNumber',
-          'verificationFileName',
-          driverVerificationFiles,
-          setDriverVerificationFiles,
-        )}
-        <View style={styles.uploadSection}>
-          <CustomText text={'Upload Photos'} variant={'activeText'} />
-          <ImagePickerGrid
-            noOfPhotos={1}
-            onImagesPicked={setDriverImages}
-            images={driverImages}
-          />
-        </View>
-      </View>
-    );
   };
 
   return (
@@ -176,7 +171,11 @@ const UploadDocumentsScreen = () => {
             onPress={() => {
               setDocumentsType('vehicle');
             }}
-            containerStyle={{ width: (width - 20) / 2 }}
+            containerStyle={{
+              width: (width - 20) / 2,
+              borderColor: theme.primaryColor,
+              borderWidth: 1,
+            }}
           />
           <CustomSelect
             text={'Driver'}
@@ -192,9 +191,7 @@ const UploadDocumentsScreen = () => {
           />
         </View>
 
-        {documentsType === 'vehicle'
-          ? renderVehicleSection()
-          : renderDriverSection()}
+        {renderDocumentSection()}
 
         <View style={styles.buttonContainer}>
           <CustomButton

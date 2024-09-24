@@ -28,6 +28,7 @@ const DocumentUploadCard = ({
   dividerStyle,
   maxFiles = Infinity,
   placeholders = [],
+  fileType = 'all', // New prop for file type
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -86,7 +87,7 @@ const DocumentUploadCard = ({
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={[styles.titleContainer, titleContainerStyle]}>
-        <Text style={[styles.title, titleStyle]}>{title}</Text>
+        {/* <Text style={[styles.title, titleStyle]}>{title}</Text> */}
         {showUploadIcon && (
           <TouchableOpacity onPress={handleUpload}>
             <UploadIcon
@@ -99,7 +100,7 @@ const DocumentUploadCard = ({
       </View>
       {displayItems.length > 0 && (
         <>
-          <View style={[styles.divider, dividerStyle]} />
+          {/* <View style={[styles.divider, dividerStyle]} /> */}
           <FlatList
             data={displayItems}
             renderItem={renderItem}
@@ -113,6 +114,9 @@ const DocumentUploadCard = ({
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSelectFile={handleSelectFile}
+        camera={fileType === 'image' || fileType === 'all'}
+        gallery={fileType === 'image' || fileType === 'all'}
+        pdf={fileType === 'pdf' || fileType === 'all'}
       />
     </View>
   );
