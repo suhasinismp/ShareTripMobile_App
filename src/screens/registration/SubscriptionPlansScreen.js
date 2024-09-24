@@ -12,6 +12,7 @@ import { getSubscriptionPlans } from '../../services/subscriptionPlansService';
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
 
+
 const SubscriptionPlansScreen = ({ route }) => {
   const userRoleId = route.params.userRoleId;
   const navigation = useNavigation();

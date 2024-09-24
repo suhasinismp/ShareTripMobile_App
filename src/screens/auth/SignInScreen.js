@@ -70,10 +70,26 @@ const SignInScreen = () => {
           userToken: response.token,
         }),
       );
-      response.role_id == 3000
-        ? navigation.navigate('Register', { screen: 'VehicleDetails' })
-        : navigation.navigate('Register', { screen: 'BusinessDetails' });
-    } else {
+      dispatch(
+        showSnackbar({
+          visible:true,
+          message:'Login Success',
+          type:'success',
+        })
+      )
+      // response.role_id == 3000
+      //   ? navigation.navigate('Register', { screen: 'VehicleDetails' })
+      //   : navigation.navigate('Register', { screen: 'BusinessDetails' });
+      navigation.navigate('Register',{screen:'HomeScreen'});
+    } else if(response?.status ===400){
+    dispatch(
+      showSnackbar({
+        visible:true,
+        message:'warning: check your credentials',
+        type:'warning',
+      })
+    );
+    }else {
       dispatch(
         showSnackbar({
           visible: true,
