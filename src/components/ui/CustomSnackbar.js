@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorIcon from '../../../assets/svgs/error.svg';
-
-
 import { hideSnackbar } from '../../store/slices/snackBarSlice';
 import { snackBarConfigSelector } from '../../store/selectors';
 import { colors } from '../../styles/globalStyles';

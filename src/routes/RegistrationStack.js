@@ -4,7 +4,6 @@ import { StyleSheet } from 'react-native';
 import AppHeader from '../components/AppHeader';
 import BusinessDetailsScreen from '../screens/registration/BusinessDetailsScreen';
 import VehicleDetailsScreen from '../screens/registration/VehicleDetailsScreen';
-
 import UploadDocumentsScreen from '../screens/registration/UploadDocumentsScreen';
 import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansScreen';
 

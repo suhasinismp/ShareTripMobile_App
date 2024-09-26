@@ -77,10 +77,10 @@ const SignInScreen = () => {
           type:'success',
         })
       )
-      // response.role_id == 3000
+      response.role_id == 3000
       //   ? navigation.navigate('Register', { screen: 'VehicleDetails' })
       //   : navigation.navigate('Register', { screen: 'BusinessDetails' });
-      navigation.navigate('Register',{screen:'HomeScreen'});
+      navigation.navigate('bottomTab',{screen:'HomeScreen'});
     } else if(response?.status ===400){
     dispatch(
       showSnackbar({
