@@ -14,7 +14,7 @@ const ImagePickerGrid = ({
 
   const handleImagePick = (imageData) => {
     const newImages = [...images];
-    newImages[currentIndex] = imageData.uri;
+    newImages[currentIndex] = imageData;
     onImagesPicked(newImages.filter(Boolean));
     setModalVisible(false);
   };
@@ -37,7 +37,7 @@ const ImagePickerGrid = ({
       >
         {image ? (
           <>
-            <Image source={{ uri: image }} style={styles.image} />
+            <Image source={{ uri: image.uri }} style={styles.image} />
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => handleDeleteImage(index)}

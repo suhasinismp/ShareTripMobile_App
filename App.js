@@ -12,7 +12,6 @@ import AuthStackNavigator from './src/routes/AuthStack';
 import RegistrationNavigator from './src/routes/RegistrationStack';
 import AppStack from './src/routes/AppStack';
 import CustomSnackbar from './src/components/ui/CustomSnackbar';
-import HomeScreen from '../src/components/ui'
 
 SplashScreen.preventAutoHideAsync();
 
@@ -62,8 +61,8 @@ export default function App() {
         <NavigationContainer>
           <AppStack />
           {/* <ThemeSwitcher /> */}
-          <HomeScreen/>
-          <CustomSnackbar/>
+
+          <CustomSnackbar />
           <StatusBar style="auto" />
         </NavigationContainer>
       </ThemeContext.Provider>

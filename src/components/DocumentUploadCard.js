@@ -81,7 +81,7 @@ const DocumentUploadCard = ({
 
   const handleSelectFile = (file) => {
     const fileName = file.name;
-    onUpload(fileName, file.uri);
+    onUpload(fileName, file.uri, file.type);
   };
 
   return (
