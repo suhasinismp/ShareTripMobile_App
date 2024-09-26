@@ -1,81 +1,77 @@
-
-
-
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import {
   Keyboard,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { fieldNames } from '../../constants/strings/fieldNames';
-import { i18n } from '../../constants/lang';
-import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../../hooks/useTheme';
-import { useForm, Controller } from 'react-hook-form';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import CustomTextInput from '../../components/ui/CustomTextInput';
+import { useDispatch, useSelector } from 'react-redux';
+import CustomLoader from '../../components/CustomLoader';
 import CustomButton from '../../components/ui/CustomButton';
 import CustomDropdown from '../../components/ui/CustomDropdown';
+import CustomTextInput from '../../components/ui/CustomTextInput';
+import { i18n } from '../../constants/lang';
+import { VehicleDetailSchema } from '../../constants/schema/VehicleDetailSchema';
+import { fieldNames } from '../../constants/strings/fieldNames';
+import { useTheme } from '../../hooks/useTheme';
 import {
   createVehicleDetail,
   fetchVehicleNames,
   fetchVehicleTypes,
   getAllVehiclesByUserId,
 } from '../../services/vehicleDetailsService';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { VehicleDetailSchema } from '../../constants/schema/VehicleDetailSchema';
-import { getIdByName } from '../../utils/getIdByNameUtil';
-import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
-import { set } from 'lodash';
-
+import { getIdByName } from '../../utils/getIdByNameUtil';
 
 const inputFields = [
-    {
-      id: 3,
-      name: fieldNames.VEHICLE_REGISTRATION_NUMBER,
-      placeholder: i18n.t('VEHICLE_REGISTRATION_NUMBER'),
-      fieldType: 'input',
-    },
-    {
-      id: 2,
-      name: fieldNames.VEHICLE_TYPE,
-      placeholder: i18n.t('VEHICLE_TYPE'),
-      fieldType: 'dropDown',
-    },
-    {
-      id: 1,
-      name: fieldNames.VEHICLE_NAME,
-      placeholder: i18n.t('VEHICLE_NAME'),
-      fieldType: 'dropDown',
-    },
-    {
-      id: 5,
-      name: fieldNames.VEHICLE_MODEL,
-      placeholder: i18n.t('VEHICLE_MODEL'),
-      fieldType: 'input',
-      keyboardType: 'numeric',
-    },
-    {
-      id: 4,
-      name: fieldNames.VEHICLE_SEATING_CAPACITY,
-      placeholder: i18n.t('VEHICLE_SEATING_CAPACITY'),
-      fieldType: 'dropDown',
-    },
-]
+  {
+    id: 3,
+    name: fieldNames.VEHICLE_REGISTRATION_NUMBER,
+    placeholder: i18n.t('VEHICLE_REGISTRATION_NUMBER'),
+    fieldType: 'input',
+  },
+  {
+    id: 2,
+    name: fieldNames.VEHICLE_TYPE,
+    placeholder: i18n.t('VEHICLE_TYPE'),
+    fieldType: 'dropDown',
+  },
+  {
+    id: 1,
+    name: fieldNames.VEHICLE_NAME,
+    placeholder: i18n.t('VEHICLE_NAME'),
+    fieldType: 'dropDown',
+  },
+  {
+    id: 5,
+    name: fieldNames.VEHICLE_MODEL,
+    placeholder: i18n.t('VEHICLE_MODEL'),
+    fieldType: 'input',
+    keyboardType: 'numeric',
+  },
+  {
+    id: 4,
+    name: fieldNames.VEHICLE_SEATING_CAPACITY,
+    placeholder: i18n.t('VEHICLE_SEATING_CAPACITY'),
+    fieldType: 'dropDown',
+  },
+];
 
 const removeDuplicatesBySeatingCapacity = (data) => {
-    const seenCapacities = new Set();
-    return data.filter((vehicle) => {
-      if (!seenCapacities.has(vehicle.seating_capacity)) {
-        seenCapacities.add(vehicle.seating_capacity);
-        return true;
-      }
-      return false;
-    });
-  };
+  const seenCapacities = new Set();
+  return data.filter((vehicle) => {
+    if (!seenCapacities.has(vehicle.seating_capacity)) {
+      seenCapacities.add(vehicle.seating_capacity);
+      return true;
+    }
+    return false;
+  });
+};
 
 const VehicleDetailsScreen = () => {
   const navigation = useNavigation();
@@ -85,15 +81,14 @@ const VehicleDetailsScreen = () => {
   const userToken = userData.userToken;
 
   const { theme } = useTheme();
-  const [vehicleTypes, setVehicleTypes] = useState([]);
-  const [vehicleNames, setVehicleNames] = useState([]);
-  console.log({vehicleNames})
+  const [vehicleTypes, setVehicleTypes] = useState({ data: [] });
+  const [vehicleNames, setVehicleNames] = useState({ data: [] });
   const [userRoleId, setUserRoleId] = useState(null);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
-  const [initialVehicleList, setInitialVehicleList] = useState(null);  // Change to null initially
+  const [initialVehicleList, setInitialVehicleList] = useState(null);
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
-  
-  // Initialize useForm with yupResolver for schema validation
+  const [isLoading, setIsLoading] = useState(true);
+
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     resolver: yupResolver(VehicleDetailSchema),
     defaultValues: {
@@ -104,9 +99,9 @@ const VehicleDetailsScreen = () => {
       [fieldNames.VEHICLE_SEATING_CAPACITY]: '',
     },
   });
-  
+
   const [openDropdown, setOpenDropdown] = useState(null);
-  
+
   const watchVehicleType = watch(fieldNames.VEHICLE_TYPE);
   const watchVehicleName = watch(fieldNames.VEHICLE_NAME);
 
@@ -115,27 +110,39 @@ const VehicleDetailsScreen = () => {
   }, []);
 
   const getVehicleDetails = async () => {
-        try {
-          const vehicleTypeResponse = await fetchVehicleTypes();
-          const vehicleNameResponse = await fetchVehicleNames();
-    
-          setVehicleTypes(vehicleTypeResponse);
-          setVehicleNames(vehicleNameResponse);
-    
-          const uniqueSeatingCapacityData = removeDuplicatesBySeatingCapacity(
-            vehicleNameResponse.data,
-          );
-          setSeatingCapacityData(
-            uniqueSeatingCapacityData.map((vehicle) => ({
-              value: vehicle.seating_capacity,
-              label: vehicle.seating_capacity,
-              ...vehicle,
-            })),
-          );
-        } catch (error) {
-          console.error('Error fetching vehicle details:', error);
-        }
-      };
+    setIsLoading(true);
+    try {
+      const vehicleTypeResponse = await fetchVehicleTypes();
+      const vehicleNameResponse = await fetchVehicleNames();
+
+      if (vehicleTypeResponse && vehicleTypeResponse.data) {
+        setVehicleTypes(vehicleTypeResponse);
+      } else {
+        console.error('Invalid vehicleTypeResponse:', vehicleTypeResponse);
+      }
+
+      if (vehicleNameResponse && vehicleNameResponse.data) {
+        setVehicleNames(vehicleNameResponse);
+
+        const uniqueSeatingCapacityData = removeDuplicatesBySeatingCapacity(
+          vehicleNameResponse.data,
+        );
+        setSeatingCapacityData(
+          uniqueSeatingCapacityData.map((vehicle) => ({
+            value: vehicle.seating_capacity,
+            label: vehicle.seating_capacity,
+            ...vehicle,
+          })),
+        );
+      } else {
+        console.error('Invalid vehicleNameResponse:', vehicleNameResponse);
+      }
+    } catch (error) {
+      console.error('Error fetching vehicle details:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (userData) {
@@ -149,158 +156,153 @@ const VehicleDetailsScreen = () => {
     }
   }, [userToken, userId]);
 
-  // Fetch vehicle list and update the initialVehicleList state
   const getVehiclesList = async () => {
     const response = await getAllVehiclesByUserId(userToken, userId);
     if (response.error === false && response.noOfRecords > 0) {
-      setInitialVehicleList(response.data[0]);  // Set the vehicle details
+      setInitialVehicleList(response.data[0]);
     } else {
       setInitialVehicleList(null);
     }
   };
 
   useEffect(() => {
-        if (watchVehicleType) {
-          // Filter vehicle names based on the selected vehicle type
-          const filteredNames = vehicleNames.data.filter(
-            (vehicle) => vehicle.vehicleType.v_type === watchVehicleType,
-          );
-          setFilteredVehicleNames(filteredNames);
-    
-          // Clear vehicle name and seating capacity in the form
-          setValue(fieldNames.VEHICLE_NAME, undefined, { shouldValidate: true });
-          setValue(fieldNames.VEHICLE_SEATING_CAPACITY, undefined, {
-            shouldValidate: true,
-          });
-    
-          // Reset the seating capacity data to the original full list
-          setSeatingCapacityData(
-            removeDuplicatesBySeatingCapacity(vehicleNames.data).map((vehicle) => ({
-              value: vehicle.seating_capacity,
-              label: vehicle.seating_capacity,
-              ...vehicle,
-            })),
-          );
-        }
-      }, [watchVehicleType, vehicleNames.data, setValue]);
-    
-      const updateSeatingCapacity = (vehicleName) => {
-            const selectedVehicle = vehicleNames.data.find(
-              (vehicle) => vehicle.v_name === vehicleName,
-            );
-            if (selectedVehicle) {
-              const matchingCapacity = seatingCapacityData.find(
-                (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
-              );
-              if (matchingCapacity) {
-                setSeatingCapacityData([matchingCapacity]);
-                setValue(
-                  fieldNames.VEHICLE_SEATING_CAPACITY,
-                  matchingCapacity.seating_capacity,
-                  { shouldValidate: true },
-                );
-              }
-            }
-          };
-        
-        
+    if (watchVehicleType) {
+      // Filter vehicle names based on the selected vehicle type
+      const filteredNames = vehicleNames.data.filter(
+        (vehicle) => vehicle.vehicleType.v_type === watchVehicleType,
+      );
+      setFilteredVehicleNames(filteredNames);
 
+      // Clear vehicle name and seating capacity in the form
+      setValue(fieldNames.VEHICLE_NAME, undefined, { shouldValidate: true });
+      setValue(fieldNames.VEHICLE_SEATING_CAPACITY, undefined, {
+        shouldValidate: true,
+      });
 
+      // Reset the seating capacity data to the original full list
+      setSeatingCapacityData(
+        removeDuplicatesBySeatingCapacity(vehicleNames.data).map((vehicle) => ({
+          value: vehicle.seating_capacity,
+          label: vehicle.seating_capacity,
+          ...vehicle,
+        })),
+      );
+    }
+  }, [watchVehicleType, vehicleNames.data, setValue]);
 
-      useEffect(() => {
-        if (watchVehicleName) {
-          updateSeatingCapacity(watchVehicleName);
-        }
-      }, [watchVehicleName]);
+  useEffect(() => {
+    if (watchVehicleName) {
+      updateSeatingCapacity(watchVehicleName);
+    }
+  }, [watchVehicleName]);
 
+  const updateSeatingCapacity = (vehicleName) => {
+    const selectedVehicle = vehicleNames.data.find(
+      (vehicle) => vehicle.v_name === vehicleName,
+    );
+    if (selectedVehicle) {
+      const matchingCapacity = seatingCapacityData.find(
+        (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
+      );
+      if (matchingCapacity) {
+        setSeatingCapacityData([matchingCapacity]);
+        setValue(
+          fieldNames.VEHICLE_SEATING_CAPACITY,
+          matchingCapacity.seating_capacity,
+          { shouldValidate: true },
+        );
+      }
+    }
+  };
 
   const handleDropdownToggle = (id) => {
-        setOpenDropdown(openDropdown === id ? null : id);
-      };
-    
-      const handleDropdownSelect = (id, item) => {
-        const field = inputFields.find((field) => field.id === id);
-        if (field) {
-          let value;
-          switch (field.name) {
-            case fieldNames.VEHICLE_TYPE:
-              value = item.v_type;
-              break;
-            case fieldNames.VEHICLE_NAME:
-              value = item.v_name;
-              break;
-            case fieldNames.VEHICLE_SEATING_CAPACITY:
-              value = item.seating_capacity;
-              break;
-            default:
-              value = item.value;
-          }
-    
-          setValue(field.name, value, { shouldValidate: true });
-        }
-      };
-    
-  // Populate form with initialVehicleList data when it's available
+    setOpenDropdown(openDropdown === id ? null : id);
+  };
+
+  const handleDropdownSelect = (id, item) => {
+    const field = inputFields.find((field) => field.id === id);
+    if (field) {
+      let value;
+      switch (field.name) {
+        case fieldNames.VEHICLE_TYPE:
+          value = item.v_type;
+          break;
+        case fieldNames.VEHICLE_NAME:
+          value = item.v_name;
+          break;
+        case fieldNames.VEHICLE_SEATING_CAPACITY:
+          value = item.seating_capacity;
+          break;
+        default:
+          value = item.value;
+      }
+
+      setValue(field.name, value, { shouldValidate: true });
+    }
+  };
+
   useEffect(() => {
     if (initialVehicleList) {
       reset({
-        [fieldNames.VEHICLE_REGISTRATION_NUMBER]: initialVehicleList.vehicles.v_registration_number || '',
-        [fieldNames.VEHICLE_TYPE]: initialVehicleList.vehicles.VehicleTypes.v_type || '',
-        [fieldNames.VEHICLE_NAME]: initialVehicleList.vehicles.VehicleNames.v_name || '',
+        [fieldNames.VEHICLE_REGISTRATION_NUMBER]:
+          initialVehicleList.vehicles.v_registration_number || '',
+        [fieldNames.VEHICLE_TYPE]:
+          initialVehicleList.vehicles.VehicleTypes.v_type || '',
+        [fieldNames.VEHICLE_NAME]:
+          initialVehicleList.vehicles.VehicleNames.v_name || '',
         [fieldNames.VEHICLE_MODEL]: initialVehicleList.vehicles.v_model || '',
-        [fieldNames.VEHICLE_SEATING_CAPACITY]: initialVehicleList.vehicles.v_seating_cpcty || '',
+        [fieldNames.VEHICLE_SEATING_CAPACITY]:
+          initialVehicleList.vehicles.v_seating_cpcty || '',
       });
     }
   }, [initialVehicleList, reset]);
 
-
   const onSubmit = async (data) => {
-        const { nameId, typeId } = await getIdByName(
-          vehicleNames.data,
-          data.vehicleName,
-        );
-    
-        if (
-          !data.vehicleName &&
-          !data.vehicleRegistrationNumber &&
-          !data.vehicleModel &&
-          !data.vehicleSeatingCapacity
-        ) {
-          userRoleId == 3000
-            ? navigation.navigate('BusinessDetails')
-            : navigation.navigate('VehicleAndDriverDocuments');
-          reset();
-        } else {
-          const finalData = {
-            vehicle_names_id: nameId,
-            vehicle_types_id: typeId,
-            v_registration_number: data.vehicleRegistrationNumber,
-            v_model: data.vehicleModel,
-            v_seating_cpcty: data.vehicleSeatingCapacity,
-            user_id: userId,
-            driver_id: userId,
-          };
-    
-          const response = await createVehicleDetail(finalData, userToken);
-    
-          if (response?.newVehicle.created_at) {
-            userRoleId == 3000
-              ? navigation.navigate('BusinessDetails')
-              : navigation.navigate('VehicleAndDriverDocuments');
-            reset();
-          } else {
-            dispatch(
-              showSnackbar({
-                visible: true,
-                message: 'something went wrong',
-                type: 'Error',
-              }),
-            );
-          }
-        }
+    const { nameId, typeId } = await getIdByName(
+      vehicleNames.data,
+      data.vehicleName,
+    );
+
+    if (
+      !data.vehicleName &&
+      !data.vehicleRegistrationNumber &&
+      !data.vehicleModel &&
+      !data.vehicleSeatingCapacity
+    ) {
+      userRoleId == 3000
+        ? navigation.navigate('BusinessDetails')
+        : navigation.navigate('VehicleAndDriverDocuments');
+      reset();
+    } else {
+      const finalData = {
+        vehicle_names_id: nameId,
+        vehicle_types_id: typeId,
+        v_registration_number: data.vehicleRegistrationNumber,
+        v_model: data.vehicleModel,
+        v_seating_cpcty: data.vehicleSeatingCapacity,
+        user_id: userId,
+        driver_id: userId,
       };
 
-  // Render function for dropdowns and inputs
+      const response = await createVehicleDetail(finalData, userToken);
+
+      if (response?.newVehicle.created_at) {
+        userRoleId == 3000
+          ? navigation.navigate('BusinessDetails')
+          : navigation.navigate('VehicleAndDriverDocuments');
+        reset();
+      } else {
+        dispatch(
+          showSnackbar({
+            visible: true,
+            message: 'something went wrong',
+            type: 'Error',
+          }),
+        );
+      }
+    }
+  };
+
   const renderField = (item) => {
     switch (item.fieldType) {
       case 'dropDown':
@@ -313,17 +315,23 @@ const VehicleDetailsScreen = () => {
               <CustomDropdown
                 placeholder={item.placeholder}
                 data={
-                  (item.placeholder === i18n.t('VEHICLE_TYPE') && vehicleTypes.data) ||
-                  (item.placeholder === i18n.t('VEHICLE_NAME') && filteredVehicleNames) ||
-                  (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') && seatingCapacityData)
+                  (item.placeholder === i18n.t('VEHICLE_TYPE') &&
+                    vehicleTypes.data) ||
+                  (item.placeholder === i18n.t('VEHICLE_NAME') &&
+                    filteredVehicleNames) ||
+                  (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
+                    seatingCapacityData)
                 }
                 isOpen={openDropdown === item.id}
                 onToggle={() => handleDropdownToggle(item.id)}
-                onSelect={(selectedItem) => handleDropdownSelect(item.id, selectedItem)}
+                onSelect={(selectedItem) =>
+                  handleDropdownSelect(item.id, selectedItem)
+                }
                 label={
                   (item.placeholder === i18n.t('VEHICLE_TYPE') && 'v_type') ||
                   (item.placeholder === i18n.t('VEHICLE_NAME') && 'v_name') ||
-                  (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') && 'seating_capacity')
+                  (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
+                    'seating_capacity')
                 }
                 value={value}
               />
@@ -345,6 +353,10 @@ const VehicleDetailsScreen = () => {
         return null;
     }
   };
+
+  if (isLoading) {
+    return <CustomLoader />; // Replace with your loading component
+  }
 
   return (
     <KeyboardAwareScrollView
