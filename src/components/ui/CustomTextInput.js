@@ -104,6 +104,7 @@ const CustomTextInput = ({
           )}
         </Pressable>
       )}
+      
     />
   );
 };

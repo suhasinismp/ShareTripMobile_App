@@ -18,7 +18,9 @@ import CustomTextInput from '../../components/ui/CustomTextInput';
 import { i18n } from '../../constants/lang';
 import { useTheme } from '../../hooks/useTheme';
 import {
+  getUserDocsByUserId,
   getUserDocTypes,
+  getVehicleDocsByVehicleId,
   getVehicleDocTypes,
   uploadDriverDocs,
   uploadVehicleDocs,
@@ -30,6 +32,7 @@ const UploadDocumentsScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const userId = userData.userId;
+  const userVehicleId = userData.userVehicleId;
   const { theme } = useTheme();
   const { control, handleSubmit, setValue, watch } = useForm();
   const [documentsType, setDocumentsType] = useState('vehicle');
@@ -37,8 +40,9 @@ const UploadDocumentsScreen = () => {
 
   const [vehicleDocTypes, setVehicleDocTypes] = useState([]);
   const [driverDocTypes, setDriverDocTypes] = useState([]);
-
-  const [vehicleFiles, setVehicleFiles] = useState([]);
+  const [initialVehicleDocs, setInitialVehicleDocs] =useState(null);
+  const [initialDriverDocs, setInitialDriverDocs] =useState(null);
+  const [vehicleFiles, setVehicleFiles] = useState([])
   const [driverFiles, setDriverFiles] = useState([]);
   const [vehicleImages, setVehicleImages] = useState(Array(4).fill(null));
   const [driverImages, setDriverImages] = useState(Array(1).fill(null));
@@ -65,6 +69,33 @@ const UploadDocumentsScreen = () => {
       console.error('Error fetching document types:', error);
     }
   };
+  
+  useEffect(()=>{
+    getAllDocs()
+  }, [userVehicleId,userToken,userId])
+
+
+
+  const getAllDocs =async()=>{
+    const vehicleDocsResponse =await getVehicleDocsByVehicleId(userVehicleId, userToken)
+    const driverDocsResponse = await getUserDocsByUserId(userId, userToken)
+    if(vehicleDocsResponse.data.length>0){
+      setInitialVehicleDocs(vehicleDocsResponse.data)
+    }else{
+      setInitialVehicleDocs(null)
+    }
+    
+
+    if(driverDocsResponse.noOfRecords>0){
+      setInitialDriverDocs(driverDocsResponse.data)
+    }else{
+      setInitialDriverDocs(null) 
+    }
+    
+    setInitialVehicleDocs()
+  }
+
+
 
   const handleUpload =
     (isDriver = false) =>
@@ -123,7 +154,7 @@ const UploadDocumentsScreen = () => {
               control={control}
               name={`${item.doc_label[0]}`}
               placeholder={`${item.doc_label[0]} Number`}
-              keyboardType="numeric"
+              
             />
             <DocumentUploadCard
               title={item.doc_label[0]}
@@ -180,7 +211,7 @@ const UploadDocumentsScreen = () => {
             doc_name: doc.doc_label[i],
             doc_number: data[`${doc.doc_label[i]}`] || '',
             doc_type: doc.fileType,
-            vehicles_id: userId,
+            vehicles_id: userVehicleId
           });
         }
       } else {
@@ -189,7 +220,7 @@ const UploadDocumentsScreen = () => {
           doc_name: doc.doc_label[0],
           doc_number: data[`${doc.doc_label[0]}`] || '',
           doc_type: doc.fileType,
-          vehicles_id: userId,
+          vehicles_id: userVehicleId,
         });
       }
     });
@@ -197,7 +228,7 @@ const UploadDocumentsScreen = () => {
     formData.append('json', JSON.stringify(jsonData));
 
     vehicleFiles.forEach((file) => {
-      formData.append('docUpload', {
+      formData.append('image', {
         uri: file.uri,
         type: file.type,
         name: file.name,
@@ -206,7 +237,7 @@ const UploadDocumentsScreen = () => {
 
     vehicleImages.forEach((image, index) => {
       if (image) {
-        formData.append('docUpload', {
+        formData.append('image', {
           uri: image.uri,
           type: 'image/jpeg',
           name: `vehicle_image_${index}.jpg`,
@@ -256,7 +287,7 @@ const UploadDocumentsScreen = () => {
     formData.append('json', JSON.stringify(jsonData));
 
     driverFiles.forEach((file) => {
-      formData.append('docUpload', {
+      formData.append('image', {
         uri: file.uri,
         name: file.name,
         type: file.type,
@@ -264,7 +295,7 @@ const UploadDocumentsScreen = () => {
     });
 
     if (driverImages[0]) {
-      formData.append('docUpload', {
+      formData.append('image', {
         uri: driverImages[0].uri,
         name: 'driver_photo.jpg',
         type: 'image/jpeg',

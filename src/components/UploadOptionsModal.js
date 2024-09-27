@@ -20,13 +20,13 @@ import { t } from 'i18n-js';
 
 const InfoMessage = () => (
   <View style={styles.infoContainer}>
-    <Text style={styles.infoText}>
+    {/* <Text style={styles.infoText}>
       Upload clear scanned copies of original documents
     </Text>
     <Text style={styles.infoText}>
       Only PNG, JPEG files that are of 2MB and PDF files of 5MB can be uploaded
       at a time
-    </Text>
+    </Text> */}
   </View>
 );
 

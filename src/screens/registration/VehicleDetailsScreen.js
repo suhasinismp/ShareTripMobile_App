@@ -27,6 +27,7 @@ import {
 import { getUserDataSelector } from '../../store/selectors';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
 import { getIdByName } from '../../utils/getIdByNameUtil';
+import { setUserVehicleIdToStore } from '../../store/slices/loginSlice';
 
 const inputFields = [
   {
@@ -87,6 +88,7 @@ const VehicleDetailsScreen = () => {
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
   const [initialVehicleList, setInitialVehicleList] = useState(null);
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
+  const [VehicleId, setVehicleId] =useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const { control, handleSubmit, setValue, reset, watch } = useForm({
@@ -160,6 +162,12 @@ const VehicleDetailsScreen = () => {
     const response = await getAllVehiclesByUserId(userToken, userId);
     if (response.error === false && response.noOfRecords > 0) {
       setInitialVehicleList(response.data[0]);
+      setVehicleId(response.data[0].st_vehicles_id)
+        dispatch(
+          setUserVehicleIdToStore({
+            userVehicleId:response.data[0].st_vehicles_id
+          })
+        )
     } else {
       setInitialVehicleList(null);
     }
@@ -283,23 +291,32 @@ const VehicleDetailsScreen = () => {
         user_id: userId,
         driver_id: userId,
       };
+   console.log(initialVehicleList=== null)
 
-      const response = await createVehicleDetail(finalData, userToken);
-
-      if (response?.newVehicle.created_at) {
-        userRoleId == 3000
-          ? navigation.navigate('BusinessDetails')
-          : navigation.navigate('VehicleAndDriverDocuments');
-        reset();
-      } else {
-        dispatch(
-          showSnackbar({
-            visible: true,
-            message: 'something went wrong',
-            type: 'Error',
-          }),
-        );
-      }
+   if(initialVehicleList != null){
+    userRoleId == 3000
+        ? navigation.navigate('BusinessDetails')
+        : navigation.navigate('VehicleAndDriverDocuments');
+}else{
+    
+  const response = await createVehicleDetail(finalData, userToken);
+    
+  if (response?.newVehicle.created_at) {
+    userRoleId == 3000
+      ? navigation.navigate('BusinessDetails')
+      : navigation.navigate('VehicleAndDriverDocuments');
+    reset();
+  } else {
+    dispatch(
+      showSnackbar({
+        visible: true,
+        message: 'something went wrong',
+        type: 'Error',
+      }),
+    );
+  }
+}
+     
     }
   };
 
@@ -374,11 +391,11 @@ const VehicleDetailsScreen = () => {
         <View style={styles.innerContainer}>
           {inputFields.map(renderField)}
           <View style={styles.buttonContainer}>
-            <CustomButton
+            {/* <CustomButton
               title={i18n.t('SKIP')}
               onPress={onSubmit}
               variant="text"
-            />
+            /> */}
             <CustomButton
               title={i18n.t('SIGNUP_BUTTON')}
               onPress={handleSubmit(onSubmit)}
@@ -405,7 +422,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 20,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
 });

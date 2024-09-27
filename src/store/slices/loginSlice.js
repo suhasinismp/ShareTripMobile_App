@@ -13,6 +13,7 @@ const loginSlice = createSlice({
     userRoleId: null,
     userMobile: '',
     userToken: '',
+    userVehicleId:null,
   },
   reducers: {
     setUserDataToStore: (state, action) => {
@@ -35,7 +36,12 @@ const loginSlice = createSlice({
         set(state, 'userToken', action.payload.userToken);
       }
     },
+    setUserVehicleIdToStore:(state, action)=>{
+      if(action.payload.userVehicleId){
+        set(state, 'userVehicleId',action.payload.userVehicleId);
+      }
+    }
   },
 });
-export const { setUserDataToStore } = loginSlice.actions;
+export const { setUserDataToStore,setUserVehicleIdToStore } = loginSlice.actions;
 export default loginSlice.reducer;
