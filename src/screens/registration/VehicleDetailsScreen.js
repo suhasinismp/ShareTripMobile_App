@@ -1,30 +1,33 @@
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import {
   Keyboard,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { fieldNames } from '../../constants/strings/fieldNames';
-import { i18n } from '../../constants/lang';
-import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../../hooks/useTheme';
-import { useForm, Controller } from 'react-hook-form';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import CustomTextInput from '../../components/ui/CustomTextInput';
+import { useDispatch, useSelector } from 'react-redux';
+import CustomLoader from '../../components/CustomLoader';
 import CustomButton from '../../components/ui/CustomButton';
 import CustomDropdown from '../../components/ui/CustomDropdown';
+import CustomTextInput from '../../components/ui/CustomTextInput';
+import { i18n } from '../../constants/lang';
+import { VehicleDetailSchema } from '../../constants/schema/VehicleDetailSchema';
+import { fieldNames } from '../../constants/strings/fieldNames';
+import { useTheme } from '../../hooks/useTheme';
 import {
   createVehicleDetail,
   fetchVehicleNames,
   fetchVehicleTypes,
+  getAllVehiclesByUserId,
 } from '../../services/vehicleDetailsService';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { VehicleDetailSchema } from '../../constants/schema/VehicleDetailSchema';
-import { getIdByName } from '../../utils/getIdByNameUtil';
-import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
+import { getIdByName } from '../../utils/getIdByNameUtil';
+import { setUserVehicleIdToStore } from '../../store/slices/loginSlice';
 
 const inputFields = [
   {
@@ -70,20 +73,35 @@ const removeDuplicatesBySeatingCapacity = (data) => {
     return false;
   });
 };
+
 const VehicleDetailsScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const userData = useSelector(getUserDataSelector);
   const userId = userData.userId;
   const userToken = userData.userToken;
+
   const { theme } = useTheme();
-  const [vehicleTypes, setVehicleTypes] = useState([]);
-  const [vehicleNames, setVehicleNames] = useState([]);
+  const [vehicleTypes, setVehicleTypes] = useState({ data: [] });
+  const [vehicleNames, setVehicleNames] = useState({ data: [] });
+  const [userRoleId, setUserRoleId] = useState(null);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
+  const [initialVehicleList, setInitialVehicleList] = useState(null);
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
-  const { control, handleSubmit, setValue, watch, reset } = useForm({
+  const [VehicleId, setVehicleId] =useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { control, handleSubmit, setValue, reset, watch } = useForm({
     resolver: yupResolver(VehicleDetailSchema),
+    defaultValues: {
+      [fieldNames.VEHICLE_REGISTRATION_NUMBER]: '',
+      [fieldNames.VEHICLE_TYPE]: '',
+      [fieldNames.VEHICLE_NAME]: '',
+      [fieldNames.VEHICLE_MODEL]: '',
+      [fieldNames.VEHICLE_SEATING_CAPACITY]: '',
+    },
   });
+
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const watchVehicleType = watch(fieldNames.VEHICLE_TYPE);
@@ -92,6 +110,68 @@ const VehicleDetailsScreen = () => {
   useEffect(() => {
     getVehicleDetails();
   }, []);
+
+  const getVehicleDetails = async () => {
+    setIsLoading(true);
+    try {
+      const vehicleTypeResponse = await fetchVehicleTypes();
+      const vehicleNameResponse = await fetchVehicleNames();
+
+      if (vehicleTypeResponse && vehicleTypeResponse.data) {
+        setVehicleTypes(vehicleTypeResponse);
+      } else {
+        console.error('Invalid vehicleTypeResponse:', vehicleTypeResponse);
+      }
+
+      if (vehicleNameResponse && vehicleNameResponse.data) {
+        setVehicleNames(vehicleNameResponse);
+
+        const uniqueSeatingCapacityData = removeDuplicatesBySeatingCapacity(
+          vehicleNameResponse.data,
+        );
+        setSeatingCapacityData(
+          uniqueSeatingCapacityData.map((vehicle) => ({
+            value: vehicle.seating_capacity,
+            label: vehicle.seating_capacity,
+            ...vehicle,
+          })),
+        );
+      } else {
+        console.error('Invalid vehicleNameResponse:', vehicleNameResponse);
+      }
+    } catch (error) {
+      console.error('Error fetching vehicle details:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userData) {
+      setUserRoleId(userData.userRoleId);
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    if (userToken && userId) {
+      getVehiclesList();
+    }
+  }, [userToken, userId]);
+
+  const getVehiclesList = async () => {
+    const response = await getAllVehiclesByUserId(userToken, userId);
+    if (response.error === false && response.noOfRecords > 0) {
+      setInitialVehicleList(response.data[0]);
+      setVehicleId(response.data[0].st_vehicles_id)
+        dispatch(
+          setUserVehicleIdToStore({
+            userVehicleId:response.data[0].st_vehicles_id
+          })
+        )
+    } else {
+      setInitialVehicleList(null);
+    }
+  };
 
   useEffect(() => {
     if (watchVehicleType) {
@@ -124,26 +204,22 @@ const VehicleDetailsScreen = () => {
     }
   }, [watchVehicleName]);
 
-  const getVehicleDetails = async () => {
-    try {
-      const vehicleTypeResponse = await fetchVehicleTypes();
-      const vehicleNameResponse = await fetchVehicleNames();
-
-      setVehicleTypes(vehicleTypeResponse);
-      setVehicleNames(vehicleNameResponse);
-
-      const uniqueSeatingCapacityData = removeDuplicatesBySeatingCapacity(
-        vehicleNameResponse.data,
+  const updateSeatingCapacity = (vehicleName) => {
+    const selectedVehicle = vehicleNames.data.find(
+      (vehicle) => vehicle.v_name === vehicleName,
+    );
+    if (selectedVehicle) {
+      const matchingCapacity = seatingCapacityData.find(
+        (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
       );
-      setSeatingCapacityData(
-        uniqueSeatingCapacityData.map((vehicle) => ({
-          value: vehicle.seating_capacity,
-          label: vehicle.seating_capacity,
-          ...vehicle,
-        })),
-      );
-    } catch (error) {
-      console.error('Error fetching vehicle details:', error);
+      if (matchingCapacity) {
+        setSeatingCapacityData([matchingCapacity]);
+        setValue(
+          fieldNames.VEHICLE_SEATING_CAPACITY,
+          matchingCapacity.seating_capacity,
+          { shouldValidate: true },
+        );
+      }
     }
   };
 
@@ -173,24 +249,21 @@ const VehicleDetailsScreen = () => {
     }
   };
 
-  const updateSeatingCapacity = (vehicleName) => {
-    const selectedVehicle = vehicleNames.data.find(
-      (vehicle) => vehicle.v_name === vehicleName,
-    );
-    if (selectedVehicle) {
-      const matchingCapacity = seatingCapacityData.find(
-        (cap) => cap.seating_capacity === selectedVehicle.seating_capacity,
-      );
-      if (matchingCapacity) {
-        setSeatingCapacityData([matchingCapacity]);
-        setValue(
-          fieldNames.VEHICLE_SEATING_CAPACITY,
-          matchingCapacity.seating_capacity,
-          { shouldValidate: true },
-        );
-      }
+  useEffect(() => {
+    if (initialVehicleList) {
+      reset({
+        [fieldNames.VEHICLE_REGISTRATION_NUMBER]:
+          initialVehicleList.vehicles.v_registration_number || '',
+        [fieldNames.VEHICLE_TYPE]:
+          initialVehicleList.vehicles.VehicleTypes.v_type || '',
+        [fieldNames.VEHICLE_NAME]:
+          initialVehicleList.vehicles.VehicleNames.v_name || '',
+        [fieldNames.VEHICLE_MODEL]: initialVehicleList.vehicles.v_model || '',
+        [fieldNames.VEHICLE_SEATING_CAPACITY]:
+          initialVehicleList.vehicles.v_seating_cpcty || '',
+      });
     }
-  };
+  }, [initialVehicleList, reset]);
 
   const onSubmit = async (data) => {
     const { nameId, typeId } = await getIdByName(
@@ -204,7 +277,9 @@ const VehicleDetailsScreen = () => {
       !data.vehicleModel &&
       !data.vehicleSeatingCapacity
     ) {
-      navigation.navigate('BusinessDetails');
+      userRoleId == 3000
+        ? navigation.navigate('BusinessDetails')
+        : navigation.navigate('VehicleAndDriverDocuments');
       reset();
     } else {
       const finalData = {
@@ -216,21 +291,32 @@ const VehicleDetailsScreen = () => {
         user_id: userId,
         driver_id: userId,
       };
+   console.log(initialVehicleList=== null)
 
-      const response = await createVehicleDetail(finalData, userToken);
-
-      if (response?.newVehicle.created_at) {
-        navigation.navigate('BusinessDetails');
-        reset();
-      } else {
-        dispatch(
-          showSnackbar({
-            visible: true,
-            message: 'something went wrong',
-            type: 'Error',
-          }),
-        );
-      }
+   if(initialVehicleList != null){
+    userRoleId == 3000
+        ? navigation.navigate('BusinessDetails')
+        : navigation.navigate('VehicleAndDriverDocuments');
+}else{
+    
+  const response = await createVehicleDetail(finalData, userToken);
+    
+  if (response?.newVehicle.created_at) {
+    userRoleId == 3000
+      ? navigation.navigate('BusinessDetails')
+      : navigation.navigate('VehicleAndDriverDocuments');
+    reset();
+  } else {
+    dispatch(
+      showSnackbar({
+        visible: true,
+        message: 'something went wrong',
+        type: 'Error',
+      }),
+    );
+  }
+}
+     
     }
   };
 
@@ -242,33 +328,31 @@ const VehicleDetailsScreen = () => {
             key={item.id}
             control={control}
             name={item.name}
-            render={({ field: { onChange, value } }) => {
-              return (
-                <CustomDropdown
-                  placeholder={item.placeholder}
-                  data={
-                    (item.placeholder === i18n.t('VEHICLE_TYPE') &&
-                      vehicleTypes.data) ||
-                    (item.placeholder === i18n.t('VEHICLE_NAME') &&
-                      filteredVehicleNames) ||
-                    (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
-                      seatingCapacityData)
-                  }
-                  isOpen={openDropdown === item.id}
-                  onToggle={() => handleDropdownToggle(item.id)}
-                  onSelect={(selectedItem) => {
-                    handleDropdownSelect(item.id, selectedItem);
-                  }}
-                  label={
-                    (item.placeholder === i18n.t('VEHICLE_TYPE') && 'v_type') ||
-                    (item.placeholder === i18n.t('VEHICLE_NAME') && 'v_name') ||
-                    (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
-                      'seating_capacity')
-                  }
-                  value={value}
-                />
-              );
-            }}
+            render={({ field: { onChange, value } }) => (
+              <CustomDropdown
+                placeholder={item.placeholder}
+                data={
+                  (item.placeholder === i18n.t('VEHICLE_TYPE') &&
+                    vehicleTypes.data) ||
+                  (item.placeholder === i18n.t('VEHICLE_NAME') &&
+                    filteredVehicleNames) ||
+                  (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
+                    seatingCapacityData)
+                }
+                isOpen={openDropdown === item.id}
+                onToggle={() => handleDropdownToggle(item.id)}
+                onSelect={(selectedItem) =>
+                  handleDropdownSelect(item.id, selectedItem)
+                }
+                label={
+                  (item.placeholder === i18n.t('VEHICLE_TYPE') && 'v_type') ||
+                  (item.placeholder === i18n.t('VEHICLE_NAME') && 'v_name') ||
+                  (item.placeholder === i18n.t('VEHICLE_SEATING_CAPACITY') &&
+                    'seating_capacity')
+                }
+                value={value}
+              />
+            )}
           />
         );
       case 'input':
@@ -286,6 +370,11 @@ const VehicleDetailsScreen = () => {
         return null;
     }
   };
+
+  if (isLoading) {
+    return <CustomLoader />; // Replace with your loading component
+  }
+
   return (
     <KeyboardAwareScrollView
       style={styles.container}
@@ -301,13 +390,12 @@ const VehicleDetailsScreen = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
           {inputFields.map(renderField)}
-
           <View style={styles.buttonContainer}>
-            <CustomButton
+            {/* <CustomButton
               title={i18n.t('SKIP')}
               onPress={onSubmit}
               variant="text"
-            />
+            /> */}
             <CustomButton
               title={i18n.t('SIGNUP_BUTTON')}
               onPress={handleSubmit(onSubmit)}
@@ -334,7 +422,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 20,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
 });

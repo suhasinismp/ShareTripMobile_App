@@ -1,47 +1,47 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { set } from "lodash";
+import { createSlice } from '@reduxjs/toolkit';
+import { set } from 'lodash';
 
-
-
-const loginSlice=createSlice({
-    name:'userInfo',
-    initialState:{
-        meta:{
-            isLoading:false
-        },
-        userId:null,
-        userName:"",
-        userEmail:"",
-        userRole:null,
-        userMobile:"",
-        userToken:"",
-
-
+const loginSlice = createSlice({
+  name: 'userInfo',
+  initialState: {
+    meta: {
+      isLoading: false,
     },
-    reducers:{
-     setUserDataToStore:(state, action)=>{
-
-        if(action.payload.userId){
-            set(state, 'userId', action.payload.userId)
-        }
-       if(action.payload.userName){
-        set(state, 'userName',action.payload.userName)
-       }
-       if(action.payload.userEmail){
-        set(state,'userEmail', action.payload.userEmail )
-       }
-       if(action.payload.userRole){
-        set(state,'userRole',action.payload.userRole)
-       }
-       if(action.payload.userMobile){
-        set(state,'userMobile',action.payload.userMobile)
-       }
-       if(action.payload.userToken){
-        set(state,'userToken',action.payload.userToken )
-       }
+    userId: null,
+    userName: '',
+    userEmail: '',
+    userRoleId: null,
+    userMobile: '',
+    userToken: '',
+    userVehicleId:null,
+  },
+  reducers: {
+    setUserDataToStore: (state, action) => {
+      if (action.payload.userId) {
+        set(state, 'userId', action.payload.userId);
+      }
+      if (action.payload.userName) {
+        set(state, 'userName', action.payload.userName);
+      }
+      if (action.payload.userEmail) {
+        set(state, 'userEmail', action.payload.userEmail);
+      }
+      if (action.payload.userRoleId) {
+        set(state, 'userRoleId', action.payload.userRoleId);
+      }
+      if (action.payload.userMobile) {
+        set(state, 'userMobile', action.payload.userMobile);
+      }
+      if (action.payload.userToken) {
+        set(state, 'userToken', action.payload.userToken);
+      }
+    },
+    setUserVehicleIdToStore:(state, action)=>{
+      if(action.payload.userVehicleId){
+        set(state, 'userVehicleId',action.payload.userVehicleId);
+      }
     }
-
-    }
-})
-export const{setUserDataToStore}=loginSlice.actions
-export default loginSlice.reducer
+  },
+});
+export const { setUserDataToStore,setUserVehicleIdToStore } = loginSlice.actions;
+export default loginSlice.reducer;

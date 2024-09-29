@@ -4,6 +4,9 @@ import { StyleSheet } from 'react-native';
 import AuthStackNavigator from './AuthStack';
 import RegistrationNavigator from './RegistrationStack';
 
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import BottomTabNavigator from './BottomTab';
+
 const Stack = createStackNavigator();
 const AppStack = () => {
   return (
@@ -18,6 +21,12 @@ const AppStack = () => {
         component={RegistrationNavigator}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="bottomTab"
+        component={BottomTabNavigator}
+        options={{ headerShown: false }}
+      
+       />
     </Stack.Navigator>
   );
 };

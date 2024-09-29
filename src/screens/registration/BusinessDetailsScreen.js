@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Keyboard,
   StyleSheet,
@@ -18,7 +18,7 @@ import { businessDetailsScheme } from '../../constants/schema/businessDetailsSch
 import ImagePickerGrid from '../../components/ImagePickerGrid';
 import CustomText from '../../components/ui/CustomText';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
-import { createBusinessDetails } from '../../services/businessDetailService';
+import { createBusinessDetails, fetchBusinessDetailsByUserId } from '../../services/businessDetailService';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 
@@ -56,6 +56,7 @@ const BusinessDetailsScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const userId = userData.userId;
   const userToken = userData.userToken;
+  const userRoleId = userData.userRoleId;
 
   const { theme } = useTheme();
   const { control, handleSubmit } = useForm({
@@ -63,6 +64,18 @@ const BusinessDetailsScreen = () => {
   });
 
   const [logo, setLogo] = useState([]);
+
+
+useEffect(()=>{
+  getBusinessDetails()
+},[userToken,userId])
+
+ const getBusinessDetails =async()=>{
+   const response= await fetchBusinessDetailsByUserId(userToken,userId)
+ }
+
+
+
   const onSubmit = async (data) => {
     if (
       !data.businessName &&
@@ -71,7 +84,9 @@ const BusinessDetailsScreen = () => {
       !data.businessCity &&
       !data.businessState
     ) {
-      navigation.navigate('VehicleAndDriverDocuments');
+      userRoleId == 3000
+        ? navigation.navigate('VehicleAndDriverDocuments')
+        : navigation.navigate('VehicleDetails');
     } else {
       const finalData = {
         business_name: data.businessName,
@@ -85,7 +100,9 @@ const BusinessDetailsScreen = () => {
       const response = await createBusinessDetails(finalData, userToken, logo);
 
       if (response?.created_at) {
-        navigation.navigate('VehicleAndDriverDocuments');
+        userRoleId == 3000
+          ? navigation.navigate('VehicleAndDriverDocuments')
+          : navigation.navigate('VehicleDetails');
       } else {
         dispatch(
           showSnackbar({
@@ -123,13 +140,14 @@ const BusinessDetailsScreen = () => {
           ))}
           <CustomText
             text={'Upload Business Logo'}
-            variant={'activeText'}
+           variant={'activeText'}
             style={{ marginTop: 20 }}
           />
           <ImagePickerGrid
             noOfPhotos={1}
             onImagesPicked={setLogo}
             images={logo}
+             fileType='image'
           />
           <View style={styles.buttonContainer}>
             <CustomButton

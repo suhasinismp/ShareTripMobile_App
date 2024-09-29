@@ -46,10 +46,10 @@ const SignInScreen = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(signInScheme),
-    // defaultValues: {
-    //   [fieldNames.PHONE]: '9878987694',
-    //   [fieldNames.PASSWORD]: 'ravi@123',
-    // },
+    defaultValues: {
+      [fieldNames.PHONE]: '9878987694',
+      [fieldNames.PASSWORD]: 'ravi@123',
+    },
   });
 
   const onSignin = async (data) => {
@@ -65,13 +65,31 @@ const SignInScreen = () => {
           userId: response.id,
           userName: response.u_name,
           userEmail: response.u_email_id,
-          userRole: response.role_id,
+          userRoleId: response.role_id,
           userMobile: response.u_mob_num,
           userToken: response.token,
         }),
       );
-      navigation.navigate('Register', { screen: 'VehicleDetails' });
-    } else {
+      dispatch(
+        showSnackbar({
+          visible:true,
+          message:'Login Success',
+          type:'success',
+        })
+      )
+      response.role_id == 3000
+      //   ? navigation.navigate('Register', { screen: 'VehicleDetails' })
+      //   : navigation.navigate('Register', { screen: 'BusinessDetails' });
+      navigation.navigate('bottomTab',{screen:'HomeScreen'});
+    } else if(response?.status ===400){
+    dispatch(
+      showSnackbar({
+        visible:true,
+        message:'warning: check your credentials',
+        type:'warning',
+      })
+    );
+    }else {
       dispatch(
         showSnackbar({
           visible: true,

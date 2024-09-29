@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-
-
-
+import ErrorIcon from '../../../assets/svgs/error.svg';
 import { hideSnackbar } from '../../store/slices/snackBarSlice';
 import { snackBarConfigSelector } from '../../store/selectors';
 import { colors } from '../../styles/globalStyles';
@@ -12,7 +10,14 @@ const CustomSnackbar = () => {
   const dispatch = useDispatch();
   const { visible, message, actionText, position, type } = useSelector(
     snackBarConfigSelector,
+    
   );
+  let bgColor
+    if(type=== 'Error'){
+     bgColor= '#FAE6E6'}
+    else if(type === 'success'){
+    bgColor= '#E4F0E8'}
+  else { bgColor= '#EEEEEE'}
 
   useEffect(() => {
     if (visible) {
@@ -28,7 +33,8 @@ const CustomSnackbar = () => {
     position === 'top' ? styles.topContainer : styles.bottomContainer;
 
   return visible ? (
-    <View style={[styles.container, containerStyle]}>
+    <View style={[styles.container, {backgroundColor:bgColor}, containerStyle]}>
+      <ErrorIcon style={{width:30, height:30,}}/>
       <Text style={styles.messageText}>{message}</Text>
       {actionText && (
         <TouchableOpacity onPress={() => dispatch(hideSnackbar())}>
@@ -45,12 +51,14 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     position: 'absolute',
     left: 0,
     right: 0,
     marginHorizontal: 15,
-    backgroundColor: 'red',
+    // backgroundColor: '#FAE6E6',
+    borderRadius:6,
+    borderLeftWidth:4,
+    borderColor:'red',
   },
   topContainer: {
     top: 15,
@@ -60,10 +68,12 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
-    color: 'white',
+    color: '#191919',
+    marginLeft:40,
+    
   },
   actionText: {
-    marginLeft: 8,
+    marginLeft:6,
     fontSize: 14,
     color: 'white',
   },
