@@ -1,116 +1,125 @@
-
-
-import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import Home from '../../assets/svgs/Home.svg';
-import MyTrip from '../../assets/svgs/MyTrips.svg';
-import SelfTrip from '../../assets/svgs/SelfTrip.svg';
-import Vacant from '../../assets/svgs/VacantTrip.svg';
-import Bill from '../../assets/svgs/Bills.svg';
+import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-// import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 
+// Import your screen components here
+import HomeScreen from '../screens/bottomTab/HomeScreen';
+import MyTrips from '../screens/bottomTab/MyTrips';
+import VacantTrip from '../screens/bottomTab/VacantTrip';
+import SelfTrips from '../screens/bottomTab/SelfTrip';
+import Bills from '../screens/bottomTab/Bills';
 
+// Import your custom SVG components
+import Home from '../../assets/svgs/home.svg';
+import MyTrip from '../../assets/svgs/myTrips.svg';
+import SelfTrip from '../../assets/svgs/selfTrip.svg';
+import Vacant from '../../assets/svgs/vacantTrip.svg';
+import Bill from '../../assets/svgs/bills.svg';
 
 const Tab = createBottomTabNavigator();
 
-const CustomTabBarButton = ({ onPress, children }) => {
-  return (
-    <TouchableOpacity
+const CustomTabBarButton = ({ children, onPress }) => (
+  <TouchableOpacity
+    style={{
+      top: -22,
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}
+    onPress={onPress}
+  >
+    <View
       style={{
-        top: -30,
-        justifyContent: "center",
-        alignItems: "center",
-        ...styles.shadow,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
-      onPress={onPress}
     >
-      <View
-        style={{
-          width: 60,
-          height: 60,
-          borderRadius: 40,
-        //   backgroundColor: "#113F67",
-        }}
-      >
-        {children}
-      </View>
-    </TouchableOpacity>
-  );
-};
+      {children}
+    </View>
+  </TouchableOpacity>
+);
 
 const Tabs = () => {
-  // const [isModalVisible, setIsModalVisible] = useState(false);
-  // const navigation = useNavigation();
-  // const isFocused = useIsFocused();
-
-  // const toggleModal = () => {
-  //   setIsModalVisible(!isModalVisible);
-  // };
-
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName='BottomHome'>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: true,
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          height: 60,
+          ...styles.shadow,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          marginBottom: 5,
+        },
+      }}
+      initialRouteName="BottomHome"
+    >
       <Tab.Screen
         name="My Trips"
-        component={MyTrip}
+        component={MyTrips}
         options={{
-            // tabBarBadge:2,
           tabBarIcon: ({ focused }) => (
-            <View>
-              <MyTrip />
-            </View>
+            <MyTrip
+              width={24}
+              height={24}
+              fill={focused ? '#123F67' : '#757575'}
+            />
           ),
         }}
       />
-
       <Tab.Screen
         name="Self Trip"
-        component={SelfTrip}
+        component={SelfTrips}
         options={{
-            // tabBarBadge:12,
           tabBarIcon: ({ focused }) => (
-            <View>
-              <SelfTrip />
-            </View>
+            <SelfTrip
+              width={24}
+              height={24}
+              fill={focused ? '#123F67' : '#757575'}
+            />
           ),
         }}
       />
-
       <Tab.Screen
         name="BottomHome"
-        component={Home}
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View>
-              <Home/>
-            </View>
+            <Home width={30} height={30} fill="#ffffff" />
           ),
           tabBarButton: (props) => <CustomTabBarButton {...props} />,
+          tabBarLabel: () => null,
         }}
       />
-
       <Tab.Screen
         name="Vacant Trip"
-        component={Vacant}
+        component={VacantTrip}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View>
-              <Vacant />
-            </View>
+            <Vacant
+              width={24}
+              height={24}
+              fill={focused ? '#123F67' : '#757575'}
+            />
           ),
         }}
       />
-
       <Tab.Screen
         name="Bills"
-        component={Bill}
+        component={Bills}
         options={{
-            // tabBarBadge:9, 
-           
           tabBarIcon: ({ focused }) => (
-            <View>
-              <Bill />
-            </View>
+            <Bill
+              width={24}
+              height={24}
+              fill={focused ? '#123F67' : '#757575'}
+            />
           ),
         }}
       />
@@ -120,9 +129,12 @@ const Tabs = () => {
 
 const styles = StyleSheet.create({
   shadow: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.1,
     shadowRadius: 3.5,
     elevation: 5,
   },
