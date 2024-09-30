@@ -19,10 +19,11 @@ import { useSelector } from 'react-redux';
 import { getUserDataSelector } from '../store/selectors';
 import ProfileScreen from '../screens/drawer/ProfileScreen';
 import UploadDocumentsScreen from '../screens/registration/UploadDocumentsScreen';
-import BusinessDetailsScreen from '../screens/registration/BusinessDetailsScreen';
+import BusinessDetailsScreen from '../screens/drawer/manageDriver/BusinessDetailsScreen';
 import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansScreen';
 import VehicleDetailsScreen from '../screens/drawer/manageVehicle/VehicleDetailsScreen';
 import VehicleStack from './VehicleStack';
+import DriverDocumentScreen from '../screens/drawer/manageDriver/DriverDocumentScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -172,15 +173,25 @@ const DrawerStack = () => {
     >
       <Drawer.Screen name="Home" component={Tabs} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
-      <Drawer.Screen name="ManageVehicle" component={VehicleStack}  />
-      <Drawer.Screen name="ManageBusiness" component={BusinessDetailsScreen} />
+      <Drawer.Screen
+        name="ManageVehicle"
+        component={VehicleStack}
+        options={{ title: 'Vehicle Details' }}
+      />
+      <Drawer.Screen
+        name="ManageBusiness"
+        component={BusinessDetailsScreen}
+        options={{ title: 'Business Details' }}
+      />
       <Drawer.Screen
         name="ManageSubscription"
         component={SubscriptionPlansScreen}
+        options={{ title: 'Subscription Plans' }}
       />
       <Drawer.Screen
         name="ManageDriverDocuments"
-        component={UploadDocumentsScreen}
+        component={DriverDocumentScreen}
+        options={{ title: 'Driver Documents' }}
       />
       <Drawer.Screen name="Help" component={HelpScreen} />
       <Drawer.Screen name="Logout" component={LogoutScreen} />

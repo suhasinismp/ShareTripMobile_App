@@ -2,8 +2,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import AppHeader from '../components/AppHeader';
-import BusinessDetailsScreen from '../screens/registration/BusinessDetailsScreen';
-import VehicleDetailsScreen from '../screens/drawer/manageVehicle/VehicleDetailsScreen';
+
 import UploadDocumentsScreen from '../screens/registration/UploadDocumentsScreen';
 import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansScreen';
 
@@ -38,11 +37,11 @@ const RegistrationNavigator = () => {
         component={VehicleDetailsScreen}
         options={{ title: 'Vehicle Details' }}
       /> */}
-      <RegistrationStack.Screen
+      {/* <RegistrationStack.Screen
         name="BusinessDetails"
         component={BusinessDetailsScreen}
         options={{ title: 'Business Details' }}
-      />
+      /> */}
       <RegistrationStack.Screen
         name="VehicleAndDriverDocuments"
         component={UploadDocumentsScreen}

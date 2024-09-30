@@ -9,12 +9,14 @@ import {
   FlatList,
 } from 'react-native';
 import { getSubscriptionPlans } from '../../services/subscriptionPlansService';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
-
+import { getUserDataSelector } from '../../store/selectors';
 
 const SubscriptionPlansScreen = ({ route }) => {
-  const userRoleId = route.params.userRoleId;
+  const userData = useSelector(getUserDataSelector);
+  const roleId = userData?.userRoleId;
+  const userRoleId = route?.params?.userRoleId || roleId;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const [plansData, setPlansData] = useState([]);

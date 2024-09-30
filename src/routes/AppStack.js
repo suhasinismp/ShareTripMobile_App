@@ -1,6 +1,6 @@
 import { createStackNavigator } from '@react-navigation/stack';
 
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { StyleSheet } from 'react-native';
 import AuthStackNavigator from './AuthStack';
@@ -15,83 +15,62 @@ import DrawerStack from './DrawerStack';
 
 const Stack = createStackNavigator();
 const AppStack = () => {
-  const dispatch =useDispatch()
-  const[isLoggedIn, setIsLoggedIn] =useState(false);
-  const[isLoading, setIsLoading] =useState(true);
-  const userData= useSelector(getUserDataSelector)
+  const dispatch = useDispatch();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const userData = useSelector(getUserDataSelector);
 
+  useEffect(() => {
+    getUserDataFromSecureStore();
+  }, []);
 
-useEffect(()=>{
-  getUserDataFromSecureStore()
-},[])
-
- useEffect(()=>{
-  if(userData.userToken != null){
-    setIsLoggedIn(true)
-  }
- }, [userData])
-
-  const getUserDataFromSecureStore=async()=>{
-    setIsLoading(true)
-    let token = await SecureStore.getItemAsync('userToken')
-    let id =await SecureStore.getItemAsync('userId')
-    let name =await SecureStore.getItemAsync('userName')
-    let email =await SecureStore.getItemAsync('userEmail')
-    let roleId =await SecureStore.getItemAsync('userRoleId')
-    let mobile =await SecureStore.getItemAsync('userMobile')
-      if(token != null){
-        await dispatch(
-          setUserDataToStore({
-            userId: parseInt(id),
-            userName:name,
-            userEmail: email,
-            userRoleId: parseInt(roleId),
-            userMobile: mobile,
-            userToken: token,
-          }),
-        );
-      }
-      setIsLoading(false)
+  useEffect(() => {
+    if (userData.userToken != null) {
+      setIsLoggedIn(true);
     }
+  }, [userData]);
+
+  const getUserDataFromSecureStore = async () => {
+    setIsLoading(true);
+    let token = await SecureStore.getItemAsync('userToken');
+    let id = await SecureStore.getItemAsync('userId');
+    let name = await SecureStore.getItemAsync('userName');
+    let email = await SecureStore.getItemAsync('userEmail');
+    let roleId = await SecureStore.getItemAsync('userRoleId');
+    let mobile = await SecureStore.getItemAsync('userMobile');
+    if (token != null) {
+      await dispatch(
+        setUserDataToStore({
+          userId: parseInt(id),
+          userName: name,
+          userEmail: email,
+          userRoleId: parseInt(roleId),
+          userMobile: mobile,
+          userToken: token,
+        }),
+      );
+    }
+    setIsLoading(false);
+  };
   return (
     <Stack.Navigator>
-      {
-        !isLoggedIn ?(
-          <>
+      {!isLoggedIn ? (
+        <Stack.Screen
+          name="Auth"
+          component={AuthStackNavigator}
+          options={{ headerShown: false }}
+        />
+      ) : (
+        <>
           <Stack.Screen
-        name="Auth"
-        component={AuthStackNavigator}
-        options={{ headerShown: false }}
-      />
-      {/* <Stack.Screen
-        name="Register"
-        component={RegistrationNavigator}
-        options={{ headerShown: false }}
-      /> */}
-          </>
-        ):(
-          <>
-          {/* <Stack.Screen
-        name="bottomTab"
-        component={BottomTabNavigator}
-        options={{ headerShown: false }}
-      
-       /> */}
-       <Stack.Screen
-        name="Drawer"
-        component={DrawerStack}
-        options={{ headerShown: false }}
-      
-       />
-       </>
-        )
-      }
-      
-      
+            name="Drawer"
+            component={DrawerStack}
+            options={{ headerShown: false }}
+          />
+        </>
+      )}
     </Stack.Navigator>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default AppStack;

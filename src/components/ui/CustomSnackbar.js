@@ -2,22 +2,31 @@ import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorIcon from '../../../assets/svgs/error.svg';
+import SuccessIcon from '../../../assets/svgs/success.svg';
+import WarningIcon from '../../../assets/svgs/warning.svg';
 import { hideSnackbar } from '../../store/slices/snackBarSlice';
 import { snackBarConfigSelector } from '../../store/selectors';
-import { colors } from '../../styles/globalStyles';
 
 const CustomSnackbar = () => {
   const dispatch = useDispatch();
   const { visible, message, actionText, position, type } = useSelector(
     snackBarConfigSelector,
-    
   );
-  let bgColor
-    if(type=== 'Error'){
-     bgColor= '#FAE6E6'}
-    else if(type === 'success'){
-    bgColor= '#E4F0E8'}
-  else { bgColor= '#EEEEEE'}
+  let bgColor;
+  let icon;
+  let borderColor;
+  if (type === 'error') {
+    bgColor = '#FBE5E6';
+    icon = <ErrorIcon style={{ width: 30, height: 30 }} />;
+    borderColor = '#D83435';
+  } else if (type === 'success') {
+    bgColor = '#E4F0E7';
+    icon = <SuccessIcon style={{ width: 30, height: 30 }} />;
+    borderColor = '#1F833F';
+  } else {
+    bgColor = '#727374';
+    icon = <WarningIcon style={{ width: 30, height: 30 }} />;
+  }
 
   useEffect(() => {
     if (visible) {
@@ -33,8 +42,14 @@ const CustomSnackbar = () => {
     position === 'top' ? styles.topContainer : styles.bottomContainer;
 
   return visible ? (
-    <View style={[styles.container, {backgroundColor:bgColor}, containerStyle]}>
-      <ErrorIcon style={{width:30, height:30,}}/>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: bgColor, borderColor: borderColor },
+        containerStyle,
+      ]}
+    >
+      {icon}
       <Text style={styles.messageText}>{message}</Text>
       {actionText && (
         <TouchableOpacity onPress={() => dispatch(hideSnackbar())}>
@@ -55,10 +70,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     marginHorizontal: 15,
-    // backgroundColor: '#FAE6E6',
-    borderRadius:6,
-    borderLeftWidth:4,
-    borderColor:'red',
+    borderLeftWidth: 4,
   },
   topContainer: {
     top: 15,
@@ -69,11 +81,10 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 16,
     color: '#191919',
-    marginLeft:40,
-    
+    marginLeft: 40,
   },
   actionText: {
-    marginLeft:6,
+    marginLeft: 6,
     fontSize: 14,
     color: 'white',
   },
