@@ -24,6 +24,7 @@ const CustomTextInput = ({
   const { theme } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(!secureTextEntry);
+  const [search, setSearch] = useState();
   const inputRef = useRef(null);
 
   const handleFocus = () => {
@@ -33,6 +34,10 @@ const CustomTextInput = ({
 
   const handleBlur = () => {
     setIsFocused(false);
+  };
+
+  const handleSearch =()=>{
+    setSearch(setSearch);
   };
 
   const togglePasswordVisibility = () => {
@@ -48,6 +53,12 @@ const CustomTextInput = ({
       />
     </TouchableOpacity>
   );
+
+  const renderSearch=()=>{
+    <TouchableOpacity onPress={handleSearch(onSearch)} style={styles.searchButton}>
+            <Ionicons name="search-outline" size={24} color="black" />
+          </TouchableOpacity>
+  }
 
   return (
     <Controller

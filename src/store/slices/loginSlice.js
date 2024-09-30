@@ -12,7 +12,7 @@ const loginSlice = createSlice({
     userEmail: '',
     userRoleId: null,
     userMobile: '',
-    userToken: '',
+    userToken: null,
     userVehicleId:null,
   },
   reducers: {
