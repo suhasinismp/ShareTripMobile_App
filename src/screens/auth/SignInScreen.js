@@ -22,6 +22,7 @@ import { doLogin } from '../../services/signinService';
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
 import { setUserDataToStore } from '../../store/slices/loginSlice';
+import * as SecureStore from 'expo-secure-store';
 
 const inputFields = [
   {
@@ -60,6 +61,12 @@ const SignInScreen = () => {
     const response = await doLogin(finalData);
 
     if (response?.token) {
+      await SecureStore.setItemAsync('userToken', response.token);
+      await SecureStore.setItemAsync('userId', response.id.toString()); 
+      await SecureStore.setItemAsync('userName', response.u_name); 
+      await SecureStore.setItemAsync('userEmail', response.u_email_id); 
+      await SecureStore.setItemAsync('userRoleId', response.role_id.toString()); 
+      await SecureStore.setItemAsync('userMobile', response.u_mob_num); 
       await dispatch(
         setUserDataToStore({
           userId: response.id,
@@ -70,17 +77,18 @@ const SignInScreen = () => {
           userToken: response.token,
         }),
       );
-      dispatch(
-        showSnackbar({
-          visible:true,
-          message:'Login Success',
-          type:'success',
-        })
-      )
+      // dispatch(
+      //   showSnackbar({
+      //     visible:true,
+      //     message:'Login Success',
+      //     type:'success',
+      //   })
+      // )
       response.role_id == 3000
-      //   ? navigation.navigate('Register', { screen: 'VehicleDetails' })
-      //   : navigation.navigate('Register', { screen: 'BusinessDetails' });
-      navigation.navigate('bottomTab',{screen:'HomeScreen'});
+        // ? navigation.navigate('Register', { screen: 'VehicleDetails' })
+        // : navigation.navigate('Register', { screen: 'BusinessDetails' });
+      // navigation.navigate('bottomTab',{screen:'Homescreen'});
+      navigation.navigate('Groups')
     } else if(response?.status ===400){
     dispatch(
       showSnackbar({

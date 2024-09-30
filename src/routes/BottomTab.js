@@ -8,8 +8,8 @@ import SelfTrip from '../../assets/svgs/SelfTrip.svg';
 import Vacant from '../../assets/svgs/VacantTrip.svg';
 import Bill from '../../assets/svgs/Bills.svg';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
-import Bills from '../screens/bottomTab/Bills';
+// import { useNavigation, useIsFocused } from '@react-navigation/native';
+
 
 
 const Tab = createBottomTabNavigator();
@@ -40,21 +40,21 @@ const CustomTabBarButton = ({ onPress, children }) => {
 };
 
 const Tabs = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const navigation = useNavigation();
-  const isFocused = useIsFocused();
+  // const [isModalVisible, setIsModalVisible] = useState(false);
+  // const navigation = useNavigation();
+  // const isFocused = useIsFocused();
 
-  const toggleModal = () => {
-    setIsModalVisible(!isModalVisible);
-  };
+  // const toggleModal = () => {
+  //   setIsModalVisible(!isModalVisible);
+  // };
 
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName='BottomHome'>
       <Tab.Screen
         name="My Trips"
         component={MyTrip}
         options={{
-            tabBarBadge:2,
+            // tabBarBadge:2,
           tabBarIcon: ({ focused }) => (
             <View>
               <MyTrip />
@@ -67,7 +67,7 @@ const Tabs = () => {
         name="Self Trip"
         component={SelfTrip}
         options={{
-            tabBarBadge:12,
+            // tabBarBadge:12,
           tabBarIcon: ({ focused }) => (
             <View>
               <SelfTrip />
@@ -77,7 +77,7 @@ const Tabs = () => {
       />
 
       <Tab.Screen
-        name="Home"
+        name="BottomHome"
         component={Home}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -105,7 +105,7 @@ const Tabs = () => {
         name="Bills"
         component={Bill}
         options={{
-            tabBarBadge:9, 
+            // tabBarBadge:9, 
            
           tabBarIcon: ({ focused }) => (
             <View>
