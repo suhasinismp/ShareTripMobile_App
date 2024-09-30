@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import AppHeader from '../components/AppHeader';
 import BusinessDetailsScreen from '../screens/registration/BusinessDetailsScreen';
-import VehicleDetailsScreen from '../screens/registration/VehicleDetailsScreen';
+import VehicleDetailsScreen from '../screens/drawer/manageVehicle/VehicleDetailsScreen';
 import UploadDocumentsScreen from '../screens/registration/UploadDocumentsScreen';
 import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansScreen';
 
@@ -33,11 +33,11 @@ const RegistrationNavigator = () => {
         },
       }}
     >
-      <RegistrationStack.Screen
+      {/* <RegistrationStack.Screen
         name="VehicleDetails"
         component={VehicleDetailsScreen}
         options={{ title: 'Vehicle Details' }}
-      />
+      /> */}
       <RegistrationStack.Screen
         name="BusinessDetails"
         component={BusinessDetailsScreen}

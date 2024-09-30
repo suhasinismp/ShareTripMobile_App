@@ -21,6 +21,8 @@ import ProfileScreen from '../screens/drawer/ProfileScreen';
 import UploadDocumentsScreen from '../screens/registration/UploadDocumentsScreen';
 import BusinessDetailsScreen from '../screens/registration/BusinessDetailsScreen';
 import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansScreen';
+import VehicleDetailsScreen from '../screens/drawer/manageVehicle/VehicleDetailsScreen';
+import VehicleStack from './VehicleStack';
 
 const Drawer = createDrawerNavigator();
 
@@ -82,6 +84,12 @@ const CustomDrawerContent = (props) => {
       <View style={styles.menuSection}>
         <Text style={styles.menuTitle}>MENU</Text>
         <CustomDrawerItem
+          label="Dashboard"
+          icon={ProfileIcon}
+          onPress={() => navigation.navigate('Home')}
+          isFocused={isRouteActive('Home')}
+        />
+        <CustomDrawerItem
           label="Profile"
           icon={ProfileIcon}
           onPress={() => navigation.navigate('Profile')}
@@ -121,7 +129,7 @@ const CustomDrawerContent = (props) => {
         isFocused={isRouteActive('Help')}
       />
       <CustomDrawerItem
-        label="Logout Account"
+        label="Logout"
         icon={LogoutIcon}
         onPress={() => navigation.navigate('Logout')}
         isFocused={isRouteActive('Logout')}
@@ -164,7 +172,7 @@ const DrawerStack = () => {
     >
       <Drawer.Screen name="Home" component={Tabs} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
-      <Drawer.Screen name="ManageVehicle" component={UploadDocumentsScreen} />
+      <Drawer.Screen name="ManageVehicle" component={VehicleStack}  />
       <Drawer.Screen name="ManageBusiness" component={BusinessDetailsScreen} />
       <Drawer.Screen
         name="ManageSubscription"

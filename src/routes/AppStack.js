@@ -63,11 +63,11 @@ useEffect(()=>{
         component={AuthStackNavigator}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Register"
         component={RegistrationNavigator}
         options={{ headerShown: false }}
-      />
+      /> */}
           </>
         ):(
           <>

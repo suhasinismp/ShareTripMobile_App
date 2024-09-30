@@ -10,24 +10,24 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useDispatch, useSelector } from 'react-redux';
-import CustomLoader from '../../components/CustomLoader';
-import CustomButton from '../../components/ui/CustomButton';
-import CustomDropdown from '../../components/ui/CustomDropdown';
-import CustomTextInput from '../../components/ui/CustomTextInput';
-import { i18n } from '../../constants/lang';
-import { VehicleDetailSchema } from '../../constants/schema/VehicleDetailSchema';
-import { fieldNames } from '../../constants/strings/fieldNames';
-import { useTheme } from '../../hooks/useTheme';
+import CustomLoader from '../../../components/CustomLoader';
+import CustomButton from '../../../components/ui/CustomButton';
+import CustomDropdown from '../../../components/ui/CustomDropdown';
+import CustomTextInput from '../../../components/ui/CustomTextInput';
+import { i18n } from '../../../constants/lang';
+import { VehicleDetailSchema } from '../../../constants/schema/VehicleDetailSchema';
+import { fieldNames } from '../../../constants/strings/fieldNames';
+import { useTheme } from '../../../hooks/useTheme';
 import {
   createVehicleDetail,
   fetchVehicleNames,
   fetchVehicleTypes,
   getAllVehiclesByUserId,
-} from '../../services/vehicleDetailsService';
-import { getUserDataSelector } from '../../store/selectors';
-import { showSnackbar } from '../../store/slices/snackBarSlice';
-import { getIdByName } from '../../utils/getIdByNameUtil';
-import { setUserVehicleIdToStore } from '../../store/slices/loginSlice';
+} from '../../../services/vehicleDetailsService';
+import { getUserDataSelector } from '../../../store/selectors';
+import { showSnackbar } from '../../../store/slices/snackBarSlice';
+import { getIdByName } from '../../../utils/getIdByNameUtil';
+import { setUserVehicleIdToStore } from '../../../store/slices/loginSlice';
 
 const inputFields = [
   {
@@ -277,9 +277,8 @@ const VehicleDetailsScreen = () => {
       !data.vehicleModel &&
       !data.vehicleSeatingCapacity
     ) {
-      userRoleId == 3000
-        ? navigation.navigate('BusinessDetails')
-        : navigation.navigate('VehicleAndDriverDocuments');
+      
+        navigation.navigate('Register',{screen:'VehicleAndDriverDocuments'});
       reset();
     } else {
       const finalData = {
@@ -294,9 +293,8 @@ const VehicleDetailsScreen = () => {
    console.log(initialVehicleList=== null)
 
    if(initialVehicleList != null){
-    userRoleId == 3000
-        ? navigation.navigate('BusinessDetails')
-        : navigation.navigate('VehicleAndDriverDocuments');
+    
+        navigation.navigate('VehicleDocs');
 }else{
     
   const response = await createVehicleDetail(finalData, userToken);
