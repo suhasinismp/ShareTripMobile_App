@@ -1,14 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-const MyTrips = () => {
+const VacantTrip = () => {
   return (
     <View>
-      <Text>My Trips</Text>
+      <Text>Vacant Trip</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({});
 
-export default MyTrips;
+export default VacantTrip;
