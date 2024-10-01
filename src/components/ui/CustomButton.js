@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import CustomText from './CustomText';
 
@@ -8,12 +8,12 @@ const CustomButton = ({
   title,
   style,
   textStyle,
-  variant = 'primary', // 'primary', 'text', 'disabled', 'disabledText'
+  variant = 'primary', // 'primary', 'secondary', 'text', 'disabled', 'disabledText'
   disabled = false,
 }) => {
   const { theme } = useTheme();
 
-  const isDisabled = variant.includes('disabled');
+  const isDisabled = disabled || variant.includes('disabled');
 
   const getButtonStyles = () => {
     switch (variant) {
@@ -21,21 +21,30 @@ const CustomButton = ({
       case 'disabledText':
         return [
           styles.textButton,
-          isDisabled
-            ? { color: theme.disabledColor }
-            : { color: theme.primaryColor },
+          isDisabled ? { color: theme.disabledColor } : {},
+          style,
+        ];
+      case 'secondary':
+        return [
+          styles.button,
+          {
+            backgroundColor: 'transparent',
+            borderWidth: 1,
+            borderColor: theme.primaryColor,
+          },
+          style,
         ];
       case 'primary':
       case 'disabled':
       default:
         return [
           styles.button,
-          style,
           {
             backgroundColor: isDisabled
               ? theme.disabledColor
               : theme.primaryColor,
           },
+          style,
         ];
     }
   };
@@ -44,13 +53,18 @@ const CustomButton = ({
     if (variant === 'text' || variant === 'disabledText') {
       return [
         styles.text,
+        { color: isDisabled ? theme.disabledColor : theme.primaryColor },
         textStyle,
-        isDisabled
-          ? { color: theme.disabledColor }
-          : { color: theme.primaryColor },
       ];
     }
-    return [styles.text, textStyle];
+    if (variant === 'secondary') {
+      return [
+        styles.text,
+        { color: isDisabled ? theme.disabledColor : theme.primaryColor },
+        textStyle,
+      ];
+    }
+    return [styles.text, { color: 'white' }, textStyle];
   };
 
   return (
@@ -77,7 +91,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   text: {
-    color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
   },

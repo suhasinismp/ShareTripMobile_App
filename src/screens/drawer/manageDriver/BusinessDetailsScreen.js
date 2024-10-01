@@ -25,6 +25,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
 import CustomLoader from '../../../components/CustomLoader';
+import AppHeader from '../../../components/AppHeader';
 
 const inputFields = [
   {
@@ -183,50 +184,56 @@ const BusinessDetailsScreen = () => {
   }
 
   return (
-    <KeyboardAwareScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={[
-        styles.contentContainer,
-        { backgroundColor: theme.backgroundColor },
-      ]}
-      enableOnAndroid={true}
-      enableAutomaticScroll={true}
-      keyboardShouldPersistTaps="handled"
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.innerContainer}>
-          {inputFields.map((item) => (
-            <CustomTextInput
-              key={item.id}
-              control={control}
-              name={item.name}
-              placeholder={item.placeholder}
-              secureTextEntry={item.secureTextEntry}
+    <>
+      <AppHeader
+        drawerIcon={true}
+        onlineIcon={true}
+        muteIcon={true}
+        title={'Business Details'}
+      />
+      <KeyboardAwareScrollView
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { backgroundColor: theme.backgroundColor },
+        ]}
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        keyboardShouldPersistTaps="handled"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.innerContainer}>
+            {inputFields.map((item) => (
+              <CustomTextInput
+                key={item.id}
+                control={control}
+                name={item.name}
+                placeholder={item.placeholder}
+                secureTextEntry={item.secureTextEntry}
+              />
+            ))}
+            <CustomText
+              text={'Upload Business Logo'}
+              variant={'activeText'}
+              style={{ marginTop: 20 }}
             />
-          ))}
-          <CustomText
-            text={'Upload Business Logo'}
-            variant={'activeText'}
-            style={{ marginTop: 20 }}
-          />
-          <ImagePickerGrid
-            noOfPhotos={1}
-            onImagesPicked={setLogo}
-            images={logo}
-            fileType="image"
-          />
-          <View style={styles.buttonContainer}>
-            <CustomButton
-              title={
-                initialBusinessDetails ? 'Update' : i18n.t('SIGNUP_BUTTON')
-              }
-              onPress={handleSubmit(onSubmit)}
+            <ImagePickerGrid
+              noOfPhotos={1}
+              onImagesPicked={setLogo}
+              images={logo}
+              fileType="image"
             />
+            <View style={styles.buttonContainer}>
+              <CustomButton
+                title={initialBusinessDetails ? 'Update' : 'Submit'}
+                onPress={handleSubmit(onSubmit)}
+              />
+            </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAwareScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAwareScrollView>
+    </>
   );
 };
 

@@ -1,64 +1,68 @@
-import React, { useState ,useEffect} from 'react';
-import { StyleSheet, Text , Modal,View} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { fetchUserMetaData } from '../../services/signinService';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
+import { fetchUserMetaData } from '../../services/signinService';
 import { getUserDataSelector } from '../../store/selectors';
-import CustomModal from '../../components/ui/CustomModal';
+
 import { useNavigation } from '@react-navigation/native';
+import ModalProfileIcon from '../../../assets/svgs/modalProfile.svg';
+import CustomModal from '../../components/ui/CustomModal';
+import AppHeader from '../../components/AppHeader';
 
 const HomeScreen = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const navigation = useNavigation();
+  const userData = useSelector(getUserDataSelector);
+  const userId = userData.userId;
+  const userToken = userData.userToken;
 
-const [isModalVisible, setIsModalVisible]= useState(false);
-const navigation = useNavigation();
-const userData =useSelector(getUserDataSelector)
-const userId =userData.userId
-const userToken =userData.userToken
+  useEffect(() => {
+    getUserMetaData();
+  }, [userId, userToken]);
 
-useEffect(()=>{
-  getUserMetaData()
-},[userId,userToken])
+  const getUserMetaData = async () => {
+    const response = await fetchUserMetaData(userId, userToken);
 
-const getUserMetaData =async()=>{
-  const response =await fetchUserMetaData(userId, userToken) 
-  if (response.userStatus.vehicleStatusExists == false || response.userStatus.vehicleDocStatusExists == false || response.userStatus.userDocStatusExists ==false || response.userStatus.userBusinessStatusExists ===false ||response.userStatus.userSubscriptionStatusExists== false){
-    setIsModalVisible(true); 
-    
-  }     
+    if (
+      response.userStatuses.vehicleStatusExists == false ||
+      response.userStatuses.vehicleDocStatusExists == false ||
+      response.userStatuses.userDocStatusExists == false ||
+      response.userStatuses.userBusinessStatusExists === false ||
+      response.userStatuses.userSubscriptionStatusExists == false
+    ) {
+      setIsModalVisible(true);
+    }
+  };
 
-}
-const handleCancel = () => {
-  setIsModalVisible(false); 
-};
-
-const handleGoToprofile = () => {
-  navigation.navigate('Profile');
- setIsModalVisible(false); 
-};
+  const handlePrimaryAction = () => {
+    setIsModalVisible(false);
+    navigation.openDrawer();
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* <Text>Home Screen</Text> */}
-      
-        <View style={styles.modalContainer}>
-          {/* <Text>Some required information is missing!</Text> */}
-       
-        {/* {isModalVisible && ( */}
-            <CustomModal
-              title='Complete Your profile to boost your visibility and build trust with fellow drivers '
-              cancel='Cancel'
-              action='Go to profile'
-              onCancel={handleCancel}
-              onAction={handleGoToprofile}
-            />
-        {/* )} */}
-            </View>
-     
-    </SafeAreaView>
+    <>
+      <AppHeader
+        drawerIcon={true}
+        groupIcon={true}
+        onlineIcon={true}
+        muteIcon={true}
+        search={true}
+      />
+      <CustomModal
+        visible={isModalVisible}
+        title="Complete Your Onboarding"
+        subtitle="Upload your documents to boost your visibility and build trust with fellow drivers!"
+        primaryButtonText="Upload Documents"
+        secondaryButtonText="Cancel"
+        icon={<ModalProfileIcon />}
+        onPrimaryAction={handlePrimaryAction}
+        onSecondaryAction={() => {
+          setIsModalVisible(false);
+        }}
+      />
+    </>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -67,4 +71,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
 export default HomeScreen;

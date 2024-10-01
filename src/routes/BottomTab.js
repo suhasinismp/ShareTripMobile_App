@@ -15,12 +15,10 @@ import MyTrip from '../../assets/svgs/myTrips.svg';
 import SelfTrip from '../../assets/svgs/selfTrip.svg';
 import Vacant from '../../assets/svgs/vacantTrip.svg';
 import Bill from '../../assets/svgs/bills.svg';
- import MyTripInactive from '../../assets/svgs/myTripInactive.svg';
- import SelfTripInactive from '../../assets/svgs/selfTripInactive.svg';
- import VacantTripInactive from '../../assets/svgs/vacantTripInactive.svg';
- import BillsInactive from '../../assets/svgs/billsInactive.svg';
-
-
+import MyTripInactive from '../../assets/svgs/myTripInactive.svg';
+import SelfTripInactive from '../../assets/svgs/selfTripInactive.svg';
+import VacantTripInactive from '../../assets/svgs/vacantTripInactive.svg';
+import BillsInactive from '../../assets/svgs/billsInactive.svg';
 
 const Tab = createBottomTabNavigator();
 
@@ -67,65 +65,29 @@ const Tabs = () => {
       }}
       initialRouteName="BottomHome"
     >
-      {/* <Tab.Screen
+      <Tab.Screen
         name="My Trips"
         component={MyTrips}
         options={{
-          tabBarIcon: ({ focused }) => (
-            // focused?(<MyTrip
-            //   width={24}
-            //   height={24}
-             
-            // />):(
-            //   <MyTrip
-            //   width={24}
-            //   height={24}
-            
-            // />
-            // )
-            console.log({focused})
-          ),
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <MyTrip width={24} height={24} />
+            ) : (
+              <MyTripInactive width={24} height={24} />
+            ),
         }}
-      /> */}
-      <Tab.Screen
-  name="My Trips"
-  component={MyTrips}
-  options={{
-    tabBarIcon: ({ focused }) => (
-      focused ? (
-        <MyTrip
-          width={24}
-          height={24}
-        />
-      ) : (
-        <MyTripInactive
-          width={24}
-          height={24}
-        />
-      )
-    ),
-  }}
-/>
+      />
 
       <Tab.Screen
         name="Self Trip"
         component={SelfTrips}
         options={{
-          tabBarIcon: ({ focused }) => (
-            focused?(
-              <SelfTrip
-              width={24}
-              height={24}
-              
-            />
-            ):(
-              <SelfTripInactive
-              width={24}
-              height={24}
-              
-            />
-            )
-          ),
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <SelfTrip width={24} height={24} />
+            ) : (
+              <SelfTripInactive width={24} height={24} />
+            ),
         }}
       />
       <Tab.Screen
@@ -143,36 +105,24 @@ const Tabs = () => {
         name="Vacant Trip"
         component={VacantTrip}
         options={{
-          tabBarIcon: ({ focused }) => (
-            focused?( <Vacant
-              width={24}
-              height={24}
-             
-            />):( <VacantTripInactive
-              width={24}
-              height={24}
-              
-            />)
-           
-          ),
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <Vacant width={24} height={24} />
+            ) : (
+              <VacantTripInactive width={24} height={24} />
+            ),
         }}
       />
       <Tab.Screen
         name="Bills"
         component={Bills}
         options={{
-          tabBarIcon: ({ focused }) => (
-            focused?(<Bill
-              width={24}
-              height={24}
-             
-            />):(<BillsInactive
-              width={24}
-              height={24}
-             
-            />)
-            
-          ),
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <Bill width={24} height={24} />
+            ) : (
+              <BillsInactive width={24} height={24} />
+            ),
         }}
       />
     </Tab.Navigator>

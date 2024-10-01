@@ -1,22 +1,37 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, StyleSheet } from 'react-native';
+import CustomText from './CustomText';
+import CustomButton from './CustomButton';
 
-const CustomModal = ({ title, cancel, action, onCancel, onAction }) => {
+const CustomModal = ({
+  visible,
+  title,
+  subtitle,
+  primaryButtonText,
+  secondaryButtonText,
+  onPrimaryAction,
+  onSecondaryAction,
+  icon,
+}) => {
   return (
-    <Modal transparent={true} animationType="fade">
+    <Modal visible={visible} transparent={true} animationType="fade">
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>{title}</Text>
-
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={onCancel}>
-              <Text style={styles.cancelButtonText}>{cancel}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button} onPress={onAction}>
-              <Text style={styles.actionButtonText}>{action}</Text>
-            </TouchableOpacity>
-          </View>
+          <View style={styles.iconContainer}>{icon}</View>
+          <CustomText variant="headerTitle" text={title} style={styles.title} />
+          <CustomText variant="body" text={subtitle} style={styles.subtitle} />
+          <CustomButton
+            title={primaryButtonText}
+            onPress={onPrimaryAction}
+            variant="primary"
+            style={styles.primaryButton}
+          />
+          <CustomButton
+            title={secondaryButtonText}
+            onPress={onSecondaryAction}
+            variant="text"
+            style={styles.secondaryButton}
+          />
         </View>
       </View>
     </Modal>
@@ -31,37 +46,42 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
-    width: 300,
+    width: '80%',
     padding: 20,
     backgroundColor: 'white',
     borderRadius: 10,
+  },
+  iconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#E5E7EB',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 16,
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'left',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#6B7280',
     marginBottom: 20,
+    textAlign: 'left',
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+  primaryButton: {
+    backgroundColor: '#123F67',
+    marginBottom: 10,
   },
-  button: {
-    flex: 1,
-    paddingVertical: 10,
-    marginHorizontal: 10,
-    borderRadius: 5,
-    alignItems: 'center',
+  secondaryButton: {
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: '#D0D5DD',
     justifyContent: 'center',
-  },
-  cancelButtonText: {
-    color: 'red',
-    fontSize: 16,
-  },
-  actionButtonText: {
-    color: 'green',
-    fontSize: 16,
+    alignItems: 'center',
   },
 });
 

@@ -12,6 +12,7 @@ import { getSubscriptionPlans } from '../../services/subscriptionPlansService';
 import { useDispatch, useSelector } from 'react-redux';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
 import { getUserDataSelector } from '../../store/selectors';
+import AppHeader from '../../components/AppHeader';
 
 const SubscriptionPlansScreen = ({ route }) => {
   const userData = useSelector(getUserDataSelector);
@@ -118,64 +119,74 @@ const SubscriptionPlansScreen = ({ route }) => {
   const plansToShow = userRoleId === 3000 ? driverPlans : travelAgencyPlans;
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={plansToShow}
-        renderItem={renderCard}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
+    <>
+      {route?.params?.userRoleId === undefined && (
+        <AppHeader
+          drawerIcon={true}
+          onlineIcon={true}
+          muteIcon={true}
+          title={'Subscription Plans'}
+        />
+      )}
+      <View style={styles.container}>
+        <FlatList
+          data={plansToShow}
+          renderItem={renderCard}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
 
-      <TouchableOpacity style={styles.paymentButton} onPress={handlePayment}>
-        <Text style={styles.paymentButtonText}>Proceed to Pay</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.paymentButton} onPress={handlePayment}>
+          <Text style={styles.paymentButtonText}>Proceed to Pay</Text>
+        </TouchableOpacity>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={detailsModalVisible}
-        onRequestClose={() => setDetailsModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{modalTitle}</Text>
-            <Text style={styles.modalDetails}>{modalDetails}</Text>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setDetailsModalVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={detailsModalVisible}
+          onRequestClose={() => setDetailsModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{modalTitle}</Text>
+              <Text style={styles.modalDetails}>{modalDetails}</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setDetailsModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={successModalVisible}
-        onRequestClose={() => setSuccessModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.successModalContent}>
-            <Text style={styles.successModalTitle}>Payment Successful!</Text>
-            <Text style={styles.successModalText}>
-              Your subscription has been activated.
-            </Text>
-            <TouchableOpacity
-              style={styles.okButton}
-              onPress={() => {
-                setSuccessModalVisible(false);
-                navigation.navigate('SignIn');
-              }}
-            >
-              <Text style={styles.okButtonText}>OK</Text>
-            </TouchableOpacity>
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={successModalVisible}
+          onRequestClose={() => setSuccessModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.successModalContent}>
+              <Text style={styles.successModalTitle}>Payment Successful!</Text>
+              <Text style={styles.successModalText}>
+                Your subscription has been activated.
+              </Text>
+              <TouchableOpacity
+                style={styles.okButton}
+                onPress={() => {
+                  setSuccessModalVisible(false);
+                  navigation.navigate('SignIn');
+                }}
+              >
+                <Text style={styles.okButtonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+        </Modal>
+      </View>
+    </>
   );
 };
 

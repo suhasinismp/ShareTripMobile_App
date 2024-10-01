@@ -28,6 +28,7 @@ import { getUserDataSelector } from '../../../store/selectors';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
 import { getIdByName } from '../../../utils/getIdByNameUtil';
 import { setUserVehicleIdToStore } from '../../../store/slices/loginSlice';
+import AppHeader from '../../../components/AppHeader';
 
 const inputFields = [
   {
@@ -88,7 +89,7 @@ const VehicleDetailsScreen = () => {
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
   const [initialVehicleList, setInitialVehicleList] = useState(null);
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
-  const [VehicleId, setVehicleId] =useState(null);
+  const [VehicleId, setVehicleId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const { control, handleSubmit, setValue, reset, watch } = useForm({
@@ -162,12 +163,12 @@ const VehicleDetailsScreen = () => {
     const response = await getAllVehiclesByUserId(userToken, userId);
     if (response.error === false && response.noOfRecords > 0) {
       setInitialVehicleList(response.data[0]);
-      setVehicleId(response.data[0].st_vehicles_id)
-        dispatch(
-          setUserVehicleIdToStore({
-            userVehicleId:response.data[0].st_vehicles_id
-          })
-        )
+      setVehicleId(response.data[0].st_vehicles_id);
+      dispatch(
+        setUserVehicleIdToStore({
+          userVehicleId: response.data[0].st_vehicles_id,
+        }),
+      );
     } else {
       setInitialVehicleList(null);
     }
@@ -277,8 +278,7 @@ const VehicleDetailsScreen = () => {
       !data.vehicleModel &&
       !data.vehicleSeatingCapacity
     ) {
-      
-        navigation.navigate('Register',{screen:'VehicleAndDriverDocuments'});
+      navigation.navigate('Register', { screen: 'VehicleAndDriverDocuments' });
       reset();
     } else {
       const finalData = {
@@ -290,31 +290,28 @@ const VehicleDetailsScreen = () => {
         user_id: userId,
         driver_id: userId,
       };
-   console.log(initialVehicleList=== null)
 
-   if(initialVehicleList != null){
-    
+      if (initialVehicleList != null) {
         navigation.navigate('VehicleDocs');
-}else{
-    
-  const response = await createVehicleDetail(finalData, userToken);
-    
-  if (response?.newVehicle.created_at) {
-    userRoleId == 3000
-      ? navigation.navigate('BusinessDetails')
-      : navigation.navigate('VehicleAndDriverDocuments');
-    reset();
-  } else {
-    dispatch(
-      showSnackbar({
-        visible: true,
-        message: 'something went wrong',
-        type: 'Error',
-      }),
-    );
-  }
-}
-     
+      } else {
+        const response = await createVehicleDetail(finalData, userToken);
+        console.log('response', response);
+
+        if (response?.newVehicle.created_at) {
+          userRoleId == 3000
+            ? navigation.navigate('BusinessDetails')
+            : navigation.navigate('VehicleAndDriverDocuments');
+          reset();
+        } else {
+          dispatch(
+            showSnackbar({
+              visible: true,
+              message: 'something went wrong',
+              type: 'error',
+            }),
+          );
+        }
+      }
     }
   };
 
@@ -370,38 +367,47 @@ const VehicleDetailsScreen = () => {
   };
 
   if (isLoading) {
-    return <CustomLoader />; // Replace with your loading component
+    return <CustomLoader />;
   }
 
   return (
-    <KeyboardAwareScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={[
-        styles.contentContainer,
-        { backgroundColor: theme.backgroundColor },
-      ]}
-      enableOnAndroid={true}
-      enableAutomaticScroll={true}
-      keyboardShouldPersistTaps="handled"
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.innerContainer}>
-          {inputFields.map(renderField)}
-          <View style={styles.buttonContainer}>
-            {/* <CustomButton
+    <>
+      <AppHeader
+        drawerIcon={true}
+        onlineIcon={true}
+        muteIcon={true}
+        title={'Vehicle Details'}
+      />
+
+      <KeyboardAwareScrollView
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { backgroundColor: theme.backgroundColor },
+        ]}
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        keyboardShouldPersistTaps="handled"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.innerContainer}>
+            {inputFields.map(renderField)}
+            <View style={styles.buttonContainer}>
+              {/* <CustomButton
               title={i18n.t('SKIP')}
               onPress={onSubmit}
               variant="text"
             /> */}
-            <CustomButton
-              title={i18n.t('SIGNUP_BUTTON')}
-              onPress={handleSubmit(onSubmit)}
-            />
+              <CustomButton
+                title={i18n.t('SIGNUP_BUTTON')}
+                onPress={handleSubmit(onSubmit)}
+              />
+            </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAwareScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAwareScrollView>
+    </>
   );
 };
 

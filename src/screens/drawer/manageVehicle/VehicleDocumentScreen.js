@@ -23,6 +23,7 @@ import CustomButton from '../../../components/ui/CustomButton';
 import { useTheme } from '../../../hooks/useTheme';
 import CustomText from '../../../components/ui/CustomText';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
+import AppHeader from '../../../components/AppHeader';
 
 const VehicleDocumentScreen = () => {
   const dispatch = useDispatch();
@@ -296,9 +297,13 @@ const VehicleDocumentScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: theme.backgroundColor }]}
-    >
+    <>
+      <AppHeader
+        drawerIcon={true}
+        onlineIcon={true}
+        muteIcon={true}
+        title={'Vehicle Documents'}
+      />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
@@ -319,7 +324,7 @@ const VehicleDocumentScreen = () => {
           />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </>
   );
 };
 

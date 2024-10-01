@@ -40,9 +40,9 @@ const UploadDocumentsScreen = () => {
 
   const [vehicleDocTypes, setVehicleDocTypes] = useState([]);
   const [driverDocTypes, setDriverDocTypes] = useState([]);
-  const [initialVehicleDocs, setInitialVehicleDocs] =useState(null);
-  const [initialDriverDocs, setInitialDriverDocs] =useState(null);
-  const [vehicleFiles, setVehicleFiles] = useState([])
+  const [initialVehicleDocs, setInitialVehicleDocs] = useState(null);
+  const [initialDriverDocs, setInitialDriverDocs] = useState(null);
+  const [vehicleFiles, setVehicleFiles] = useState([]);
   const [driverFiles, setDriverFiles] = useState([]);
   const [vehicleImages, setVehicleImages] = useState(Array(4).fill(null));
   const [driverImages, setDriverImages] = useState(Array(1).fill(null));
@@ -69,33 +69,31 @@ const UploadDocumentsScreen = () => {
       console.error('Error fetching document types:', error);
     }
   };
-  
-  useEffect(()=>{
-    getAllDocs()
-  }, [userVehicleId,userToken,userId])
 
+  useEffect(() => {
+    getAllDocs();
+  }, [userVehicleId, userToken, userId]);
 
-
-  const getAllDocs =async()=>{
-    const vehicleDocsResponse =await getVehicleDocsByVehicleId(userVehicleId, userToken)
-    const driverDocsResponse = await getUserDocsByUserId(userId, userToken)
-    if(vehicleDocsResponse.data.length>0){
-      setInitialVehicleDocs(vehicleDocsResponse.data)
-    }else{
-      setInitialVehicleDocs(null)
+  const getAllDocs = async () => {
+    const vehicleDocsResponse = await getVehicleDocsByVehicleId(
+      userVehicleId,
+      userToken,
+    );
+    const driverDocsResponse = await getUserDocsByUserId(userId, userToken);
+    if (vehicleDocsResponse.data.length > 0) {
+      setInitialVehicleDocs(vehicleDocsResponse.data);
+    } else {
+      setInitialVehicleDocs(null);
     }
-    
 
-    if(driverDocsResponse.noOfRecords>0){
-      setInitialDriverDocs(driverDocsResponse.data)
-    }else{
-      setInitialDriverDocs(null) 
+    if (driverDocsResponse.noOfRecords > 0) {
+      setInitialDriverDocs(driverDocsResponse.data);
+    } else {
+      setInitialDriverDocs(null);
     }
-    
-    setInitialVehicleDocs()
-  }
 
-
+    setInitialVehicleDocs();
+  };
 
   const handleUpload =
     (isDriver = false) =>
@@ -154,7 +152,6 @@ const UploadDocumentsScreen = () => {
               control={control}
               name={`${item.doc_label[0]}`}
               placeholder={`${item.doc_label[0]} Number`}
-              
             />
             <DocumentUploadCard
               title={item.doc_label[0]}
@@ -211,7 +208,7 @@ const UploadDocumentsScreen = () => {
             doc_name: doc.doc_label[i],
             doc_number: data[`${doc.doc_label[i]}`] || '',
             doc_type: doc.fileType,
-            vehicles_id: userVehicleId
+            vehicles_id: userVehicleId,
           });
         }
       } else {
@@ -247,7 +244,7 @@ const UploadDocumentsScreen = () => {
 
     try {
       const response = await uploadVehicleDocs(formData, userToken);
-      console.log('response', response);
+
       // Handle successful upload
     } catch (error) {
       console.error('Error uploading vehicle docs:', error);
@@ -304,7 +301,6 @@ const UploadDocumentsScreen = () => {
 
     try {
       const response = await uploadDriverDocs(formData, userToken);
-      console.log('response', response);
     } catch (error) {
       console.error('Error uploading vehicle docs:', error);
     } finally {
