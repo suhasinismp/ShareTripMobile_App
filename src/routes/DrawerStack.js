@@ -11,10 +11,20 @@ import VehicleIcon from '../../assets/svgs/vehicle.svg';
 import BusinessIcon from '../../assets/svgs/business.svg';
 import SubscriptionIcon from '../../assets/svgs/subscription.svg';
 import DriverDocsIcon from '../../assets/svgs/driverDocs.svg';
+import DashboardIcon from '../../assets/svgs/dasboardIcon.svg';
 import Tabs from './BottomTab';
 
 import HelpIcon from '../../assets/svgs/help.svg';
 import LogoutIcon from '../../assets/svgs/logout.svg';
+import ProfileIconInactive from '../../assets/svgs/profileIconInactive.svg';
+import ManageVehicleInactive from '../../assets/svgs/manageVehicleInactive.svg';
+import ManageBusinessInactive from '../../assets/svgs/manageBusinessInactive.svg';
+import ManageSubscriptionInactive from '../../assets/svgs/manageSubscriptionInactive.svg';
+import ManageDriverDocumentsInactive from '../../assets/svgs/manageDriverDocumentsInactive.svg';
+import DashboardInactive from '../../assets/svgs/dashboardInactive.svg';
+
+
+
 import { useSelector } from 'react-redux';
 import { getUserDataSelector } from '../store/selectors';
 import ProfileScreen from '../screens/drawer/ProfileScreen';
@@ -30,17 +40,19 @@ const Drawer = createDrawerNavigator();
 const IconWrapper = ({ Icon, isFocused }) => {
   return (
     <View style={styles.iconWrapper}>
-      <Icon width={24} height={24} fill={isFocused ? '#FFFFFF' : '#005680'} />
+      <Icon width={24} height={24}  />
     </View>
   );
 };
 
 const CustomDrawerItem = ({ label, icon: Icon, onPress, isFocused }) => {
+  console.log({isFocused})
   return (
     <TouchableOpacity
       style={[styles.drawerItem, isFocused && styles.drawerItemFocused]}
       onPress={onPress}
-    >
+    > 
+     
       <IconWrapper Icon={Icon} isFocused={isFocused} />
       <Text
         style={[
@@ -86,37 +98,37 @@ const CustomDrawerContent = (props) => {
         <Text style={styles.menuTitle}>MENU</Text>
         <CustomDrawerItem
           label="Dashboard"
-          icon={ProfileIcon}
+          icon={isRouteActive('Home')?DashboardInactive:DashboardIcon}
           onPress={() => navigation.navigate('Home')}
           isFocused={isRouteActive('Home')}
         />
         <CustomDrawerItem
           label="Profile"
-          icon={ProfileIcon}
+          icon={isRouteActive('Profile')?ProfileIconInactive:ProfileIcon}
           onPress={() => navigation.navigate('Profile')}
           isFocused={isRouteActive('Profile')}
         />
         <CustomDrawerItem
           label="Manage Vehicles & Docs"
-          icon={VehicleIcon}
+          icon={isRouteActive('ManageVehicle')?ManageVehicleInactive:VehicleIcon}
           onPress={() => navigation.navigate('ManageVehicle')}
           isFocused={isRouteActive('ManageVehicle')}
         />
         <CustomDrawerItem
           label="Manage Business"
-          icon={BusinessIcon}
+          icon={isRouteActive('ManageBusiness')?ManageBusinessInactive:BusinessIcon}
           onPress={() => navigation.navigate('ManageBusiness')}
           isFocused={isRouteActive('ManageBusiness')}
         />
         <CustomDrawerItem
           label="Manage Subscription"
-          icon={SubscriptionIcon}
+          icon={isRouteActive('ManageSubscription')?ManageSubscriptionInactive:SubscriptionIcon}
           onPress={() => navigation.navigate('ManageSubscription')}
           isFocused={isRouteActive('ManageSubscription')}
         />
         <CustomDrawerItem
           label="Manage Driver Documents"
-          icon={DriverDocsIcon}
+          icon={isRouteActive('ManageDriverDocuments')?ManageDriverDocumentsInactive:DriverDocsIcon}
           onPress={() => navigation.navigate('ManageDriverDocuments')}
           isFocused={isRouteActive('ManageDriverDocuments')}
         />

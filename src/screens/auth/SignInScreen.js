@@ -48,10 +48,12 @@ const SignInScreen = () => {
   } = useForm({
     resolver: yupResolver(signInScheme),
     defaultValues: {
-      [fieldNames.PHONE]: '9878987694',
-      [fieldNames.PASSWORD]: 'ravi@123',
+      [fieldNames.PHONE]: '9130528918',
+      [fieldNames.PASSWORD]: 'akshay@123',
     },
   });
+
+
 
   const onSignin = async (data) => {
     const finalData = {
@@ -59,7 +61,7 @@ const SignInScreen = () => {
       u_pswd: data.password,
     };
     const response = await doLogin(finalData);
-
+  console.log({response})
     if (response?.token) {
       await SecureStore.setItemAsync('userToken', response.token);
       await SecureStore.setItemAsync('userId', response.id.toString()); 
