@@ -17,6 +17,7 @@ const loginSlice = createSlice({
   },
   reducers: {
     setUserDataToStore: (state, action) => {
+      console.log('updating')
       if (action.payload.userId) {
         set(state, 'userId', action.payload.userId);
       }

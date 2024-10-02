@@ -161,6 +161,7 @@ const VehicleDetailsScreen = () => {
 
   const getVehiclesList = async () => {
     const response = await getAllVehiclesByUserId(userToken, userId);
+    console.log({response})
     if (response.error === false && response.noOfRecords > 0) {
       setInitialVehicleList(response.data[0]);
       setVehicleId(response.data[0].st_vehicles_id);
