@@ -172,11 +172,7 @@ const BusinessDetailsScreen = () => {
   };
 
   const navigateToNextScreen = () => {
-    if (userRoleId === 3000) {
-      navigation.navigate('VehicleAndDriverDocuments');
-    } else {
-      navigation.navigate('VehicleDetails');
-    }
+    navigation.navigate('Home');
   };
 
   if (isLoading) {

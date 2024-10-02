@@ -77,18 +77,6 @@ const SignInScreen = () => {
           userToken: response.token,
         }),
       );
-      // dispatch(
-      //   showSnackbar({
-      //     visible:true,
-      //     message:'Login Success',
-      //     type:'success',
-      //   })
-      // )
-      response.role_id == 3000;
-      // ? navigation.navigate('Register', { screen: 'VehicleDetails' })
-      // : navigation.navigate('Register', { screen: 'BusinessDetails' });
-      // navigation.navigate('bottomTab',{screen:'Homescreen'});
-      navigation.navigate('Groups');
     } else if (response?.status === 400) {
       dispatch(
         showSnackbar({

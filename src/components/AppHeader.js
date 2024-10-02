@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
-  Image,
   SafeAreaView,
   View,
   TextInput,
@@ -19,8 +18,7 @@ import SearchIcon from '../../assets/svgs/search.svg';
 const AppHeader = ({
   title,
   backIcon,
-  rightIcon,
-  onRightIconPress,
+  rightIconComponent,
   drawerIcon,
   search,
   groupIcon,
@@ -49,12 +47,12 @@ const AppHeader = ({
         </TouchableOpacity>
       )}
       {groupIcon && (
-        <TouchableOpacity onPress={onRightIconPress}>
+        <TouchableOpacity onPress={() => navigation.navigate('Groups')}>
           <GroupIcon width={24} height={24} />
         </TouchableOpacity>
       )}
       {onlineIcon && (
-        <TouchableOpacity onPress={onRightIconPress}>
+        <TouchableOpacity>
           <OnlineIcon width={24} height={24} />
         </TouchableOpacity>
       )}
@@ -82,19 +80,12 @@ const AppHeader = ({
         </View>
       )}
       {muteIcon && (
-        <TouchableOpacity onPress={onRightIconPress}>
+        <TouchableOpacity>
           <MuteIcon width={24} height={24} />
         </TouchableOpacity>
       )}
 
-      {rightIcon && (
-        <TouchableOpacity onPress={onRightIconPress}>
-          <Image
-            source={require('../../assets/icon.png')}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-      )}
+      {rightIconComponent && rightIconComponent}
     </SafeAreaView>
   );
 };
@@ -144,11 +135,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 20,
     alignSelf: 'center',
-  },
-  icon: {
-    width: 24,
-    height: 24,
-    tintColor: 'white',
   },
 });
 

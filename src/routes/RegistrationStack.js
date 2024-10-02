@@ -32,21 +32,6 @@ const RegistrationNavigator = () => {
         },
       }}
     >
-      {/* <RegistrationStack.Screen
-        name="VehicleDetails"
-        component={VehicleDetailsScreen}
-        options={{ title: 'Vehicle Details' }}
-      /> */}
-      {/* <RegistrationStack.Screen
-        name="BusinessDetails"
-        component={BusinessDetailsScreen}
-        options={{ title: 'Business Details' }}
-      /> */}
-      <RegistrationStack.Screen
-        name="VehicleAndDriverDocuments"
-        component={UploadDocumentsScreen}
-        options={{ title: 'Upload Documents' }}
-      />
       <RegistrationStack.Screen
         name="SubscriptionPlans"
         component={SubscriptionPlansScreen}
