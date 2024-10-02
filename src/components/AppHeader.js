@@ -34,34 +34,43 @@ const AppHeader = ({
   };
 
   const renderLeftSection = () => (
-    <View style={styles.sideSection}>
+    <View style={styles.leftSection}>
       {drawerIcon && (
-        <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => navigation.toggleDrawer()}
+        >
           <HamburgerMenu width={24} height={24} />
         </TouchableOpacity>
       )}
       {backIcon && (
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => navigation.goBack()}
+        >
           <BackIcon width={24} height={24} />
         </TouchableOpacity>
       )}
       {groupIcon && (
-        <TouchableOpacity onPress={() => navigation.navigate('Group')}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => navigation.navigate('Group')}
+        >
           <GroupIcon width={24} height={24} />
+        </TouchableOpacity>
+      )}
+      {onlineIcon && (
+        <TouchableOpacity style={styles.iconButton}>
+          <OnlineIcon width={24} height={24} />
         </TouchableOpacity>
       )}
     </View>
   );
 
   const renderRightSection = () => (
-    <View style={styles.sideSection}>
-      {onlineIcon && (
-        <TouchableOpacity>
-          <OnlineIcon width={24} height={24} />
-        </TouchableOpacity>
-      )}
+    <View style={styles.rightSection}>
       {muteIcon && (
-        <TouchableOpacity>
+        <TouchableOpacity style={styles.iconButton}>
           <MuteIcon width={24} height={24} />
         </TouchableOpacity>
       )}
@@ -73,31 +82,33 @@ const AppHeader = ({
     <SafeAreaView style={styles.safeArea}>
       {renderLeftSection()}
 
-      <View style={styles.centerSection}>
-        {title && (
-          <CustomText
-            text={title}
-            variant="headerTitle"
-            style={styles.title}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-          />
-        )}
-        {search && (
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search"
-              value={searchText}
-              onChangeText={handleSearch}
-              placeholderTextColor="#999"
+      {(title || search) && (
+        <View style={styles.centerSection}>
+          {title && (
+            <CustomText
+              text={title}
+              variant="headerTitle"
+              style={styles.title}
+              numberOfLines={1}
+              adjustsFontSizeToFit
             />
-            <TouchableOpacity style={styles.searchIconContainer}>
-              <SearchIcon width={20} height={20} />
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
+          )}
+          {search && (
+            <View style={styles.searchContainer}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search"
+                value={searchText}
+                onChangeText={handleSearch}
+                placeholderTextColor="#999"
+              />
+              <TouchableOpacity style={styles.searchIconContainer}>
+                <SearchIcon width={20} height={20} />
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      )}
 
       {renderRightSection()}
     </SafeAreaView>
@@ -117,15 +128,24 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
-  sideSection: {
+  leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: 80,
+    justifyContent: 'flex-start',
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  iconButton: {
+    marginHorizontal: 5,
   },
   centerSection: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginHorizontal: 10,
   },
   searchContainer: {
     flexDirection: 'row',
