@@ -253,7 +253,7 @@ const VehicleDocumentScreen = () => {
           formData.append('image', {
             uri: image.uri,
             type: 'image/jpeg',
-            name: `vehicle_image_${index}.jpg`,
+            name: `vehicle_image_${index}.jpeg`,
           });
         }
       });

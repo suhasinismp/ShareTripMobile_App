@@ -34,6 +34,9 @@ import SubscriptionIcon from '../../assets/svgs/subscription.svg';
 import VehicleIcon from '../../assets/svgs/vehicle.svg';
 import { resetStore } from '../store/store';
 import Groups from '../screens/groups/GroupsScreen';
+import ViewGroupRequestsScreen from '../screens/groups/ViewGroupRequestsScreen';
+import CreateGroupScreen from '../screens/groups/CreateGroupScreen';
+import GroupStack from './GroupStack';
 
 const Drawer = createDrawerNavigator();
 
@@ -193,33 +196,19 @@ const DrawerStack = () => {
         },
       }}
     >
-      <Drawer.Screen
-        name="Home"
-        component={Tabs}
-        options={{ title: 'Dashboard' }}
-      />
+      <Drawer.Screen name="Home" component={Tabs} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
-      <Drawer.Screen
-        name="ManageVehicle"
-        component={VehicleStack}
-        options={{ title: 'Vehicle Details' }}
-      />
-      <Drawer.Screen
-        name="ManageBusiness"
-        component={BusinessDetailsScreen}
-        options={{ title: 'Business Details' }}
-      />
+      <Drawer.Screen name="ManageVehicle" component={VehicleStack} />
+      <Drawer.Screen name="ManageBusiness" component={BusinessDetailsScreen} />
       <Drawer.Screen
         name="ManageSubscription"
         component={SubscriptionPlansScreen}
-        options={{ title: 'Subscription Plans' }}
       />
       <Drawer.Screen
         name="ManageDriverDocuments"
         component={DriverDocumentScreen}
-        options={{ title: 'Driver Documents' }}
       />
-      <Drawer.Screen name="Groups" component={Groups} />
+      <Drawer.Screen name="Group" component={GroupStack} />
     </Drawer.Navigator>
   );
 };

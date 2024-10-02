@@ -6,20 +6,25 @@ import {
   FlatList,
   Image,
   TextInput,
+  Modal,
 } from 'react-native';
 
 import AppHeader from '../../components/AppHeader';
 import MenuIcon from '../../../assets/svgs/menu.svg';
+import SearchIcon from '../../../assets/svgs/search.svg';
+import CustomText from '../../components/ui/CustomText';
 
 import { useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 import { getGroups } from '../../services/groupsService';
-import SearchIcon from '../../../assets/svgs/search.svg';
-import CustomText from '../../components/ui/CustomText';
+import { useNavigation } from '@react-navigation/native';
+
 const GroupsScreen = () => {
+  const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
   const userToken = userData?.userToken;
   const [groups, setGroups] = useState([]);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   useEffect(() => {
     fetchGroups();
@@ -30,8 +35,21 @@ const GroupsScreen = () => {
     setGroups(response.data);
   };
 
+  const toggleMenu = () => setIsMenuVisible(!isMenuVisible);
+
+  const handleMenuOption = (option) => {
+    setIsMenuVisible(false);
+
+    if (option === 'CreateGroup') {
+      navigation.navigate('CreateGroup');
+    }
+    if (option === 'GroupRequests') {
+      navigation.navigate('GroupRequests');
+    }
+  };
+
   const renderRightIcon = () => (
-    <TouchableOpacity onPress={() => console.log('Menu icon pressed')}>
+    <TouchableOpacity onPress={toggleMenu}>
       <MenuIcon width={24} height={24} fill="#000000" />
     </TouchableOpacity>
   );
@@ -73,6 +91,30 @@ const GroupsScreen = () => {
           contentContainerStyle={styles.listContent}
         />
       </View>
+
+      <Modal
+        visible={isMenuVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={toggleMenu}
+      >
+        <TouchableOpacity style={styles.modalOverlay} onPress={toggleMenu}>
+          <View style={styles.menuContainer}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => handleMenuOption('GroupRequests')}
+            >
+              <CustomText variant="body" text="Group Requests" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => handleMenuOption('CreateGroup')}
+            >
+              <CustomText variant="body" text="Create New Group" />
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
@@ -124,6 +166,23 @@ const styles = StyleSheet.create({
   },
   groupName: {
     fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+  },
+  menuContainer: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 8,
+    marginTop: 45,
+    marginRight: 24,
+    elevation: 5,
+  },
+  menuItem: {
+    padding: 12,
   },
 });
 

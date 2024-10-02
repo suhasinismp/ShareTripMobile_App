@@ -30,12 +30,11 @@ const AppHeader = ({
 
   const handleSearch = (text) => {
     setSearchText(text);
-    // Implement your search logic here
     console.log('Searching for:', text);
   };
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
+  const renderLeftSection = () => (
+    <View style={styles.sideSection}>
       {drawerIcon && (
         <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
           <HamburgerMenu width={24} height={24} />
@@ -47,45 +46,60 @@ const AppHeader = ({
         </TouchableOpacity>
       )}
       {groupIcon && (
-        <TouchableOpacity onPress={() => navigation.navigate('Groups')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Group')}>
           <GroupIcon width={24} height={24} />
         </TouchableOpacity>
       )}
+    </View>
+  );
+
+  const renderRightSection = () => (
+    <View style={styles.sideSection}>
       {onlineIcon && (
         <TouchableOpacity>
           <OnlineIcon width={24} height={24} />
         </TouchableOpacity>
-      )}
-      {title && (
-        <CustomText
-          text={title}
-          variant="headerTitle"
-          style={styles.title}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-        />
-      )}
-      {search && (
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search"
-            value={searchText}
-            onChangeText={handleSearch}
-            placeholderTextColor="#999"
-          />
-          <TouchableOpacity style={styles.searchIconContainer}>
-            <SearchIcon width={20} height={20} />
-          </TouchableOpacity>
-        </View>
       )}
       {muteIcon && (
         <TouchableOpacity>
           <MuteIcon width={24} height={24} />
         </TouchableOpacity>
       )}
+      {rightIconComponent}
+    </View>
+  );
 
-      {rightIconComponent && rightIconComponent}
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      {renderLeftSection()}
+
+      <View style={styles.centerSection}>
+        {title && (
+          <CustomText
+            text={title}
+            variant="headerTitle"
+            style={styles.title}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          />
+        )}
+        {search && (
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search"
+              value={searchText}
+              onChangeText={handleSearch}
+              placeholderTextColor="#999"
+            />
+            <TouchableOpacity style={styles.searchIconContainer}>
+              <SearchIcon width={20} height={20} />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
+      {renderRightSection()}
     </SafeAreaView>
   );
 };
@@ -97,9 +111,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#F3F5FD',
     justifyContent: 'space-between',
-    elevation: 2,
     alignItems: 'center',
     paddingHorizontal: 20,
+    elevation: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  sideSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 80,
+  },
+  centerSection: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -108,7 +134,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 10,
     height: 36,
-    minWidth: '40%',
+    width: '100%',
+    maxWidth: 200,
   },
   searchInput: {
     flex: 1,
@@ -119,22 +146,9 @@ const styles = StyleSheet.create({
   searchIconContainer: {
     padding: 5,
   },
-  leftContainer: {
-    width: 24,
-    alignItems: 'flex-start',
-  },
-  titleContainer: {
-    flex: 1,
-    paddingHorizontal: 10,
-  },
-  rightContainer: {
-    width: 24,
-    alignItems: 'flex-end',
-  },
   title: {
     textAlign: 'center',
     fontSize: 20,
-    alignSelf: 'center',
   },
 });
 
