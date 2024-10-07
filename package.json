@@ -45,7 +45,8 @@
     "react-native-svg": "15.2.0",
     "react-redux": "^9.1.2",
     "yup": "^1.4.0",
-    "react-native-reanimated": "~3.10.1"
+    "react-native-reanimated": "~3.10.1",
+    "expo-av": "~14.0.7"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

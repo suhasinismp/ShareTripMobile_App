@@ -13,6 +13,7 @@ const CustomSelect = ({
   textStyle,
   selectedTextStyle,
   icon,
+  children,
 }) => {
   const { theme } = useTheme();
 
@@ -25,7 +26,7 @@ const CustomSelect = ({
           ? { backgroundColor: theme.primaryColor, ...selectedStyle }
           : {
               backgroundColor: theme.backgroundColor,
-              borderColor: theme.borderColor,
+              borderColor: theme.primaryColor,
               ...unselectedStyle,
             },
       ]}
@@ -33,6 +34,7 @@ const CustomSelect = ({
     >
       <View style={styles.contentContainer}>
         {icon && <View style={styles.iconContainer}>{icon}</View>}
+        {children && <View style={styles.childrenContainer}>{children}</View>}
         <CustomText
           text={text}
           variant={'captionTextActive'}
@@ -52,19 +54,22 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
-    minHeight: 60,
+    minHeight: 34,
     elevation: 2,
   },
   contentContainer: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   iconContainer: {
-    marginRight: 10,
+    marginBottom: 5,
+  },
+  childrenContainer: {
+    marginBottom: 5,
   },
   text: {
-    flex: 1,
     textAlign: 'center',
   },
 });

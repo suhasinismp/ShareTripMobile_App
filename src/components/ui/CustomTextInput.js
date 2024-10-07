@@ -113,7 +113,9 @@ const CustomTextInput = ({
             />
             {secureTextEntry && renderEyeIcon()}
             {rightItem && (
-              <View style={styles.rightItemContainer}>{rightItem}</View>
+              <View style={styles.rightItemContainer}>
+                {typeof rightItem === 'function' ? rightItem() : rightItem}
+              </View>
             )}
           </View>
 
@@ -161,7 +163,9 @@ const styles = StyleSheet.create({
     color: '#6750A4',
   },
   rightItemContainer: {
-    paddingHorizontal: 12,
+    paddingLeft: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   eyeIcon: {
     padding: 8,
