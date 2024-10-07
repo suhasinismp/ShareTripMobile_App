@@ -1,49 +1,39 @@
 import { createStackNavigator } from '@react-navigation/stack';
-
-import React, {useState, useEffect} from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { StyleSheet } from 'react-native';
-import AuthStackNavigator from './AuthStack';
-import RegistrationNavigator from './RegistrationStack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import BottomTabNavigator from './BottomTab';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserDataToStore } from '../store/slices/loginSlice';
 import { getUserDataSelector } from '../store/selectors';
-import { parse } from 'react-native-svg';
+import { setUserDataToStore } from '../store/slices/loginSlice';
+import AuthStackNavigator from './AuthStack';
 import DrawerStack from './DrawerStack';
+import RegistrationNavigator from './RegistrationStack';
 
 const Stack = createStackNavigator();
+
 const AppStack = () => {
-  const dispatch =useDispatch()
-  const[isLoggedIn, setIsLoggedIn] =useState(false);
-  const[isLoading, setIsLoading] =useState(true);
-  const userData= useSelector(getUserDataSelector)
+  const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
+  const userData = useSelector(getUserDataSelector);
 
+  useEffect(() => {
+    getUserDataFromSecureStore();
+  }, []);
 
-useEffect(()=>{
-  getUserDataFromSecureStore()
-},[])
+  const getUserDataFromSecureStore = async () => {
+    setIsLoading(true);
+    try {
+      let token = await SecureStore.getItemAsync('userToken');
+      let id = await SecureStore.getItemAsync('userId');
+      let name = await SecureStore.getItemAsync('userName');
+      let email = await SecureStore.getItemAsync('userEmail');
+      let roleId = await SecureStore.getItemAsync('userRoleId');
+      let mobile = await SecureStore.getItemAsync('userMobile');
 
- useEffect(()=>{
-  if(userData.userToken != null){
-    setIsLoggedIn(true)
-  }
- }, [userData])
-
-  const getUserDataFromSecureStore=async()=>{
-    setIsLoading(true)
-    let token = await SecureStore.getItemAsync('userToken')
-    let id =await SecureStore.getItemAsync('userId')
-    let name =await SecureStore.getItemAsync('userName')
-    let email =await SecureStore.getItemAsync('userEmail')
-    let roleId =await SecureStore.getItemAsync('userRoleId')
-    let mobile =await SecureStore.getItemAsync('userMobile')
-      if(token != null){
+      if (token) {
         await dispatch(
           setUserDataToStore({
             userId: parseInt(id),
-            userName:name,
+            userName: name,
             userEmail: email,
             userRoleId: parseInt(roleId),
             userMobile: mobile,
@@ -51,47 +41,42 @@ useEffect(()=>{
           }),
         );
       }
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  if (isLoading) {
+    // You might want to show a loading screen here
+    return null;
+  }
+
   return (
     <Stack.Navigator>
-      {
-        !isLoggedIn ?(
-          <>
+      {!userData.userToken ? (
+        <>
           <Stack.Screen
-        name="Auth"
-        component={AuthStackNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Register"
-        component={RegistrationNavigator}
-        options={{ headerShown: false }}
-      />
-          </>
-        ):(
-          <>
-          {/* <Stack.Screen
-        name="bottomTab"
-        component={BottomTabNavigator}
-        options={{ headerShown: false }}
-      
-       /> */}
-       <Stack.Screen
-        name="Drawer"
-        component={DrawerStack}
-        options={{ headerShown: false }}
-      
-       />
-       </>
-        )
-      }
-      
-      
+            name="Auth"
+            component={AuthStackNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Register"
+            component={RegistrationNavigator}
+            options={{ headerShown: false }}
+          />
+        </>
+      ) : (
+        <Stack.Screen
+          name="Drawer"
+          component={DrawerStack}
+          options={{ headerShown: false }}
+        />
+      )}
     </Stack.Navigator>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default AppStack;

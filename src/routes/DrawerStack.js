@@ -1,33 +1,49 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
 import { useNavigationState } from '@react-navigation/native';
-import HamburgerMenu from '../../assets/svgs/hambergerMenu.svg';
-import ProfileIcon from '../../assets/svgs/profile.svg';
-import VehicleIcon from '../../assets/svgs/vehicle.svg';
-import BusinessIcon from '../../assets/svgs/business.svg';
-import SubscriptionIcon from '../../assets/svgs/subscription.svg';
-import DriverDocsIcon from '../../assets/svgs/driverDocs.svg';
-import Tabs from './BottomTab';
+import * as SecureStore from 'expo-secure-store';
+import React from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
+import { getUserDataSelector } from '../store/selectors';
+
+import ProfileScreen from '../screens/drawer/ProfileScreen';
+import BusinessDetailsScreen from '../screens/drawer/manageDriver/BusinessDetailsScreen';
+import DriverDocumentScreen from '../screens/drawer/manageDriver/DriverDocumentScreen';
+import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansScreen';
+import Tabs from './BottomTab';
+import VehicleStack from './VehicleStack';
+
+// Import your SVG icons here
+import BusinessIcon from '../../assets/svgs/business.svg';
+import DashboardIcon from '../../assets/svgs/dasboardIcon.svg';
+import DashboardInactive from '../../assets/svgs/dashboardInactive.svg';
+import DriverDocsIcon from '../../assets/svgs/driverDocs.svg';
 import HelpIcon from '../../assets/svgs/help.svg';
 import LogoutIcon from '../../assets/svgs/logout.svg';
-import { useSelector } from 'react-redux';
-import { getUserDataSelector } from '../store/selectors';
-import ProfileScreen from '../screens/drawer/ProfileScreen';
-import UploadDocumentsScreen from '../screens/registration/UploadDocumentsScreen';
-import BusinessDetailsScreen from '../screens/registration/BusinessDetailsScreen';
-import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansScreen';
+import ManageBusinessInactive from '../../assets/svgs/manageBusinessInactive.svg';
+import ManageDriverDocumentsInactive from '../../assets/svgs/manageDriverDocumentsInactive.svg';
+import ManageSubscriptionInactive from '../../assets/svgs/manageSubscriptionInactive.svg';
+import ManageVehicleInactive from '../../assets/svgs/manageVehicleInactive.svg';
+import ProfileIcon from '../../assets/svgs/profile.svg';
+import ProfileIconInactive from '../../assets/svgs/profileIconInactive.svg';
+import SubscriptionIcon from '../../assets/svgs/subscription.svg';
+import VehicleIcon from '../../assets/svgs/vehicle.svg';
+import { resetStore } from '../store/store';
+import Groups from '../screens/groups/GroupsScreen';
+import ViewGroupRequestsScreen from '../screens/groups/ViewGroupRequestsScreen';
+import CreateGroupScreen from '../screens/groups/CreateGroupScreen';
+import GroupStack from './GroupStack';
 
 const Drawer = createDrawerNavigator();
 
 const IconWrapper = ({ Icon, isFocused }) => {
   return (
     <View style={styles.iconWrapper}>
-      <Icon width={24} height={24} fill={isFocused ? '#FFFFFF' : '#005680'} />
+      <Icon width={24} height={24} />
     </View>
   );
 };
@@ -52,6 +68,7 @@ const CustomDrawerItem = ({ label, icon: Icon, onPress, isFocused }) => {
 };
 
 const CustomDrawerContent = (props) => {
+  const dispatch = useDispatch();
   const userData = useSelector(getUserDataSelector);
   const name = userData.userName;
   const { navigation } = props;
@@ -64,6 +81,23 @@ const CustomDrawerContent = (props) => {
   });
 
   const isRouteActive = (routeName) => currentRoute === routeName;
+
+  const handleLogout = async () => {
+    try {
+      // Clear secure storage
+      await SecureStore.deleteItemAsync('userToken');
+      await SecureStore.deleteItemAsync('userId');
+      await SecureStore.deleteItemAsync('userName');
+      await SecureStore.deleteItemAsync('userEmail');
+      await SecureStore.deleteItemAsync('userRoleId');
+      await SecureStore.deleteItemAsync('userMobile');
+
+      // Clear Redux store
+      dispatch(resetStore());
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
 
   return (
     <DrawerContentScrollView {...props}>
@@ -82,32 +116,52 @@ const CustomDrawerContent = (props) => {
       <View style={styles.menuSection}>
         <Text style={styles.menuTitle}>MENU</Text>
         <CustomDrawerItem
+          label="Dashboard"
+          icon={isRouteActive('Home') ? DashboardInactive : DashboardIcon}
+          onPress={() => navigation.navigate('Home')}
+          isFocused={isRouteActive('Home')}
+        />
+        <CustomDrawerItem
           label="Profile"
-          icon={ProfileIcon}
+          icon={isRouteActive('Profile') ? ProfileIconInactive : ProfileIcon}
           onPress={() => navigation.navigate('Profile')}
           isFocused={isRouteActive('Profile')}
         />
         <CustomDrawerItem
           label="Manage Vehicles & Docs"
-          icon={VehicleIcon}
+          icon={
+            isRouteActive('ManageVehicle') ? ManageVehicleInactive : VehicleIcon
+          }
           onPress={() => navigation.navigate('ManageVehicle')}
           isFocused={isRouteActive('ManageVehicle')}
         />
         <CustomDrawerItem
           label="Manage Business"
-          icon={BusinessIcon}
+          icon={
+            isRouteActive('ManageBusiness')
+              ? ManageBusinessInactive
+              : BusinessIcon
+          }
           onPress={() => navigation.navigate('ManageBusiness')}
           isFocused={isRouteActive('ManageBusiness')}
         />
         <CustomDrawerItem
           label="Manage Subscription"
-          icon={SubscriptionIcon}
+          icon={
+            isRouteActive('ManageSubscription')
+              ? ManageSubscriptionInactive
+              : SubscriptionIcon
+          }
           onPress={() => navigation.navigate('ManageSubscription')}
           isFocused={isRouteActive('ManageSubscription')}
         />
         <CustomDrawerItem
           label="Manage Driver Documents"
-          icon={DriverDocsIcon}
+          icon={
+            isRouteActive('ManageDriverDocuments')
+              ? ManageDriverDocumentsInactive
+              : DriverDocsIcon
+          }
           onPress={() => navigation.navigate('ManageDriverDocuments')}
           isFocused={isRouteActive('ManageDriverDocuments')}
         />
@@ -121,50 +175,30 @@ const CustomDrawerContent = (props) => {
         isFocused={isRouteActive('Help')}
       />
       <CustomDrawerItem
-        label="Logout Account"
+        label="Logout"
         icon={LogoutIcon}
-        onPress={() => navigation.navigate('Logout')}
+        onPress={handleLogout}
         isFocused={isRouteActive('Logout')}
       />
     </DrawerContentScrollView>
   );
 };
 
-// Placeholder components for Help and Logout
-const HelpScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Help Screen</Text>
-  </View>
-);
-
-const LogoutScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Logout Screen</Text>
-  </View>
-);
-
 const DrawerStack = () => {
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
-      screenOptions={({ navigation }) => ({
+      screenOptions={{
+        headerShown: false,
         drawerStyle: {
           backgroundColor: '#F8F9FD',
           width: 280,
         },
-        headerLeft: () => (
-          <TouchableOpacity
-            onPress={() => navigation.toggleDrawer()}
-            style={styles.hamburgerIcon}
-          >
-            <HamburgerMenu width={24} height={24} />
-          </TouchableOpacity>
-        ),
-      })}
+      }}
     >
       <Drawer.Screen name="Home" component={Tabs} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
-      <Drawer.Screen name="ManageVehicle" component={UploadDocumentsScreen} />
+      <Drawer.Screen name="ManageVehicle" component={VehicleStack} />
       <Drawer.Screen name="ManageBusiness" component={BusinessDetailsScreen} />
       <Drawer.Screen
         name="ManageSubscription"
@@ -172,10 +206,9 @@ const DrawerStack = () => {
       />
       <Drawer.Screen
         name="ManageDriverDocuments"
-        component={UploadDocumentsScreen}
+        component={DriverDocumentScreen}
       />
-      <Drawer.Screen name="Help" component={HelpScreen} />
-      <Drawer.Screen name="Logout" component={LogoutScreen} />
+      <Drawer.Screen name="Group" component={GroupStack} />
     </Drawer.Navigator>
   );
 };
@@ -201,9 +234,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-  },
-  hamburgerIcon: {
-    marginLeft: 10,
   },
   menuSection: {
     paddingVertical: 20,

@@ -48,8 +48,8 @@ const SignInScreen = () => {
   } = useForm({
     resolver: yupResolver(signInScheme),
     defaultValues: {
-      [fieldNames.PHONE]: '9878987694',
-      [fieldNames.PASSWORD]: 'ravi@123',
+      [fieldNames.PHONE]: '9130528918',
+      [fieldNames.PASSWORD]: 'akshay@123',
     },
   });
 
@@ -62,11 +62,11 @@ const SignInScreen = () => {
 
     if (response?.token) {
       await SecureStore.setItemAsync('userToken', response.token);
-      await SecureStore.setItemAsync('userId', response.id.toString()); 
-      await SecureStore.setItemAsync('userName', response.u_name); 
-      await SecureStore.setItemAsync('userEmail', response.u_email_id); 
-      await SecureStore.setItemAsync('userRoleId', response.role_id.toString()); 
-      await SecureStore.setItemAsync('userMobile', response.u_mob_num); 
+      await SecureStore.setItemAsync('userId', response.id.toString());
+      await SecureStore.setItemAsync('userName', response.u_name);
+      await SecureStore.setItemAsync('userEmail', response.u_email_id);
+      await SecureStore.setItemAsync('userRoleId', response.role_id.toString());
+      await SecureStore.setItemAsync('userMobile', response.u_mob_num);
       await dispatch(
         setUserDataToStore({
           userId: response.id,
@@ -77,27 +77,15 @@ const SignInScreen = () => {
           userToken: response.token,
         }),
       );
-      // dispatch(
-      //   showSnackbar({
-      //     visible:true,
-      //     message:'Login Success',
-      //     type:'success',
-      //   })
-      // )
-      response.role_id == 3000
-        // ? navigation.navigate('Register', { screen: 'VehicleDetails' })
-        // : navigation.navigate('Register', { screen: 'BusinessDetails' });
-      // navigation.navigate('bottomTab',{screen:'Homescreen'});
-      navigation.navigate('Groups')
-    } else if(response?.status ===400){
-    dispatch(
-      showSnackbar({
-        visible:true,
-        message:'warning: check your credentials',
-        type:'warning',
-      })
-    );
-    }else {
+    } else if (response?.status === 400) {
+      dispatch(
+        showSnackbar({
+          visible: true,
+          message: 'warning: check your credentials',
+          type: 'warning',
+        }),
+      );
+    } else {
       dispatch(
         showSnackbar({
           visible: true,
