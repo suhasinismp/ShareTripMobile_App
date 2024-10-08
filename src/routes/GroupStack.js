@@ -10,7 +10,7 @@ const Stack = createStackNavigator();
 const GroupStack = () => {
   return (
     <Stack.Navigator
-      initialRouteName="Groups"
+      initialRouteName="AddGroupMembers"
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="Groups" component={GroupsScreen} />
