@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { Controller } from 'react-hook-form';
 import {
   Pressable,
@@ -19,11 +19,13 @@ const CustomTextInput = ({
   name,
   keyboardType,
   secureTextEntry,
+  multiline = false,
   ...props
 }) => {
   const { theme } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(!secureTextEntry);
+  const [inputHeight, setInputHeight] = useState(height);
   const inputRef = useRef(null);
 
   const handleFocus = () => {
@@ -38,6 +40,16 @@ const CustomTextInput = ({
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
+
+  const handleContentSizeChange = useCallback(
+    (event) => {
+      if (multiline) {
+        const { height } = event.nativeEvent.contentSize;
+        setInputHeight(Math.max(height, 56));
+      }
+    },
+    [multiline],
+  );
 
   const renderEyeIcon = () => (
     <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIcon}>
@@ -63,7 +75,9 @@ const CustomTextInput = ({
               {
                 top:
                   isFocused === false && value.length === 0
-                    ? height / 2 - 11
+                    ? multiline
+                      ? 16
+                      : inputHeight / 2 - 11
                     : -9,
               },
               (isFocused || value !== '') && styles.labelRaised,
@@ -75,19 +89,26 @@ const CustomTextInput = ({
           <View
             style={[
               styles.inputContainer,
-              { height: height },
+              { minHeight: inputHeight },
               { backgroundColor: theme.backgroundColor },
             ]}
           >
             <TextInput
               ref={inputRef}
-              style={[styles.input, isFocused && styles.inputFocused]}
+              style={[
+                styles.input,
+                isFocused && styles.inputFocused,
+                multiline && styles.multilineInput,
+                { height: multiline ? inputHeight : 'auto' },
+              ]}
               onFocus={handleFocus}
               onBlur={handleBlur}
               onChangeText={onChange}
               value={value}
               keyboardType={keyboardType}
               secureTextEntry={secureTextEntry && !isPasswordVisible}
+              multiline={multiline}
+              onContentSizeChange={handleContentSizeChange}
               {...props}
             />
             {secureTextEntry && renderEyeIcon()}
@@ -104,7 +125,6 @@ const CustomTextInput = ({
           )}
         </Pressable>
       )}
-      
     />
   );
 };
@@ -123,6 +143,10 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
+  },
+  multilineInput: {
+    textAlignVertical: 'top',
+    paddingTop: 12,
   },
   label: {
     position: 'absolute',

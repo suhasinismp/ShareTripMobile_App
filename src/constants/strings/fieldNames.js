@@ -17,4 +17,6 @@ export const fieldNames = {
   BUSINESS_DETAILS_AREA: 'businessArea',
   BUSINESS_DETAILS_CITY: 'businessCity',
   BUSINESS_DETAILS_STATE: 'businessState',
+  GROUP_NAME: 'groupName',
+  GROUP_DESCRIPTION: 'groupDescription',
 };
