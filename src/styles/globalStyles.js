@@ -9,6 +9,7 @@ export const colors = {
     activeButtonTextColor: '#ffffff',
     captionTextColor: '#5A5A5A',
     activeTextColor: '#005680',
+    sectionTitleColor: '#0D0D0D',
   },
   dark: {
     inputTextColor: '#000000',
@@ -17,6 +18,7 @@ export const colors = {
     activeButtonTextColor: '#ffffff',
     captionTextColor: '#5A5A5A',
     activeTextColor: '#005680',
+    sectionTitleColor: '#0D0D0D',
   },
 };
 
@@ -57,6 +59,12 @@ export const createTextStyles = (theme) =>
       fontSize: 16,
       lineHeight: 24,
       color: colors[theme].activeTextColor,
+    },
+    sectionTitleText: {
+      fontFamily: FONTS.Regular400,
+      fontSize: 16,
+      lineHeight: 24,
+      color: colors[theme].sectionTitleColor,
     },
   });
 

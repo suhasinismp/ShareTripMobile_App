@@ -22,6 +22,8 @@ const CustomText = ({ variant = 'body', style, text, ...props }) => {
         return textStyles.captionTextActive;
       case 'activeText':
         return textStyles.activeText;
+      case 'sectionTitleText':
+        return textStyles.sectionTitleText;
       default:
         return textStyles.body;
     }

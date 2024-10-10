@@ -15,7 +15,6 @@ import CustomSnackbar from './src/components/ui/CustomSnackbar';
 // import HomeScreen from './src/screens/BottomTab/HomeScreen';
 import BottomTab from './src/routes/BottomTab';
 
-
 SplashScreen.preventAutoHideAsync();
 
 function ThemeSwitcher() {
@@ -63,9 +62,7 @@ export default function App() {
       <ThemeContext.Provider value={themeContext}>
         <NavigationContainer>
           <AppStack />
-          {/* <ThemeSwitcher /> */}
-          {/* <HomeStack/> */}
-          <CustomSnackbar/>
+          <CustomSnackbar />
           <StatusBar style="auto" />
         </NavigationContainer>
       </ThemeContext.Provider>

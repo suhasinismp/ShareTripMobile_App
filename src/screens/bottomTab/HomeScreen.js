@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { fetchUserMetaData } from '../../services/signinService';
 import { getUserDataSelector } from '../../store/selectors';
@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import ModalProfileIcon from '../../../assets/svgs/modalProfile.svg';
 import CustomModal from '../../components/ui/CustomModal';
 import AppHeader from '../../components/AppHeader';
+import AddPostIcon from '../../../assets/svgs/addPost.svg';
 
 const HomeScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -39,8 +40,12 @@ const HomeScreen = () => {
     navigation.openDrawer();
   };
 
+  const handleAddPost = () => {
+    navigation.navigate('PostTrip');
+  };
+
   return (
-    <>
+    <View style={styles.container}>
       <AppHeader
         drawerIcon={true}
         groupIcon={true}
@@ -48,6 +53,10 @@ const HomeScreen = () => {
         muteIcon={true}
         search={true}
       />
+      <View style={styles.content}></View>
+      <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
+        <AddPostIcon />
+      </TouchableOpacity>
       <CustomModal
         visible={isModalVisible}
         title="Complete Your Onboarding"
@@ -60,15 +69,21 @@ const HomeScreen = () => {
           setIsModalVisible(false);
         }}
       />
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  },
+  content: {
+    flex: 1,
+  },
+  floatingButton: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
   },
 });
 

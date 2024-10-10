@@ -37,6 +37,7 @@ import Groups from '../screens/groups/GroupsScreen';
 import ViewGroupRequestsScreen from '../screens/groups/ViewGroupRequestsScreen';
 import CreateGroupScreen from '../screens/groups/CreateGroupScreen';
 import GroupStack from './GroupStack';
+import PostATripScreen from '../screens/bottomTab/PostATripScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -209,6 +210,7 @@ const DrawerStack = () => {
         component={DriverDocumentScreen}
       />
       <Drawer.Screen name="Group" component={GroupStack} />
+      <Drawer.Screen name="PostTrip" component={PostATripScreen} />
     </Drawer.Navigator>
   );
 };
