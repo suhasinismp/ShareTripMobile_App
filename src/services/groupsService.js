@@ -1,5 +1,6 @@
 import { getAPI, postFormDataAPI } from '../utils/servicesUtil';
 export const getGroups = async (token) => {
+  console.log(token);
   const response = await getAPI('share-trip/groups', token);
   return response;
 };
