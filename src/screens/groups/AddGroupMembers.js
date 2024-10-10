@@ -1,115 +1,197 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, Text, PermissionsAndroid, Platform, Linking } from 'react-native';
+import { StyleSheet, View, FlatList, Text, Linking, Image } from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import * as Contacts from 'expo-contacts';
 import CustomModal from '../../components/ui/CustomModal';
-
+import CustomButton from '../../components/ui/CustomButton';
+import WhatsappIcon from '../../../assets/svgs/whatsappIcon.svg';
 import { useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
-import { postUserByPhoneNumber } from '../../services/AddGroupMembersService';
+import { postSendGroupInvite, postUserByPhoneNumber } from '../../services/AddGroupMembersService';
 
 const AddGroupMembers = ({ route }) => {
-  const { groupId } = route?.params || 18;
+  const { groupId } = route?.params;
+
+
   const [contacts, setContacts] = useState([]);
-
   const [uiData, setUiData] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-
-
-  // console.log({ contacts })
-
-  const [isModalVisible, setIsModalVisible] = useState(false)
-  const userData = useSelector(getUserDataSelector)
-  const userToken = userData.userToken
-
+  const userData = useSelector(getUserDataSelector);
+  const userToken = userData.userToken;
+  const userId = userData.userId
 
   useEffect(() => {
     const fetchContacts = async () => {
-
-
-      let permissionStatus = await Contacts.getPermissionsAsync()
+      let permissionStatus = await Contacts.getPermissionsAsync();
 
       if (permissionStatus.canAskAgain === true) {
-        // console.log('hello')
-        const askPermissionStatus = await Contacts.requestPermissionsAsync()
+        const askPermissionStatus = await Contacts.requestPermissionsAsync();
 
         if (askPermissionStatus.status === 'granted') {
           const { data } = await Contacts.getContactsAsync();
-          // console.log({ data })
           setContacts(data);
-          handleCreatePostNumberByName(data);
         }
       } else {
-        // console.log('hi')
-        setIsModalVisible(true)
+        setIsModalVisible(true);
       }
     };
 
     fetchContacts();
   }, []);
 
-  const handleCreatePostNumberByName = async (data) => {
-    let finalArray = []
-    let finalData = contacts.map((contact) => {
-      // console.log('xyz', contact)
-      let lenthOfArray = contact.phoneNumbers?.length || 0
-      // console.log("mon", lenthOfArray)
-      for (let i = 0; i < lenthOfArray; i++) {
-        finalArray.push(contact.phoneNumbers[i])
-        console.log(contact.phoneNumbers[i])
-      }
-    })
+  useEffect(() => {
+    if (contacts.length > 0) {
+      handleCreatePostNumberByName(contacts);
+    }
+  }, [contacts]);
 
-    const response = await postUserByPhoneNumber({ phone_numbers: finalArray }, userToken)
-    // console.log({ response })
-    if (response?.phone_no) {
+  const handleCreatePostNumberByName = async () => {
+    let finalArray = [];
+
+    contacts.forEach((contact) => {
+      const lengthOfArray = contact.phoneNumbers?.length || 0;
+      for (let i = 0; i < lengthOfArray; i++) {
+        finalArray.push(contact.phoneNumbers[i].number);
+      }
+    });
+
+    const uniqueFinalArray = [...new Set(finalArray)];
+
+    const response = await postUserByPhoneNumber({ phone_numbers: uniqueFinalArray }, userToken);
+
+    let finalData = [];
+    response.forEach((item) => {
+      if (item?.user_id) {
+        finalData.push({
+          userName: item.user_name,
+          userPhoneNumber: item.phone_no,
+          userEmail: item.user_email,
+          vehicles: item.vehicles,
+          userId: item.user_id,
+          userProfilePic: item.user_profile_pic,
+
+        });
+      } else {
+        contacts.forEach((contact) => {
+          if (contact.phoneNumbers) {
+            // Safely access contact.phoneNumbers
+            const matchedNumber = contact.phoneNumbers.find((numberObject) => numberObject.number === item.phone_no);
+
+            if (matchedNumber) {
+              finalData.push({
+                userName: contact.name,
+                userPhoneNumber: matchedNumber.number,
+
+              });
+            }
+          }
+        });
+      }
+    });
+
+    setUiData(finalData);
+  };
+
+  const handleInvite = async (userId, phoneNumber, groupId) => {
+    try {
       const finalData = {
+        group_admin_id: userId,
+        phone_no: phoneNumber,
+        group_id: groupId,
+      };
+      console.log('xyz', finalData)
+      const response = await postSendGroupInvite(finalData, userToken)
+      console.log({ response });
+      if (response?.message === 'Invitation sent successfully') {
 
-        userName: response.user_name,
-        userPhoneNumber: response.phone_no,
+        alert('Only admins can send invitations to this group.');
+      } else {
+        console.log('Invite sent successfully:', response);
       }
-      setUiData(finalData);
+    } catch (error) {
+      console.error('error sending invite', error)
     }
   }
-
-  //   const response = await postUserByPhoneNumber({ phone_numbers: finalArray }, usertoken);
-  //   if (response?.phone_no) {
-  //     const finalData = response.phone_no.map((phone, index) => ({
-  //       id: index.toString(),
-  //       name: phone.name,   // Example field
-  //       phone: phone.number, // Example field
-  //     }));
-  //     console.log("finalData", finalData)
-  //     setUiData(finalData);
-  //   }
-
-  // }
 
   const handlePrimaryAction = () => {
     Linking.openSettings();
     setIsModalVisible(false);
-  }
+  };
 
   const handleCancel = () => {
     setIsModalVisible(false);
   };
 
-
   return (
     <>
       <AppHeader backIcon={true} title={'Add Group Members'} />
       <View style={styles.container}>
+
+
         <FlatList
           data={uiData}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.userPhoneNumber} // Ensure each list item has a unique key
           renderItem={({ item }) => (
             <View style={styles.contactItem}>
-              <Text style={styles.contactName}>{item.name}</Text>
-              {item.emails && item.emails.length > 0 && (
-                <Text style={styles.contactEmail}>{item.emails[0].email}</Text>
+              <View style={styles.profile}>
+                {item.userProfilePic && (
+                  <Image
+                    source={{ uri: item.userProfilePic }}
+
+                    style={{ width: 50, height: 50 }} // Apply custom styles for profile picture
+                    resizeMode="cover"
+                  />
+
+                )}
+                <View style={{ flexDirection: 'column' }}>
+
+                  <Text style={styles.contactName}>{item.userName || 'Unknown User'}</Text>
+                  <Text style={styles.contactPhone}>{item.userPhoneNumber}</Text>
+
+                  {!item.userId && (
+
+                    <WhatsappIcon />
+                  )}
+
+                </View>
+              </View>
+
+
+              {item.message && <Text style={styles.errorMessage}>{item.message}</Text>}
+              {item.vehicles && item.vehicles.length > 0 && (
+                <View>
+                  <Text>{item.vehicles[0].vehicle_name} - {item.vehicles[0].vehicle_number}</Text>
+
+                  {/* Using FlatList to render images */}
+                  <FlatList
+                    data={item.vehicles[0].vehicle_images}
+                    keyExtractor={(image, index) => index.toString()}
+                    horizontal
+                    renderItem={({ item: image }) => (
+                      <Image
+                        source={{ uri: image }}
+                        style={{ width: 50, height: 40, alignSelf: 'flex-end' }}
+                        resizeMode="contain"
+                      />
+
+
+                    )}
+                  />
+                </View>
+
               )}
+              {item?.userId && (
+                <CustomButton
+                  title="Invite"
+                  onPress={() => handleInvite(userId, item.userPhoneNumber, groupId)}
+                  style={{ width: 80, height: 50, alignSelf: 'flex-end' }}
+                />
+              )}
+
             </View>
           )}
+
         />
         <CustomModal
           visible={isModalVisible}
@@ -120,7 +202,7 @@ const AddGroupMembers = ({ route }) => {
           onPrimaryAction={handlePrimaryAction}
           onSecondaryAction={handleCancel}
         />
-      </View>
+      </View >
     </>
   );
 };
@@ -138,13 +220,22 @@ const styles = StyleSheet.create({
   contactName: {
     fontSize: 16,
     fontWeight: 'bold',
+
+
   },
-  contactEmail: {
+  contactPhone: {
     fontSize: 14,
-    color: '#888',
   },
+  errorMessage: {
+    fontSize: 12,
+    color: 'red',
+  },
+  profile:
+  {
+
+    flexDirection: 'row',
+
+  }
 });
 
 export default AddGroupMembers;
-
-
