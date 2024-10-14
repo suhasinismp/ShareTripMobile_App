@@ -59,8 +59,8 @@ const HomeScreen = () => {
       </TouchableOpacity>
       <CustomModal
         visible={isModalVisible}
-        title="Complete Your Onboarding"
-        subtitle="Upload your documents to boost your visibility and build trust with fellow drivers!"
+        title="Complete Your profile"
+        // subtitle="Upload your documents to boost your visibility and build trust with fellow drivers!"
         primaryButtonText="Upload Documents"
         secondaryButtonText="Cancel"
         icon={<ModalProfileIcon />}

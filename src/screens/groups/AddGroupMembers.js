@@ -18,6 +18,8 @@ const AddGroupMembers = ({ route }) => {
   const [contacts, setContacts] = useState([]);
   const [uiData, setUiData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [invitedUsers, setInvitedUsers] = useState([]);
+  console.log("abc", invitedUsers)
 
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
@@ -105,13 +107,18 @@ const AddGroupMembers = ({ route }) => {
         phone_no: phoneNumber,
         group_id: groupId,
       };
-      console.log('xyz', finalData);
-      const response = await postSendGroupInvite(finalData, userToken);
-      console.log({ response });
+      // console.log('xyz', finalData)
+      const response = await postSendGroupInvite(finalData, userToken)
+      console.log("xyz", response);
       if (response?.message === 'Invitation sent successfully') {
-        alert('Only admins can send invitations to this group.');
+        setInvitedUsers((prevInvitedUsers) => {
+          const updatedInvitedUsers = [...prevInvitedUsers, phoneNumber]
+          console.log("mno", updatedInvitedUsers)
+          return updatedInvitedUsers;
+
+        })
       } else {
-        console.log('Invite sent successfully:', response);
+        console.log('Invited:', response);
       }
     } catch (error) {
       console.error('error sending invite', error);
@@ -181,13 +188,15 @@ const AddGroupMembers = ({ route }) => {
                   />
                 </View>
               )}
+              {console.log("mon", invitedUsers.includes(item.userPhoneNumber))}
               {item?.userId && (
+
                 <CustomButton
-                  title="Invite"
-                  onPress={() =>
-                    handleInvite(userId, item.userPhoneNumber, groupId)
-                  }
-                  style={{ width: 80, height: 50, alignSelf: 'flex-end' }}
+                  title={invitedUsers.includes(item.userPhoneNumber) ? 'Invited' : 'Invite'}
+                  onPress={() => handleInvite(userId, item.userPhoneNumber, groupId)}
+
+                  style={{ width: 100, height: 50, alignSelf: 'flex-end' }}
+                  disabled={invitedUsers.includes(item.userPhoneNumber)}
                 />
               )}
             </View>
