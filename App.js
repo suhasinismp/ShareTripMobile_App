@@ -1,19 +1,16 @@
-import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Switch, Text } from 'react-native';
-import { Provider } from 'react-redux';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Provider } from 'react-redux';
+import CustomSnackbar from './src/components/ui/CustomSnackbar';
+import { useTheme, useThemeProvider } from './src/hooks/useTheme';
+import AppStack from './src/routes/AppStack';
 import store from './src/store/store';
 import { ThemeContext } from './src/styles/theme';
-import { useTheme, useThemeProvider } from './src/hooks/useTheme';
-import AuthStackNavigator from './src/routes/AuthStack';
-import RegistrationNavigator from './src/routes/RegistrationStack';
-import AppStack from './src/routes/AppStack';
-import CustomSnackbar from './src/components/ui/CustomSnackbar';
 // import HomeScreen from './src/screens/BottomTab/HomeScreen';
-import BottomTab from './src/routes/BottomTab';
 
 SplashScreen.preventAutoHideAsync();
 

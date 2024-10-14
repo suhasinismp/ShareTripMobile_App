@@ -37,7 +37,9 @@ import Groups from '../screens/groups/GroupsScreen';
 import ViewGroupRequestsScreen from '../screens/groups/ViewGroupRequestsScreen';
 import CreateGroupScreen from '../screens/groups/CreateGroupScreen';
 import GroupStack from './GroupStack';
-import PostATripScreen from '../screens/bottomTab/PostATripScreen';
+import PostATripScreen from '../screens/bottomTab/postTrip/PostATripScreen';
+import SelectGroupScreen from '../screens/bottomTab/postTrip/SelectGroupScreen';
+import SelectContactScreen from '../screens/bottomTab/postTrip/SelectContactScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -211,6 +213,8 @@ const DrawerStack = () => {
       />
       <Drawer.Screen name="Group" component={GroupStack} />
       <Drawer.Screen name="PostTrip" component={PostATripScreen} />
+      <Drawer.Screen name="SelectGroups" component={SelectGroupScreen} />
+      <Drawer.Screen name="SelectContacts" component={SelectContactScreen} />
     </Drawer.Navigator>
   );
 };

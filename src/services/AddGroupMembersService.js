@@ -4,8 +4,15 @@ import { postAPI } from "../utils/servicesUtil"
 
 
 export const postUserByPhoneNumber = async (payload, token) => {
-    // console.log('abc', JSON.stringify(payload))
-    const response = await postAPI('groups/user-list', payload, token);
+
+    const response = await postAPI('share-trip/groups/user-list', payload, token);
+
+    return response;
+}
+
+
+export const postSendGroupInvite = async (payload, token) => {
+    const response = await postAPI('share-trip/group-users-invite/send-invitation/', payload, token);
 
     return response;
 }
