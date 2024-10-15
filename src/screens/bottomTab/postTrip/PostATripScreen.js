@@ -35,7 +35,11 @@ const VehicleButton = ({ item, isSelected, onPress, imageKey, nameKey }) => (
       style={[styles.vehicleButton, isSelected && styles.selectedVehicleButton]}
       onPress={onPress}
     >
-      <Image source={{ uri: item[imageKey] }} style={styles.vehicleImage} />
+      <Image
+        source={{ uri: item[imageKey] }}
+        style={styles.vehicleImage}
+        resizeMode="contain"
+      />
     </TouchableOpacity>
     <CustomText text={item[nameKey]} style={styles.vehicleText} />
   </View>
@@ -67,7 +71,6 @@ const PostATripScreen = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordedAudioUri, setRecordedAudioUri] = useState(null);
 
-  // Form state
   const [message, setMessage] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -134,7 +137,102 @@ const PostATripScreen = () => {
   }, [tripTypes]);
 
   const handleSend = async () => {
-    let finalData = { posted_user_id: userId, post_status: 'pending' };
+    let isValid = true;
+    let errorMessage = '';
+
+    if (postType === 'Quick Share') {
+      if (!selectedTripType) {
+        isValid = false;
+        errorMessage = 'Please select a trip type.';
+      } else if (!selectedPackage) {
+        isValid = false;
+        errorMessage = 'Please select a package.';
+      } else if (!selectedVehicleType) {
+        isValid = false;
+        errorMessage = 'Please select a vehicle type.';
+      } else if (!selectedVehicleName) {
+        isValid = false;
+        errorMessage = 'Please select a vehicle name.';
+      } else if (message.length === 0 && !recordedAudioUri) {
+        isValid = false;
+        errorMessage = 'Please enter a message or record an audio.';
+      } else if (!selectedShareType) {
+        isValid = false;
+        errorMessage = 'Please select a share type.';
+      }
+    } else if (postType === 'Trip Sheet') {
+      if (!selectedTripType) {
+        isValid = false;
+        errorMessage = 'Please select a trip type.';
+      } else if (!selectedPackage) {
+        isValid = false;
+        errorMessage = 'Please select a package.';
+      } else if (!selectedVehicleType) {
+        isValid = false;
+        errorMessage = 'Please select a vehicle type.';
+      } else if (!selectedVehicleName) {
+        isValid = false;
+        errorMessage = 'Please select a vehicle name.';
+      } else if (customerName.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter customer name.';
+      } else if (customerPhone.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter customer phone.';
+      } else if (pickupLocation.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter pickup location.';
+      } else if (dropLocation.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter drop location.';
+      } else if (rate.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter rate.';
+      } else if (extraKms.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter extra kms.';
+      } else if (extraHours.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter extra hours.';
+      } else if (dayBatta.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter day batta.';
+      } else if (nightBatta.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter night batta.';
+      } else if (!selectedPaymentType) {
+        isValid = false;
+        errorMessage = 'Please select a payment type.';
+      } else if (notes.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter notes.';
+      } else if (notes1.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter additional notes.';
+      } else if (visitingPlace.length === 0) {
+        isValid = false;
+        errorMessage = 'Please enter visiting place.';
+      } else if (!selectedTime) {
+        isValid = false;
+        errorMessage = 'Please select time.';
+      } else if (!selectedFromDate) {
+        isValid = false;
+        errorMessage = 'Please select from date.';
+      } else if (!selectedToDate) {
+        isValid = false;
+        errorMessage = 'Please select to date.';
+      } else if (!selectedShareType) {
+        isValid = false;
+        errorMessage = 'Please select a share type.';
+      }
+    }
+
+    if (!isValid) {
+      alert(errorMessage);
+      return;
+    }
+
+    let finalData = { posted_user_id: userId, post_status: 'Available' };
 
     if (selectedTripType) {
       finalData.booking_type_id = selectedTripType;
@@ -221,15 +319,11 @@ const PostATripScreen = () => {
     }
 
     if (selectedToDate) {
-      finalData.to_date = selectedFromDate;
+      finalData.to_date = selectedToDate;
     }
 
     if (selectedShareType == 1) {
       finalData.post_type_value = null;
-    } else if (selectedShareType == 2) {
-      finalData.post_type_value = '[1,2,3]';
-    } else if (selectedShareType == 3) {
-      finalData.post_type_value = '[1,2,3,4]';
     }
 
     if (selectedShareType == 1) {
@@ -264,7 +358,6 @@ const PostATripScreen = () => {
       navigation.navigate('SelectContacts', { finalData, recordedAudioUri });
     }
   };
-
   const fetchConstants = async () => {
     const response = await getTripTypes(userToken);
     if (response.error === false) {
@@ -297,6 +390,7 @@ const PostATripScreen = () => {
         isSelected={isSelected}
         onPress={onPress}
         unselectedStyle={styles.unselectedBorder}
+        textStyle={styles.selectedText}
       />
     ),
     [],
@@ -343,24 +437,7 @@ const PostATripScreen = () => {
           contentContainerStyle={styles.listContentContainer}
         />
       </View>
-      <View style={styles.sectionContainer}>
-        <CustomText text={'Select Package :'} variant={'sectionTitleText'} />
-        <FlatList
-          data={getSelectedTripTypePackages()}
-          renderItem={({ item }) =>
-            renderSelectItem({
-              item,
-              isSelected: selectedPackage === item.id,
-              onPress: () => setSelectedPackage(item.id),
-              textKey: 'package_name',
-            })
-          }
-          keyExtractor={(item) => item.id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.listContentContainer}
-        />
-      </View>
+
       <View style={styles.sectionContainer}>
         <CustomText
           text={'Select Vehicle Type :'}
@@ -403,6 +480,24 @@ const PostATripScreen = () => {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.vehicleListContainer}
+        />
+      </View>
+      <View style={styles.sectionContainer}>
+        <CustomText text={'Select Package :'} variant={'sectionTitleText'} />
+        <FlatList
+          data={getSelectedTripTypePackages()}
+          renderItem={({ item }) =>
+            renderSelectItem({
+              item,
+              isSelected: selectedPackage === item.id,
+              onPress: () => setSelectedPackage(item.id),
+              textKey: 'package_name',
+            })
+          }
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.listContentContainer}
         />
       </View>
     </>
@@ -678,8 +773,8 @@ const PostATripScreen = () => {
           <CustomSelect
             text={'Quick Share'}
             containerStyle={styles.postType}
-            selectedTextStyle={styles.selectedText}
-            selectedStyle={styles.selectedBackground}
+            selectedTextStyle={styles.selectedPostTypeText}
+            selectedStyle={styles.selectedPostTypeBackground}
             isSelected={postType === 'Quick Share'}
             onPress={() => setPostType('Quick Share')}
             unselectedStyle={styles.unselectedBorder}
@@ -687,8 +782,8 @@ const PostATripScreen = () => {
           <CustomSelect
             text={'Trip Sheet'}
             containerStyle={styles.postType}
-            selectedTextStyle={styles.selectedText}
-            selectedStyle={styles.selectedBackground}
+            selectedTextStyle={styles.selectedPostTypeText}
+            selectedStyle={styles.selectedPostTypeBackground}
             isSelected={postType === 'Trip Sheet'}
             onPress={() => setPostType('Trip Sheet')}
             unselectedStyle={styles.unselectedBorder}
@@ -739,13 +834,19 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
   },
-  selectedText: {
+  selectedPostTypeText: {
     color: 'white',
     fontSize: 14,
     textAlign: 'center',
   },
+  selectedText: {
+    color: '#000000',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  selectedPostTypeBackground: { backgroundColor: '#008B8B' },
   selectedBackground: {
-    backgroundColor: '#008B8B',
+    backgroundColor: '#CCE3F4',
   },
   unselectedBorder: {
     borderColor: '#005680',
@@ -848,6 +949,7 @@ const styles = StyleSheet.create({
   },
   tariffInput: {
     width: '40%',
+    height: 30,
   },
 });
 

@@ -51,16 +51,11 @@ const SelectContactScreen = ({ route }) => {
   }, [contacts]);
 
   const handleContactSelection = async (contact) => {
-    if (sentContacts.includes(contact.userPhoneNumber)) {
-      return; // Don't allow re-sending to already sent contacts
-    }
-
-    setSelectedContacts([...selectedContacts, contact]);
-
     const updatedFinalData = {
       ...finalData,
-      post_type_value: JSON.stringify([...selectedContacts, contact]),
+      post_type_value: JSON.stringify([contact.userId]),
     };
+    console.log({ updatedFinalData });
 
     const formData = new FormData();
     formData.append('json', JSON.stringify(updatedFinalData));
