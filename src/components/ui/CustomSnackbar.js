@@ -12,27 +12,28 @@ const CustomSnackbar = () => {
   const { visible, message, actionText, position, type } = useSelector(
     snackBarConfigSelector,
   );
+
   let bgColor;
   let icon;
   let borderColor;
   if (type === 'error') {
     bgColor = '#FBE5E6';
-    icon = <ErrorIcon style={{ width: 30, height: 30 }} />;
+    icon = <ErrorIcon style={styles.icon} />;
     borderColor = '#D83435';
   } else if (type === 'success') {
     bgColor = '#E4F0E7';
-    icon = <SuccessIcon style={{ width: 30, height: 30 }} />;
+    icon = <SuccessIcon style={styles.icon} />;
     borderColor = '#1F833F';
   } else {
     bgColor = '#727374';
-    icon = <WarningIcon style={{ width: 30, height: 30 }} />;
+    icon = <WarningIcon style={styles.icon} />;
   }
 
   useEffect(() => {
     if (visible) {
       const timeout = setTimeout(() => {
         dispatch(hideSnackbar());
-      }, 3000);
+      }, 5000);
 
       return () => clearTimeout(timeout);
     }
@@ -49,13 +50,15 @@ const CustomSnackbar = () => {
         containerStyle,
       ]}
     >
-      {icon}
-      <Text style={styles.messageText}>{message}</Text>
-      {actionText && (
-        <TouchableOpacity onPress={() => dispatch(hideSnackbar())}>
-          <Text style={styles.actionText}>{actionText}</Text>
-        </TouchableOpacity>
-      )}
+      <View style={styles.iconContainer}>{icon}</View>
+      <View style={styles.contentContainer}>
+        <Text style={styles.messageText}>{message}</Text>
+        {actionText && (
+          <TouchableOpacity onPress={() => dispatch(hideSnackbar())}>
+            <Text style={styles.actionText}>{actionText}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   ) : null;
 };
@@ -67,10 +70,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     position: 'absolute',
-    left: 0,
-    right: 0,
-    marginHorizontal: 15,
+    left: 16,
+    right: 16,
     borderLeftWidth: 4,
+    maxWidth: '90%',
+    alignSelf: 'center',
   },
   topContainer: {
     top: 15,
@@ -78,15 +82,29 @@ const styles = StyleSheet.create({
   bottomContainer: {
     bottom: 80,
   },
+  iconContainer: {
+    marginRight: 16,
+  },
+  icon: {
+    width: 24,
+    height: 24,
+  },
+  contentContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
   messageText: {
     fontSize: 16,
     color: '#191919',
-    marginLeft: 40,
+    flexShrink: 1,
   },
   actionText: {
-    marginLeft: 6,
+    marginLeft: 8,
     fontSize: 14,
-    color: 'white',
+    color: '#005680',
+    fontWeight: 'bold',
   },
 });
 

@@ -57,7 +57,7 @@ const GroupsScreen = () => {
   const renderGroupItem = ({ item }) => (
     <View style={styles.groupItem}>
       <Image
-        source={{ uri: item.group_logo || '/api/placeholder/40/40' }}
+        source={{ uri: item.group_logo || 'https://via.placeholder.com/50' }}
         style={styles.groupLogo}
       />
       <CustomText
@@ -159,10 +159,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   groupLogo: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
   },
   groupName: {
     fontSize: 16,

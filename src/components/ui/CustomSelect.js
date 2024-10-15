@@ -58,16 +58,15 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   contentContainer: {
-    flex: 1,
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconContainer: {
-    marginBottom: 5,
+    marginRight: 5,
   },
   childrenContainer: {
-    marginBottom: 5,
+    marginRight: 5,
   },
   text: {
     textAlign: 'center',
