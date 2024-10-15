@@ -1,4 +1,4 @@
-import { getAPI, postFormDataAPI } from '../utils/servicesUtil';
+import { getAPI, patchAPI, postFormDataAPI } from '../utils/servicesUtil';
 export const getGroups = async (token) => {
   console.log(token);
   const response = await getAPI('share-trip/groups', token);
@@ -12,5 +12,15 @@ export const createGroup = async (data, token) => {
 
 export const getGroupRequestByUserId = async (userId, token) => {
   const response = await getAPI(`share-trip/group-users-invite/request-data/${userId}`, token);
+  return response;
+}
+export const groupAcceptInvite = async (token, group_Id, user_Id) => {
+  const response = await patchAPI({ endUrl: `share-trip/group-users-invite/accept-invitation?user_id=${user_Id}&group_id=${group_Id}`, token: token })
+
+  return response;
+}
+
+export const groupDeclineInvite = async (token, group_Id, user_Id) => {
+  const response = await patchAPI({ endUrl: `share-trip/group-users-invite/decline-invitation?user_id=${user_Id}&group_id=${group_Id}`, token: token });
   return response;
 }

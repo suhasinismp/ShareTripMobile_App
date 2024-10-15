@@ -13,11 +13,12 @@ import AppHeader from '../../components/AppHeader';
 import MenuIcon from '../../../assets/svgs/menu.svg';
 import SearchIcon from '../../../assets/svgs/search.svg';
 import CustomText from '../../components/ui/CustomText';
-
 import { useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 import { getGroups } from '../../services/groupsService';
 import { useNavigation } from '@react-navigation/native';
+
+
 
 const GroupsScreen = () => {
   const navigation = useNavigation();
@@ -35,6 +36,8 @@ const GroupsScreen = () => {
     setGroups(response.data);
   };
 
+
+
   const toggleMenu = () => setIsMenuVisible(!isMenuVisible);
 
   const handleMenuOption = (option) => {
@@ -48,6 +51,10 @@ const GroupsScreen = () => {
     }
   };
 
+  const handleGroupPress = (item) => {
+    navigation.navigate('GroupDetailScreen', { groupId: item.id });
+  };
+
   const renderRightIcon = () => (
     <TouchableOpacity onPress={toggleMenu}>
       <MenuIcon width={24} height={24} fill="#000000" />
@@ -55,7 +62,8 @@ const GroupsScreen = () => {
   );
 
   const renderGroupItem = ({ item }) => (
-    <View style={styles.groupItem}>
+    <TouchableOpacity style={styles.groupItem} onPress={() => { handleGroupPress(item) }}>
+      {/* // <View style={styles.groupItem}> */}
       <Image
         source={{ uri: item.group_logo || 'https://via.placeholder.com/50' }}
         style={styles.groupLogo}
@@ -65,7 +73,8 @@ const GroupsScreen = () => {
         text={item.group_name}
         style={styles.groupName}
       />
-    </View>
+      {/* // </View> */}
+    </TouchableOpacity>
   );
 
   return (
