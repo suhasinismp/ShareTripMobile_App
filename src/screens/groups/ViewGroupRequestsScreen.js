@@ -4,11 +4,13 @@ import AppHeader from '../../components/AppHeader';
 import MenuIcon from '../../../assets/svgs/menu.svg';
 import SearchIcon from '../../../assets/svgs/search.svg';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 import CustomText from '../../components/ui/CustomText';
 import { getGroupRequestByUserId } from '../../services/groupsService';
 import CustomButton from '../../components/ui/CustomButton';
+import { groupAcceptInvite, groupDeclineInvite } from '../../services/AddGroupMembersService';
+import { showSnackbar } from '../../store/slices/snackBarSlice';
 
 
 
@@ -17,16 +19,85 @@ const ViewGroupRequestsScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const userToken = userData?.userToken;
   const userId = userData.userId;
-  const [groupRequestData, setGroupRequestData] = useState([]);
-  console.log({ groupRequestData })
+  const dispatch = useDispatch();
+  const [groupRequestData, setGroupRequestData] = useState(null);
+  const [actionType, setActionType] = useState(null);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
+
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   useEffect(() => {
     fetchGroupRequests()
   }, [])
 
+  // useEffect(() => {
+  //   if (selectedGroupId != null) {
+  //     handleAccept()
+  //     handleDecline()
+  //   }
+  // }, [selectedGroupId])
 
+  useEffect(() => {
+    if (selectedGroupId && actionType) {
+      if (actionType === 'accept') {
+        handleAccept();
+      } else if (actionType === 'decline') {
+        handleDecline();
+      }
+    }
+  }, [selectedGroupId, actionType]);
 
+  const handleAccept = async () => {
+    const response = await groupAcceptInvite(userToken, selectedGroupId, userId);
+    // console.log({ response });
+
+    if (response?.message === 'Invitation accepted and user added to the group') {
+      dispatch(
+        showSnackbar({
+          visible: true,
+          message: 'You have been added to the group.',
+          type: 'success',
+        })
+      );
+    } else if (response?.message === 'No pending invitation found for this user') {
+      dispatch(
+        showSnackbar({
+          visible: true,
+          message: 'No pending invitations were found for this user.',
+          type: 'warning',
+        })
+      );
+    } else {
+      dispatch(
+        showSnackbar({
+          visible: true,
+          message: 'Something went wrong. Please try again.',
+          type: 'error',
+        })
+      );
+    }
+  }
+  const handleDecline = async () => {
+    const response = await groupDeclineInvite(userToken, selectedGroupId, userId);
+    console.log({ response });
+    if (response?.message === 'Invitation declined successfully') {
+      dispatch(
+        showSnackbar({
+          visible: true,
+          message: 'You have declined the invitation.',
+          type: 'error',
+        })
+      );
+    } else {
+      dispatch(
+        showSnackbar({
+          visible: true,
+          message: 'Something went wrong. Please try again.',
+          type: 'error',
+        })
+      )
+    }
+  }
   const fetchGroupRequests = async () => {
     const response = await getGroupRequestByUserId(userId, userToken)
     setGroupRequestData(response)
@@ -52,13 +123,8 @@ const ViewGroupRequestsScreen = () => {
     // console.log('Group Name:', item.group_name);
 
 
-    const handleAccept = () => {
 
-    }
 
-    const handleDecline = () => {
-
-    }
     const showAdditionalUsersText = item.related_user_count > 0;
 
 
@@ -95,7 +161,7 @@ const ViewGroupRequestsScreen = () => {
               {showAdditionalUsersText && (
                 <View style={styles.userCountSection}>
                   <Image
-                    source={{ uri: item.related_users[0].user_profile || '/api/placeholder/40/40' }}
+                    source={{ uri: item.related_users[0].user_profile || 'https://via.placeholder.com/50' }}
                     style={styles.userImage}
                     resizeMode="cover"
                   />
@@ -104,23 +170,22 @@ const ViewGroupRequestsScreen = () => {
                   </Text>
                 </View>
               )}
-
-
-
-
-
-
-
             </View>
             <View style={styles.buttonContainer}>
               <CustomButton
                 title="Decline"
-                onPress={() => { handleAccept(item.id) }}
+                onPress={() => {
+                  setSelectedGroupId(item.group_id)
+                  setActionType('decline');
+                }}
                 style={{ width: 100, height: 50, backgroundColor: 'red' }}
               />
               <CustomButton
                 title="Accept"
-                onPress={() => { handleDecline(item.id) }}
+                onPress={() => {
+                  setSelectedGroupId(item.group_id)
+                  setActionType('accept');
+                }}
                 style={{ width: 100, height: 50, }}
               />
             </View>
@@ -207,7 +272,7 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     marginRight: 8,
-    backgroundColor: 'blue',
+    // backgroundColor: 'blue',
   },
   userCountText: {
     fontSize: 14,

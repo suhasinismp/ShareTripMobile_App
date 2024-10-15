@@ -1,4 +1,4 @@
-import { postAPI } from "../utils/servicesUtil"
+import { patchAPI, postAPI } from "../utils/servicesUtil"
 
 
 
@@ -16,3 +16,4 @@ export const postSendGroupInvite = async (payload, token) => {
 
     return response;
 }
+
