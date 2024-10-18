@@ -7,9 +7,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 import CustomText from '../../components/ui/CustomText';
-import { getGroupRequestByUserId } from '../../services/groupsService';
+import { getGroupRequestByUserId, groupAcceptInvite, groupDeclineInvite } from '../../services/groupsService';
 import CustomButton from '../../components/ui/CustomButton';
-import { groupAcceptInvite, groupDeclineInvite } from '../../services/AddGroupMembersService';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
 
 
@@ -30,12 +29,6 @@ const ViewGroupRequestsScreen = () => {
     fetchGroupRequests()
   }, [])
 
-  // useEffect(() => {
-  //   if (selectedGroupId != null) {
-  //     handleAccept()
-  //     handleDecline()
-  //   }
-  // }, [selectedGroupId])
 
   useEffect(() => {
     if (selectedGroupId && actionType) {
@@ -48,8 +41,9 @@ const ViewGroupRequestsScreen = () => {
   }, [selectedGroupId, actionType]);
 
   const handleAccept = async () => {
+    console.log()
     const response = await groupAcceptInvite(userToken, selectedGroupId, userId);
-    // console.log({ response });
+    console.log({ response });
 
     if (response?.message === 'Invitation accepted and user added to the group') {
       dispatch(
@@ -85,7 +79,7 @@ const ViewGroupRequestsScreen = () => {
         showSnackbar({
           visible: true,
           message: 'You have declined the invitation.',
-          type: 'error',
+          type: 'success',
         })
       );
     } else {
