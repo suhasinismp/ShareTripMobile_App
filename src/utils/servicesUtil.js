@@ -83,7 +83,8 @@ export const patchAPI = async ({ endUrl, body, token }) => {
     return null;
   }
 };
-export const deleteAPI = async ({ endURL, token }) => {
+export const deleteAPI = async ({ endUrl, token }) => {
+
   let prepareHeader = {
     'Content-Type': 'application/json',
   };
@@ -96,7 +97,7 @@ export const deleteAPI = async ({ endURL, token }) => {
 
   var apiConfig = {
     method: 'delete',
-    url: endURL,
+    url: endUrl,
     headers: prepareHeader,
   };
 
