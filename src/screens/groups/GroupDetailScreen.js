@@ -19,7 +19,7 @@ import MenuIcon from '../../../assets/svgs/menu.svg';
 import AppHeader from '../../components/AppHeader';
 import UploadOptionsModal from '../../components/UploadOptionsModal';
 import { fieldNames } from '../../constants/strings/fieldNames';
-import { deleteGroup, DeleteGroupUser, getGroupUserDetailsById, updateUserAdminStatus } from '../../services/groupsService';
+import { deleteGroup, DeleteGroupUser, exitGroup, getGroupUserDetailsById, updateGroup, updateUserAdminStatus } from '../../services/groupsService';
 import { useTheme } from '../../hooks/useTheme';
 import { getUserDataSelector } from '../../store/selectors';
 import CustomTextInput from '../../components/ui/CustomTextInput';
@@ -28,7 +28,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { groupScheme } from '../../constants/schema/groupScheme';
 import EditGroup from '../../../assets/svgs/editGroup.svg';
 import DeleteGroup from '../../../assets/svgs/deleteGroup.svg';
-import ExitGroup from '../../../assets/svgs/exitGroup.svg';
+import ExitGroupIcon from '../../../assets/svgs/exitGroup.svg';
 import AddNewMember from '../../../assets/svgs/addnewMember.svg';
 import CustomModal from '../../components/ui/CustomModal';
 import ModalProfileIcon from '../../../assets/svgs/modalProfile.svg'
@@ -68,7 +68,8 @@ const GroupDetailScreen = () => {
     const [loading, setLoading] = useState(true);
     const [isMenuVisible, setIsMenuVisible] = useState(null);
     const [isEditMenuVisible, setIsEditMenuVisible] = useState(false);
-
+    const [isEditModeOn, setIsEditModeOn] = useState(false);
+    const [isSaving, setIsSaving] = useState(false)
     const [groupMembers, setGroupMembers] = useState([]);
     const [adminId, setAdminId] = useState([]);
     const { control, handleSubmit, setValue, reset } = useForm({
@@ -87,9 +88,11 @@ const GroupDetailScreen = () => {
         try {
             const response = await getGroupUserDetailsById(groupId, userToken);
             const members = response?.data || [];
+
             const admins = members.filter(member => member.is_admin).map(member => member.user_id);
             setAdminId(admins);
             setGroupMembers(response?.data);
+
         } catch (error) {
             console.error('Error fetching group members:', error);
         } finally {
@@ -177,9 +180,39 @@ const GroupDetailScreen = () => {
         setIsDeleteModalVisible(true);
     }
 
-    const handleMenuEdit = () => {
-        setIsEditMenuVisible(false);
+
+
+    const handleSave = async (data) => {
+
+        const finalData = {
+            id: groupId,
+            group_name: data.groupName,
+            group_details: data.groupDescription,
+
+        }
+        console.log({ finalData })
+        const formData = new FormData();
+        formData.append('json', JSON.stringify(finalData));
+        console.log({ groupLogo });
+
+        // formData.append('logoUpload', {
+        //     uri: groupLogo,
+        //     type: 'image/jpeg',
+        //     name: `group_logo.jpeg`,
+        // });
+
+        const response = await updateGroup(formData, userToken)
+        console.log({ response })
+        if (response?.error === false) {
+            console.log('Group updated successfully:', response.message);
+            setIsEditModeOn(false);
+            setIsEditMenuVisible(false); // Show edit menu on success
+        } else {
+            console.error('Failed to update group:', response.message);
+        }
+
     }
+
 
     const handleDeleteGroup = async () => {
         const response = await deleteGroup(groupId, userToken);
@@ -187,6 +220,18 @@ const GroupDetailScreen = () => {
         if (response.message === "Successfully delete the Group") {
             navigation.goBack()
         }
+    }
+
+    const handleExitGroup = async () => {
+        const response = await exitGroup(userId, groupId, userToken);
+        console.log({ response })
+        if (response.message === "Successfully exit the Group") {
+            navigation.goBack()
+        }
+    }
+
+    const handleAddmember = async () => {
+        navigation.navigate('AddGroupMembers', { groupId });
     }
 
     const toggleMenu = () => setIsEditMenuVisible(!isEditMenuVisible);
@@ -287,7 +332,11 @@ const GroupDetailScreen = () => {
                         <View style={styles.menuContain}>
                             <TouchableOpacity
                                 style={styles.menuItems}
-                                onPress={() => handleMenuEdit('editGroup')}
+                                onPress={() => {
+                                    setIsEditModeOn(true)
+                                    setIsEditMenuVisible(false)
+                                }
+                                }
                             >
                                 <CustomText variant="body" text="Edit Group" />
                                 <EditGroup />
@@ -315,11 +364,32 @@ const GroupDetailScreen = () => {
                     </TouchableOpacity>
                 </View>
 
-                {inputFields.map(renderField)}
+                {isEditModeOn ? (
+                    inputFields.map(renderField)
+                ) : (
+                    <>
+                        <Text>{groupName}</Text>
+                        <Text>{groupDescription}</Text>
+                    </>
+                )}
+                {/* <TouchableOpacity style={styles.save} onPress={isEditModeOn ? handleSubmit(handleSave) : handleExitGroup}
+                >
+                    <CustomText
+                        variant="body"
+                        text={isEditModeOn ? "Save" : "Exit Group"}
+
+                    />
+
+                    <ExitGroupIcon />
+
+
+                </TouchableOpacity> */}
+
+
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 
-                    <Text>member:29</Text>
+                    <Text>member:{groupMembers?.length}</Text>
                     <TouchableOpacity
                         style={{
                             display: 'flex',
@@ -327,7 +397,7 @@ const GroupDetailScreen = () => {
                             alignSelf: 'flex-end',
                             right: 30,
                         }}
-                        onPress={() => handleMenuOption('addnewMember')}
+                        onPress={() => handleAddmember('addnewMember')}
                     >
                         <AddNewMember />
                         <CustomText variant="body" text="Add new Member" textStyle={{ color: 'red' }} />
@@ -360,10 +430,10 @@ const GroupDetailScreen = () => {
 
             <TouchableOpacity
                 style={styles.menu}
-                onPress={() => handleMenuOption('exitGroup')}
+                onPress={isEditModeOn ? handleSubmit(handleSave) : handleExitGroup}
             >
-                <CustomText variant="body" text="Exit Group" textStyle={{ color: 'red' }} />
-                <ExitGroup />
+                <CustomText variant="body" text={isEditModeOn ? 'Save' : 'Exit'} textStyle={{ color: 'red' }} />
+                {isEditModeOn ? null : <ExitGroupIcon />}
             </TouchableOpacity>
             <CustomModal
                 visible={isDeleteModalVisible}
@@ -432,6 +502,15 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'flex-start',
         alignItems: 'flex-end',
+    },
+    save: {
+        padding: 12,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        marginVertical: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     menu: {
 

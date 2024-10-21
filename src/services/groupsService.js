@@ -35,3 +35,14 @@ export const deleteGroup = async (groupId, token) => {
   const response = await deleteAPI({ endUrl: `share-trip/groups?groups_id=${groupId}`, token: token })
   return response;
 }
+
+export const exitGroup = async (userId, groupId, token) => {
+  const response = await deleteAPI({ endUrl: `share-trip/group-users/self-exit?user_id=${userId}&group_id=${groupId}`, token: token })
+  return response;
+
+}
+
+export const updateGroup = async (payload, token) => {
+  const response = await patchAPI({ endUrl: 'share-trip/groups', body: payload, token: token })
+  return response;
+}
