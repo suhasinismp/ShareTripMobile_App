@@ -254,8 +254,12 @@ const PostATripScreen = () => {
       finalData.post_comments = message;
     }
 
-    if (selectedShareType) {
+    if (selectedShareType === 1) {
       finalData.post_type_id = 1;
+    } else if (selectedShareType === 2) {
+      finalData.post_type_id = 2;
+    } else if (selectedShareType === 3) {
+      finalData.post_type_id = 3;
     }
 
     if (customerName.length > 0) {
