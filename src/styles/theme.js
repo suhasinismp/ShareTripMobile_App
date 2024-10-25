@@ -6,12 +6,14 @@ export const themes = {
     primaryColor: '#005680',
     inputBackgroundColor: '#FAFBFF',
     white: 'white',
+    disabledColor: 'red',
   },
   dark: {
     backgroundColor: '#F3F5FD',
     primaryColor: '#005680',
     inputBackgroundColor: '#FAFBFF',
     white: 'white',
+    disabledColor: 'red',
   },
 };
 

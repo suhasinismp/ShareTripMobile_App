@@ -268,6 +268,7 @@ const VehicleDetailsScreen = () => {
   }, [initialVehicleList, reset]);
 
   const onSubmit = async (data) => {
+    console.log({ data });
     const { nameId, typeId } = await getIdByName(
       vehicleNames.data,
       data.vehicleName,
@@ -296,6 +297,7 @@ const VehicleDetailsScreen = () => {
         navigation.navigate('VehicleDocs');
       } else {
         const response = await createVehicleDetail(finalData, userToken);
+        console.log({ response });
 
         if (response?.newVehicle.created_at) {
           userRoleId == 3000

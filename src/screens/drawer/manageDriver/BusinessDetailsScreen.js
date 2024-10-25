@@ -21,6 +21,7 @@ import { showSnackbar } from '../../../store/slices/snackBarSlice';
 import {
   createBusinessDetails,
   fetchBusinessDetailsByUserId,
+  updateBusinessDetails,
 } from '../../../services/businessDetailService';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
@@ -87,7 +88,8 @@ const BusinessDetailsScreen = () => {
     setIsLoading(true);
     try {
       const response = await fetchBusinessDetailsByUserId(userToken, userId);
-      if (response.error === false && response.data.length > 0) {
+      console.log({ response });
+      if (response.error === false && response?.data?.length > 0) {
         setInitialBusinessDetails(response.data[0]);
       } else {
         setInitialBusinessDetails(null);
