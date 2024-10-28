@@ -1,4 +1,4 @@
-import { getAPI, postAPI } from '../utils/servicesUtil';
+import { getAPI, patchAPI, postAPI } from '../utils/servicesUtil';
 
 export const getDriverInProgressTrips = async (userId, token) => {
   const response = await getAPI(
@@ -18,7 +18,7 @@ export const getPostedGuyInProgressTrips = async (userId, token) => {
 
 export const confirmedDriverTrips = async (userId, token) => {
   const response = await getAPI(
-    `share-trip/post-trip-confirm?filter=myTrips&user_id=${userId}`,
+    `share-trip/post-trip-confirm/filter-data?filter=myDuties&&user_id=${userId}`,
     token,
   );
   return response;
@@ -26,7 +26,7 @@ export const confirmedDriverTrips = async (userId, token) => {
 
 export const confirmedPostedGuyTrips = async (userId, token) => {
   const response = await getAPI(
-    `share-trip/post-trip-confirm?filter=posted&user_id=${userId}`,
+    `share-trip/post-trip-confirm/filter-data?filter=posted&user_id=${userId}`,
     token,
   );
   return response;
@@ -38,10 +38,11 @@ export const acceptDriverRequest = async (data, token) => {
 };
 
 export const rejectDriverRequest = async (data, token) => {
-  const response = await postAPI(
-    '/share-trip/post-trip-accept/request-reject',
-    data,
-    token,
-  );
+  const response = await patchAPI({
+    endUrl: '/share-trip/post-trip-accept/request-reject',
+    body: data,
+    token: token,
+  });
+
   return response;
 };

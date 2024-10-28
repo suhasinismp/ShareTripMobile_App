@@ -47,9 +47,7 @@ const PostCard = ({
   onPlayPress,
   onMessagePress,
   isRequested,
-
-  // Optional Props
-  distanceTime = '4hr 40kms', // default value
+  packageName,
 }) => {
   const requestStatus = isRequested ? isRequested : 'Accept';
   const isAvailable = postStatus === 'Available';
@@ -146,7 +144,7 @@ const PostCard = ({
                         { color: isAvailable ? '#171661' : '#666' },
                       ]}
                     >
-                      {distanceTime}
+                      {packageName}
                     </Text>
                   </View>
                   <View style={styles.vehicleInfo}>
@@ -166,6 +164,21 @@ const PostCard = ({
 
             {hasCommentOrVoice && (
               <>
+                <View style={styles.distanceInfo}>
+                  <Ionicons
+                    name="car-outline"
+                    size={20}
+                    color={getIconColor()}
+                  />
+                  <Text
+                    style={[
+                      styles.distanceText,
+                      { color: isAvailable ? '#171661' : '#666' },
+                    ]}
+                  >
+                    {packageName}
+                  </Text>
+                </View>
                 <View style={styles.vehicleInfo}>
                   <Ionicons name="car" size={20} color={getIconColor()} />
                   <Text

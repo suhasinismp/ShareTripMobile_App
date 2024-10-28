@@ -6,7 +6,6 @@ import {
   FlatList,
   ActivityIndicator,
   Linking,
-  Text,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -46,7 +45,7 @@ const formatDate = (dateString) => {
   return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
 };
 
-const handleCall = (phoneNumber) => {
+export const handleCall = (phoneNumber) => {
   Linking.openURL(`tel:${phoneNumber}`).catch((err) =>
     console.error('An error occurred', err),
   );
@@ -116,22 +115,23 @@ const HomeScreen = () => {
     if (response?.error === false) {
       const filteredPosts = response?.data.filter(
         (post) =>
-          post.post_status === 'Available' || post.post_status === 'Closed',
+          post.post_status === ('Available' || 'available') ||
+          post.post_status === ('Closed' || 'closed'),
       );
       setUserPostsData(filteredPosts);
     }
     setIsLoading(false);
   };
 
-  const handleRequestClick = async (postId, userId) => {
+  const handleRequestClick = async (postId, userId, postedUserId) => {
     const finalData = {
       post_bookings_id: postId,
-      user_id: userId,
+      accepted_user_id: userId,
       vehicle_id: userVehicles[0].st_vehicles_id,
+      posted_user_id: postedUserId,
     };
     const response = await sendPostRequest(finalData, userToken);
-
-    if (response?.status === 'Accepted') {
+    if (response?.confirm_status === 'Accepted') {
       dispatch(
         showSnackbar({
           message:
@@ -155,37 +155,44 @@ const HomeScreen = () => {
   const renderPostCard = ({ item }) => (
     <PostCard
       // Card Header Props
-      bookingType={item.bookingType.booking_type_name}
-      createdAt={formatDate(item.created_at)}
-      postStatus={item.post_status}
+      bookingType={item?.bookingType_name}
+      createdAt={formatDate(item?.created_at)}
+      postStatus={item?.post_status}
       // User Info Props
-      userProfilePic={
-        item.User.u_profile_pic || 'https://via.placeholder.com/150'
+      userProfilePic={item?.User_profile || 'https://via.placeholder.com/150'}
+      userName={item?.User_name}
+      postSharedWith={
+        item?.post_type_id === 1
+          ? 'Public'
+          : item?.post_type_id === 2
+            ? 'Group'
+            : 'You'
       }
-      userName={item.User.u_name}
-      postSharedWith="Public"
       // Trip Details Props
-      pickUpTime={item.pick_up_time}
-      fromDate={item.from_date}
-      vehicleType={item.VehicleTypes?.v_type}
-      vehicleName={item.VehicleNames?.v_name}
-      pickUpLocation={item.pick_up_location}
-      destination={item.destination}
+      pickUpTime={item?.pick_up_time}
+      fromDate={item?.from_date}
+      vehicleType={item?.Vehicle_type}
+      vehicleName={item?.Vehicle_name}
+      pickUpLocation={item?.pick_up_location}
+      destination={item?.destination}
       // Comment/Voice Props
-      postComments={item.post_comments}
-      postVoiceMessage={item.post_voice_message}
+      postComments={item?.post_comments}
+      postVoiceMessage={item?.post_voice_message}
       // Amount Props
-      baseFareRate={item?.bookingTypeTariff[0]?.base_fare_rate}
+      baseFareRate={item?.bookingTypeTariff_base_fare_rate}
       // Action Props
-      onRequestPress={() => handleRequestClick(item.id, userId)}
-      onCallPress={() => handleCall(item.User.u_mob_num)}
+      onRequestPress={() =>
+        handleRequestClick(item?.post_booking_id, userId, item?.posted_user_id)
+      }
+      onCallPress={() => handleCall(item?.User?.u_mob_num)}
       onPlayPress={() => {
         /* TODO: Implement voice message playback */
       }}
       onMessagePress={() => {
         /* TODO: Implement messaging */
       }}
-      isRequested={item.request_status}
+      isRequested={item?.request_status}
+      packageName={item?.bookingTypePackage_name}
     />
   );
 
@@ -210,7 +217,7 @@ const HomeScreen = () => {
       <FlatList
         data={userPostsData}
         renderItem={renderPostCard}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.post_booking_id.toString()}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
