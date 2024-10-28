@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import {
   confirmedDriverTrips,
@@ -13,12 +19,14 @@ import CustomSelect from '../../components/ui/CustomSelect';
 import FilterIcon from '../../../assets/svgs/filter.svg';
 import PostCard from '../../components/PostCard';
 import CustomAccordion from '../../components/ui/CustomAccordion';
+import { handleCall } from './HomeScreen';
 
 const MyTrips = () => {
   const userData = useSelector(getUserDataSelector);
   const userId = userData.userId;
   const userToken = userData.userToken;
 
+  const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedFilterOne, setSelectedFilterOne] = useState('Confirmed');
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('MyDuties');
@@ -28,13 +36,25 @@ const MyTrips = () => {
   const [confirmedDriverData, setConfirmedDriverData] = useState([]);
   const [confirmedPostedData, setConfirmedPostedData] = useState([]);
   const [uiData, setUiData] = useState([]);
-  console.log({ uiData });
+
+  const refreshAllData = async () => {
+    try {
+      setIsLoading(true);
+      await Promise.all([
+        fetchDriverInProgressData(),
+        fetchPostedGuyInProgressData(),
+        fetchConfirmedDriverData(),
+        fetchConfirmedPostedData(),
+      ]);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchDriverInProgressData();
-    fetchPostedGuyInProgressData();
-    fetchConfirmedDriverData();
-    fetchConfirmedPostedData();
+    refreshAllData();
   }, []);
 
   useEffect(() => {
@@ -71,7 +91,7 @@ const MyTrips = () => {
     ) {
       setUiData(inProgressDriverData);
     } else if (selectedFilterOne === 'Enquiry') {
-      setUiData();
+      setUiData([]);
     }
   }, [
     inProgressDriverData,
@@ -82,31 +102,48 @@ const MyTrips = () => {
     selectedFilterTwo,
     selectedFilterThree,
   ]);
+
   const fetchDriverInProgressData = async () => {
-    const response = await getDriverInProgressTrips(userId, userToken);
-    if (response?.error === false) {
-      setInProgressDriverData(response?.data);
+    try {
+      const response = await getDriverInProgressTrips(userId, userToken);
+      if (response?.error === false) {
+        setInProgressDriverData(response?.data);
+      }
+    } catch (error) {
+      console.error('Error fetching driver in progress data:', error);
     }
   };
 
   const fetchPostedGuyInProgressData = async () => {
-    const response = await getPostedGuyInProgressTrips(userId, userToken);
-    if (response?.error === false) {
-      setInProgressPostedData(response?.data);
+    try {
+      const response = await getPostedGuyInProgressTrips(userId, userToken);
+      if (response?.error === false) {
+        setInProgressPostedData(response?.data);
+      }
+    } catch (error) {
+      console.error('Error fetching posted guy in progress data:', error);
     }
   };
 
   const fetchConfirmedDriverData = async () => {
-    const response = await confirmedDriverTrips(userId, userToken);
-    if (response?.error === false) {
-      setConfirmedDriverData(response?.data);
+    try {
+      const response = await confirmedDriverTrips(userId, userToken);
+      if (response?.error === false) {
+        setConfirmedDriverData(response?.data);
+      }
+    } catch (error) {
+      console.error('Error fetching confirmed driver data:', error);
     }
   };
 
   const fetchConfirmedPostedData = async () => {
-    const response = await confirmedPostedGuyTrips(userId, userToken);
-    if (response?.error === false) {
-      setConfirmedPostedData(response?.data);
+    try {
+      const response = await confirmedPostedGuyTrips(userId, userToken);
+      if (response?.error === false) {
+        setConfirmedPostedData(response?.data);
+      }
+    } catch (error) {
+      console.error('Error fetching confirmed posted data:', error);
     }
   };
 
@@ -126,33 +163,29 @@ const MyTrips = () => {
     return (
       <PostCard
         bookingType={item.booking_type_name}
-        // User Info Props
         userProfilePic={
           item.user_profile_pic || 'https://via.placeholder.com/150'
         }
         userName={item.user_name}
-        // Trip Details Props
         pickUpTime={item.pick_up_time}
         fromDate={item.from_date}
         vehicleType={item.vehicle_type}
         vehicleName={item.vehicle_name}
         pickUpLocation={item.pick_up_location}
         destination={item.destination}
-        // Comment/Voice Props
         postComments={item.post_comments}
         postVoiceMessage={item.post_voice_message}
-        // Amount Props
-        baseFareRate={item?.bookingTypeTariff_base_fare_rate}
-        // Action Props
+        baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => {}}
-        onCallPress={() => {}}
+        onCallPress={() => handleCall(item?.user_phone)}
         onPlayPress={() => {
           /* TODO: Implement voice message playback */
         }}
         onMessagePress={() => {
           /* TODO: Implement messaging */
         }}
-        isRequested={item?.request_status || item?.status}
+        isRequested={item?.post_trip_trip_status}
+        packageName={item?.package_name}
       />
     );
   };
@@ -174,9 +207,41 @@ const MyTrips = () => {
         drivers={item.trackingDetails}
         onCallPress={() => {}}
         onMessagePress={() => {}}
+        onRefreshData={refreshAllData}
+        userToken={userToken}
       />
     );
   };
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#005680" />
+        </View>
+      );
+    }
+
+    return (
+      <FlatList
+        data={uiData}
+        renderItem={
+          selectedFilterOne === 'InProgress' &&
+          selectedFilterTwo === 'PostedTrips'
+            ? renderAccordion
+            : renderPostCard
+        }
+        keyExtractor={(item) =>
+          item?.post_booking_id?.toString() ||
+          item?.post_bookings_id?.toString()
+        }
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.flatListContent}
+        ListFooterComponent={() => <View style={styles.footer} />}
+      />
+    );
+  };
+
   return (
     <>
       <AppHeader
@@ -191,9 +256,7 @@ const MyTrips = () => {
           <CustomSelect
             text="Confirmed"
             isSelected={selectedFilterOne === 'Confirmed'}
-            onPress={() => {
-              handleFilterOneSelect('Confirmed');
-            }}
+            onPress={() => handleFilterOneSelect('Confirmed')}
           />
           <CustomSelect
             text="In Progress"
@@ -209,67 +272,61 @@ const MyTrips = () => {
             <FilterIcon />
           </TouchableOpacity>
         </View>
-        <View>
-          {showFilters && (
-            <>
-              <View style={styles.secondaryFilterRow}>
-                <CustomSelect
-                  text="My Duties"
-                  isSelected={selectedFilterTwo === 'MyDuties'}
-                  onPress={() => handleFilterTwoSelect('MyDuties')}
-                />
-                <CustomSelect
-                  text="Posted Trips"
-                  isSelected={selectedFilterTwo === 'PostedTrips'}
-                  onPress={() => handleFilterTwoSelect('PostedTrips')}
-                />
-              </View>
-              <View style={styles.tertiaryFilterRow}>
-                <CustomSelect
-                  text="Local"
-                  isSelected={selectedFilterThree === 'Local'}
-                  onPress={() => handleFilterThreeSelect('Local')}
-                />
-                <CustomSelect
-                  text="Out Station"
-                  isSelected={selectedFilterThree === 'OutStation'}
-                  onPress={() => handleFilterThreeSelect('OutStation')}
-                />
-                <CustomSelect
-                  text="Transfer"
-                  isSelected={selectedFilterThree === 'Transfer'}
-                  onPress={() => handleFilterThreeSelect('Transfer')}
-                />
-              </View>
-            </>
-          )}
-        </View>
-        <View style={{ marginHorizontal: 20 }}>
-          <FlatList
-            data={uiData}
-            renderItem={
-              selectedFilterOne === 'InProgress' &&
-              selectedFilterTwo === 'PostedTrips'
-                ? renderAccordion
-                : renderPostCard
-            }
-            keyExtractor={(item) =>
-              item?.post_booking_id?.toString() ||
-              item?.post_bookings_id?.toString()
-            }
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
+
+        {showFilters && (
+          <View>
+            <View style={styles.secondaryFilterRow}>
+              <CustomSelect
+                text="My Duties"
+                isSelected={selectedFilterTwo === 'MyDuties'}
+                onPress={() => handleFilterTwoSelect('MyDuties')}
+              />
+              <CustomSelect
+                text="Posted Trips"
+                isSelected={selectedFilterTwo === 'PostedTrips'}
+                onPress={() => handleFilterTwoSelect('PostedTrips')}
+              />
+            </View>
+            <View style={styles.tertiaryFilterRow}>
+              <CustomSelect
+                text="Local"
+                isSelected={selectedFilterThree === 'Local'}
+                onPress={() => handleFilterThreeSelect('Local')}
+              />
+              <CustomSelect
+                text="Out Station"
+                isSelected={selectedFilterThree === 'OutStation'}
+                onPress={() => handleFilterThreeSelect('OutStation')}
+              />
+              <CustomSelect
+                text="Transfer"
+                isSelected={selectedFilterThree === 'Transfer'}
+                onPress={() => handleFilterThreeSelect('Transfer')}
+              />
+            </View>
+          </View>
+        )}
+
+        <View style={styles.listContainer}>{renderContent()}</View>
       </View>
-      <View style={{ marginBottom: showFilters ? 210 : 80 }} />
     </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: '100%',
+    flex: 1,
     backgroundColor: '#F0F0F0',
+  },
+  listContainer: {
+    flex: 1,
+    marginHorizontal: 20,
+  },
+  flatListContent: {
+    paddingBottom: 80,
+  },
+  footer: {
+    height: 20,
   },
   filterRow: {
     flexDirection: 'row',
@@ -286,6 +343,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     margin: 20,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

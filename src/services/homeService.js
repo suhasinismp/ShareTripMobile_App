@@ -9,6 +9,6 @@ export const fetchPostsByUserId = async (userId, token) => {
 };
 
 export const sendPostRequest = async (data, token) => {
-  const response = await postAPI('/share-trip/request-tracking', data, token);
+  const response = await postAPI('/share-trip/post-trip-accept/', data, token);
   return response;
 };
