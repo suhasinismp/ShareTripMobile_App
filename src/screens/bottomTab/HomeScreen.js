@@ -125,7 +125,7 @@ const HomeScreen = () => {
 
   const handleRequestClick = async (postId, userId) => {
     const finalData = {
-      post_booking_id: postId,
+      post_bookings_id: postId,
       user_id: userId,
       vehicle_id: userVehicles[0].st_vehicles_id,
     };
