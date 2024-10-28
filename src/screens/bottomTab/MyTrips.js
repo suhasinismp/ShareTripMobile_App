@@ -200,11 +200,11 @@ const MyTrips = () => {
             isSelected={selectedFilterOne === 'InProgress'}
             onPress={() => handleFilterOneSelect('InProgress')}
           />
-          {/* <CustomSelect
+          <CustomSelect
             text="Enquiry"
             isSelected={selectedFilterOne === 'Enquiry'}
             onPress={() => handleFilterOneSelect('Enquiry')}
-          /> */}
+          />
           <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
             <FilterIcon />
           </TouchableOpacity>

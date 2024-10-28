@@ -10,6 +10,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { FONTS } from '../../styles/fonts';
 import DotDivider from '../../../assets/svgs/dotDivider.svg';
 import DriverCard from '../DriverCard';
+import {
+  acceptDriverRequest,
+  rejectDriverRequest,
+} from '../../services/MyTripsService';
+import { useSelector } from 'react-redux';
+import { getUserDataSelector } from '../../store/selectors';
+import { showSnackbar } from '../../store/slices/snackBarSlice';
 
 const CustomAccordion = ({
   bookingType,
@@ -24,6 +31,8 @@ const CustomAccordion = ({
   onDelete,
   drivers = [],
 }) => {
+  const userData = useSelector(getUserDataSelector);
+  const userToken = userData.userToken;
   const [isExpanded, setIsExpanded] = useState(false);
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotate = useRef(new Animated.Value(0)).current;
@@ -136,8 +145,47 @@ const CustomAccordion = ({
                 driver.user_profile_pic || 'https://via.placeholder.com/150'
               }
               amount={driver.booking_tarif_base_fare_rate}
-              onAccept={() => {}}
-              onReject={() => {}}
+              onAccept={async () => {
+                let finalData = {
+                  post_bookings_id: driver?.post_id,
+                  accepted_user_id: driver?.user_id,
+                  vehicle_id: driver?.vehicle_id,
+                  post_chat: 'SOME CHATS HERE',
+                  final_bill_by_poster: true,
+                };
+                const response = await acceptDriverRequest(
+                  finalData,
+                  userToken,
+                );
+
+                if (response?.status === 'Start Trip') {
+                  showSnackbar({
+                    visible: true,
+                    message: `Trip has been assigned to ${driver?.user_name}.`,
+                    type: 'success',
+                  });
+                }
+              }}
+              onReject={async () => {
+                let finalData = {
+                  post_bookings_id: driver?.post_id,
+                  accepted_user_id: driver?.user_id,
+                };
+                const response = await rejectDriverRequest(
+                  finalData,
+                  userToken,
+                );
+                if (
+                  response?.message ===
+                  'Post Trip request rejected successfully'
+                ) {
+                  showSnackbar({
+                    visible: true,
+                    message: ` ${driver?.user_name} request is rejected`,
+                    type: 'success',
+                  });
+                }
+              }}
               onCall={() => {}}
             />
           </View>

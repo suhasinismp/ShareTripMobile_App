@@ -374,6 +374,7 @@ const PostATripScreen = () => {
     }
 
     const vehicleNamesResponse = await fetchVehicleNames(userToken);
+    console.log({ vehicleNamesResponse });
     if (vehicleNamesResponse.error === false) {
       setVehicleNames(vehicleNamesResponse.data);
     }

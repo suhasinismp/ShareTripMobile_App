@@ -61,6 +61,7 @@ const HomeScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userPostsData, setUserPostsData] = useState([]);
+
   const [userVehicles, setUserVehicles] = useState([]);
 
   // Constants from userData
@@ -111,6 +112,7 @@ const HomeScreen = () => {
   const getUserPosts = async () => {
     setIsLoading(true);
     const response = await fetchPostsByUserId(userId, userToken);
+
     if (response?.error === false) {
       const filteredPosts = response?.data.filter(
         (post) =>
@@ -137,6 +139,7 @@ const HomeScreen = () => {
           type: 'success',
         }),
       );
+      await getUserPosts();
     }
   };
 
