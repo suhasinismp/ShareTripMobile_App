@@ -268,8 +268,8 @@ const MyTrips = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#F3F5FD',
+    height: '100%',
+    backgroundColor: '#F0F0F0',
   },
   filterRow: {
     flexDirection: 'row',
