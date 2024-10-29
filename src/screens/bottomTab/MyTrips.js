@@ -30,8 +30,10 @@ const MyTrips = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedFilterOne, setSelectedFilterOne] = useState('Confirmed');
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('MyDuties');
+  console.log({ selectedFilterOne })
   const [selectedFilterThree, setSelectedFilterThree] = useState('Local');
   const [inProgressDriverData, setInProgressDriverData] = useState([]);
+  console.log({ inProgressDriverData })
   const [inProgressPostedData, setInProgressPostedData] = useState([]);
   const [confirmedDriverData, setConfirmedDriverData] = useState([]);
   const [confirmedPostedData, setConfirmedPostedData] = useState([]);
@@ -89,6 +91,7 @@ const MyTrips = () => {
         selectedFilterThree === 'OutStation' ||
         selectedFilterThree === 'Transfer')
     ) {
+      console.log('driver InProgress')
       setUiData(inProgressDriverData);
     } else if (selectedFilterOne === 'Enquiry') {
       setUiData([]);
@@ -176,7 +179,7 @@ const MyTrips = () => {
         postComments={item.post_comments}
         postVoiceMessage={item.post_voice_message}
         baseFareRate={item?.booking_tarif_base_fare_rate}
-        onRequestPress={() => {}}
+        onRequestPress={() => { }}
         onCallPress={() => handleCall(item?.user_phone)}
         onPlayPress={() => {
           /* TODO: Implement voice message playback */
@@ -185,7 +188,7 @@ const MyTrips = () => {
           /* TODO: Implement messaging */
         }}
         isRequested={item?.post_trip_trip_status}
-        packageName={item?.package_name}
+        packageName={item?.booking_package_name}
       />
     );
   };
@@ -205,8 +208,8 @@ const MyTrips = () => {
         postComments={item.post_comments}
         postVoiceMessage={item.post_voice_message}
         drivers={item.trackingDetails}
-        onCallPress={() => {}}
-        onMessagePress={() => {}}
+        onCallPress={() => { }}
+        onMessagePress={() => { }}
         onRefreshData={refreshAllData}
         userToken={userToken}
       />
@@ -227,7 +230,7 @@ const MyTrips = () => {
         data={uiData}
         renderItem={
           selectedFilterOne === 'InProgress' &&
-          selectedFilterTwo === 'PostedTrips'
+            selectedFilterTwo === 'PostedTrips'
             ? renderAccordion
             : renderPostCard
         }

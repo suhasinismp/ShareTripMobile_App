@@ -81,7 +81,8 @@ export const patchAPI = async ({ endUrl, body, token }) => {
     return null;
   }
 };
-export const deleteAPI = async ({ endURL, token }) => {
+export const deleteAPI = async ({ endUrl, token }) => {
+
   let prepareHeader = {
     'Content-Type': 'application/json',
   };
@@ -94,7 +95,7 @@ export const deleteAPI = async ({ endURL, token }) => {
 
   var apiConfig = {
     method: 'delete',
-    url: endURL,
+    url: endUrl,
     headers: prepareHeader,
   };
 
@@ -142,6 +143,30 @@ export const postFormDataAPI = async (endUrl, formData, token) => {
 
   const apiConfig = {
     method: 'post',
+    url: endUrl,
+    headers: headers,
+    data: formData,
+  };
+
+  try {
+    const response = await api(apiConfig);
+    return response?.data || {};
+  } catch (error) {
+    console.error('Error occurred while posting FormData', error);
+    throw error;
+  }
+};
+export const patchFormDataAPI = async ({ endUrl, formData, token }) => {
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const apiConfig = {
+    method: 'patch',
     url: endUrl,
     headers: headers,
     data: formData,
