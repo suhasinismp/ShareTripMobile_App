@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Text,
 } from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import {
@@ -30,10 +31,8 @@ const MyTrips = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedFilterOne, setSelectedFilterOne] = useState('Confirmed');
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('MyDuties');
-  console.log({ selectedFilterOne })
   const [selectedFilterThree, setSelectedFilterThree] = useState('Local');
   const [inProgressDriverData, setInProgressDriverData] = useState([]);
-  console.log({ inProgressDriverData })
   const [inProgressPostedData, setInProgressPostedData] = useState([]);
   const [confirmedDriverData, setConfirmedDriverData] = useState([]);
   const [confirmedPostedData, setConfirmedPostedData] = useState([]);
@@ -91,7 +90,6 @@ const MyTrips = () => {
         selectedFilterThree === 'OutStation' ||
         selectedFilterThree === 'Transfer')
     ) {
-      console.log('driver InProgress')
       setUiData(inProgressDriverData);
     } else if (selectedFilterOne === 'Enquiry') {
       setUiData([]);
@@ -162,6 +160,36 @@ const MyTrips = () => {
     setSelectedFilterThree(filter);
   };
 
+  const getEmptyStateMessage = () => {
+    if (selectedFilterOne === 'Confirmed' && selectedFilterTwo === 'MyDuties') {
+      return 'No confirmed duties found';
+    } else if (
+      selectedFilterOne === 'Confirmed' &&
+      selectedFilterTwo === 'PostedTrips'
+    ) {
+      return 'No confirmed posted trips found';
+    } else if (
+      selectedFilterOne === 'InProgress' &&
+      selectedFilterTwo === 'PostedTrips'
+    ) {
+      return 'No in-progress posted trips found';
+    } else if (
+      selectedFilterOne === 'InProgress' &&
+      selectedFilterTwo === 'MyDuties'
+    ) {
+      return 'No in-progress duties found';
+    } else if (selectedFilterOne === 'Enquiry') {
+      return 'No enquiries found';
+    }
+    return 'No data available';
+  };
+
+  const EmptyStateComponent = () => (
+    <View style={styles.emptyStateContainer}>
+      <Text style={styles.emptyStateText}>{getEmptyStateMessage()}</Text>
+    </View>
+  );
+
   const renderPostCard = ({ item }) => {
     return (
       <PostCard
@@ -179,7 +207,7 @@ const MyTrips = () => {
         postComments={item.post_comments}
         postVoiceMessage={item.post_voice_message}
         baseFareRate={item?.booking_tarif_base_fare_rate}
-        onRequestPress={() => { }}
+        onRequestPress={() => {}}
         onCallPress={() => handleCall(item?.user_phone)}
         onPlayPress={() => {
           /* TODO: Implement voice message playback */
@@ -208,8 +236,8 @@ const MyTrips = () => {
         postComments={item.post_comments}
         postVoiceMessage={item.post_voice_message}
         drivers={item.trackingDetails}
-        onCallPress={() => { }}
-        onMessagePress={() => { }}
+        onCallPress={() => {}}
+        onMessagePress={() => {}}
         onRefreshData={refreshAllData}
         userToken={userToken}
       />
@@ -225,12 +253,16 @@ const MyTrips = () => {
       );
     }
 
+    if (!uiData || uiData.length === 0) {
+      return <EmptyStateComponent />;
+    }
+
     return (
       <FlatList
         data={uiData}
         renderItem={
           selectedFilterOne === 'InProgress' &&
-            selectedFilterTwo === 'PostedTrips'
+          selectedFilterTwo === 'PostedTrips'
             ? renderAccordion
             : renderPostCard
         }
@@ -351,6 +383,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 40,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
 });
 
