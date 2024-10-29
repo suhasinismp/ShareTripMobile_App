@@ -72,6 +72,7 @@ const GroupDetailScreen = () => {
     const [isSaving, setIsSaving] = useState(false)
     const [groupMembers, setGroupMembers] = useState([]);
     const [adminId, setAdminId] = useState([]);
+    console.log({ adminId, userId })
     const { control, handleSubmit, setValue, reset } = useForm({
         resolver: yupResolver(groupScheme),
         defaultValues: {
@@ -195,11 +196,7 @@ const GroupDetailScreen = () => {
         formData.append('json', JSON.stringify(finalData));
         console.log({ groupLogo });
 
-        // formData.append('logoUpload', {
-        //     uri: groupLogo,
-        //     type: 'image/jpeg',
-        //     name: `group_logo.jpeg`,
-        // });
+
 
         const response = await updateGroup(formData, userToken)
         console.log({ response })
@@ -248,13 +245,16 @@ const GroupDetailScreen = () => {
 
         return (
             <View style={styles.memberItem}>
+
                 <Image
                     source={{ uri: userProfilePic || 'https://via.placeholder.com/150' }}
                     style={styles.memberImage}
                 />
-                <View style={{ flex: 1, justifyContent: 'space-between', flexDirection: 'row' }}>
+                <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
+
                     <Text style={styles.memberName}>{username}</Text>
                     <Text style={styles.memberMobile}>{userMobileNum}</Text>
+
                     {item.is_admin && <Text>Admin</Text>}
 
 
@@ -389,17 +389,17 @@ const GroupDetailScreen = () => {
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 
-                    <Text>member:{groupMembers?.length}</Text>
+                    <Text>Members :{groupMembers?.length}</Text>
                     <TouchableOpacity
                         style={{
-                            display: 'flex',
+                            alignItems: 'center',
                             flexDirection: 'row',
                             alignSelf: 'flex-end',
-                            right: 30,
+                            paddingRight: 40,
                         }}
                         onPress={() => handleAddmember('addnewMember')}
                     >
-                        <AddNewMember />
+                        <AddNewMember style={{ marginRight: 10 }} />
                         <CustomText variant="body" text="Add new Member" textStyle={{ color: 'red' }} />
 
                     </TouchableOpacity>
@@ -432,8 +432,8 @@ const GroupDetailScreen = () => {
                 style={styles.menu}
                 onPress={isEditModeOn ? handleSubmit(handleSave) : handleExitGroup}
             >
-                <CustomText variant="body" text={isEditModeOn ? 'Save' : 'Exit'} textStyle={{ color: 'red' }} />
-                {isEditModeOn ? null : <ExitGroupIcon />}
+                <CustomText variant="body" text={isEditModeOn ? 'Save' : 'ExitGroup'} textStyle={{ color: 'red' }} />
+                {isEditModeOn ? null : <ExitGroupIcon style={{ marginLeft: 8 }} />}
             </TouchableOpacity>
             <CustomModal
                 visible={isDeleteModalVisible}
@@ -456,6 +456,7 @@ const styles = StyleSheet.create({
     container:
     {
         flex: 1,
+
     },
     menuIcon: {
 
@@ -464,7 +465,7 @@ const styles = StyleSheet.create({
     scrollView: { flex: 1 },
     contentContainer: { flexGrow: 1, padding: 20 },
     logoContainer: { alignSelf: 'center', marginBottom: 20 },
-    groupLogo: { height: 142, width: 142, borderRadius: 71 },
+    groupLogo: { height: 142, width: 142, borderRadius: 71, },
     editButton: {
         position: 'absolute',
         right: 0,
@@ -481,7 +482,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#E0E0E0',
     },
-    memberImage: { width: 50, height: 50, borderRadius: 25, marginRight: 12 },
+    memberImage: { width: 50, height: 50, borderRadius: 25, marginRight: 12, },
     memberName: { fontSize: 16, fontWeight: 'bold' },
     memberMobile: { fontSize: 14, color: 'gray', },
     modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center' },

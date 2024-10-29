@@ -156,3 +156,27 @@ export const postFormDataAPI = async (endUrl, formData, token) => {
     throw error;
   }
 };
+export const patchFormDataAPI = async ({ endUrl, formData, token }) => {
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const apiConfig = {
+    method: 'patch',
+    url: endUrl,
+    headers: headers,
+    data: formData,
+  };
+
+  try {
+    const response = await api(apiConfig);
+    return response?.data || {};
+  } catch (error) {
+    console.error('Error occurred while posting FormData', error);
+    throw error;
+  }
+};

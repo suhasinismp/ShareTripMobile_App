@@ -1,4 +1,4 @@
-import { deleteAPI, getAPI, patchAPI, postFormDataAPI } from '../utils/servicesUtil';
+import { deleteAPI, getAPI, patchAPI, patchFormDataAPI, postFormDataAPI } from '../utils/servicesUtil';
 export const getGroups = async (token) => {
   console.log(token);
   const response = await getAPI('share-trip/groups', token);
@@ -43,6 +43,7 @@ export const exitGroup = async (userId, groupId, token) => {
 }
 
 export const updateGroup = async (payload, token) => {
-  const response = await patchAPI({ endUrl: 'share-trip/groups', body: payload, token: token })
+  console.log({ payload, token })
+  const response = await patchFormDataAPI({ endUrl: 'share-trip/groups', formData: payload, token: token })
   return response;
 }
