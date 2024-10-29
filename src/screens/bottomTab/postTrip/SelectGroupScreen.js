@@ -68,6 +68,7 @@ const SelectGroupScreen = ({ route }) => {
       }
 
       const response = await createPost(formData, userToken);
+      console.log({ response });
 
       if (
         response?.message === 'Post Booking Data created successfully' &&

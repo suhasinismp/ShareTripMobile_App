@@ -25,6 +25,7 @@ export const getAPI = async (endURL, token) => {
 };
 
 export const postAPI = async (endUrl, body, token) => {
+  console.log({ endUrl, body, token });
   let prepareHeader = {
     'Content-Type': 'application/json',
   };
@@ -52,7 +53,7 @@ export const postAPI = async (endUrl, body, token) => {
 };
 
 export const patchAPI = async ({ endUrl, body, token }) => {
-  console.log({ endUrl, body, token })
+  console.log({ endUrl, body, token });
   let prepareHeader = {
     'Content-Type': 'application/json',
   };
@@ -67,13 +68,10 @@ export const patchAPI = async ({ endUrl, body, token }) => {
     method: 'patch',
     url: endUrl,
     headers: prepareHeader,
-
   };
   if (body) {
     apiConfig.data = JSON.stringify(body);
   }
-
-
 
   try {
     const response = await api(apiConfig);
