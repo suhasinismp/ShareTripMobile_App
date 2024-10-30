@@ -248,8 +248,8 @@ const PostCard = ({
         </View>
 
         {/* Action Buttons - Only show for available cards */}
-        {isAvailable ||
-          (!postStatus && (
+        {isAvailable
+          && (
             <View style={styles.actionButtonsContainer}>
               <TouchableOpacity onPress={onCallPress}>
                 <CallIcon />
@@ -261,7 +261,7 @@ const PostCard = ({
                 <TextMsgIcon />
               </TouchableOpacity>
             </View>
-          ))}
+          )}
       </View>
     </View>
   );
