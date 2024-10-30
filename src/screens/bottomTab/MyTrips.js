@@ -33,30 +33,26 @@ const MyTrips = () => {
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('MyDuties');
   const [selectedFilterThree, setSelectedFilterThree] = useState('Local');
   const [inProgressDriverData, setInProgressDriverData] = useState([]);
+  console.log({ inProgressDriverData })
   const [inProgressPostedData, setInProgressPostedData] = useState([]);
   const [confirmedDriverData, setConfirmedDriverData] = useState([]);
   const [confirmedPostedData, setConfirmedPostedData] = useState([]);
   const [uiData, setUiData] = useState([]);
 
-  const refreshAllData = async () => {
-    try {
-      setIsLoading(true);
-      await Promise.all([
-        fetchDriverInProgressData(),
-        fetchPostedGuyInProgressData(),
-        fetchConfirmedDriverData(),
-        fetchConfirmedPostedData(),
-      ]);
-    } catch (error) {
-      console.error('Error refreshing data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
-    refreshAllData();
-  }, []);
+    fetchUiData()
+  }, [selectedFilterOne, selectedFilterTwo, selectedFilterThree]);
+
+  const fetchUiData = async () => {
+    setIsLoading(true)
+    await fetchDriverInProgressData(),
+      await fetchPostedGuyInProgressData(),
+      await fetchConfirmedDriverData(),
+      await fetchConfirmedPostedData(),
+      setIsLoading(false)
+
+  }
 
   useEffect(() => {
     if (
@@ -138,6 +134,7 @@ const MyTrips = () => {
   };
 
   const fetchConfirmedPostedData = async () => {
+    console.log('fetching')
     try {
       const response = await confirmedPostedGuyTrips(userId, userToken);
       if (response?.error === false) {
@@ -193,21 +190,21 @@ const MyTrips = () => {
   const renderPostCard = ({ item }) => {
     return (
       <PostCard
-        bookingType={item.booking_type_name}
+        bookingType={item?.booking_type_name}
         userProfilePic={
-          item.user_profile_pic || 'https://via.placeholder.com/150'
+          item?.user_profile_pic || 'https://via.placeholder.com/150'
         }
-        userName={item.user_name}
-        pickUpTime={item.pick_up_time}
-        fromDate={item.from_date}
-        vehicleType={item.vehicle_type}
-        vehicleName={item.vehicle_name}
-        pickUpLocation={item.pick_up_location}
-        destination={item.destination}
-        postComments={item.post_comments}
-        postVoiceMessage={item.post_voice_message}
+        userName={item?.user_name}
+        pickUpTime={item?.pick_up_time}
+        fromDate={item?.from_date}
+        vehicleType={item?.vehicle_type}
+        vehicleName={item?.vehicle_name}
+        pickUpLocation={item?.pick_up_location}
+        destination={item?.destination}
+        postComments={item?.post_comments}
+        postVoiceMessage={item?.post_voice_message}
         baseFareRate={item?.booking_tarif_base_fare_rate}
-        onRequestPress={() => {}}
+        onRequestPress={() => { }}
         onCallPress={() => handleCall(item?.user_phone)}
         onPlayPress={() => {
           /* TODO: Implement voice message playback */
@@ -224,21 +221,21 @@ const MyTrips = () => {
   const renderAccordion = ({ item }) => {
     return (
       <CustomAccordion
-        bookingType={item.booking_type_name}
-        amount={item.base_fare_rate}
-        pickUpTime={item.pick_up_time}
-        fromDate={item.trip_date}
-        distanceTime={item.distance_time}
-        vehicleType={item.vehicle_type}
-        vehicleName={item.vehicle_name}
-        pickUpLocation={item.pick_up_location}
-        destination={item.destination}
-        postComments={item.post_comments}
-        postVoiceMessage={item.post_voice_message}
-        drivers={item.trackingDetails}
-        onCallPress={() => {}}
-        onMessagePress={() => {}}
-        onRefreshData={refreshAllData}
+        bookingType={item?.booking_type_name}
+        amount={item?.base_fare_rate}
+        pickUpTime={item?.pick_up_time}
+        fromDate={item?.trip_date}
+        distanceTime={item?.distance_time}
+        vehicleType={item?.vehicle_type}
+        vehicleName={item?.vehicle_name}
+        pickUpLocation={item?.pick_up_location}
+        destination={item?.destination}
+        postComments={item?.post_comments}
+        postVoiceMessage={item?.post_voice_message}
+        drivers={item?.trackingDetails}
+        onCallPress={() => { }}
+        onMessagePress={() => { }}
+        onRefreshData={fetchUiData}
         userToken={userToken}
       />
     );
@@ -262,7 +259,7 @@ const MyTrips = () => {
         data={uiData}
         renderItem={
           selectedFilterOne === 'InProgress' &&
-          selectedFilterTwo === 'PostedTrips'
+            selectedFilterTwo === 'PostedTrips'
             ? renderAccordion
             : renderPostCard
         }

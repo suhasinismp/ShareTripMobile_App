@@ -14,8 +14,9 @@ import {
   acceptDriverRequest,
   rejectDriverRequest,
 } from '../../services/MyTripsService';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
+import { getUserDataSelector } from '../../store/selectors';
 
 const CustomAccordion = ({
   bookingType,
@@ -33,6 +34,8 @@ const CustomAccordion = ({
   userToken,
 }) => {
   const dispatch = useDispatch();
+  const userData = useSelector(getUserDataSelector)
+  const loggedInUserId = userData.userId
   const [isExpanded, setIsExpanded] = useState(false);
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotate = useRef(new Animated.Value(0)).current;
@@ -74,6 +77,7 @@ const CustomAccordion = ({
         vehicle_id: driver?.vehicle_id,
         post_chat: 'SOME CHATS HERE',
         final_bill_by_poster: true,
+        posted_user_id: loggedInUserId,
       };
 
       const response = await acceptDriverRequest(finalData, userToken);
@@ -216,7 +220,7 @@ const CustomAccordion = ({
               amount={driver.booking_tarif_base_fare_rate}
               onAccept={() => handleAcceptDriver(driver)}
               onReject={() => handleRejectDriver(driver)}
-              onCall={() => {}}
+              onCall={() => { }}
             />
           </View>
         ))}

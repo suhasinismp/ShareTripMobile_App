@@ -131,6 +131,7 @@ const HomeScreen = () => {
       posted_user_id: postedUserId,
     };
     const response = await sendPostRequest(finalData, userToken);
+    console.log({ response })
     if (response?.confirm_status === 'Accepted') {
       dispatch(
         showSnackbar({
@@ -165,7 +166,7 @@ const HomeScreen = () => {
         item?.post_type_id === 1
           ? 'Public'
           : item?.post_type_id === 2
-            ? 'Group'
+            ? item?.group_name
             : 'You'
       }
       // Trip Details Props

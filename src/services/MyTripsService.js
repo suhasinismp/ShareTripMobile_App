@@ -26,7 +26,7 @@ export const confirmedDriverTrips = async (userId, token) => {
 
 export const confirmedPostedGuyTrips = async (userId, token) => {
   const response = await getAPI(
-    `share-trip/post-trip-confirm/filter-data?filter=posted&user_id=${userId}`,
+    `share-trip/posted-user/filter-data?filter=posted&user_id=${userId}`,
     token,
   );
   return response;
