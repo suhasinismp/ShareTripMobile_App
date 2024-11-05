@@ -7,6 +7,7 @@ import CallIcon from '../../assets/svgs/call.svg';
 import PlayIcon from '../../assets/svgs/playSound.svg';
 import TextMsgIcon from '../../assets/svgs/textMsg.svg';
 import { FONTS } from '../styles/fonts';
+import DistanceLine from '../../assets/svgs/distanceLine.svg';
 
 const capitalizeWords = (str) => {
   if (!str) return '';
@@ -319,7 +320,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   userName: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: FONTS.Regular400,
     color: '#0D0D0D',
     lineHeight: 27,
@@ -351,6 +352,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+
   },
   tripTime: {
     marginLeft: 8,
@@ -381,6 +383,7 @@ const styles = StyleSheet.create({
   vehicleInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+
   },
   vehicleText: {
     marginLeft: 8,
@@ -392,6 +395,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+    marginTop: 10
   },
   locationText: {
     marginLeft: 8,
