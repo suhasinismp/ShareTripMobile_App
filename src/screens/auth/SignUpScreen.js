@@ -89,17 +89,19 @@ const SignUpScreen = ({ route }) => {
     };
 
     const response = await registerUser(finalData);
-
+    console.log({ response })
     if (response?.message == 'Registered Successfully') {
       const finalData = {
         phoneNumber: data[fieldNames.PHONE_NUMBER].toString(),
       };
       const otpResponse = await sendOTP(finalData);
+      console.log('mno', otpResponse)
       navigation.navigate('OTPVerify', {
         userId: response.data[0].id,
         phoneNumber: response.data[0].u_mob_num,
         userRoleId: response.data[0].role_id,
       });
+      console.log('mno',)
     }
   };
 

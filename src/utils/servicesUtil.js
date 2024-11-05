@@ -25,7 +25,7 @@ export const getAPI = async (endURL, token) => {
 };
 
 export const postAPI = async (endUrl, body, token) => {
-  console.log({ endUrl, body, token });
+
   let prepareHeader = {
     'Content-Type': 'application/json',
   };
