@@ -6,8 +6,10 @@ export const doLogin = async (payload) => {
   return response;
 };
 
-
-export const fetchUserMetaData = async (userId, token)=>{
-const response = await getAPI(`share-trip/user-status/meta-data/${userId}`, token);
-return response;
+export const fetchUserMetaData = async (userId, token) => {
+  const response = await getAPI(
+    `share-trip/user-status/meta-data/${userId}`,
+    token,
+  );
+  return response;
 };
