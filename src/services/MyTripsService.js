@@ -33,13 +33,13 @@ export const confirmedPostedGuyTrips = async (userId, token) => {
 };
 
 export const acceptDriverRequest = async (data, token) => {
-  const response = await postAPI('/share-trip/post-trip-confirm/', data, token);
+  const response = await postAPI('share-trip/post-trip-confirm/', data, token);
   return response;
 };
 
 export const rejectDriverRequest = async (data, token) => {
   const response = await patchAPI({
-    endUrl: '/share-trip/post-trip-accept/request-reject',
+    endUrl: 'share-trip/post-trip-accept/request-reject',
     body: data,
     token: token,
   });
@@ -48,13 +48,13 @@ export const rejectDriverRequest = async (data, token) => {
 };
 
 export const startTrip = async (data, token) => {
-  const response = await postAPI('/share-trip/trip-ride/start/', data, token);
+  const response = await postAPI('share-trip/trip-ride/start/', data, token);
   return response;
 };
 
 export const closeTrip = async (data, token) => {
   const response = await patchAPI({
-    endUrl: '/share-trip/trip-ride',
+    endUrl: 'share-trip/trip-ride',
     body: data,
     token: token,
   });

@@ -5,7 +5,7 @@ export const createBusinessDetails = async (data, token, logo) => {
   formData.append('json', JSON.stringify(data));
   formData.append('businessLogo', logo);
   const response = await postFormDataAPI(
-    '/share-trip/user-business',
+    'share-trip/user-business',
     formData,
     token,
   );
@@ -23,7 +23,7 @@ export const updateBusinessDetails = async (data, token, logo) => {
   const formData = new FormData();
   formData.append('json', JSON.stringify(data));
   formData.append('businessLogo', logo);
-  const response = await patchAPI('/share-trip/user-business', formData, token);
+  const response = await patchAPI('share-trip/user-business', formData, token);
 
   return response;
 };
