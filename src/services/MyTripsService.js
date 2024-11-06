@@ -51,3 +51,12 @@ export const startTrip = async (data, token) => {
   const response = await postAPI('/share-trip/trip-ride/start/', data, token);
   return response;
 };
+
+export const closeTrip = async (data, token) => {
+  const response = await patchAPI({
+    endUrl: '/share-trip/trip-ride',
+    body: data,
+    token: token,
+  });
+  return response;
+};
