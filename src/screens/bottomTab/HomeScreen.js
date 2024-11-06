@@ -93,11 +93,11 @@ const HomeScreen = () => {
     const response = await fetchUserMetaData(userId, userToken);
 
     if (
-      response.userStatuses.vehicleStatusExists === false ||
-      response.userStatuses.vehicleDocStatusExists === false ||
-      response.userStatuses.userDocStatusExists === false ||
-      response.userStatuses.userBusinessStatusExists === false ||
-      response.userStatuses.userSubscriptionStatusExists === false
+      response?.userStatuses?.vehicleStatusExists === false ||
+      response?.userStatuses?.vehicleDocStatusExists === false ||
+      response?.userStatuses?.userDocStatusExists === false ||
+      response?.userStatuses?.userBusinessStatusExists === false ||
+      response?.userStatuses?.userSubscriptionStatusExists === false
     ) {
       setIsModalVisible(true);
     }

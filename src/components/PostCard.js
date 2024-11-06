@@ -50,7 +50,6 @@ const PostCard = ({
   isRequested,
   packageName,
 }) => {
-  console.log('isRequested', isRequested);
   const requestStatus = isRequested ? isRequested : 'Accept';
   const isAvailable = postStatus === 'Available';
 
