@@ -55,7 +55,6 @@ const SelectContactScreen = ({ route }) => {
       ...finalData,
       post_type_value: JSON.stringify([contact.userId]),
     };
-    console.log({ updatedFinalData });
 
     const formData = new FormData();
     formData.append('json', JSON.stringify(updatedFinalData));
@@ -101,7 +100,7 @@ const SelectContactScreen = ({ route }) => {
         userToken,
       );
 
-      const finalData = response.map((item) => {
+      const finalData = response?.map((item) => {
         if (item?.user_id) {
           return {
             userName: item.user_name,
@@ -129,7 +128,7 @@ const SelectContactScreen = ({ route }) => {
     }
   };
 
-  const filteredData = uiData.filter(
+  const filteredData = uiData?.filter(
     (item) =>
       item.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.userPhoneNumber.includes(searchQuery),
@@ -137,7 +136,7 @@ const SelectContactScreen = ({ route }) => {
 
   const renderItem = ({ item }) => (
     <View style={styles.contactItem}>
-      {item.userId ? (
+      {item?.userId != (undefined || null) && (
         <View style={styles.driverCard}>
           <View style={styles.driverInfo}>
             <Image
@@ -152,15 +151,15 @@ const SelectContactScreen = ({ route }) => {
             </View>
             <View style={styles.vehicleInfo}>
               <Text style={styles.vehicleName}>
-                {item.vehicles[0].vehicle_name}
+                {item?.vehicles[0]?.vehicle_name}
               </Text>
               <Text style={styles.vehicleNumber}>
-                {item.vehicles[0].vehicle_number}
+                {item?.vehicles[0]?.vehicle_number}
               </Text>
             </View>
           </View>
           <View style={styles.vehicleImagesContainer}>
-            {item.vehicles[0].vehicle_images.map((image, index) => (
+            {item?.vehicles[0]?.vehicle_images.map((image, index) => (
               <Image
                 key={index}
                 source={{ uri: image }}
@@ -181,7 +180,8 @@ const SelectContactScreen = ({ route }) => {
             </Text>
           </TouchableOpacity>
         </View>
-      ) : (
+      )}
+      {item?.isWhatsApp === true && (
         <View style={styles.contactInfo}>
           <Image
             source={{
@@ -211,6 +211,7 @@ const SelectContactScreen = ({ route }) => {
             onChangeText={setSearchQuery}
           />
         </View>
+
         <FlatList
           data={filteredData}
           keyExtractor={(item) => item.userPhoneNumber}

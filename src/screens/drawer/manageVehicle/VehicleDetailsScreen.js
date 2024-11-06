@@ -79,14 +79,17 @@ const VehicleDetailsScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const userData = useSelector(getUserDataSelector);
+
   const userId = userData.userId;
   const userToken = userData.userToken;
 
   const { theme } = useTheme();
   const [vehicleTypes, setVehicleTypes] = useState({ data: [] });
   const [vehicleNames, setVehicleNames] = useState({ data: [] });
+
   const [userRoleId, setUserRoleId] = useState(null);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
+
   const [initialVehicleList, setInitialVehicleList] = useState(null);
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
   const [VehicleId, setVehicleId] = useState(null);
@@ -178,9 +181,10 @@ const VehicleDetailsScreen = () => {
   useEffect(() => {
     if (watchVehicleType) {
       // Filter vehicle names based on the selected vehicle type
-      const filteredNames = vehicleNames.data.filter(
-        (vehicle) => vehicle.vehicleType.v_type === watchVehicleType,
+      const filteredNames = vehicleNames?.data?.filter(
+        (vehicle) => vehicle.vehicleTypes?.v_type === watchVehicleType,
       );
+
       setFilteredVehicleNames(filteredNames);
 
       // Clear vehicle name and seating capacity in the form
@@ -198,7 +202,7 @@ const VehicleDetailsScreen = () => {
         })),
       );
     }
-  }, [watchVehicleType, vehicleNames.data, setValue]);
+  }, [watchVehicleType, vehicleNames, setValue]);
 
   useEffect(() => {
     if (watchVehicleName) {
@@ -235,7 +239,7 @@ const VehicleDetailsScreen = () => {
       let value;
       switch (field.name) {
         case fieldNames.VEHICLE_TYPE:
-          value = item.v_type;
+          value = item?.v_type;
           break;
         case fieldNames.VEHICLE_NAME:
           value = item.v_name;
@@ -255,20 +259,19 @@ const VehicleDetailsScreen = () => {
     if (initialVehicleList) {
       reset({
         [fieldNames.VEHICLE_REGISTRATION_NUMBER]:
-          initialVehicleList.vehicles.v_registration_number || '',
+          initialVehicleList?.vehicles.v_registration_number || '',
         [fieldNames.VEHICLE_TYPE]:
-          initialVehicleList.vehicles.VehicleTypes.v_type || '',
+          initialVehicleList?.vehicles?.VehicleTypes?.v_type || '',
         [fieldNames.VEHICLE_NAME]:
-          initialVehicleList.vehicles.VehicleNames.v_name || '',
+          initialVehicleList?.vehicles?.VehicleNames.v_name || '',
         [fieldNames.VEHICLE_MODEL]: initialVehicleList.vehicles.v_model || '',
         [fieldNames.VEHICLE_SEATING_CAPACITY]:
-          initialVehicleList.vehicles.v_seating_cpcty || '',
+          initialVehicleList?.vehicles?.v_seating_cpcty || '',
       });
     }
   }, [initialVehicleList, reset]);
 
   const onSubmit = async (data) => {
-    console.log({ data });
     const { nameId, typeId } = await getIdByName(
       vehicleNames.data,
       data.vehicleName,
@@ -297,11 +300,10 @@ const VehicleDetailsScreen = () => {
         navigation.navigate('VehicleDocs');
       } else {
         const response = await createVehicleDetail(finalData, userToken);
-        console.log({ response });
 
         if (response?.newVehicle.created_at) {
           userRoleId == 3000
-            ? navigation.navigate('BusinessDetails')
+            ? navigation.navigate('ManageBusiness')
             : navigation.navigate('VehicleAndDriverDocuments');
           reset();
         } else {

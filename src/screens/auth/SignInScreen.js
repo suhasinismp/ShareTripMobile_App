@@ -48,8 +48,8 @@ const SignInScreen = () => {
   } = useForm({
     resolver: yupResolver(signInScheme),
     defaultValues: {
-      [fieldNames.PHONE]: '9130528918',
-      [fieldNames.PASSWORD]: 'akshay@123',
+      [fieldNames.PHONE]: '9731214801',
+      [fieldNames.PASSWORD]: 'nandini@1234',
     },
   });
 
@@ -96,7 +96,6 @@ const SignInScreen = () => {
     }
   };
 
-  // console.log('Form errors:', errors);
   return (
     <KeyboardAwareScrollView
       style={styles.container}

@@ -52,7 +52,12 @@ const GroupsScreen = () => {
   };
 
   const handleGroupPress = (item) => {
-    navigation.navigate('GroupDetailScreen', { groupId: item.id });
+    navigation.navigate('GroupDetailScreen', {
+      groupId: item.id,
+      groupName: item.group_name, // Pass group name
+      groupDescription: item.group_details,
+    });
+
   };
 
   const renderRightIcon = () => (

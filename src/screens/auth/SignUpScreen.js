@@ -95,6 +95,7 @@ const SignUpScreen = ({ route }) => {
         phoneNumber: data[fieldNames.PHONE_NUMBER].toString(),
       };
       const otpResponse = await sendOTP(finalData);
+
       navigation.navigate('OTPVerify', {
         userId: response.data[0].id,
         phoneNumber: response.data[0].u_mob_num,

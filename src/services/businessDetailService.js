@@ -1,7 +1,6 @@
 import { getAPI, patchAPI, postFormDataAPI } from '../utils/servicesUtil';
 
 export const createBusinessDetails = async (data, token, logo) => {
-  console.log({ data, token, logo });
   const formData = new FormData();
   formData.append('json', JSON.stringify(data));
   formData.append('businessLogo', logo);

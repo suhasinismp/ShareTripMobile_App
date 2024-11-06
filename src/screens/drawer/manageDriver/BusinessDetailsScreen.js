@@ -88,7 +88,7 @@ const BusinessDetailsScreen = () => {
     setIsLoading(true);
     try {
       const response = await fetchBusinessDetailsByUserId(userToken, userId);
-      console.log({ response });
+
       if (response.error === false && response?.data?.length > 0) {
         setInitialBusinessDetails(response.data[0]);
       } else {

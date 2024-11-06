@@ -19,7 +19,6 @@ const AddGroupMembers = ({ route }) => {
   const [uiData, setUiData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [invitedUsers, setInvitedUsers] = useState([]);
-  console.log("abc", invitedUsers)
 
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
@@ -107,16 +106,15 @@ const AddGroupMembers = ({ route }) => {
         phone_no: phoneNumber,
         group_id: groupId,
       };
-      // console.log('xyz', finalData)
-      const response = await postSendGroupInvite(finalData, userToken)
-      console.log("xyz", response);
+
+      const response = await postSendGroupInvite(finalData, userToken);
+      
       if (response?.message === 'Invitation sent successfully') {
         setInvitedUsers((prevInvitedUsers) => {
-          const updatedInvitedUsers = [...prevInvitedUsers, phoneNumber]
-          console.log("mno", updatedInvitedUsers)
+          const updatedInvitedUsers = [...prevInvitedUsers, phoneNumber];
+ 
           return updatedInvitedUsers;
-
-        })
+        });
       } else {
         console.log('Invited:', response);
       }
@@ -188,13 +186,17 @@ const AddGroupMembers = ({ route }) => {
                   />
                 </View>
               )}
-              {console.log("mon", invitedUsers.includes(item.userPhoneNumber))}
+
               {item?.userId && (
-
                 <CustomButton
-                  title={invitedUsers.includes(item.userPhoneNumber) ? 'Invited' : 'Invite'}
-                  onPress={() => handleInvite(userId, item.userPhoneNumber, groupId)}
-
+                  title={
+                    invitedUsers.includes(item.userPhoneNumber)
+                      ? 'Invited'
+                      : 'Invite'
+                  }
+                  onPress={() =>
+                    handleInvite(userId, item.userPhoneNumber, groupId)
+                  }
                   style={{ width: 100, height: 50, alignSelf: 'flex-end' }}
                   disabled={invitedUsers.includes(item.userPhoneNumber)}
                 />
