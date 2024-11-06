@@ -13,11 +13,13 @@ import * as Contacts from 'expo-contacts';
 
 import AppHeader from '../../../components/AppHeader';
 import { getUserDataSelector } from '../../../store/selectors';
-import { postUserByPhoneNumber } from '../../../services/AddGroupMembersService';
+
 import WhatsappIcon from '../../../../assets/svgs/whatsappIcon.svg';
 import { createPost } from '../../../services/postTripService';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../../components/ui/CustomButton';
+import { postUserByPhoneNumber } from '../../../services/addGroupMembersService';
+
 
 const SelectContactScreen = ({ route }) => {
   const { finalData, recordedAudioUri } = route.params;
