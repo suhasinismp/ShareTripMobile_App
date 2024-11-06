@@ -15,14 +15,14 @@ export const fetchVehicleNames = async () => {
     '/share-trip/vehicle-names',
     config.ADMIN_TOKEN,
   );
-  
+
 
   return response;
 };
 
 export const createVehicleDetail = async (data, token) => {
   const response = await postAPI('share-trip/vehicles/', data, token);
-  
+
   return response;
 };
 

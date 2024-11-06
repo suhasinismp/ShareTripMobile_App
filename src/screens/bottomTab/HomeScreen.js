@@ -123,16 +123,19 @@ const HomeScreen = () => {
     setIsLoading(false);
   };
 
-  const handleRequestClick = async (postId, userId, postedUserId) => {
+  const handleRequestClick = async (postId, userId, postedUserId, vehicleId) => {
+    console.log({ postId, userId, postedUserId, vehicleId })
     const finalData = {
       post_bookings_id: postId,
       accepted_user_id: userId,
-      vehicle_id: userVehicles[0].st_vehicles_id,
+      vehicle_id: vehicleId,
       posted_user_id: postedUserId,
+
     };
+
     const response = await sendPostRequest(finalData, userToken);
     console.log({ response })
-    if (response?.confirm_status === 'Accepted') {
+    if (response?.confirm_status === 'Quoted') {
       dispatch(
         showSnackbar({
           message:
@@ -172,7 +175,7 @@ const HomeScreen = () => {
       // Trip Details Props
       pickUpTime={item?.pick_up_time}
       fromDate={item?.from_date}
-      vehicleType={item?.Vehicle_type}
+      vehicleType={item?.Vehicle_type_name}
       vehicleName={item?.Vehicle_name}
       pickUpLocation={item?.pick_up_location}
       destination={item?.destination}
@@ -183,9 +186,9 @@ const HomeScreen = () => {
       baseFareRate={item?.bookingTypeTariff_base_fare_rate}
       // Action Props
       onRequestPress={() =>
-        handleRequestClick(item?.post_booking_id, userId, item?.posted_user_id)
+        handleRequestClick(item?.post_booking_id, userId, item?.posted_user_id, userVehicles[0]?.st_vehicles_id)
       }
-      onCallPress={() => handleCall(item?.User?.u_mob_num)}
+      onCallPress={() => handleCall(item?.User_phone)}
       onPlayPress={() => {
         /* TODO: Implement voice message playback */
       }}
