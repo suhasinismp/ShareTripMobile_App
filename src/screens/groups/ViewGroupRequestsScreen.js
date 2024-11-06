@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, TextInput, Text, FlatList, Modal, Image } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Text,
+  FlatList,
+  Modal,
+  Image,
+} from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import MenuIcon from '../../../assets/svgs/menu.svg';
 import SearchIcon from '../../../assets/svgs/search.svg';
@@ -7,11 +16,13 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 import CustomText from '../../components/ui/CustomText';
-import { getGroupRequestByUserId, groupAcceptInvite, groupDeclineInvite } from '../../services/groupsService';
+import {
+  getGroupRequestByUserId,
+  groupAcceptInvite,
+  groupDeclineInvite,
+} from '../../services/groupsService';
 import CustomButton from '../../components/ui/CustomButton';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
-
-
 
 const ViewGroupRequestsScreen = () => {
   const navigation = useNavigation();
@@ -26,9 +37,8 @@ const ViewGroupRequestsScreen = () => {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   useEffect(() => {
-    fetchGroupRequests()
-  }, [])
-
+    fetchGroupRequests();
+  }, []);
 
   useEffect(() => {
     if (selectedGroupId && actionType) {
@@ -41,25 +51,31 @@ const ViewGroupRequestsScreen = () => {
   }, [selectedGroupId, actionType]);
 
   const handleAccept = async () => {
-    console.log()
-    const response = await groupAcceptInvite(userToken, selectedGroupId, userId);
-    console.log({ response });
+    const response = await groupAcceptInvite(
+      userToken,
+      selectedGroupId,
+      userId,
+    );
 
-    if (response?.message === 'Invitation accepted and user added to the group') {
+    if (
+      response?.message === 'Invitation accepted and user added to the group'
+    ) {
       dispatch(
         showSnackbar({
           visible: true,
           message: 'You have been added to the group.',
           type: 'success',
-        })
+        }),
       );
-    } else if (response?.message === 'No pending invitation found for this user') {
+    } else if (
+      response?.message === 'No pending invitation found for this user'
+    ) {
       dispatch(
         showSnackbar({
           visible: true,
           message: 'No pending invitations were found for this user.',
           type: 'warning',
-        })
+        }),
       );
     } else {
       dispatch(
@@ -67,20 +83,24 @@ const ViewGroupRequestsScreen = () => {
           visible: true,
           message: 'Something went wrong. Please try again.',
           type: 'error',
-        })
+        }),
       );
     }
-  }
+  };
   const handleDecline = async () => {
-    const response = await groupDeclineInvite(userToken, selectedGroupId, userId);
-    console.log({ response });
+    const response = await groupDeclineInvite(
+      userToken,
+      selectedGroupId,
+      userId,
+    );
+
     if (response?.message === 'Invitation declined successfully') {
       dispatch(
         showSnackbar({
           visible: true,
           message: 'You have declined the invitation.',
           type: 'success',
-        })
+        }),
       );
     } else {
       dispatch(
@@ -88,21 +108,16 @@ const ViewGroupRequestsScreen = () => {
           visible: true,
           message: 'Something went wrong. Please try again.',
           type: 'error',
-        })
-      )
+        }),
+      );
     }
-  }
+  };
   const fetchGroupRequests = async () => {
-    const response = await getGroupRequestByUserId(userId, userToken)
-    setGroupRequestData(response)
-
-  }
-
-
+    const response = await getGroupRequestByUserId(userId, userToken);
+    setGroupRequestData(response);
+  };
 
   const toggleMenu = () => setIsMenuVisible(!isMenuVisible);
-
-
 
   const renderRightIcon = () => (
     <TouchableOpacity onPress={toggleMenu}>
@@ -110,17 +125,8 @@ const ViewGroupRequestsScreen = () => {
     </TouchableOpacity>
   );
 
-
-
   const renderGroupRequestItem = ({ item }) => {
-    // console.log('Group Logo:', item.group_logo);
-    // console.log('Group Name:', item.group_name);
-
-
-
-
     const showAdditionalUsersText = item.related_user_count > 0;
-
 
     return (
       <View style={styles.groupItem}>
@@ -128,7 +134,7 @@ const ViewGroupRequestsScreen = () => {
           <View style={styles.logo}>
             <Image
               source={{
-                uri: item.group_logo || ' / api / placeholder / 40 / 40'
+                uri: item.group_logo || ' / api / placeholder / 40 / 40',
               }}
               style={styles.groupLogo}
               resizeMode="cover"
@@ -140,22 +146,22 @@ const ViewGroupRequestsScreen = () => {
                 style={styles.groupName}
               />
 
-
               {item.related_users[0].is_admin && (
                 <Text>Admin:{item.related_users[0].user_name}</Text>
               )}
             </View>
           </View>
 
-
-
           <View style={styles.relatedUserContainer}>
             <View style={styles.relatedUser}>
-
               {showAdditionalUsersText && (
                 <View style={styles.userCountSection}>
                   <Image
-                    source={{ uri: item.related_users[0].user_profile || 'https://via.placeholder.com/50' }}
+                    source={{
+                      uri:
+                        item.related_users[0].user_profile ||
+                        'https://via.placeholder.com/50',
+                    }}
                     style={styles.userImage}
                     resizeMode="cover"
                   />
@@ -169,7 +175,7 @@ const ViewGroupRequestsScreen = () => {
               <CustomButton
                 title="Decline"
                 onPress={() => {
-                  setSelectedGroupId(item.group_id)
+                  setSelectedGroupId(item.group_id);
                   setActionType('decline');
                 }}
                 style={{ width: 100, height: 50, backgroundColor: 'red' }}
@@ -177,18 +183,17 @@ const ViewGroupRequestsScreen = () => {
               <CustomButton
                 title="Accept"
                 onPress={() => {
-                  setSelectedGroupId(item.group_id)
+                  setSelectedGroupId(item.group_id);
                   setActionType('accept');
                 }}
-                style={{ width: 100, height: 50, }}
+                style={{ width: 100, height: 50 }}
               />
             </View>
           </View>
         </View>
-      </View >
+      </View>
     );
-
-  }
+  };
   return (
     <View style={styles.container}>
       <AppHeader
@@ -205,12 +210,12 @@ const ViewGroupRequestsScreen = () => {
           <SearchIcon width={24} height={24} style={styles.searchIcon} />
         </View>
 
-
-
         <FlatList
           data={groupRequestData}
           renderItem={renderGroupRequestItem}
-          keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
+          keyExtractor={(item) =>
+            item.id?.toString() || Math.random().toString()
+          }
           contentContainerStyle={styles.listContent}
         />
       </View>
@@ -220,20 +225,13 @@ const ViewGroupRequestsScreen = () => {
         animationType="fade"
         onRequestClose={toggleMenu}
       >
-
         <TouchableOpacity style={styles.modalOverlay} onPress={toggleMenu}>
-          <View style={styles.menuContainer}>
-
-
-
-          </View>
+          <View style={styles.menuContainer}></View>
         </TouchableOpacity>
       </Modal>
     </View>
-
-
-  )
-}
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -249,13 +247,11 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
 
-
   logo: {
     width: 100,
     height: 100,
     flexDirection: 'row',
     alignSelf: 'flex-start',
-
   },
   userCountSection: {
     flexDirection: 'row',
@@ -286,7 +282,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column', // Align children vertically
     alignItems: 'center', // Center items horizontally
     marginBottom: 10,
-
   },
   content: {
     flex: 1,
@@ -347,10 +342,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignSelf: 'flex-end',
-
-  }
+  },
 });
-
-
 
 export default ViewGroupRequestsScreen;

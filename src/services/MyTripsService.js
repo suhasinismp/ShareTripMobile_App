@@ -46,3 +46,8 @@ export const rejectDriverRequest = async (data, token) => {
 
   return response;
 };
+
+export const startTrip = async (data, token) => {
+  const response = await postAPI('/share-trip/trip-ride/start/', data, token);
+  return response;
+};

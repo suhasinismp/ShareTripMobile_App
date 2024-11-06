@@ -96,7 +96,6 @@ const SignInScreen = () => {
     }
   };
 
-  // console.log('Form errors:', errors);
   return (
     <KeyboardAwareScrollView
       style={styles.container}

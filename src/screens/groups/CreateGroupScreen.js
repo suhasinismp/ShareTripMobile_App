@@ -52,18 +52,15 @@ const CreateGroupScreen = () => {
 
   const handleCancel = () => {
     // Handle cancel action
-    console.log('Cancel pressed');
   };
 
   const handleCreateGroup = async (data) => {
-    console.log({ data });
     let finalData = {
       group_name: data.groupName,
       group_details: data.groupDescription,
     };
     const formData = new FormData();
     formData.append('json', JSON.stringify(finalData));
-    console.log({ groupLogo });
 
     formData.append('logoUpload', {
       uri: groupLogo,
@@ -72,7 +69,7 @@ const CreateGroupScreen = () => {
     });
 
     const response = await createGroup(formData, userToken);
-    console.log({ response });
+
     if (response.group_name === data.groupName) {
       navigation.navigate('AddGroupMembers', {
         groupId: response.id,

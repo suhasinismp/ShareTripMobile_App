@@ -50,6 +50,7 @@ const PostCard = ({
   isRequested,
   packageName,
 }) => {
+  console.log('isRequested', isRequested);
   const requestStatus = isRequested ? isRequested : 'Accept';
   const isAvailable = postStatus === 'Available';
 
@@ -233,7 +234,7 @@ const PostCard = ({
                 <TouchableOpacity
                   style={styles.acceptButton}
                   onPress={onRequestPress}
-                  disabled={isRequested ? true : false}
+                  disabled={isRequested === 'Quoted' ? true : false}
                 >
                   <Text style={styles.acceptButtonText}>{requestStatus}</Text>
                 </TouchableOpacity>
@@ -249,20 +250,19 @@ const PostCard = ({
         </View>
 
         {/* Action Buttons - Only show for available cards */}
-        {isAvailable
-          && (
-            <View style={styles.actionButtonsContainer}>
-              <TouchableOpacity onPress={onCallPress}>
-                <CallIcon />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={onPlayPress}>
-                <PlayIcon />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={onMessagePress}>
-                <TextMsgIcon />
-              </TouchableOpacity>
-            </View>
-          )}
+        {isAvailable && (
+          <View style={styles.actionButtonsContainer}>
+            <TouchableOpacity onPress={onCallPress}>
+              <CallIcon />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onPlayPress}>
+              <PlayIcon />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onMessagePress}>
+              <TextMsgIcon />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -352,7 +352,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
-
   },
   tripTime: {
     marginLeft: 8,
@@ -383,7 +382,6 @@ const styles = StyleSheet.create({
   vehicleInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-
   },
   vehicleText: {
     marginLeft: 8,
@@ -395,7 +393,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
-    marginTop: 10
+    marginTop: 10,
   },
   locationText: {
     marginLeft: 8,

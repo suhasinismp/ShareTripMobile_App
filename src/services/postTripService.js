@@ -2,7 +2,7 @@ import { getAPI, postFormDataAPI } from '../utils/servicesUtil';
 
 export const getTripTypes = async (token) => {
   const response = await getAPI('share-trip/booking-types', token);
-  console.log('xyz', response)
+
   return response;
 };
 

@@ -7,21 +7,22 @@ import CustomButton from '../../components/ui/CustomButton';
 import WhatsappIcon from '../../../assets/svgs/whatsappIcon.svg';
 import { useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
-import { postSendGroupInvite, postUserByPhoneNumber } from '../../services/AddGroupMembersService';
+import {
+  postSendGroupInvite,
+  postUserByPhoneNumber,
+} from '../../services/AddGroupMembersService';
 
 const AddGroupMembers = ({ route }) => {
   const { groupId } = route?.params;
-
 
   const [contacts, setContacts] = useState([]);
   const [uiData, setUiData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [invitedUsers, setInvitedUsers] = useState([]);
-  console.log("abc", invitedUsers)
 
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
-  const userId = userData.userId
+  const userId = userData.userId;
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -60,7 +61,10 @@ const AddGroupMembers = ({ route }) => {
 
     const uniqueFinalArray = [...new Set(finalArray)];
 
-    const response = await postUserByPhoneNumber({ phone_numbers: uniqueFinalArray }, userToken);
+    const response = await postUserByPhoneNumber(
+      { phone_numbers: uniqueFinalArray },
+      userToken,
+    );
 
     let finalData = [];
     response.forEach((item) => {
@@ -72,19 +76,19 @@ const AddGroupMembers = ({ route }) => {
           vehicles: item.vehicles,
           userId: item.user_id,
           userProfilePic: item.user_profile_pic,
-
         });
       } else {
         contacts.forEach((contact) => {
           if (contact.phoneNumbers) {
             // Safely access contact.phoneNumbers
-            const matchedNumber = contact.phoneNumbers.find((numberObject) => numberObject.number === item.phone_no);
+            const matchedNumber = contact.phoneNumbers.find(
+              (numberObject) => numberObject.number === item.phone_no,
+            );
 
             if (matchedNumber) {
               finalData.push({
                 userName: contact.name,
                 userPhoneNumber: matchedNumber.number,
-
               });
             }
           }
@@ -102,23 +106,22 @@ const AddGroupMembers = ({ route }) => {
         phone_no: phoneNumber,
         group_id: groupId,
       };
-      // console.log('xyz', finalData)
-      const response = await postSendGroupInvite(finalData, userToken)
-      console.log("xyz", response);
+
+      const response = await postSendGroupInvite(finalData, userToken);
+      
       if (response?.message === 'Invitation sent successfully') {
         setInvitedUsers((prevInvitedUsers) => {
-          const updatedInvitedUsers = [...prevInvitedUsers, phoneNumber]
-          console.log("mno", updatedInvitedUsers)
+          const updatedInvitedUsers = [...prevInvitedUsers, phoneNumber];
+ 
           return updatedInvitedUsers;
-
-        })
+        });
       } else {
         console.log('Invited:', response);
       }
     } catch (error) {
-      console.error('error sending invite', error)
+      console.error('error sending invite', error);
     }
-  }
+  };
 
   const handlePrimaryAction = () => {
     Linking.openSettings();
@@ -133,8 +136,6 @@ const AddGroupMembers = ({ route }) => {
     <>
       <AppHeader backIcon={true} title={'Add Group Members'} />
       <View style={styles.container}>
-
-
         <FlatList
           data={uiData}
           keyExtractor={(item) => item.userPhoneNumber} // Ensure each list item has a unique key
@@ -144,30 +145,31 @@ const AddGroupMembers = ({ route }) => {
                 {item.userProfilePic && (
                   <Image
                     source={{ uri: item.userProfilePic }}
-
                     style={{ width: 50, height: 50 }} // Apply custom styles for profile picture
                     resizeMode="cover"
                   />
-
                 )}
                 <View style={{ flexDirection: 'column' }}>
+                  <Text style={styles.contactName}>
+                    {item.userName || 'Unknown User'}
+                  </Text>
+                  <Text style={styles.contactPhone}>
+                    {item.userPhoneNumber}
+                  </Text>
 
-                  <Text style={styles.contactName}>{item.userName || 'Unknown User'}</Text>
-                  <Text style={styles.contactPhone}>{item.userPhoneNumber}</Text>
-
-                  {!item.userId && (
-
-                    <WhatsappIcon />
-                  )}
-
+                  {!item.userId && <WhatsappIcon />}
                 </View>
               </View>
 
-
-              {item.message && <Text style={styles.errorMessage}>{item.message}</Text>}
+              {item.message && (
+                <Text style={styles.errorMessage}>{item.message}</Text>
+              )}
               {item.vehicles && item.vehicles.length > 0 && (
                 <View>
-                  <Text>{item.vehicles[0].vehicle_name} - {item.vehicles[0].vehicle_number}</Text>
+                  <Text>
+                    {item.vehicles[0].vehicle_name} -{' '}
+                    {item.vehicles[0].vehicle_number}
+                  </Text>
 
                   {/* Using FlatList to render images */}
                   <FlatList
@@ -180,28 +182,27 @@ const AddGroupMembers = ({ route }) => {
                         style={{ width: 50, height: 40, alignSelf: 'flex-end' }}
                         resizeMode="contain"
                       />
-
-
                     )}
                   />
                 </View>
-
               )}
 
               {item?.userId && (
-
                 <CustomButton
-                  title={invitedUsers.includes(item.userPhoneNumber) ? 'Invited' : 'Invite'}
-                  onPress={() => handleInvite(userId, item.userPhoneNumber, groupId)}
-
+                  title={
+                    invitedUsers.includes(item.userPhoneNumber)
+                      ? 'Invited'
+                      : 'Invite'
+                  }
+                  onPress={() =>
+                    handleInvite(userId, item.userPhoneNumber, groupId)
+                  }
                   style={{ width: 100, height: 50, alignSelf: 'flex-end' }}
                   disabled={invitedUsers.includes(item.userPhoneNumber)}
                 />
               )}
-
             </View>
           )}
-
         />
         <CustomModal
           visible={isModalVisible}
@@ -212,7 +213,7 @@ const AddGroupMembers = ({ route }) => {
           onPrimaryAction={handlePrimaryAction}
           onSecondaryAction={handleCancel}
         />
-      </View >
+      </View>
     </>
   );
 };
@@ -230,8 +231,6 @@ const styles = StyleSheet.create({
   contactName: {
     fontSize: 16,
     fontWeight: 'bold',
-
-
   },
   contactPhone: {
     fontSize: 14,
@@ -240,12 +239,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'red',
   },
-  profile:
-  {
-
+  profile: {
     flexDirection: 'row',
-
-  }
+  },
 });
 
 export default AddGroupMembers;

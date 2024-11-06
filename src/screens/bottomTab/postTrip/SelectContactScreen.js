@@ -56,7 +56,6 @@ const SelectContactScreen = ({ route }) => {
       post_type_value: JSON.stringify([contact.userId]),
     };
 
-
     const formData = new FormData();
     formData.append('json', JSON.stringify(updatedFinalData));
 
@@ -122,7 +121,6 @@ const SelectContactScreen = ({ route }) => {
         }
       });
 
-
       setUiData(finalData);
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -135,12 +133,8 @@ const SelectContactScreen = ({ route }) => {
       item.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.userPhoneNumber.includes(searchQuery),
   );
-  console.log({ filteredData })
+
   const renderItem = ({ item }) => (
-
-
-
-
     <View style={styles.contactItem}>
       {item?.userId != (undefined || null) && (
         <View style={styles.driverCard}>
@@ -187,23 +181,21 @@ const SelectContactScreen = ({ route }) => {
           </TouchableOpacity>
         </View>
       )}
-      {
-        item?.isWhatsApp === true && (
-          <View style={styles.contactInfo}>
-            <Image
-              source={{
-                uri: item.userProfilePic || 'https://via.placeholder.com/50',
-              }}
-              style={styles.avatar}
-            />
-            <View style={styles.textContainer}>
-              <Text style={styles.contactName}>{item.userName}</Text>
-              <Text style={styles.contactPhone}>{item.userPhoneNumber}</Text>
-            </View>
-            <WhatsappIcon width={24} height={24} />
+      {item?.isWhatsApp === true && (
+        <View style={styles.contactInfo}>
+          <Image
+            source={{
+              uri: item.userProfilePic || 'https://via.placeholder.com/50',
+            }}
+            style={styles.avatar}
+          />
+          <View style={styles.textContainer}>
+            <Text style={styles.contactName}>{item.userName}</Text>
+            <Text style={styles.contactPhone}>{item.userPhoneNumber}</Text>
           </View>
-        )
-      }
+          <WhatsappIcon width={24} height={24} />
+        </View>
+      )}
     </View>
   );
 

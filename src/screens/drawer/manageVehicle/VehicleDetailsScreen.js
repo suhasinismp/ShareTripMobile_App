@@ -87,10 +87,8 @@ const VehicleDetailsScreen = () => {
   const [vehicleTypes, setVehicleTypes] = useState({ data: [] });
   const [vehicleNames, setVehicleNames] = useState({ data: [] });
 
-
   const [userRoleId, setUserRoleId] = useState(null);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
-  console.log({ filteredVehicleNames })
 
   const [initialVehicleList, setInitialVehicleList] = useState(null);
   const [seatingCapacityData, setSeatingCapacityData] = useState([]);
@@ -182,8 +180,6 @@ const VehicleDetailsScreen = () => {
 
   useEffect(() => {
     if (watchVehicleType) {
-      console.log('xyz', vehicleNames?.data)
-      console.log({ watchVehicleType })
       // Filter vehicle names based on the selected vehicle type
       const filteredNames = vehicleNames?.data?.filter(
         (vehicle) => vehicle.vehicleTypes?.v_type === watchVehicleType,
@@ -276,7 +272,6 @@ const VehicleDetailsScreen = () => {
   }, [initialVehicleList, reset]);
 
   const onSubmit = async (data) => {
-    console.log({ data });
     const { nameId, typeId } = await getIdByName(
       vehicleNames.data,
       data.vehicleName,
@@ -305,7 +300,6 @@ const VehicleDetailsScreen = () => {
         navigation.navigate('VehicleDocs');
       } else {
         const response = await createVehicleDetail(finalData, userToken);
-        console.log({ response });
 
         if (response?.newVehicle.created_at) {
           userRoleId == 3000

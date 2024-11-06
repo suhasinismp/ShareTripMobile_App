@@ -24,7 +24,6 @@ import {
 import { getUserDataSelector } from '../../../store/selectors';
 import AudioContainer from '../../../components/AudioContainer';
 import TimeDatePicker from '../../../components/TimeDatePicker';
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
@@ -77,7 +76,6 @@ const PostATripScreen = () => {
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropLocation, setDropLocation] = useState('');
   const [visitingPlace, setVisitingPlace] = useState('');
-  const [selectedTariff, setSelectedTariff] = useState(null);
   const [selectedPaymentType, setSelectedPaymentType] = useState('Cash');
   const [notes, setNotes] = useState('');
   const [notes1, setNotes1] = useState('');
@@ -346,7 +344,6 @@ const PostATripScreen = () => {
       }
 
       const response = await createPost(formData, userToken);
-      console.log({ response });
 
       if (
         response.error === false &&
@@ -374,7 +371,7 @@ const PostATripScreen = () => {
     }
 
     const vehicleNamesResponse = await fetchVehicleNames(userToken);
-    console.log({ vehicleNamesResponse });
+
     if (vehicleNamesResponse.error === false) {
       setVehicleNames(vehicleNamesResponse.data);
     }

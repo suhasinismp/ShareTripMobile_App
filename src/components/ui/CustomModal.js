@@ -12,26 +12,41 @@ const CustomModal = ({
   onPrimaryAction,
   onSecondaryAction,
   icon,
+  children,
 }) => {
   return (
     <Modal visible={visible} transparent={true} animationType="fade">
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <View style={styles.iconContainer}>{icon}</View>
-          <CustomText variant="headerTitle" text={title} style={styles.title} />
-          <CustomText variant="body" text={subtitle} style={styles.subtitle} />
-          <CustomButton
-            title={primaryButtonText}
-            onPress={onPrimaryAction}
-            variant="primary"
-            style={styles.primaryButton}
-          />
-          <CustomButton
-            title={secondaryButtonText}
-            onPress={onSecondaryAction}
-            variant="text"
-            style={styles.secondaryButton}
-          />
+          {children ? (
+            children
+          ) : (
+            <>
+              <View style={styles.iconContainer}>{icon}</View>
+              <CustomText
+                variant="headerTitle"
+                text={title}
+                style={styles.title}
+              />
+              <CustomText
+                variant="body"
+                text={subtitle}
+                style={styles.subtitle}
+              />
+              <CustomButton
+                title={primaryButtonText}
+                onPress={onPrimaryAction}
+                variant="primary"
+                style={styles.primaryButton}
+              />
+              <CustomButton
+                title={secondaryButtonText}
+                onPress={onSecondaryAction}
+                variant="text"
+                style={styles.secondaryButton}
+              />
+            </>
+          )}
         </View>
       </View>
     </Modal>

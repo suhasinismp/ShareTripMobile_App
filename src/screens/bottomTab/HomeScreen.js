@@ -123,18 +123,21 @@ const HomeScreen = () => {
     setIsLoading(false);
   };
 
-  const handleRequestClick = async (postId, userId, postedUserId, vehicleId) => {
-    console.log({ postId, userId, postedUserId, vehicleId })
+  const handleRequestClick = async (
+    postId,
+    userId,
+    postedUserId,
+    vehicleId,
+  ) => {
     const finalData = {
       post_bookings_id: postId,
       accepted_user_id: userId,
       vehicle_id: vehicleId,
       posted_user_id: postedUserId,
-
     };
 
     const response = await sendPostRequest(finalData, userToken);
-    console.log({ response })
+
     if (response?.confirm_status === 'Quoted') {
       dispatch(
         showSnackbar({
@@ -186,7 +189,12 @@ const HomeScreen = () => {
       baseFareRate={item?.bookingTypeTariff_base_fare_rate}
       // Action Props
       onRequestPress={() =>
-        handleRequestClick(item?.post_booking_id, userId, item?.posted_user_id, userVehicles[0]?.st_vehicles_id)
+        handleRequestClick(
+          item?.post_booking_id,
+          userId,
+          item?.posted_user_id,
+          userVehicles[0]?.st_vehicles_id,
+        )
       }
       onCallPress={() => handleCall(item?.User_phone)}
       onPlayPress={() => {
