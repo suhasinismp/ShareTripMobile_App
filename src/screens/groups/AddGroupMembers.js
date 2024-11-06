@@ -10,7 +10,7 @@ import { getUserDataSelector } from '../../store/selectors';
 import {
   postSendGroupInvite,
   postUserByPhoneNumber,
-} from '../../services/AddGroupMembersService';
+} from '../../services/addGroupMembersService';
 
 const AddGroupMembers = ({ route }) => {
   const { groupId } = route?.params;
@@ -108,11 +108,11 @@ const AddGroupMembers = ({ route }) => {
       };
 
       const response = await postSendGroupInvite(finalData, userToken);
-      
+
       if (response?.message === 'Invitation sent successfully') {
         setInvitedUsers((prevInvitedUsers) => {
           const updatedInvitedUsers = [...prevInvitedUsers, phoneNumber];
- 
+
           return updatedInvitedUsers;
         });
       } else {

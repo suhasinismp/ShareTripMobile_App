@@ -13,7 +13,7 @@ import DriverCard from '../DriverCard';
 import {
   acceptDriverRequest,
   rejectDriverRequest,
-} from '../../services/MyTripsService';
+} from '../../services/myTripsService';
 import { useDispatch, useSelector } from 'react-redux';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
 import { getUserDataSelector } from '../../store/selectors';
