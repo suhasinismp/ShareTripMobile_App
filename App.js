@@ -10,9 +10,11 @@ import { useTheme, useThemeProvider } from './src/hooks/useTheme';
 import AppStack from './src/routes/AppStack';
 import store from './src/store/store';
 import { ThemeContext } from './src/styles/theme';
+import { setInterceptors } from './src/utils/apiInterceptorUtil';
 // import HomeScreen from './src/screens/BottomTab/HomeScreen';
 
 SplashScreen.preventAutoHideAsync();
+setInterceptors(store)
 
 function ThemeSwitcher() {
   const { theme, isDarkMode, toggleTheme } = useTheme();

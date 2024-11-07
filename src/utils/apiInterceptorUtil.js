@@ -13,16 +13,17 @@ export const setInterceptors = (store) => {
     (error) => {
       if (error.response) {
         const status = error.response.status;
+
         const message = error.response.data?.message || 'An error occurred';
 
         if (status >= 400 && status < 500) {
+
           store.dispatch(
             showSnackbar({
               visible: true,
               message: message,
               type: 'error',
-              actionText: 'Dismiss',
-              position: 'bottom',
+
             }),
           );
         } else if (status >= 500) {
@@ -33,8 +34,7 @@ export const setInterceptors = (store) => {
               visible: true,
               message: 'Something went wrong',
               type: 'error',
-              actionText: 'Dismiss',
-              position: 'bottom',
+
             }),
           );
         }
@@ -46,8 +46,7 @@ export const setInterceptors = (store) => {
             visible: true,
             message: 'No network',
             type: 'error',
-            actionText: 'Dismiss',
-            position: 'bottom',
+
           }),
         );
       } else {
@@ -58,8 +57,7 @@ export const setInterceptors = (store) => {
             visible: true,
             message: 'Something went wrong',
             type: 'error',
-            actionText: 'Dismiss',
-            position: 'bottom',
+
           }),
         );
       }
