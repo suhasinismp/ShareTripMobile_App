@@ -58,6 +58,7 @@ const SignInScreen = () => {
       u_mob_num: data.Phone,
       u_pswd: data.password,
     };
+
     const response = await doLogin(finalData);
 
     if (response?.token) {
@@ -75,22 +76,6 @@ const SignInScreen = () => {
           userRoleId: response.role_id,
           userMobile: response.u_mob_num,
           userToken: response.token,
-        }),
-      );
-    } else if (response?.status === 400) {
-      dispatch(
-        showSnackbar({
-          visible: true,
-          message: 'warning: check your credentials',
-          type: 'warning',
-        }),
-      );
-    } else {
-      dispatch(
-        showSnackbar({
-          visible: true,
-          message: 'Invalid login credentials',
-          type: 'Error',
         }),
       );
     }

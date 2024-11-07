@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import CustomText from '../../components/ui/CustomText';
 import CustomInput from '../../components/ui/CustomInput';
@@ -9,6 +15,7 @@ import { useTheme } from '../../hooks/useTheme';
 import CustomSelect from '../../components/ui/CustomSelect';
 import TimeDatePicker from '../../components/TimeDatePicker';
 
+const { width } = Dimensions.get('window');
 
 const SelfTrip = () => {
   const { theme } = useTheme();
@@ -27,7 +34,6 @@ const SelfTrip = () => {
   const [dropLocation, setDropLocation] = useState('');
   const [visitingPlace, setVisitingPlace] = useState('');
 
-
   const handleStartRecording = () => {
     setIsRecording(true);
   };
@@ -36,22 +42,11 @@ const SelfTrip = () => {
     setIsRecording(false);
     setRecordedAudioUri(uri);
   };
-  const handleFromDateChange = () => {
+  const handleFromDateChange = () => {};
+  const handleToDateChange = () => {};
+  const handleTimeChange = () => {};
 
-  }
-  const handleToDateChange = () => {
-
-  }
-  const handleTimeChange = () => {
-
-  }
-
-
-
-
-  const getSelectedTripTypePackages = () => {
-
-  }
+  const getSelectedTripTypePackages = () => {};
   return (
     <>
       <AppHeader
@@ -103,7 +98,10 @@ const SelfTrip = () => {
           />
         </View>
         <View style={styles.sectionContainer}>
-          <CustomText text={'Select Trip Type :'} variant={'sectionTitleText'} />
+          <CustomText
+            text={'Select Trip Type :'}
+            variant={'sectionTitleText'}
+          />
           {/* <FlatList
             data={tripTypes}
             renderItem={({ item }) =>
@@ -259,11 +257,7 @@ const SelfTrip = () => {
           </View>
         </View>
 
-
-
-
         <View style={styles.buttonContainer}>
-
           <CustomButton
             title="Cancel"
             variant="text"

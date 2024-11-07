@@ -52,6 +52,14 @@
         {
           "microphonePermission": "Allow Share Trip to access your microphone."
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
       ]
     ]
   }
