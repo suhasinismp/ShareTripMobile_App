@@ -166,7 +166,6 @@ const MyTrips = () => {
     };
 
     const response = await closeTrip(finalData, userToken);
-    console.log({ response });
 
     if (response?.error === false) {
       setShowClosingDetailsModal(false);
@@ -549,8 +548,8 @@ const MyTrips = () => {
       baseFareRate={item?.booking_tarif_base_fare_rate}
       onRequestPress={() => handleButtonPress(item)}
       onCallPress={() => handleCall(item?.user_phone)}
-      onPlayPress={() => { }}
-      onMessagePress={() => { }}
+      onPlayPress={() => {}}
+      onMessagePress={() => {}}
       isRequested={item?.post_trip_trip_status || item?.request_status}
       packageName={item?.booking_package_name}
     />
@@ -570,8 +569,8 @@ const MyTrips = () => {
       postComments={item?.post_comments}
       postVoiceMessage={item?.post_voice_message}
       drivers={item?.trackingDetails}
-      onCallPress={() => { }}
-      onMessagePress={() => { }}
+      onCallPress={() => {}}
+      onMessagePress={() => {}}
       onRefreshData={fetchUiData}
       userToken={userToken}
     />
@@ -595,7 +594,7 @@ const MyTrips = () => {
         data={uiData}
         renderItem={
           selectedFilterOne === 'InProgress' &&
-            selectedFilterTwo === 'PostedTrips'
+          selectedFilterTwo === 'PostedTrips'
             ? renderAccordion
             : renderPostCard
         }

@@ -20,7 +20,6 @@ import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../../components/ui/CustomButton';
 import { postUserByPhoneNumber } from '../../../services/addGroupMembersService';
 
-
 const SelectContactScreen = ({ route }) => {
   const { finalData, recordedAudioUri } = route.params;
   const navigation = useNavigation();

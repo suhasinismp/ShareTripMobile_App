@@ -44,7 +44,7 @@ export const postAPI = async (endUrl, body, token) => {
 
   try {
     const response = await api(apiConfig);
-    console.log({ response });
+
     return response?.data || {};
   } catch (error) {
     // console.log('Error occurred while posting data');
@@ -53,7 +53,6 @@ export const postAPI = async (endUrl, body, token) => {
 };
 
 export const patchAPI = async ({ endUrl, body, token }) => {
-  console.log({ endUrl, body, token });
   let prepareHeader = {
     'Content-Type': 'application/json',
   };
