@@ -1,4 +1,10 @@
-import { getAPI, patchAPI, postAPI } from '../utils/servicesUtil';
+import {
+  getAPI,
+  patchAPI,
+  patchFormDataAPI,
+  postAPI,
+  postFormDataAPI,
+} from '../utils/servicesUtil';
 
 export const getDriverInProgressTrips = async (userId, token) => {
   const response = await getAPI(
@@ -56,6 +62,32 @@ export const closeTrip = async (data, token) => {
   const response = await patchAPI({
     endUrl: 'share-trip/trip-ride',
     body: data,
+    token: token,
+  });
+  return response;
+};
+
+export const fetchTripDetails = async (tripId, token) => {
+  const response = await getAPI(
+    `share-trip/trip-ride/based-post-booking/${tripId}`,
+    token,
+  );
+  return response;
+};
+
+export const postAdditionCharges = async (data, token) => {
+  const response = await postFormDataAPI(
+    'share-trip/additional-charges/',
+    data,
+    token,
+  );
+  return response;
+};
+
+export const uploadSignature = async (data, token) => {
+  const response = await patchFormDataAPI({
+    endUrl: 'share-trip/trip-ride/signature-upload',
+    formData: data,
     token: token,
   });
   return response;
