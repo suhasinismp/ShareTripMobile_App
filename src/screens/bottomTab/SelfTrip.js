@@ -42,11 +42,11 @@ const SelfTrip = () => {
     setIsRecording(false);
     setRecordedAudioUri(uri);
   };
-  const handleFromDateChange = () => {};
-  const handleToDateChange = () => {};
-  const handleTimeChange = () => {};
+  const handleFromDateChange = () => { };
+  const handleToDateChange = () => { };
+  const handleTimeChange = () => { };
 
-  const getSelectedTripTypePackages = () => {};
+  const getSelectedTripTypePackages = () => { };
   return (
     <>
       <AppHeader
@@ -68,6 +68,9 @@ const SelfTrip = () => {
         enableAutomaticScroll={true}
         keyboardShouldPersistTaps="handled"
       >
+
+
+
         <View style={{ ...styles.sectionContainer, gap: 10 }}>
           <CustomText text="Customer Details :" variant="sectionTitleText" />
           <CustomInput
@@ -389,7 +392,7 @@ const styles = StyleSheet.create({
   submitButton: {
     width: width * 0.4,
     alignItems: 'center',
-    backgroundColor: '#008B8B',
+    backgroundColor: '#123F67',
     borderRadius: 4,
   },
   dateTimeContainer: {
