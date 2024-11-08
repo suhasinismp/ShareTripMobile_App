@@ -1,4 +1,4 @@
-import { patchAPI, postAPI } from '../utils/servicesUtil';
+import { postAPI } from '../utils/servicesUtil';
 
 export const postUserByPhoneNumber = async (payload, token) => {
   const response = await postAPI('share-trip/groups/user-list', payload, token);
