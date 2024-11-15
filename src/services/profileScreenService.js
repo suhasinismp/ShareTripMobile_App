@@ -1,4 +1,11 @@
-import { patchFormDataAPI } from "../utils/servicesUtil";
+import { getAPI, patchFormDataAPI } from "../utils/servicesUtil";
+
+
+export const getProfileByUserId = async (token, userId) => {
+    const response = await getAPI(`share-trip/auth/users/${userId}`, token);
+
+    return response;
+}
 
 
 export const updateProfile = async (payload, token) => {

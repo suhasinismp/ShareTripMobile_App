@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Image, Dimensions, TouchableOpacity } from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import CustomInput from '../../components/ui/CustomInput';
@@ -10,6 +10,12 @@ import { useTheme } from '../../hooks/useTheme';
 import UploadOptionsModal from '../../components/UploadOptionsModal';
 import { getUserDataSelector } from '../../store/selectors';
 import { useSelector } from 'react-redux';
+import { useForm, Controller } from 'react-hook-form';
+import { updateUserProfile } from '../../services/registrationService';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { UserDetailsScheme } from '../../constants/schema/userDetailsScheme';
+import { getProfileByUserId } from '../../services/profileScreenService';
+
 
 const { width } = Dimensions.get('window');
 
@@ -39,54 +45,114 @@ const inputFields = [
 
 const ProfileScreen = () => {
   const { theme } = useTheme();
-  const [userProfile, setUserProfile] = useState(null);
+  const [userProfile, setUserProfile] = useState([]);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditModeOn, setIsEditModeOn] = useState(false);
   const userData = useSelector(getUserDataSelector);
-  const userToken = userData.userToken;
-  const userId = userData.userId;
-  const [formData, setFormData] = useState({
-    [fieldNames.USER_NAME]: '',
-    [fieldNames.PHONE_NUMBER]: '',
-    [fieldNames.EMAIL]: '',
+  const userToken = userData?.userToken;
+  const userId = userData?.userId;
+  const [initialUserDetails, setInitialUserDetails] = useState(null);
+  console.log({ initialUserDetails })
+  const [isLoading, setIsLoading] = useState(true);
+
+
+
+  const { control, handleSubmit, reset } = useForm({
+    resolver: yupResolver(UserDetailsScheme),
+    defaultValues: {
+      [fieldNames.USER_NAME]: 'nandini',
+      [fieldNames.PHONE_NUMBER]: '9731214801',
+      [fieldNames.EMAIL]: 'suhasini@ganakalabs.com',
+    },
   });
+
+  useEffect(() => {
+    getUserDetails()
+    console.log({ getUserDetails })
+  }, [userToken, userId])
+
+  const getUserDetails = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getProfileByUserId(userToken, userId);
+      console.log('abc', response)
+      if (response.error === false && response.data) {
+        setInitialUserDetails(response.data);
+      } else {
+        setInitialUserDetails(null)
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    if (initialUserDetails) {
+
+      reset({
+        [fieldNames.USER_NAME]:
+          initialUserDetails.u_name || '',
+        [fieldNames.PHONE_NUMBER]:
+          initialUserDetails.u_mob_num || '',
+        [fieldNames.EMAIL]: initialUserDetails.u_email_id || '',
+
+      });
+      if (initialUserDetails.u_profile_pic) {
+        setUserProfile([initialUserDetails.u_profile_pic]);
+      }
+    }
+  }, [initialUserDetails, reset]);
+
 
   const handleUserProfileUpload = (file) => {
     setUserProfile(file.uri);
     setModalVisible(false);
   };
 
-  const handleInputChange = (name, value) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-  };
   const handleEditUserProfile = () => {
-    setModalVisible(true);
+
   }
 
-  const handleUpdateProfile = async (data) => {
-    const finalData = {
-      id: userId,
-      u_name: userName,
-      u_email_id: userEmail,
-      u_mob_num: userMobileNumber,
+  const onSubmit = async (data) => {
+    if (
+      !data.userName &&
+      !data.phone &&
+      !data.email &&
+      profilePic.length === 0
+    ) {
+      navigate();
     }
-    const formData = new FormData();
-    formData.append('json', JSON.stringify(finalData));
+    else {
+      const finalData = {
+        user_id: userId,
+        u_name: data.userName,
+        u_email_id: data.phone,
+        u_mob_num: data.email,
+      }
+      try {
+        let response;
+        if (initialUserDetails) {
 
-    const response = await updateProfile(formData, userToken);
-    if (response?.error === false) {
-      setIsEditModeOn(false);
+          response = await updateUserProfile(finalData, userToken, userProfile);
+        } else
+          console.log({ response })
+        if (response && response.error === false) {
+          setIsEditModeOn(false);
 
-    } else {
-      console.error('Failed to update Profile:', response.message);
+        } else {
+          console.error('Failed to update Profile:', response.message);
+        }
+      } catch (error) {
+        console.log(error)
+      }
     }
+
+
   };
-
-
-
 
   return (
     <View style={styles.container}>
@@ -95,25 +161,25 @@ const ProfileScreen = () => {
         title="Profile"
       />
       <View style={styles.userProfileContainer}>
-        {userProfile ? (
+        {/* {userProfile ? (
           <Image source={{ uri: userProfile }} style={styles.userProfile} />
         ) : (
           <View style={[styles.userProfile, { backgroundColor: '#E0E0E0' }]} />
-        )}
+        )} */}
         <TouchableOpacity style={styles.editButton} onPress={handleEditUserProfile}>
           <Ionicons name="camera-outline" size={24} color={theme.textColor} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.inputContainer}>
-        {inputFields.map((field) => (
+        {inputFields.map((item) => (
           <CustomInput
-            key={field.id}
-            placeholder={field.placeholder}
-            value={formData[field.name]}
-            onChangeText={(value) => handleInputChange(field.name, value)}
-            style={styles.input}
-            multiline={field.multiLine}
+            key={item.id}
+
+            control={control}
+            name={item.name}
+            placeholder={item.placeholder}
+            secureTextEntry={item.secureTextEntry}
           />
         ))}
 
@@ -122,7 +188,7 @@ const ProfileScreen = () => {
           <CustomButton
             title="Save"
             style={styles.saveButton}
-            onPress={handleUpdateProfile}
+            onPress={handleSubmit(onSubmit)}
           />
         </View>
       </View>
@@ -136,8 +202,7 @@ const ProfileScreen = () => {
     </View>
 
   );
-};
-
+}
 const styles = StyleSheet.create({
   profileContainer: {
     alignItems: 'center', // Center content horizontally

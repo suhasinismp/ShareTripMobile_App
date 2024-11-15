@@ -82,6 +82,7 @@ const PostATripScreen = () => {
 
   const [selectedFromDate, setSelectedFromDate] = useState(new Date());
   const [selectedToDate, setSelectedToDate] = useState(new Date());
+  console.log('abc', selectedToDate)
   const [selectedTime, setSelectedTime] = useState(new Date());
 
   const [rate, setRate] = useState('');

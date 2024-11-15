@@ -64,6 +64,7 @@ const BusinessDetailsScreen = () => {
   const userToken = userData.userToken;
   const userRoleId = userData.userRoleId;
   const [initialBusinessDetails, setInitialBusinessDetails] = useState(null);
+
   const [isLoading, setIsLoading] = useState(true);
 
   const { theme } = useTheme();
@@ -95,11 +96,11 @@ const BusinessDetailsScreen = () => {
         setInitialBusinessDetails(null);
       }
     } catch (error) {
-      console.error('Error fetching business details:', error);
+      console.error('Error fetching user details:', error);
       dispatch(
         showSnackbar({
           visible: true,
-          message: 'Failed to fetch business details',
+          message: 'Failed to fetch user details',
           type: 'error',
         }),
       );
