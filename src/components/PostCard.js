@@ -8,6 +8,7 @@ import PlayIcon from '../../assets/svgs/playSound.svg';
 import TextMsgIcon from '../../assets/svgs/textMsg.svg';
 import { FONTS } from '../styles/fonts';
 import DistanceLine from '../../assets/svgs/distanceLine.svg';
+import AudioPlayer from './AudioPlayer';
 
 const capitalizeWords = (str) => {
   if (!str) return '';
@@ -196,6 +197,7 @@ const PostCard = ({
                     {capitalizeWords(postComments || 'Voice Message Available')}
                   </Text>
                 </View>
+                <AudioPlayer url={postVoiceMessage} />
               </>
             )}
 
@@ -254,9 +256,9 @@ const PostCard = ({
             <TouchableOpacity onPress={onCallPress}>
               <CallIcon />
             </TouchableOpacity>
-            <TouchableOpacity onPress={onPlayPress}>
+            {/* <TouchableOpacity onPress={onPlayPress}>
               <PlayIcon />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity onPress={onMessagePress}>
               <TextMsgIcon />
             </TouchableOpacity>
@@ -449,7 +451,7 @@ const styles = StyleSheet.create({
   },
   actionButtonsContainer: {
     backgroundColor: '#CCE3F4',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     paddingVertical: 6,
     borderRadius: 8,

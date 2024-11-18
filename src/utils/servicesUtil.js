@@ -106,30 +106,6 @@ export const deleteAPI = async ({ endUrl, token }) => {
   }
 };
 
-// export const postFormDataAPI = async (endUrl, formData, token) => {
-//   const headers = {
-//     'Content-Type': 'multipart/form-data',
-//   };
-
-//   if (token) {
-//     headers['Authorization'] = `Bearer ${token}`;
-//   }
-
-//   const apiConfig = {
-//     method: 'post',
-//     url: endUrl,
-//     headers: headers, // Do not set Content-Type, Axios will set it automatically
-//     data: formData, // FormData is sent directly
-//   };
-
-//   try {
-//     const response = await api(apiConfig);
-//     return response?.data || {};
-//   } catch (error) {
-//     console.error('Error occurred while posting FormData', error);
-//     return null;
-//   }
-// };
 export const postFormDataAPI = async (endUrl, formData, token) => {
   const headers = {
     'Content-Type': 'multipart/form-data',

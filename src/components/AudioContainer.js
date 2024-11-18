@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, StyleSheet, PanResponder } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import CustomText from './ui/CustomText';
+import LottieView from 'lottie-react-native';
+import AudioPlayer from './AudioPlayer';
 
 const AudioContainer = ({
   isRecording,
@@ -11,51 +13,34 @@ const AudioContainer = ({
   onDelete,
 }) => {
   const [recording, setRecording] = useState();
-  const [sound, setSound] = useState();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(0);
-  const [position, setPosition] = useState(0);
-  const progressRef = useRef(null);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     if (isRecording) {
       startRecording();
-    } else if (recordedAudioUri && !sound) {
-      loadSound(recordedAudioUri);
+    }
+  }, [isRecording]);
+
+  useEffect(() => {
+    let interval;
+    if (isRecording && !isPaused) {
+      interval = setInterval(() => {
+        setRecordingDuration((prev) => prev + 1);
+      }, 1000);
     }
     return () => {
-      if (sound) {
-        sound.unloadAsync();
+      if (interval) {
+        clearInterval(interval);
       }
     };
-  }, [isRecording, recordedAudioUri]);
+  }, [isRecording, isPaused]);
 
-  const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: () => true,
-    onPanResponderGrant: () => {
-      if (isPlaying) {
-        pauseSound();
-      }
-    },
-    onPanResponderMove: (_, gestureState) => {
-      if (progressRef.current) {
-        progressRef.current.measure((x, y, width, height, pageX, pageY) => {
-          const newPosition = Math.max(
-            0,
-            Math.min(gestureState.moveX - pageX, width),
-          );
-          const newPositionMillis = (newPosition / width) * duration;
-          setPosition(newPositionMillis);
-        });
-      }
-    },
-    onPanResponderRelease: async () => {
-      if (sound) {
-        await sound.setPositionAsync(position);
-      }
-    },
-  });
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   const startRecording = async () => {
     try {
@@ -69,6 +54,7 @@ const AudioContainer = ({
         Audio.RecordingOptionsPresets.HIGH_QUALITY,
       );
       setRecording(recording);
+      setIsPaused(false);
     } catch (err) {
       console.error('Failed to start recording', err);
     }
@@ -80,138 +66,138 @@ const AudioContainer = ({
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
     setRecording(undefined);
+    setIsPaused(false);
+    setRecordingDuration(0);
     onRecordingComplete(uri);
   };
 
-  const loadSound = async (uri) => {
-    const { sound } = await Audio.Sound.createAsync({ uri });
-    setSound(sound);
-    const status = await sound.getStatusAsync();
-    setDuration(status.durationMillis);
-  };
-
-  const playSound = async () => {
-    if (sound) {
-      setIsPlaying(true);
-      await sound.playFromPositionAsync(position);
-      sound.setOnPlaybackStatusUpdate(updatePlaybackStatus);
+  const deleteRecording = async () => {
+    if (recording && isPaused) {
+      try {
+        await recording.stopAndUnloadAsync();
+        setRecording(undefined);
+        setIsPaused(false);
+        setRecordingDuration(0);
+        onDelete();
+        if (onRecordingComplete) {
+          onRecordingComplete(null);
+        }
+      } catch (err) {
+        console.error('Failed to delete recording', err);
+      }
     }
   };
 
-  const pauseSound = async () => {
-    if (sound) {
-      setIsPlaying(false);
-      await sound.pauseAsync();
+  const pauseRecording = async () => {
+    if (recording) {
+      try {
+        await recording.pauseAsync();
+        setIsPaused(true);
+      } catch (err) {
+        console.error('Failed to pause recording', err);
+      }
     }
   };
 
-  const updatePlaybackStatus = (status) => {
-    if (status.isPlaying) {
-      setPosition(status.positionMillis);
-    } else if (status.didJustFinish) {
-      setIsPlaying(false);
-      setPosition(duration);
-    }
-  };
-
-  const formatTime = (milliseconds) => {
-    const totalSeconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const togglePlayPause = async () => {
-    if (isPlaying) {
-      await pauseSound();
-    } else {
-      await playSound();
+  const resumeRecording = async () => {
+    if (recording) {
+      try {
+        await recording.startAsync();
+        setIsPaused(false);
+      } catch (err) {
+        console.error('Failed to resume recording', err);
+      }
     }
   };
 
   if (isRecording) {
     return (
-      <View style={styles.container}>
-        <TouchableOpacity onPress={stopRecording} style={styles.recordButton}>
-          <Ionicons name="stop" size={24} color="red" />
-        </TouchableOpacity>
-        <CustomText text="Recording..." style={styles.recordingText} />
+      <View style={styles.mainContainer}>
+        <View style={styles.inputContainer}>
+          <View style={styles.animationContainer}>
+            <LottieView
+              autoPlay
+              loop={!isPaused}
+              style={styles.lottieView}
+              source={{
+                uri: 'https://lottie.host/e9b5da13-9e40-4a34-aded-a3852c365ae6/r6wYS6uXgj.json',
+              }}
+              resizeMode="cover"
+            />
+          </View>
+
+          <CustomText
+            text={formatTime(recordingDuration)}
+            style={styles.recordingTimer}
+          />
+        </View>
+        <View style={styles.controlsContainer}>
+          <TouchableOpacity
+            onPress={deleteRecording}
+            style={[styles.recordButton, !isPaused && styles.disabledButton]}
+            disabled={!isPaused}
+          >
+            <Ionicons
+              name="trash-sharp"
+              size={24}
+              color={isPaused ? 'red' : '#ffcccc'}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={isPaused ? resumeRecording : pauseRecording}
+            style={styles.recordButton}
+          >
+            <Ionicons name={isPaused ? 'mic' : 'pause'} size={24} color="red" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={stopRecording} style={styles.recordButton}>
+            <Ionicons name="checkmark" size={24} color="red" />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
 
-  if (!sound) return null;
-
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={togglePlayPause} style={styles.playButton}>
-        <Ionicons name={isPlaying ? 'pause' : 'play'} size={24} color="black" />
-      </TouchableOpacity>
-      <View
-        style={styles.progressContainer}
-        ref={progressRef}
-        {...panResponder.panHandlers}
-      >
-        <View
-          style={[
-            styles.progressBar,
-            { width: `${(position / duration) * 100}%` },
-          ]}
-        />
-        <View
-          style={[styles.scrubber, { left: `${(position / duration) * 100}%` }]}
-        />
-      </View>
-      <CustomText text={formatTime(position)} style={styles.durationText} />
-      <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
-        <Ionicons name="trash-outline" size={24} color="red" />
-      </TouchableOpacity>
-    </View>
-  );
+  return recordedAudioUri ? (
+    <AudioPlayer url={recordedAudioUri} onDelete={onDelete} />
+  ) : null;
 };
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
+    width: '100%',
+    paddingVertical: 10,
+  },
+  inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
   },
-  playButton: {
-    padding: 5,
-  },
-  progressContainer: {
-    flex: 1,
-    height: 4,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 2,
-    marginHorizontal: 10,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: '#008B8B',
-    borderRadius: 2,
-  },
-  scrubber: {
-    position: 'absolute',
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#008B8B',
-    top: -4,
-  },
-  durationText: {
-    fontSize: 12,
-    marginRight: 10,
-  },
-  deleteButton: {
-    padding: 5,
+  controlsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 10,
   },
   recordButton: {
     padding: 10,
+    marginHorizontal: 10,
   },
-  recordingText: {
-    marginLeft: 10,
+  disabledButton: {
+    opacity: 0.5,
+  },
+  animationContainer: {
+    flex: 1,
+    paddingHorizontal: 10,
+  },
+  lottieView: {
+    width: '100%',
+    height: 10,
+  },
+  recordingTimer: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'red',
+    paddingRight: 10,
   },
 });
 

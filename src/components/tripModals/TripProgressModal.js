@@ -1,0 +1,61 @@
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+
+const TripProgressModal = ({ handleContinueForNextDay, handleEndTrip }) => {
+  return (
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Trip Status</Text>
+      <Text style={styles.tripStatus}>Your Trip is in Progress</Text>
+
+      <TouchableOpacity
+        style={[styles.actionButton, styles.disabledButton]}
+        onPress={handleContinueForNextDay}
+        disabled={true}
+      >
+        <Text style={styles.actionButtonText}>Continue for Next Day</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.actionButton} onPress={handleEndTrip}>
+        <Text style={styles.actionButtonText}>End Trip</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  modalContent: {
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#333',
+    marginBottom: 20,
+  },
+  tripStatus: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  actionButton: {
+    backgroundColor: '#1e4976',
+    padding: 16,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  disabledButton: {
+    backgroundColor: 'grey',
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+});
+
+export default TripProgressModal;
