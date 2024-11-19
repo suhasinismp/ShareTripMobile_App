@@ -96,7 +96,7 @@ const CustomerSignatureModal = ({
         </View>
       </View>
 
-      <View style={styles.preview}>
+      {/* <View style={styles.preview}>
         {signature ? (
           <Image
             resizeMode={'contain'}
@@ -106,7 +106,7 @@ const CustomerSignatureModal = ({
         ) : (
           <Text style={styles.previewText}>Signature Preview</Text>
         )}
-      </View>
+      </View> */}
 
       <View style={styles.signaturePadContainer}>
         <SignatureScreen
