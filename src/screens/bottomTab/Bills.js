@@ -12,6 +12,7 @@ const Bills = () => {
         muteIcon={true}
         search={true}
       />
+      <Text style={{ textAlign: 'center', color: 'red', marginTop: 150, fontSize: 30 }}>Coming soon........</Text>
     </>
   );
 };

@@ -49,9 +49,11 @@
     "react-native-screens": "3.31.1",
     "react-native-signature-canvas": "^4.7.2",
     "react-native-svg": "15.2.0",
+    "react-native-webview": "13.8.6",
     "react-redux": "^9.1.2",
     "yup": "^1.4.0",
-    "react-native-webview": "13.8.6"
+    "lottie-react-native": "6.7.0",
+    "@react-native-community/slider": "4.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

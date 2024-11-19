@@ -1,0 +1,243 @@
+import React, { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import SignatureScreen from 'react-native-signature-canvas';
+import * as FileSystem from 'expo-file-system';
+import { uploadSignature } from '../../services/myTripsService';
+
+const CustomerSignatureModal = ({
+  selectedTripData,
+  userToken,
+  userId,
+  onClose,
+  fetch,
+}) => {
+  const [signature, setSignature] = useState(null);
+  const signatureRef = useRef();
+
+  const handleSignature = async (signature) => {
+    try {
+      if (!signature) return;
+
+      const path = FileSystem.cacheDirectory + 'sign.png';
+      const base64Data = signature.split(',')[1];
+
+      if (!base64Data) return;
+
+      await FileSystem.writeAsStringAsync(path, base64Data, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const fileInfo = await FileSystem.getInfoAsync(path);
+
+      const finalData = {
+        post_bookings_id: selectedTripData?.post_booking_id,
+      };
+
+      let formData = new FormData();
+      formData.append('json', JSON.stringify(finalData));
+      formData.append('signature', {
+        uri: fileInfo?.uri,
+        type: 'image/png',
+        name: 'customer_signature.png',
+      });
+
+      if (fileInfo.exists) {
+        setSignature(fileInfo?.uri);
+        const response = await uploadSignature(formData, userToken);
+        if (response?.error === false) {
+          onClose();
+          await fetch();
+        }
+      }
+    } catch (error) {
+      console.error('Error saving signature:', error);
+    }
+  };
+
+  const handleClear = () => {
+    if (signatureRef.current) {
+      signatureRef.current.clearSignature();
+      setSignature(null);
+    }
+  };
+
+  const style = `.m-signature-pad { box-shadow: none; border: none; } 
+    .m-signature-pad--body { border: none; }
+    .m-signature-pad--footer { display: none; margin: 0px; }
+    .m-signature-pad--body canvas {
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      background-color: #FFFFFF;
+    }`;
+
+  return (
+    <View style={styles.signatureModalContainer}>
+      <View style={styles.signatureHeaderContainer}>
+        <Text style={styles.signatureTitle}>Customer Signature</Text>
+
+        <Text style={styles.signatureWarningText}>
+          Note: Check your valuables, we are not Responsible for your Belongings
+        </Text>
+
+        <View style={styles.signatureDetailsContainer}>
+          <View style={styles.signatureDetailRow}>
+            <Text style={styles.signatureLabel}>Booking Id</Text>
+            <Text style={styles.signatureValue}>
+              : {selectedTripData?.post_booking_id || 'N/A'}
+            </Text>
+          </View>
+
+          <View style={styles.signatureDetailRow}>
+            <Text style={styles.signatureLabel}>Customer Name</Text>
+            <Text style={styles.signatureValue}>
+              : {selectedTripData?.user_name || 'N/A'}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* <View style={styles.preview}>
+        {signature ? (
+          <Image
+            resizeMode={'contain'}
+            style={styles.signatureImage}
+            source={{ uri: signature }}
+          />
+        ) : (
+          <Text style={styles.previewText}>Signature Preview</Text>
+        )}
+      </View> */}
+
+      <View style={styles.signaturePadContainer}>
+        <SignatureScreen
+          ref={signatureRef}
+          onOK={handleSignature}
+          onEmpty={() => setSignature(null)}
+          webStyle={style}
+          autoClear={false}
+          imageType="image/png"
+          trimWhitespace={true}
+          dotSize={1}
+        />
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
+            <Text style={styles.clearButtonText}>Clear</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => {
+              if (signatureRef.current) {
+                signatureRef.current.readSignature();
+              }
+            }}
+          >
+            <Text style={styles.actionButtonText}>End Trip</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  signatureModalContainer: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    height: 600,
+    padding: 20,
+  },
+  signatureHeaderContainer: {
+    marginBottom: 24,
+  },
+  signatureTitle: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  signatureWarningText: {
+    fontSize: 16,
+    color: '#dc3545',
+    textAlign: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 20,
+  },
+  signatureDetailsContainer: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
+    padding: 16,
+  },
+  signatureDetailRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  signatureLabel: {
+    fontSize: 16,
+    color: '#333',
+    width: 140,
+  },
+  signatureValue: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
+  },
+  preview: {
+    height: 180,
+    backgroundColor: '#F9FAFB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  signatureImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+  },
+  previewText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  signaturePadContainer: {
+    flex: 1,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 24,
+  },
+  buttonContainer: {
+    marginBottom: 12,
+  },
+  clearButton: {
+    backgroundColor: '#f3f4f6',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  clearButtonText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  actionButton: {
+    backgroundColor: '#1e4976',
+    padding: 16,
+    borderRadius: 8,
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+});
+
+export default CustomerSignatureModal;
