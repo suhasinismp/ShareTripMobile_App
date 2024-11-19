@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AddPostIcon from '../../../../assets/svgs/addPost.svg';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,6 +7,7 @@ import { getUserDataSelector } from '../../../store/selectors';
 import { formatDate } from '../../../utils/formatdateUtil';
 import { fetchUserSelfPosts } from '../../../services/selfTripService';
 import PostCard from '../../../components/PostCard';
+import AppHeader from '../../../components/AppHeader';
 
 
 const SelfTripHome = () => {
@@ -78,17 +79,27 @@ const SelfTripHome = () => {
 
   return (
     <>
-      <FlatList
-        data={userSelfTripData} // Ensure this is defined or passed as a prop
-        renderItem={renderSelfPostCard} // Ensure this function is defined
-        keyExtractor={(item) => item.post_booking_id.toString()}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-      />
+      <View style={styles.container}>
+        <AppHeader
+          drawerIcon={true}
+          groupIcon={true}
+          onlineIcon={true}
+          muteIcon={true}
+          search={true}
+        />
 
-      <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
-        <AddPostIcon />
-      </TouchableOpacity>
+        <FlatList
+          data={userSelfTripData} // Ensure this is defined or passed as a prop
+          renderItem={renderSelfPostCard} // Ensure this function is defined
+          keyExtractor={(item) => item.post_booking_id.toString()}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+        />
+
+        <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
+          <AddPostIcon />
+        </TouchableOpacity>
+      </View>
     </>
   );
 };

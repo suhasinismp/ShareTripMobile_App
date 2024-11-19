@@ -24,6 +24,6 @@ export const getAllVehiclesByUserId = async (token, userId) => {
     `share-trip/user-vehicle-package/user-vehicle-userID/${userId}`,
     token,
   );
-  console.log('ccc', response)
+
   return response;
 };

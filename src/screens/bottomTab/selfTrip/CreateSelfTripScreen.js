@@ -50,7 +50,7 @@ const CreateSelfTrip = () => {
     const [selectedToDate, setSelectedToDate] = useState(new Date());
 
     const [userVehicles, setUserVehicles] = useState([]);
-    console.log('aaa',)
+
     const [selectedTime, setSelectedTime] = useState(new Date());
     const [selectedTripType, setSelectedTripType] = useState(null);
     const [selectedPackage, setSelectedPackage] = useState(null);
@@ -137,7 +137,7 @@ const CreateSelfTrip = () => {
 
     const getUserVehicles = async () => {
         const response = await getAllVehiclesByUserId(userToken, userId);
-        console.log('bop', response)
+
         setUserVehicles(response.data);
     };
 
@@ -314,7 +314,7 @@ const CreateSelfTrip = () => {
         }
 
         const response = await selfCreatePost(formData, userToken);
-        console.log('mmm', response)
+
 
         if (
             response.error === false
