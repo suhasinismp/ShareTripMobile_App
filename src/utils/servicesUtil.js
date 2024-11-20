@@ -53,6 +53,7 @@ export const postAPI = async (endUrl, body, token) => {
 };
 
 export const patchAPI = async ({ endUrl, body, token }) => {
+
   let prepareHeader = {
     'Content-Type': 'application/json',
   };
@@ -152,5 +153,37 @@ export const patchFormDataAPI = async ({ endUrl, formData, token }) => {
   } catch (error) {
     console.error('Error occurred while posting FormData', error);
     throw error;
+  }
+};
+
+
+export const patchSelfRideAPI = async (endUrl, body, token) => {
+  console.log("endSelfTrip Token", token)
+
+  let prepareHeader = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    prepareHeader['Authorization'] = `Bearer ${token}`;
+  } else {
+    console.log('Token is missing');
+  }
+
+  var apiConfig = {
+    method: 'patch',
+    url: endUrl,
+    headers: prepareHeader,
+  };
+  if (body) {
+    apiConfig.data = JSON.stringify(body);
+  }
+
+  try {
+    const response = await api(apiConfig);
+    return response?.data || {};
+  } catch (error) {
+    // console.log('Error occurred while posting data');
+    return null;
   }
 };

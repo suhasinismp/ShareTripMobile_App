@@ -76,6 +76,7 @@ export const fetchTripDetails = async (tripId, token) => {
 };
 
 export const postAdditionCharges = async (data, token) => {
+
   const response = await postFormDataAPI(
     'share-trip/additional-charges/',
     data,

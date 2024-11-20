@@ -6,19 +6,22 @@ import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import HomeScreen from '../screens/bottomTab/HomeScreen';
 import MyTrips from '../screens/bottomTab/MyTrips';
 import VacantTrip from '../screens/bottomTab/VacantTrip';
-import SelfTrips from '../screens/bottomTab/SelfTrip';
+
 import Bills from '../screens/bottomTab/Bills';
+
 
 // Import your custom SVG components
 import Home from '../../assets/svgs/home.svg';
 import MyTrip from '../../assets/svgs/myTrips.svg';
-import SelfTrip from '../../assets/svgs/selfTrip.svg';
 import Vacant from '../../assets/svgs/vacantTrip.svg';
+import SelfTrip from '../../assets/svgs/selfTrip.svg';
 import Bill from '../../assets/svgs/bills.svg';
 import MyTripInactive from '../../assets/svgs/myTripInactive.svg';
 import SelfTripInactive from '../../assets/svgs/selfTripInactive.svg';
 import VacantTripInactive from '../../assets/svgs/vacantTripInactive.svg';
 import BillsInactive from '../../assets/svgs/billsInactive.svg';
+import SelfTripHome from '../screens/bottomTab/selfTrip/SelfTripHome';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -80,7 +83,7 @@ const Tabs = () => {
 
       <Tab.Screen
         name="Self Trip"
-        component={SelfTrips}
+        component={SelfTripHome}
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
