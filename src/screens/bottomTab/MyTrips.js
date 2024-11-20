@@ -56,6 +56,7 @@ const MyTrips = () => {
 
   // Modal states
   const [showStartTripModal, setShowStartTripModal] = useState(false);
+  console.log('ccc', showStartTripModal)
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
@@ -346,8 +347,8 @@ const MyTrips = () => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-          onCallPress={() => {}}
-          onMessagePress={() => {}}
+          onCallPress={() => { }}
+          onMessagePress={() => { }}
           onRefreshData={fetchUiData}
           userToken={userToken}
         />
@@ -372,8 +373,8 @@ const MyTrips = () => {
         baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => handleButtonPress(item)}
         onCallPress={() => handleCall(item?.user_phone)}
-        onPlayPress={() => {}}
-        onMessagePress={() => {}}
+        onPlayPress={() => { }}
+        onMessagePress={() => { }}
         isRequested={item?.post_trip_trip_status || item?.request_status}
         packageName={item?.booking_package_name}
       />

@@ -1,13 +1,23 @@
-import React, { useState, useCallback } from 'react';
+
+import React, { useState, useCallback, useEffect } from 'react';
 import { FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AddPostIcon from '../../../../assets/svgs/addPost.svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
 import { formatDate } from '../../../utils/formatdateUtil';
-import { fetchUserSelfPosts } from '../../../services/selfTripService';
+import { endSelfTrip, fetchUserSelfPosts, startSelfTrip } from '../../../services/selfTripService';
 import PostCard from '../../../components/PostCard';
 import AppHeader from '../../../components/AppHeader';
+import CustomModal from '../../../components/ui/CustomModal';
+import TripSummaryModal from '../../../components/tripModals/TripSummaryModal';
+import StartTripModal from '../../../components/tripModals/StartTripModal';
+import TripProgressModal from '../../../components/tripModals/TripProgressModal';
+import ClosingDetailsModal from '../../../components/tripModals/ClosingDetailsModal';
+import CustomerSignatureModal from '../../../components/tripModals/CustomerSignatureModal';
+import AdditionalChargesModal from '../../../components/tripModals/AdditionalChargesModal';
+import { closeTrip, fetchTripDetails, postAdditionCharges } from '../../../services/myTripsService';
+import axios from 'axios';
 
 
 const SelfTripHome = () => {
@@ -17,22 +27,183 @@ const SelfTripHome = () => {
   const userId = userData.userId;
   const userToken = userData.userToken;
   const [userSelfTripData, setUserSelfTripData] = useState([])
+  const [showStartTripModal, setShowStartTripModal] = useState(false);
+  const [showTripProgressModal, setShowTripProgressModal] = useState(false);
+  const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
+  const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
+  const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
+  const [showCustomerSignatureModal, setShowCustomerSignatureModal] = useState(false);
+  const [selectedTripData, setSelectedTripData] = useState(null);
+  const [tripSummaryData, setTripSummaryData] = useState(null);
+  const [openingKms, setOpeningKms] = useState('');
+  const [openingTime, setOpeningTime] = useState('');
+  const [openingDate, setOpeningDate] = useState('');
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [closingKms, setClosingKms] = useState('');
+  const [closingTime, setClosingTime] = useState('');
+  const [closingDate, setClosingDate] = useState('');
+  const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
+  const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
+  const [closingActionType, setClosingActionType] = useState('end');
+
+  useEffect(() => {
+    if (showStartTripModal || showClosingDetailsModal) {
+      const today = new Date();
+      const formattedDate = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
+      if (showStartTripModal) setOpeningDate(formattedDate);
+      if (showClosingDetailsModal) setClosingDate(formattedDate);
+    }
+  }, [showStartTripModal, showClosingDetailsModal]);
+
+
+
+
 
   useFocusEffect(
     useCallback(() => {
       getSelfTripPosts();
-
-
     }, [userId, userToken]),
   );
+
+
 
   const getSelfTripPosts = async () => {
     const response = await fetchUserSelfPosts(userId, userToken)
     if (response.error === false) {
       setUserSelfTripData(response.data)
     }
-    console.log({ response })
+
   }
+
+  const handleStartTrip = async () => {
+    const response = await startSelfTrip(
+      {
+        post_bookings_id: selectedTripData?.post_booking_id,
+        start_trip_kms: openingKms,
+        start_date: openingDate,
+        start_time: openingTime,
+        pick_up_address: selectedTripData?.pick_up_location || '',
+        destination: selectedTripData?.destination || '',
+        customer_name: selectedTripData?.user_name || '',
+        customer_phone_numb: selectedTripData?.user_phone || '',
+        posted_user_id: selectedTripData?.posted_user_id,
+        accepted_user_id: userId,
+      },
+      userToken,
+    );
+
+    if (response?.error === false) {
+      setShowStartTripModal(false);
+      setOpeningKms('');
+      setOpeningTime('');
+      setOpeningDate('');
+      setSelectedTripData(null);
+      await getSelfTripPosts();
+    }
+
+  };
+
+  const handleContinueForNextDay = () => {
+    setClosingActionType('continue');
+    setShowTripProgressModal(false);
+    setShowClosingDetailsModal(true);
+  };
+
+  const handleButtonPress = (tripData) => {
+    console.log({ tripData })
+    setSelectedTripData(tripData);
+    if (tripData?.request_status === 'Start Trip') {
+      console.log('Opening Start Trip Modal...');
+      setShowStartTripModal(true);
+      console.log('fff', setShowStartTripModal)
+    } else if (tripData?.request_status === 'Trip in Progress') {
+      setShowTripProgressModal(true);
+    }
+  };
+
+  const handleEndTrip = async () => {
+    setClosingActionType('end');
+    setShowTripProgressModal(false);
+    setShowClosingDetailsModal(true);
+  };
+
+  const handleBackToTripProgress = () => {
+    setShowClosingDetailsModal(false);
+    setShowTripProgressModal(true);
+  };
+
+  const handleCloseTrip = async () => {
+    const response = await endSelfTrip(
+      {
+        post_bookings_id: selectedTripData?.post_booking_id,
+        end_trip_kms: closingKms,
+        end_trip_date: closingDate,
+        end_trip_time: closingTime,
+        posted_user_id: selectedTripData?.posted_user_id,
+        accepted_user_id: userId,
+      },
+      userToken
+    );
+    console.log("userToken", userToken)
+    console.log("handleCloseTrip", response)
+    if (response?.error === false) {
+      const tripDetails = await fetchTripDetails(
+        selectedTripData?.post_booking_id,
+        userToken,
+      );
+      console.log("tripDetails", tripDetails)
+      if (tripDetails?.error === false) {
+        setTripSummaryData({
+          openingKms: tripDetails?.data?.start_trip_kms || '',
+          openingTime: tripDetails?.data?.start_time || '',
+          openingDate: tripDetails?.data?.start_date || '',
+          closingKms: tripDetails?.data?.end_trip_kms || '',
+          closingTime: tripDetails?.data?.end_trip_time || '',
+          closingDate: tripDetails?.data?.end_trip_date || '',
+        });
+        setShowClosingDetailsModal(false);
+        setShowTripSummaryModal(true);
+        setClosingKms('');
+        setClosingTime('');
+        setClosingDate('');
+      }
+    }
+  };
+
+  const handleAdditionalChargesNext = async (documents, charges) => {
+    const finalData = {
+      post_booking_id: selectedTripData?.post_booking_id,
+      advance: charges?.advance,
+      parking: charges?.parking,
+      tolls: charges?.tolls,
+      state_tax: charges?.stateTax,
+      cleaning: charges?.cleaning,
+      night_batta: charges?.nightBatta,
+    }
+    console.log({ finalData })
+    const formData = new FormData();
+    formData.append(
+      'json',
+      JSON.stringify(finalData),
+    );
+
+    documents.forEach((doc) => {
+      formData.append(doc.fileNumber, {
+        uri: doc.uri,
+        type: doc.type,
+        name: doc.name,
+      });
+    });
+
+
+    const response = await postAdditionCharges(formData, userToken);
+    console.log({ response })
+    if (response?.error === false) {
+      setShowAdditionalCharges(false);
+      setShowCustomerSignatureModal(true);
+    }
+  };
 
 
 
@@ -45,7 +216,7 @@ const SelfTripHome = () => {
       bookingType={item?.bookingType_name}
       createdAt={formatDate(item?.created_at)}
       postStatus={item?.post_status}
-      // User Info Props
+
       userProfilePic={item?.User_profile || 'https://via.placeholder.com/150'}
       userName={item?.User_name}
 
@@ -56,13 +227,15 @@ const SelfTripHome = () => {
       vehicleName={item?.Vehicle_name}
       pickUpLocation={item?.pick_up_location}
       destination={item?.destination}
+
       // Comment/Voice Props
       postComments={item?.post_comments}
       postVoiceMessage={item?.post_voice_message}
       // Amount Props
       baseFareRate={item?.bookingTypeTariff_base_fare_rate}
+
       // Action Props
-      onRequestPress={() => { }
+      onRequestPress={() => handleButtonPress(item)
 
       }
 
@@ -99,12 +272,98 @@ const SelfTripHome = () => {
         <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
           <AddPostIcon />
         </TouchableOpacity>
+
+        <CustomModal
+          visible={showStartTripModal}
+          onPrimaryAction={handleStartTrip}
+          onSecondaryAction={() => setShowStartTripModal(false)}
+        >
+          <StartTripModal
+            openingKms={openingKms}
+            setOpeningKms={setOpeningKms}
+            openingTime={openingTime}
+            setOpeningTime={setOpeningTime}
+            openingDate={openingDate}
+            setOpeningDate={setOpeningDate}
+            handleStartTrip={handleStartTrip}
+            showTimePicker={showTimePicker}
+            setShowTimePicker={setShowTimePicker}
+            showDatePicker={showDatePicker}
+            setShowDatePicker={setShowDatePicker}
+          />
+        </CustomModal>
+
+        <CustomModal
+          visible={showTripProgressModal}
+          onSecondaryAction={() => setShowTripProgressModal(false)}
+        >
+          <TripProgressModal
+            handleContinueForNextDay={handleContinueForNextDay}
+            handleEndTrip={handleEndTrip}
+          />
+        </CustomModal>
+
+        <CustomModal
+          visible={showClosingDetailsModal}
+          onSecondaryAction={handleBackToTripProgress}
+        >
+          <ClosingDetailsModal
+            handleBackToTripProgress={handleBackToTripProgress}
+            closingKms={closingKms}
+            setClosingKms={setClosingKms}
+            closingTime={closingTime}
+            setClosingTime={setClosingTime}
+            closingDate={closingDate}
+            setClosingDate={setClosingDate}
+            showClosingTimePicker={showClosingTimePicker}
+            setShowClosingTimePicker={setShowClosingTimePicker}
+            showClosingDatePicker={showClosingDatePicker}
+            setShowClosingDatePicker={setShowClosingDatePicker}
+            closingActionType={closingActionType}
+            handleCloseTrip={handleCloseTrip}
+          />
+        </CustomModal>
+
+        <CustomModal
+          visible={showTripSummaryModal}
+          onSecondaryAction={() => setShowTripSummaryModal(false)}
+        >
+          <TripSummaryModal
+            tripSummaryData={tripSummaryData}
+            setShowTripSummaryModal={setShowTripSummaryModal}
+            setShowAdditionalCharges={setShowAdditionalCharges}
+          />
+        </CustomModal>
+
+        <CustomModal
+          visible={showAdditionalCharges}
+          onSecondaryAction={() => setShowAdditionalCharges(false)}
+        >
+          <AdditionalChargesModal onNext={handleAdditionalChargesNext} />
+        </CustomModal>
+
+        <CustomModal
+          visible={showCustomerSignatureModal}
+          onSecondaryAction={() => setShowCustomerSignatureModal(false)}
+        >
+          <CustomerSignatureModal
+            selectedTripData={selectedTripData}
+            userToken={userToken}
+            userId={userId}
+            onClose={() => setShowCustomerSignatureModal(false)}
+            fetch={getSelfTripPosts}
+          />
+        </CustomModal>
       </View>
     </>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F0F0F0',
+  },
   listContainer: {
     paddingBottom: 16,
   },

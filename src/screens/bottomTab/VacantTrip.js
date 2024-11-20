@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Modal, StyleSheet, Text, View, TouchableOpacity, Dimensions, FlatList } from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import AddPostIcon from '../../../assets/svgs/addPost.svg';
 import CustomModal from '../../components/ui/CustomModal';
@@ -8,8 +8,12 @@ import MicIcon from '../../../assets/svgs/mic.svg';
 import CustomButton from '../../components/ui/CustomButton';
 import { useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
-import { createVacantPost } from '../../services/vacantService';
+import { createVacantPost, getVacantPost } from '../../services/vacantService';
 import { getAllVehiclesByUserId } from '../../services/vehicleDetailsService';
+import { useFocusEffect } from '@react-navigation/native';
+import PostCard from '../../components/PostCard';
+import { formatDate } from '../../utils/formatdateUtil';
+
 
 const { width } = Dimensions.get('window');
 
@@ -90,6 +94,19 @@ const VacantTrip = () => {
   const [vehicleType, setVehicleType] = useState('');
   const [vehicleName, setVehicleName] = useState('');
   const [userVehicles, setUserVehicles] = useState([]);
+  const [userVacantPostData, setUserVacantPostData] = useState([]);
+  console.log({ userVacantPostData })
+
+
+  useFocusEffect(
+    useCallback(() => {
+      getUserVacantPosts()
+
+
+    }, [userId, userToken]),
+  );
+
+
 
   useEffect(() => {
     if (showVacantTripModal) {
@@ -99,7 +116,17 @@ const VacantTrip = () => {
 
   useEffect(() => {
     getUserVehicles()
+
   }, [userId])
+
+  const getUserVacantPosts = async () => {
+    const response = await getVacantPost(userToken)
+    if (response?.error === false) {
+      setUserVacantPostData(response.data)
+    }
+
+  }
+
 
   const handleAddPost = () => {
     setShowVacantTripModal(true)
@@ -145,7 +172,7 @@ const VacantTrip = () => {
     let finalData = {
       posted_user_id: userId,
       vehicle_type_id: userVehicles[0]?.vehicles?.vehicle_types_id,
-      vehicle_name_id: userVehicles[0]?.vehicles?.vehicle_names_id,
+      vehicle_names_id: userVehicles[0]?.vehicles?.vehicle_names_id,
       vacant_post_comments: typeMessage,
     };
     console.log('rrr', finalData)
@@ -162,7 +189,7 @@ const VacantTrip = () => {
       });
     }
     const response = await createVacantPost(formData, userToken)
-    console.log({ response })
+    console.log('lll', response)
     if (response.error === false) {
       alert('Vacant post created successfully');
       handleCancelVacantModal();
@@ -170,7 +197,45 @@ const VacantTrip = () => {
       alert(response.message);
     }
   }
+  const renderVacantPostCard = ({ item }) => (
+    <PostCard
+      // Card Header Props
+      // bookingType={item?.bookingType_name}
+      // createdAt={formatDate(item?.created_at)}
+      // postStatus={item?.post_status}
 
+      userProfilePic={item?.user_profile || 'https://via.placeholder.com/150'}
+      userName={item?.user_name}
+
+      // Trip Details Props
+      // pickUpTime={item?.pick_up_time}
+      // fromDate={item?.from_date}
+      vehicleType={item?.vehicle_type}
+      vehicleName={item?.v_name}
+      // pickUpLocation={item?.pick_up_location}
+      // destination={item?.destination}
+      vacantTripPostedByLoggedInUser={item?.posted_user_id === userId ? true : false}
+      // Comment/Voice Props
+      postComments={item?.vacant_post_comments}
+      postVoiceMessage={item?.vacant_post_voice_message}
+      // Amount Props
+      // baseFareRate={item?.bookingTypeTariff_base_fare_rate}
+
+      // Action Props
+      onRequestPress={() => handleButtonPress(item)
+
+      }
+
+      onPlayPress={() => {
+        /* TODO: Implement voice message playback */
+      }}
+      onMessagePress={() => {
+        /* TODO: Implement messaging */
+      }}
+      isRequested={item?.request_status}
+      packageName={item?.bookingTypePackage_name}
+    />
+  );
 
 
   return (
@@ -182,9 +247,18 @@ const VacantTrip = () => {
         muteIcon={true}
 
       />
+
+      <FlatList
+        data={userVacantPostData} // Ensure this is defined or passed as a prop
+        renderItem={renderVacantPostCard} // Ensure this function is defined
+        keyExtractor={(item) => item?.vacant_post_id.toString()}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
+      />
       <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
         <AddPostIcon />
       </TouchableOpacity>
+
 
       <CustomModal
         visible={showVacantTripModal}
@@ -252,6 +326,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#123F67',
     borderRadius: 4,
+  },
+  listContainer: {
+    paddingBottom: 16,
   },
 
 

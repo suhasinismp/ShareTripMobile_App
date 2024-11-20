@@ -9,6 +9,7 @@ import TextMsgIcon from '../../assets/svgs/textMsg.svg';
 import { FONTS } from '../styles/fonts';
 import DistanceLine from '../../assets/svgs/distanceLine.svg';
 import AudioPlayer from './AudioPlayer';
+import VacantTrip from '../screens/bottomTab/VacantTrip';
 
 const capitalizeWords = (str) => {
   if (!str) return '';
@@ -50,6 +51,7 @@ const PostCard = ({
   onMessagePress,
   isRequested,
   packageName,
+  vacantTripPostedByLoggedInUser
 }) => {
   const requestStatus = isRequested ? isRequested : 'Accept';
   const isAvailable = postStatus === 'Available';
@@ -75,21 +77,21 @@ const PostCard = ({
         <View
           style={[styles.cardHeader, { backgroundColor: getHeaderColor() }]}
         >
-          <Text style={styles.cardType}>{capitalizeWords(bookingType)}</Text>
-          <Text style={styles.cardDate}>{createdAt}</Text>
-          <Text style={[styles.cardStatus, { color: getStatusColor() }]}>
+          {bookingType && <Text style={styles.cardType}>{capitalizeWords(bookingType)}</Text>}
+          {createdAt && <Text style={styles.cardDate}>{createdAt}</Text>}
+          {postStatus && <Text style={[styles.cardStatus, { color: getStatusColor() }]}>
             {capitalizeWords(postStatus)}
-          </Text>
+          </Text>}
         </View>
       )}
 
       {/* User Info Section */}
       <View style={styles.cardContent}>
         <View style={styles.userInfo}>
-          <Image source={{ uri: userProfilePic }} style={styles.profilePic} />
-          <Text style={styles.userName}>{capitalizeWords(userName)}</Text>
+          {userProfilePic && <Image source={{ uri: userProfilePic }} style={styles.profilePic} />}
+          {userName && <Text style={styles.userName}>{capitalizeWords(userName)}</Text>}
         </View>
-        <View style={styles.postSharedWithInfo}>
+        {postSharedWith && <View style={styles.postSharedWithInfo}>
           {postStatus && (
             <Ionicons name="people" size={20} color={getIconColor()} />
           )}
@@ -98,7 +100,7 @@ const PostCard = ({
               ? capitalizeWords(postSharedWith)
               : capitalizeWords(bookingType)}
           </Text>
-        </View>
+        </View>}
       </View>
 
       {isAvailable || (!postStatus && <DotDivider />)}
@@ -111,30 +113,67 @@ const PostCard = ({
             {!hasCommentOrVoice && (
               <>
                 <View style={styles.timeAndDate}>
-                  <Ionicons
-                    name="time-outline"
-                    size={20}
-                    color={getIconColor()}
-                  />
-                  <Text
-                    style={[
-                      styles.tripTime,
-                      { color: isAvailable ? '#171661' : '#666' },
-                    ]}
-                  >
-                    {pickUpTime || 'N/A'}
-                  </Text>
-                  <Text
+                  {pickUpTime && <>
+                    <Ionicons
+                      name="time-outline"
+                      size={20}
+                      color={getIconColor()}
+                    />
+                    <Text
+                      style={[
+                        styles.tripTime,
+                        { color: isAvailable ? '#171661' : '#666' },
+                      ]}
+                    >
+                      {pickUpTime || 'N/A'}
+                    </Text>
+                  </>}
+                  {fromDate && <Text
                     style={[
                       styles.tripDate,
                       { color: isAvailable ? '#171661' : '#666' },
                     ]}
                   >
                     {fromDate || 'N/A'}
-                  </Text>
+                  </Text>}
                 </View>
                 <View style={styles.distanceAndVehicle}>
                   <View style={styles.distanceInfo}>
+                    {packageName && <>
+                      <Ionicons
+                        name="car-outline"
+                        size={20}
+                        color={getIconColor()}
+                      />
+                      <Text
+                        style={[
+                          styles.distanceText,
+                          { color: isAvailable ? '#171661' : '#666' },
+                        ]}
+                      >
+                        {packageName}
+                      </Text>
+                    </>}
+                  </View>
+                  {(vehicleType || vehicleName) && <View style={styles.vehicleInfo}>
+                    <Ionicons name="car" size={20} color={getIconColor()} />
+                    <Text
+                      style={[
+                        styles.vehicleText,
+                        { color: isAvailable ? '#171661' : '#666' },
+                      ]}
+                    >
+                      {`${capitalizeWords(vehicleType || 'N/A')}, ${capitalizeWords(vehicleName || 'N/A')}`}
+                    </Text>
+                  </View>}
+                </View>
+              </>
+            )}
+
+            {hasCommentOrVoice && (
+              <>
+                <View style={styles.distanceInfo}>
+                  {packageName && <>
                     <Ionicons
                       name="car-outline"
                       size={20}
@@ -148,40 +187,9 @@ const PostCard = ({
                     >
                       {packageName}
                     </Text>
-                  </View>
-                  <View style={styles.vehicleInfo}>
-                    <Ionicons name="car" size={20} color={getIconColor()} />
-                    <Text
-                      style={[
-                        styles.vehicleText,
-                        { color: isAvailable ? '#171661' : '#666' },
-                      ]}
-                    >
-                      {`${capitalizeWords(vehicleType || 'N/A')}, ${capitalizeWords(vehicleName || 'N/A')}`}
-                    </Text>
-                  </View>
+                  </>}
                 </View>
-              </>
-            )}
-
-            {hasCommentOrVoice && (
-              <>
-                <View style={styles.distanceInfo}>
-                  <Ionicons
-                    name="car-outline"
-                    size={20}
-                    color={getIconColor()}
-                  />
-                  <Text
-                    style={[
-                      styles.distanceText,
-                      { color: isAvailable ? '#171661' : '#666' },
-                    ]}
-                  >
-                    {packageName}
-                  </Text>
-                </View>
-                <View style={styles.vehicleInfo}>
+                {(vehicleType || vehicleName) && <View style={styles.vehicleInfo}>
                   <Ionicons name="car" size={20} color={getIconColor()} />
                   <Text
                     style={[
@@ -191,7 +199,7 @@ const PostCard = ({
                   >
                     {`${capitalizeWords(vehicleType || 'N/A')}, ${capitalizeWords(vehicleName || 'N/A')}`}
                   </Text>
-                </View>
+                </View>}
                 <View style={styles.commentSection}>
                   <Text style={styles.commentText}>
                     {capitalizeWords(postComments || 'Voice Message Available')}
@@ -204,18 +212,18 @@ const PostCard = ({
             {/* Location Info - Only show for available cards without comments */}
             {isAvailable && !hasCommentOrVoice && (
               <>
-                <View style={styles.locationInfo}>
+                {pickUpLocation && <View style={styles.locationInfo}>
                   <Ionicons name="location-outline" size={20} color="#4CAF50" />
                   <Text style={styles.locationText}>
                     {capitalizeWords(pickUpLocation || 'N/A')}
                   </Text>
-                </View>
-                <View style={styles.locationInfo}>
+                </View>}
+                {destination && <View style={styles.locationInfo}>
                   <Ionicons name="location" size={20} color="#F44336" />
                   <Text style={styles.locationText}>
                     {capitalizeWords(destination || 'N/A')}
                   </Text>
-                </View>
+                </View>}
               </>
             )}
           </View>
@@ -223,15 +231,15 @@ const PostCard = ({
           {/* Footer Section - Only show for available cards */}
           {isAvailable || !postStatus ? (
             <View style={styles.cardFooter}>
-              <View style={styles.footerLeft}>
+              {baseFareRate && <View style={styles.footerLeft}>
                 {!hasCommentOrVoice && (
                   <View style={styles.amountSection}>
                     <Text style={styles.amountLabel}>Amount:</Text>
                     <Text style={styles.amountText}>Rs {baseFareRate}/-</Text>
                   </View>
                 )}
-              </View>
-              <View style={styles.footerRight}>
+              </View>}
+              {vacantTripPostedByLoggedInUser === undefined && <View style={styles.footerRight}>
                 <TouchableOpacity
                   style={styles.acceptButton}
                   onPress={onRequestPress}
@@ -245,13 +253,20 @@ const PostCard = ({
                     <Text style={styles.cancelText}>Cancel</Text>
                   )}
                 </TouchableOpacity>
-              </View>
+              </View>}
+              {vacantTripPostedByLoggedInUser === true && <TouchableOpacity
+                style={styles.acceptButton}
+                onPress={onRequestPress}
+
+              >
+                <Text style={styles.acceptButtonText}>Delete</Text>
+              </TouchableOpacity>}
             </View>
           ) : null}
         </View>
 
         {/* Action Buttons - Only show for available cards */}
-        {isAvailable && (
+        {(isAvailable || vacantTripPostedByLoggedInUser != undefined) && (
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity onPress={onCallPress}>
               <CallIcon />
