@@ -58,7 +58,6 @@ const SignInScreen = () => {
       u_mob_num: data.Phone,
       u_pswd: data.password,
     };
-    console.log({ finalData })
 
     const response = await doLogin(finalData);
 

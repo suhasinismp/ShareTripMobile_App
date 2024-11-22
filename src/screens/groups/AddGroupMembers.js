@@ -115,8 +115,6 @@ const AddGroupMembers = ({ route }) => {
 
           return updatedInvitedUsers;
         });
-      } else {
-        console.log('Invited');
       }
     } catch (error) {
       console.error('error sending invite', error);

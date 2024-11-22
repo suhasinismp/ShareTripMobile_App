@@ -31,7 +31,7 @@ const ViewGroupRequestsScreen = () => {
   const userId = userData.userId;
   const dispatch = useDispatch();
   const [groupRequestData, setGroupRequestData] = useState(null);
-  console.log({ groupRequestData })
+
   const [actionType, setActionType] = useState(null);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
 

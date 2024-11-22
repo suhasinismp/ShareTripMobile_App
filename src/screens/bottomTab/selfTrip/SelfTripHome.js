@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -6,7 +5,11 @@ import AddPostIcon from '../../../../assets/svgs/addPost.svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
 import { formatDate } from '../../../utils/formatdateUtil';
-import { endSelfTrip, fetchUserSelfPosts, startSelfTrip } from '../../../services/selfTripService';
+import {
+  endSelfTrip,
+  fetchUserSelfPosts,
+  startSelfTrip,
+} from '../../../services/selfTripService';
 import PostCard from '../../../components/PostCard';
 import AppHeader from '../../../components/AppHeader';
 import CustomModal from '../../../components/ui/CustomModal';
@@ -16,9 +19,12 @@ import TripProgressModal from '../../../components/tripModals/TripProgressModal'
 import ClosingDetailsModal from '../../../components/tripModals/ClosingDetailsModal';
 import CustomerSignatureModal from '../../../components/tripModals/CustomerSignatureModal';
 import AdditionalChargesModal from '../../../components/tripModals/AdditionalChargesModal';
-import { closeTrip, fetchTripDetails, postAdditionCharges } from '../../../services/myTripsService';
+import {
+  closeTrip,
+  fetchTripDetails,
+  postAdditionCharges,
+} from '../../../services/myTripsService';
 import axios from 'axios';
-
 
 const SelfTripHome = () => {
   const dispatch = useDispatch();
@@ -26,13 +32,14 @@ const SelfTripHome = () => {
   const userData = useSelector(getUserDataSelector);
   const userId = userData.userId;
   const userToken = userData.userToken;
-  const [userSelfTripData, setUserSelfTripData] = useState([])
+  const [userSelfTripData, setUserSelfTripData] = useState([]);
   const [showStartTripModal, setShowStartTripModal] = useState(false);
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
   const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
-  const [showCustomerSignatureModal, setShowCustomerSignatureModal] = useState(false);
+  const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
+    useState(false);
   const [selectedTripData, setSelectedTripData] = useState(null);
   const [tripSummaryData, setTripSummaryData] = useState(null);
   const [openingKms, setOpeningKms] = useState('');
@@ -56,25 +63,18 @@ const SelfTripHome = () => {
     }
   }, [showStartTripModal, showClosingDetailsModal]);
 
-
-
-
-
   useFocusEffect(
     useCallback(() => {
       getSelfTripPosts();
     }, [userId, userToken]),
   );
 
-
-
   const getSelfTripPosts = async () => {
-    const response = await fetchUserSelfPosts(userId, userToken)
+    const response = await fetchUserSelfPosts(userId, userToken);
     if (response.error === false) {
-      setUserSelfTripData(response.data)
+      setUserSelfTripData(response.data);
     }
-
-  }
+  };
 
   const handleStartTrip = async () => {
     const response = await startSelfTrip(
@@ -101,7 +101,6 @@ const SelfTripHome = () => {
       setSelectedTripData(null);
       await getSelfTripPosts();
     }
-
   };
 
   const handleContinueForNextDay = () => {
@@ -111,12 +110,9 @@ const SelfTripHome = () => {
   };
 
   const handleButtonPress = (tripData) => {
-    console.log({ tripData })
     setSelectedTripData(tripData);
     if (tripData?.request_status === 'Start Trip') {
-      console.log('Opening Start Trip Modal...');
       setShowStartTripModal(true);
-      console.log('fff', setShowStartTripModal)
     } else if (tripData?.request_status === 'Trip in Progress') {
       setShowTripProgressModal(true);
     }
@@ -143,16 +139,15 @@ const SelfTripHome = () => {
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
       },
-      userToken
+      userToken,
     );
-    console.log("userToken", userToken)
-    console.log("handleCloseTrip", response)
+
     if (response?.error === false) {
       const tripDetails = await fetchTripDetails(
         selectedTripData?.post_booking_id,
         userToken,
       );
-      console.log("tripDetails", tripDetails)
+
       if (tripDetails?.error === false) {
         setTripSummaryData({
           openingKms: tripDetails?.data?.start_trip_kms || '',
@@ -180,13 +175,10 @@ const SelfTripHome = () => {
       state_tax: charges?.stateTax,
       cleaning: charges?.cleaning,
       night_batta: charges?.nightBatta,
-    }
-    console.log({ finalData })
+    };
+
     const formData = new FormData();
-    formData.append(
-      'json',
-      JSON.stringify(finalData),
-    );
+    formData.append('json', JSON.stringify(finalData));
 
     documents.forEach((doc) => {
       formData.append(doc.fileNumber, {
@@ -196,16 +188,13 @@ const SelfTripHome = () => {
       });
     });
 
-
     const response = await postAdditionCharges(formData, userToken);
-    console.log({ response })
+
     if (response?.error === false) {
       setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
     }
   };
-
-
 
   const handleAddPost = () => {
     navigation.navigate('CreateSelfTrip');
@@ -216,10 +205,8 @@ const SelfTripHome = () => {
       bookingType={item?.bookingType_name}
       createdAt={formatDate(item?.created_at)}
       postStatus={item?.post_status}
-
       userProfilePic={item?.User_profile || 'https://via.placeholder.com/150'}
       userName={item?.User_name}
-
       // Trip Details Props
       pickUpTime={item?.pick_up_time}
       fromDate={item?.from_date}
@@ -227,18 +214,13 @@ const SelfTripHome = () => {
       vehicleName={item?.Vehicle_name}
       pickUpLocation={item?.pick_up_location}
       destination={item?.destination}
-
       // Comment/Voice Props
       postComments={item?.post_comments}
       postVoiceMessage={item?.post_voice_message}
       // Amount Props
       baseFareRate={item?.bookingTypeTariff_base_fare_rate}
-
       // Action Props
-      onRequestPress={() => handleButtonPress(item)
-
-      }
-
+      onRequestPress={() => handleButtonPress(item)}
       onPlayPress={() => {
         /* TODO: Implement voice message playback */
       }}
@@ -379,5 +361,3 @@ const styles = StyleSheet.create({
 });
 
 export default SelfTripHome;
-
-

@@ -20,6 +20,7 @@ const CustomInput = ({
   secureTextEntry,
   multiline = false,
   error,
+  editable = true, // Add default value
   ...props
 }) => {
   const { theme } = useTheme();
@@ -29,8 +30,10 @@ const CustomInput = ({
   const inputRef = useRef(null);
 
   const handleFocus = () => {
-    setIsFocused(true);
-    inputRef.current?.focus();
+    if (editable) {
+      setIsFocused(true);
+      inputRef.current?.focus();
+    }
   };
 
   const handleBlur = () => {
@@ -62,7 +65,7 @@ const CustomInput = ({
   );
 
   return (
-    <Pressable onPress={handleFocus}>
+    <Pressable onPress={handleFocus} disabled={!editable}>
       <CustomText
         variant="placeHolderText"
         style={[
@@ -78,6 +81,7 @@ const CustomInput = ({
           },
           (isFocused || (value && value !== '')) && styles.labelRaised,
           isFocused && styles.labelFocused,
+          !editable && styles.disabled,
         ]}
         text={placeholder}
       />
@@ -87,6 +91,7 @@ const CustomInput = ({
           styles.inputContainer,
           { minHeight: inputHeight },
           { backgroundColor: theme.backgroundColor },
+          !editable && styles.disabledContainer,
         ]}
       >
         <TextInput
@@ -96,6 +101,7 @@ const CustomInput = ({
             isFocused && styles.inputFocused,
             multiline && styles.multilineInput,
             { height: multiline ? inputHeight : 'auto' },
+            !editable && styles.disabledText,
           ]}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -105,6 +111,7 @@ const CustomInput = ({
           secureTextEntry={secureTextEntry && !isPasswordVisible}
           multiline={multiline}
           onContentSizeChange={handleContentSizeChange}
+          editable={editable}
           {...props}
         />
         {secureTextEntry && renderEyeIcon()}
@@ -162,6 +169,16 @@ const styles = StyleSheet.create({
   },
   eyeIcon: {
     padding: 8,
+  },
+  disabled: {
+    color: '#9E9E9E',
+  },
+  disabledContainer: {
+    backgroundColor: '#F5F5F5',
+    borderColor: '#E0E0E0',
+  },
+  disabledText: {
+    color: '#9E9E9E',
   },
 });
 

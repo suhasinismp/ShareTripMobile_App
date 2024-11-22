@@ -73,7 +73,6 @@ const SignUpScreen = ({ route }) => {
   });
 
   const submit = async (data) => {
-
     let finalData = {
       u_name: data[fieldNames.FULL_NAME],
       u_mob_num: data[fieldNames.PHONE_NUMBER].toString(),
@@ -88,22 +87,21 @@ const SignUpScreen = ({ route }) => {
       u_pswd: data[fieldNames.PASSWORD],
       role_id: userType == 'Driver' ? 3000 : 4000,
     };
-    console.log({ finalData })
+
     const response = await registerUser(finalData);
-    console.log('abc', response)
+
     if (response?.message == 'Registered Successfully') {
       const finalData = {
         phoneNumber: data[fieldNames.PHONE_NUMBER].toString(),
       };
 
       const otpResponse = await sendOTP(finalData);
-      console.log({ finalData })
+
       navigation.navigate('OTPVerify', {
         userId: response.data[0].id,
         phoneNumber: response.data[0].u_mob_num,
         userRoleId: response.data[0].role_id,
       });
-
     }
   };
 

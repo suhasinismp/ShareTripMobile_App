@@ -8,9 +8,8 @@ const TripProgressModal = ({ handleContinueForNextDay, handleEndTrip }) => {
       <Text style={styles.tripStatus}>Your Trip is in Progress</Text>
 
       <TouchableOpacity
-        style={[styles.actionButton, styles.disabledButton]}
+        style={[styles.actionButton]}
         onPress={handleContinueForNextDay}
-        disabled={true}
       >
         <Text style={styles.actionButtonText}>Continue for Next Day</Text>
       </TouchableOpacity>

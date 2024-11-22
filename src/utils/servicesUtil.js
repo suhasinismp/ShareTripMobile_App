@@ -53,7 +53,6 @@ export const postAPI = async (endUrl, body, token) => {
 };
 
 export const patchAPI = async ({ endUrl, body, token }) => {
-
   let prepareHeader = {
     'Content-Type': 'application/json',
   };
@@ -156,9 +155,8 @@ export const patchFormDataAPI = async ({ endUrl, formData, token }) => {
   }
 };
 
-
 export const patchSelfRideAPI = async (endUrl, body, token) => {
-  console.log("endSelfTrip Token", token)
+  console.log('endSelfTrip Token', token);
 
   let prepareHeader = {
     'Content-Type': 'application/json',

@@ -76,7 +76,6 @@ export const fetchTripDetails = async (tripId, token) => {
 };
 
 export const postAdditionCharges = async (data, token) => {
-
   const response = await postFormDataAPI(
     'share-trip/additional-charges/',
     data,
@@ -89,6 +88,23 @@ export const uploadSignature = async (data, token) => {
   const response = await patchFormDataAPI({
     endUrl: 'share-trip/trip-ride/signature-upload',
     formData: data,
+    token: token,
+  });
+  return response;
+};
+
+export const fetchMultiDayTripDetails = async (tripId, token) => {
+  const response = await getAPI(
+    `share-trip/multiple-day-trip/${tripId}`,
+    token,
+  );
+  return response;
+};
+
+export const closeForDay = async (data, token) => {
+  const response = await patchAPI({
+    endUrl: 'share-trip/multiple-day-trip',
+    body: data,
     token: token,
   });
   return response;
