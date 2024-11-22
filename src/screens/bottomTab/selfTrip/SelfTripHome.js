@@ -111,12 +111,12 @@ const SelfTripHome = () => {
   };
 
   const handleButtonPress = (tripData) => {
-   
+
     setSelectedTripData(tripData);
     if (tripData?.request_status === 'Start Trip') {
-      
+
       setShowStartTripModal(true);
-    
+
     } else if (tripData?.request_status === 'Trip in Progress') {
       setShowTripProgressModal(true);
     }
@@ -145,13 +145,13 @@ const SelfTripHome = () => {
       },
       userToken
     );
-    
+
     if (response?.error === false) {
       const tripDetails = await fetchTripDetails(
         selectedTripData?.post_booking_id,
         userToken,
       );
-     
+
       if (tripDetails?.error === false) {
         setTripSummaryData({
           openingKms: tripDetails?.data?.start_trip_kms || '',
