@@ -28,9 +28,6 @@ import AddPostIcon from '../../../assets/svgs/addPost.svg';
 import { getAllVehiclesByUserId } from '../../services/vehicleDetailsService';
 import { formatDate } from '../../utils/formatdateUtil';
 
-
-
-
 export const handleCall = (phoneNumber) => {
   Linking.openURL(`tel:${phoneNumber}`).catch((err) =>
     console.error('An error occurred', err),
@@ -183,11 +180,10 @@ const HomeScreen = () => {
         )
       }
       onCallPress={() => handleCall(item?.User_phone)}
-      onPlayPress={() => {
-        /* TODO: Implement voice message playback */
-      }}
-      onMessagePress={() => {
-        /* TODO: Implement messaging */
+      onTripSheetPress={() => {
+        navigation.navigate('TripSheet', {
+          postData: item,
+        });
       }}
       isRequested={item?.request_status}
       packageName={item?.bookingTypePackage_name}

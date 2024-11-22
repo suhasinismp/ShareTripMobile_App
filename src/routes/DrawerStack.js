@@ -41,6 +41,7 @@ import PostATripScreen from '../screens/bottomTab/postTrip/PostATripScreen';
 import SelectGroupScreen from '../screens/bottomTab/postTrip/SelectGroupScreen';
 import SelectContactScreen from '../screens/bottomTab/postTrip/SelectContactScreen';
 import CreateSelfTrip from '../screens/bottomTab/selfTrip/CreateSelfTripScreen';
+import TripSheetScreen from '../screens/drawer/TripSheetScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -217,6 +218,7 @@ const DrawerStack = () => {
       <Drawer.Screen name="SelectGroups" component={SelectGroupScreen} />
       <Drawer.Screen name="SelectContacts" component={SelectContactScreen} />
       <Drawer.Screen name="CreateSelfTrip" component={CreateSelfTrip} />
+      <Drawer.Screen name="TripSheet" component={TripSheetScreen} />
     </Drawer.Navigator>
   );
 };

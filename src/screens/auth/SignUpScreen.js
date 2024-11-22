@@ -73,7 +73,6 @@ const SignUpScreen = ({ route }) => {
   });
 
   const submit = async (data) => {
-
     let finalData = {
       u_name: data[fieldNames.FULL_NAME],
       u_mob_num: data[fieldNames.PHONE_NUMBER].toString(),
@@ -103,7 +102,6 @@ const SignUpScreen = ({ route }) => {
         phoneNumber: response.data[0].u_mob_num,
         userRoleId: response.data[0].role_id,
       });
-
     }
   };
 

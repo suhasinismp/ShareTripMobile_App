@@ -13,14 +13,17 @@ import AppHeader from '../../components/AppHeader';
 import PostCard from '../../components/PostCard';
 
 import {
+  closeForDay,
   closeTrip,
   confirmedDriverTrips,
   confirmedPostedGuyTrips,
+  fetchMultiDayTripDetails,
   fetchTripDetails,
   getDriverInProgressTrips,
   getPostedGuyInProgressTrips,
   postAdditionCharges,
   startTrip,
+  startTripMultiDay,
 } from '../../services/myTripsService';
 import { getUserDataSelector } from '../../store/selectors';
 import { handleCall } from './HomeScreen';
@@ -33,6 +36,7 @@ import CustomerSignatureModal from '../../components/tripModals/CustomerSignatur
 import CustomAccordion from '../../components/ui/CustomAccordion';
 import CustomSelect from '../../components/ui/CustomSelect';
 import CustomModal from '../../components/ui/CustomModal';
+import { set } from 'lodash';
 
 const MyTrips = () => {
   // User data from Redux
@@ -67,7 +71,7 @@ const MyTrips = () => {
   // Trip data states
   const [selectedTripData, setSelectedTripData] = useState(null);
   const [tripSummaryData, setTripSummaryData] = useState(null);
-
+  const [tripType, setTripType] = useState('');
   // Start trip states
   const [openingKms, setOpeningKms] = useState('');
   const [openingTime, setOpeningTime] = useState('');
@@ -81,7 +85,6 @@ const MyTrips = () => {
   const [closingDate, setClosingDate] = useState('');
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
-  const [closingActionType, setClosingActionType] = useState('end');
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -181,16 +184,49 @@ const MyTrips = () => {
     }
   };
 
-  const handleContinueForNextDay = () => {
-    setClosingActionType('continue');
-    setShowTripProgressModal(false);
-    setShowClosingDetailsModal(true);
+  const handleContinueForNextDay = async () => {
+    setTripType('multiDay');
+    const response = await fetchMultiDayTripDetails(
+      selectedTripData?.post_booking_id,
+      userToken,
+    );
+    console.log('response', response);
+
+    if (
+      response?.error === false &&
+      response?.message === 'You need to close last day trip details'
+    ) {
+      setShowTripProgressModal(false);
+      setShowClosingDetailsModal(true);
+    } else {
+      if (response?.message === 'You have closed last day Trip ride data') {
+        setShowTripProgressModal(false);
+        setShowStartTripModal(true);
+      }
+    }
   };
 
-  const handleEndTrip = () => {
-    setClosingActionType('end');
+  const handleEndTrip = async () => {
     setShowTripProgressModal(false);
-    setShowClosingDetailsModal(true);
+    const tripDetails = await fetchTripDetails(
+      selectedTripData?.post_booking_id,
+      userToken,
+    );
+    if (tripDetails?.error === false) {
+      setTripSummaryData({
+        openingKms: tripDetails?.data?.start_trip_kms || '',
+        openingTime: tripDetails?.data?.start_time || '',
+        openingDate: tripDetails?.data?.start_date || '',
+        closingKms: tripDetails?.data?.end_trip_kms || '',
+        closingTime: tripDetails?.data?.end_trip_time || '',
+        closingDate: tripDetails?.data?.end_trip_date || '',
+      });
+
+      setShowTripSummaryModal(true);
+      setClosingKms('');
+      setClosingTime('');
+      setClosingDate('');
+    }
   };
 
   const handleBackToTripProgress = () => {
@@ -198,7 +234,26 @@ const MyTrips = () => {
     setShowTripProgressModal(true);
   };
 
-  const handleCloseTrip = async () => {
+  const handleCloseForDay = async () => {
+    const response = await closeForDay(
+      {
+        post_bookings_id: selectedTripData?.post_booking_id,
+        end_trip_kms: closingKms,
+        end_trip_date: closingDate,
+        end_trip_time: closingTime,
+      },
+      userToken,
+    );
+    console.log({ response });
+    if (response?.error === false) {
+      setShowClosingDetailsModal(false);
+      setClosingKms('')
+      setClosingTime('')
+      setClosingDate('')
+    }
+  };
+
+  const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
     const response = await closeTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -212,25 +267,27 @@ const MyTrips = () => {
     );
 
     if (response?.error === false) {
-      const tripDetails = await fetchTripDetails(
-        selectedTripData?.post_booking_id,
-        userToken,
-      );
-      if (tripDetails?.error === false) {
-        setTripSummaryData({
-          openingKms: tripDetails?.data?.start_trip_kms || '',
-          openingTime: tripDetails?.data?.start_time || '',
-          openingDate: tripDetails?.data?.start_date || '',
-          closingKms: tripDetails?.data?.end_trip_kms || '',
-          closingTime: tripDetails?.data?.end_trip_time || '',
-          closingDate: tripDetails?.data?.end_trip_date || '',
-        });
-        setShowClosingDetailsModal(false);
-        setShowTripSummaryModal(true);
-        setClosingKms('');
-        setClosingTime('');
-        setClosingDate('');
-      }
+      setShowTripSummaryModal(false);
+      setShowAdditionalCharges(true);
+    }
+  };
+  const handleMultiDayStart = async () => {
+    const finalData = {
+      post_bookings_id: selectedTripData?.post_booking_id,
+      start_time: openingTime,
+      start_trip_kms: openingKms,
+      start_date: openingDate,
+    };
+
+    const response = await startTripMultiDay(finalData, userToken);
+    if (response?.error === false) {
+      setShowStartTripModal(false);
+      setOpeningKms('');
+      setOpeningTime('');
+      setOpeningDate('');
+      setSelectedTripData(null);
+      setTripType('');
+      await fetchUiData();
     }
   };
 
@@ -262,7 +319,9 @@ const MyTrips = () => {
   };
 
   const handleButtonPress = (tripData) => {
+    console.log('tripData', tripData);
     setSelectedTripData(tripData);
+    setTripType('');
     if (tripData?.post_trip_trip_status === 'Start Trip') {
       setShowStartTripModal(true);
     } else if (tripData?.post_trip_trip_status === 'Trip in Progress') {
@@ -483,7 +542,9 @@ const MyTrips = () => {
           setOpeningTime={setOpeningTime}
           openingDate={openingDate}
           setOpeningDate={setOpeningDate}
-          handleStartTrip={handleStartTrip}
+          handleStartTrip={
+            tripType === 'multiDay' ? handleMultiDayStart : handleStartTrip
+          }
           showTimePicker={showTimePicker}
           setShowTimePicker={setShowTimePicker}
           showDatePicker={showDatePicker}
@@ -517,8 +578,7 @@ const MyTrips = () => {
           setShowClosingTimePicker={setShowClosingTimePicker}
           showClosingDatePicker={showClosingDatePicker}
           setShowClosingDatePicker={setShowClosingDatePicker}
-          closingActionType={closingActionType}
-          handleCloseTrip={handleCloseTrip}
+          handleCloseTrip={handleCloseForDay}
         />
       </CustomModal>
 
@@ -530,6 +590,13 @@ const MyTrips = () => {
           tripSummaryData={tripSummaryData}
           setShowTripSummaryModal={setShowTripSummaryModal}
           setShowAdditionalCharges={setShowAdditionalCharges}
+          onPressNext={(closingDetails) => {
+            handleCloseTrip(
+              closingDetails.closingKms,
+              closingDetails.closingTime,
+              closingDetails.closingDate,
+            );
+          }}
         />
       </CustomModal>
 

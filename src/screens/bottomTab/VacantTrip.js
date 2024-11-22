@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Modal, StyleSheet, Text, View, TouchableOpacity, Dimensions, FlatList } from 'react-native';
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  FlatList,
+} from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import AddPostIcon from '../../../assets/svgs/addPost.svg';
 import CustomModal from '../../components/ui/CustomModal';
@@ -13,7 +21,6 @@ import { getAllVehiclesByUserId } from '../../services/vehicleDetailsService';
 import { useFocusEffect } from '@react-navigation/native';
 import PostCard from '../../components/PostCard';
 import { formatDate } from '../../utils/formatdateUtil';
-
 
 const { width } = Dimensions.get('window');
 
@@ -30,9 +37,7 @@ const VacantTripModal = ({
   handleStopRecording,
   handleDeleteRecording,
   handlePostVacantTrip,
-
 }) => {
-
   return (
     <View style={styles.modalContent}>
       <Text style={styles.modalTitle}>Post Vacant Trip</Text>
@@ -61,8 +66,10 @@ const VacantTripModal = ({
         )}
       </View>
 
-      <TouchableOpacity style={styles.actionButton} onPress={handleStartVacantModal}>
-      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.actionButton}
+        onPress={handleStartVacantModal}
+      ></TouchableOpacity>
       <View style={styles.buttonContainer}>
         <CustomButton
           title="post Vacant Trip"
@@ -75,11 +82,10 @@ const VacantTripModal = ({
           style={styles.cancelButton}
           onPress={handleCancelVacantModal}
         />
-
       </View>
-    </View >
+    </View>
   );
-}
+};
 
 const VacantTrip = () => {
   const userData = useSelector(getUserDataSelector);
@@ -90,7 +96,7 @@ const VacantTrip = () => {
   const [voiceMessage, setVoiceMessage] = useState('');
   const [showVacantTripModal, setShowVacantTripModal] = useState('');
   const [recordedAudioUri, setRecordedAudioUri] = useState(null);
-  const [postedUserId, setPostedUserId] = useState(null)
+  const [postedUserId, setPostedUserId] = useState(null);
   const [vehicleType, setVehicleType] = useState('');
   const [vehicleName, setVehicleName] = useState('');
   const [userVehicles, setUserVehicles] = useState([]);
@@ -100,49 +106,41 @@ const VacantTrip = () => {
 
   useFocusEffect(
     useCallback(() => {
-      getUserVacantPosts()
-
-
+      getUserVacantPosts();
     }, [userId, userToken]),
   );
-
-
 
   useEffect(() => {
     if (showVacantTripModal) {
       setModalVisible(true);
     }
-  }, [showVacantTripModal])
+  }, [showVacantTripModal]);
 
   useEffect(() => {
-    getUserVehicles()
-
-  }, [userId])
+    getUserVehicles();
+  }, [userId]);
 
   const getUserVacantPosts = async () => {
-    const response = await getVacantPost(userToken)
+    const response = await getVacantPost(userToken);
     if (response?.error === false) {
-      setUserVacantPostData(response.data)
+      setUserVacantPostData(response.data);
     }
-
-  }
-
+  };
 
   const handleAddPost = () => {
-    setShowVacantTripModal(true)
-  }
+    setShowVacantTripModal(true);
+  };
 
   const handleStartVacantModal = () => {
-    setShowVacantTripModal(true)
-  }
+    setShowVacantTripModal(true);
+  };
   const handleCancelVacantModal = () => {
-
     setShowVacantTripModal(false);
   };
 
   const handleStartRecording = () => {
-    setIsRecording(true)
-  }
+    setIsRecording(true);
+  };
   const handleStopRecording = (uri) => {
     setIsRecording(false);
     setRecordedAudioUri(uri);
@@ -150,7 +148,6 @@ const VacantTrip = () => {
   const handleDeleteRecording = () => {
     setRecordedAudioUri(null);
   };
-
 
   const getUserVehicles = async () => {
     const response = await getAllVehiclesByUserId(userToken, userId);
@@ -196,7 +193,7 @@ const VacantTrip = () => {
     } else {
       alert(response.message);
     }
-  }
+  };
   const renderVacantPostCard = ({ item }) => (
     <PostCard
       // Card Header Props
@@ -206,7 +203,6 @@ const VacantTrip = () => {
 
       userProfilePic={item?.user_profile || 'https://via.placeholder.com/150'}
       userName={item?.user_name}
-
       // Trip Details Props
       // pickUpTime={item?.pick_up_time}
       // fromDate={item?.from_date}
@@ -214,7 +210,9 @@ const VacantTrip = () => {
       vehicleName={item?.v_name}
       // pickUpLocation={item?.pick_up_location}
       // destination={item?.destination}
-      vacantTripPostedByLoggedInUser={item?.posted_user_id === userId ? true : false}
+      vacantTripPostedByLoggedInUser={
+        item?.posted_user_id === userId ? true : false
+      }
       // Comment/Voice Props
       postComments={item?.vacant_post_comments}
       postVoiceMessage={item?.vacant_post_voice_message}
@@ -222,10 +220,7 @@ const VacantTrip = () => {
       // baseFareRate={item?.bookingTypeTariff_base_fare_rate}
 
       // Action Props
-      onRequestPress={() => handleButtonPress(item)
-
-      }
-
+      onRequestPress={() => handleButtonPress(item)}
       onPlayPress={() => {
         /* TODO: Implement voice message playback */
       }}
@@ -237,7 +232,6 @@ const VacantTrip = () => {
     />
   );
 
-
   return (
     <>
       <AppHeader
@@ -245,7 +239,6 @@ const VacantTrip = () => {
         groupIcon={true}
         onlineIcon={true}
         muteIcon={true}
-
       />
 
       <FlatList
@@ -258,7 +251,6 @@ const VacantTrip = () => {
       <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
         <AddPostIcon />
       </TouchableOpacity>
-
 
       <CustomModal
         visible={showVacantTripModal}
@@ -274,9 +266,7 @@ const VacantTrip = () => {
           handleCancelVacantModal={handleCancelVacantModal}
           handlePostVacantTrip={handlePostVacantTrip}
         />
-
       </CustomModal>
-
     </>
   );
 };
@@ -306,7 +296,6 @@ const styles = StyleSheet.create({
   modalTitlee: {
     fontSize: 14,
 
-
     textAlign: 'center',
     color: '#333',
     marginBottom: 20,
@@ -330,10 +319,6 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: 16,
   },
-
-
 });
 
 export default VacantTrip;
-
-

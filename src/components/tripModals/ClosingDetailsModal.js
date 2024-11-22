@@ -23,7 +23,6 @@ const ClosingDetailsModal = ({
   setShowClosingTimePicker,
   showClosingDatePicker,
   setShowClosingDatePicker,
-  closingActionType,
   handleCloseTrip,
 }) => {
   return (
@@ -97,9 +96,7 @@ const ClosingDetailsModal = ({
       </Text>
 
       <TouchableOpacity style={styles.actionButton} onPress={handleCloseTrip}>
-        <Text style={styles.actionButtonText}>
-          {closingActionType === 'end' ? 'End Trip' : 'Close for the Day'}
-        </Text>
+        <Text style={styles.actionButtonText}>Close for the Day</Text>
       </TouchableOpacity>
 
       {showClosingTimePicker && (
