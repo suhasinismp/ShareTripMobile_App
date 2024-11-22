@@ -16,12 +16,12 @@ export const createGroup = async (data, token) => {
 };
 
 export const getGroupRequestByUserId = async (userId, token) => {
-  console.log({ userId, token })
+ 
   const response = await getAPI(
     `share-trip/group-users-invite/request-data/${userId}`,
     token,
   );
-  console.log({ response })
+  
   return response;
 };
 export const groupAcceptInvite = async (token, group_Id, user_Id) => {

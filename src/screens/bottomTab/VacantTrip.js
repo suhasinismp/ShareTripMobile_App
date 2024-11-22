@@ -95,7 +95,7 @@ const VacantTrip = () => {
   const [vehicleName, setVehicleName] = useState('');
   const [userVehicles, setUserVehicles] = useState([]);
   const [userVacantPostData, setUserVacantPostData] = useState([]);
-  console.log({ userVacantPostData })
+
 
 
   useFocusEffect(
@@ -175,7 +175,7 @@ const VacantTrip = () => {
       vehicle_names_id: userVehicles[0]?.vehicles?.vehicle_names_id,
       vacant_post_comments: typeMessage,
     };
-    console.log('rrr', finalData)
+
     let formData = new FormData();
     formData.append('json', JSON.stringify(finalData));
 
@@ -189,7 +189,7 @@ const VacantTrip = () => {
       });
     }
     const response = await createVacantPost(formData, userToken)
-    console.log('lll', response)
+
     if (response.error === false) {
       alert('Vacant post created successfully');
       handleCancelVacantModal();

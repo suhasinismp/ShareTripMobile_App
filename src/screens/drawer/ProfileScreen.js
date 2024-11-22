@@ -53,7 +53,7 @@ const ProfileScreen = () => {
   const userToken = userData?.userToken;
   const userId = userData?.userId;
   const [initialUserDetails, setInitialUserDetails] = useState(null);
-  console.log({ initialUserDetails })
+  
   const [isLoading, setIsLoading] = useState(true);
 
 
@@ -69,14 +69,14 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     getUserDetails()
-    console.log({ getUserDetails })
+   
   }, [userToken, userId])
 
   const getUserDetails = async () => {
     setIsLoading(true);
     try {
       const response = await getProfileByUserId(userToken, userId);
-      console.log('abc', response)
+     
       if (response.error === false && response.data) {
         setInitialUserDetails(response.data);
       } else {
@@ -139,7 +139,7 @@ const ProfileScreen = () => {
 
           response = await updateUserProfile(finalData, userToken, userProfile);
         } else
-          console.log({ response })
+         
         if (response && response.error === false) {
           setIsEditModeOn(false);
 

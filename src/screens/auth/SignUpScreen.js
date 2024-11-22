@@ -88,16 +88,16 @@ const SignUpScreen = ({ route }) => {
       u_pswd: data[fieldNames.PASSWORD],
       role_id: userType == 'Driver' ? 3000 : 4000,
     };
-    console.log({ finalData })
+
     const response = await registerUser(finalData);
-    console.log('abc', response)
+
     if (response?.message == 'Registered Successfully') {
       const finalData = {
         phoneNumber: data[fieldNames.PHONE_NUMBER].toString(),
       };
 
       const otpResponse = await sendOTP(finalData);
-      console.log({ finalData })
+
       navigation.navigate('OTPVerify', {
         userId: response.data[0].id,
         phoneNumber: response.data[0].u_mob_num,
