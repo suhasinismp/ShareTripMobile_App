@@ -111,10 +111,6 @@ export const closeForDay = async (data, token) => {
 };
 
 export const startTripMultiDay = async (data, token) => {
-  const response = await postAPI(
-    'share-trip/multiple-day-trip/start/',
-    data,
-    token,
-  );
+  const response = await postAPI('share-trip/multiple-day-trip', data, token);
   return response;
 };

@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -87,7 +88,10 @@ const TripSummaryModal = ({
   };
 
   return (
-    <View style={styles.modalContent}>
+    <ScrollView
+      style={styles.modalContent}
+      showsVerticalScrollIndicator={false}
+    >
       <Text style={styles.modalTitle}>Trip Details</Text>
 
       <View style={[styles.summaryContainer, styles.elevation]}>
@@ -213,7 +217,7 @@ const TripSummaryModal = ({
           onChange={onClosingDateChange}
         />
       )}
-    </View>
+    </ScrollView>
   );
 };
 

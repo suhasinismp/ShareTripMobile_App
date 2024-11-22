@@ -9,7 +9,7 @@ const CustomerSignatureModal = ({
   userToken,
   userId,
   onClose,
-  fetch,
+  onEndPress,
 }) => {
   const [signature, setSignature] = useState(null);
   const signatureRef = useRef();
@@ -31,6 +31,8 @@ const CustomerSignatureModal = ({
 
       const finalData = {
         post_bookings_id: selectedTripData?.post_booking_id,
+        accepted_user_id: userId,
+        posted_user_id: selectedTripData?.posted_user_id,
       };
 
       let formData = new FormData();
@@ -44,6 +46,7 @@ const CustomerSignatureModal = ({
       if (fileInfo.exists) {
         setSignature(fileInfo?.uri);
         const response = await uploadSignature(formData, userToken);
+
         if (response?.error === false) {
           onClose();
           await fetch();
