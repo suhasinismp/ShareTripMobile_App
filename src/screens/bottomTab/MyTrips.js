@@ -23,6 +23,7 @@ import {
   getPostedGuyInProgressTrips,
   postAdditionCharges,
   startTrip,
+  startTripMultiDay,
 } from '../../services/myTripsService';
 import { getUserDataSelector } from '../../store/selectors';
 import { handleCall } from './HomeScreen';
@@ -70,7 +71,7 @@ const MyTrips = () => {
   // Trip data states
   const [selectedTripData, setSelectedTripData] = useState(null);
   const [tripSummaryData, setTripSummaryData] = useState(null);
-
+  const [tripType, setTripType] = useState('');
   // Start trip states
   const [openingKms, setOpeningKms] = useState('');
   const [openingTime, setOpeningTime] = useState('');
@@ -84,6 +85,7 @@ const MyTrips = () => {
   const [closingDate, setClosingDate] = useState('');
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
+
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -184,6 +186,7 @@ const MyTrips = () => {
   };
 
   const handleContinueForNextDay = async () => {
+    setTripType('multiDay')
     const response = await fetchMultiDayTripDetails(
       selectedTripData?.post_booking_id,
       userToken,
@@ -197,9 +200,10 @@ const MyTrips = () => {
       setShowTripProgressModal(false);
       setShowClosingDetailsModal(true);
     } else {
-      // if (response?.message === 'You have closed last day Trip ride data') {
-      setShowTripProgressModal(false);
-      setShowStartTripModal(true);
+      if (response?.message === 'You have closed last day Trip ride data') {
+        setShowTripProgressModal(false);
+        setShowStartTripModal(true);
+      }
     }
   };
 
@@ -246,6 +250,11 @@ const MyTrips = () => {
       setShowClosingDetailsModal(false);
     }
   };
+
+
+
+
+
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
     const response = await closeTrip(
       {
@@ -264,6 +273,18 @@ const MyTrips = () => {
       setShowAdditionalCharges(true);
     }
   };
+  const handleMultiDayStart = async () => {
+    const finalData = {
+      post_bookings_id: selectedTripData?.post_booking_id,
+      start_time: openingTime,
+      start_trip_kms: openingKms,
+      start_date: openingDate,
+    }
+
+    const response = await startTripMultiDay(finalData, userToken)
+    console.log({ response })
+  }
+
 
   const handleStartTrip = async () => {
     const response = await startTrip(
@@ -379,8 +400,8 @@ const MyTrips = () => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-          onCallPress={() => {}}
-          onMessagePress={() => {}}
+          onCallPress={() => { }}
+          onMessagePress={() => { }}
           onRefreshData={fetchUiData}
           userToken={userToken}
         />
@@ -405,8 +426,8 @@ const MyTrips = () => {
         baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => handleButtonPress(item)}
         onCallPress={() => handleCall(item?.user_phone)}
-        onPlayPress={() => {}}
-        onMessagePress={() => {}}
+        onPlayPress={() => { }}
+        onMessagePress={() => { }}
         isRequested={item?.post_trip_trip_status || item?.request_status}
         packageName={item?.booking_package_name}
       />
@@ -515,7 +536,7 @@ const MyTrips = () => {
           setOpeningTime={setOpeningTime}
           openingDate={openingDate}
           setOpeningDate={setOpeningDate}
-          handleStartTrip={handleStartTrip}
+          handleStartTrip={tripType === 'multiDay' ? handleMultiDayStart : handleStartTrip}
           showTimePicker={showTimePicker}
           setShowTimePicker={setShowTimePicker}
           showDatePicker={showDatePicker}
