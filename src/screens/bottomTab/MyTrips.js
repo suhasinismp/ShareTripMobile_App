@@ -188,33 +188,18 @@ const MyTrips = () => {
       selectedTripData?.post_booking_id,
       userToken,
     );
+    console.log('response', response);
 
-    if (response?.error === false) {
+    if (
+      response?.error === false &&
+      response?.message === 'You need to close last day trip details'
+    ) {
       setShowTripProgressModal(false);
       setShowClosingDetailsModal(true);
     } else {
       // if (response?.message === 'You have closed last day Trip ride data') {
       setShowTripProgressModal(false);
-
-      const tripDetails = await fetchTripDetails(
-        selectedTripData?.post_booking_id,
-        userToken,
-      );
-      if (tripDetails?.error === false) {
-        setTripSummaryData({
-          openingKms: tripDetails?.data?.start_trip_kms || '',
-          openingTime: tripDetails?.data?.start_time || '',
-          openingDate: tripDetails?.data?.start_date || '',
-          closingKms: tripDetails?.data?.end_trip_kms || '',
-          closingTime: tripDetails?.data?.end_trip_time || '',
-          closingDate: tripDetails?.data?.end_trip_date || '',
-        });
-
-        setShowTripSummaryModal(true);
-        setClosingKms('');
-        setClosingTime('');
-        setClosingDate('');
-      }
+      setShowStartTripModal(true);
     }
   };
 
@@ -256,7 +241,7 @@ const MyTrips = () => {
       },
       userToken,
     );
-
+    console.log({ response });
     if (response?.error === false) {
       setShowClosingDetailsModal(false);
     }
