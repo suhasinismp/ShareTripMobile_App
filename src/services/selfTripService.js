@@ -6,6 +6,7 @@ export const selfCreatePost = async (data, token) => {
     return response;
 }
 export const startSelfTrip = async (data, token) => {
+    console.log({ data, token })
     const response = await postAPI('share-trip/trip-ride/self-trip-start', data, token);
     return response;
 }

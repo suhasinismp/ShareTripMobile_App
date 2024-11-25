@@ -60,6 +60,7 @@ const MyTrips = () => {
 
   // Modal states
   const [showStartTripModal, setShowStartTripModal] = useState(false);
+  console.log('aaa', showStartTripModal)
 
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
@@ -85,6 +86,7 @@ const MyTrips = () => {
   const [closingDate, setClosingDate] = useState('');
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
+  const [closingActionType, setClosingActionType] = useState('end');
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -241,6 +243,8 @@ const MyTrips = () => {
         end_trip_kms: closingKms,
         end_trip_date: closingDate,
         end_trip_time: closingTime,
+        posted_user_id: selectedTripData?.posted_user_id,
+        accepted_user_id: userId,
       },
       userToken,
     );
@@ -254,6 +258,7 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
+    console.log('hi')
     const response = await closeTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -578,7 +583,9 @@ const MyTrips = () => {
           setShowClosingTimePicker={setShowClosingTimePicker}
           showClosingDatePicker={showClosingDatePicker}
           setShowClosingDatePicker={setShowClosingDatePicker}
-          handleCloseTrip={handleCloseForDay}
+          closingActionType={closingActionType}
+          handleCloseTrip={handleCloseTrip}
+
         />
       </CustomModal>
 
@@ -591,6 +598,7 @@ const MyTrips = () => {
           setShowTripSummaryModal={setShowTripSummaryModal}
           setShowAdditionalCharges={setShowAdditionalCharges}
           onPressNext={(closingDetails) => {
+
             handleCloseTrip(
               closingDetails.closingKms,
               closingDetails.closingTime,

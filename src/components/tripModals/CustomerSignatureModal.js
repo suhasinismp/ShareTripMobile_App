@@ -171,6 +171,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 24,
     paddingHorizontal: 20,
+    fontWeight: 'bold',
   },
   signatureDetailsContainer: {
     backgroundColor: '#F9FAFB',

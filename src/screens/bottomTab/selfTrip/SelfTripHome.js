@@ -1,3 +1,5 @@
+
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -14,7 +16,7 @@ import PostCard from '../../../components/PostCard';
 import AppHeader from '../../../components/AppHeader';
 import CustomModal from '../../../components/ui/CustomModal';
 import TripSummaryModal from '../../../components/tripModals/TripSummaryModal';
-import StartTripModal from '../../../components/tripModals/StartTripModal';
+
 import TripProgressModal from '../../../components/tripModals/TripProgressModal';
 import ClosingDetailsModal from '../../../components/tripModals/ClosingDetailsModal';
 import CustomerSignatureModal from '../../../components/tripModals/CustomerSignatureModal';
@@ -22,10 +24,13 @@ import AdditionalChargesModal from '../../../components/tripModals/AdditionalCha
 import {
   closeForDay,
   closeTrip,
+  fetchMultiDayTripDetails,
   fetchTripDetails,
   postAdditionCharges,
+
 } from '../../../services/myTripsService';
 import axios from 'axios';
+import StartTripModal from '../../../components/tripModals/StartTripModal';
 
 const SelfTripHome = () => {
   const dispatch = useDispatch();
@@ -35,6 +40,8 @@ const SelfTripHome = () => {
   const userToken = userData.userToken;
   const [userSelfTripData, setUserSelfTripData] = useState([]);
   const [showStartTripModal, setShowStartTripModal] = useState(false);
+  console.log('ggg', showStartTripModal)
+
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
@@ -42,7 +49,9 @@ const SelfTripHome = () => {
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
   const [selectedTripData, setSelectedTripData] = useState(null);
+
   const [tripSummaryData, setTripSummaryData] = useState(null);
+  const [tripType, setTripType] = useState('');
   const [openingKms, setOpeningKms] = useState('');
   const [openingTime, setOpeningTime] = useState('');
   const [openingDate, setOpeningDate] = useState('');
@@ -54,7 +63,6 @@ const SelfTripHome = () => {
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
-  const [tripType, setTripType] = useState('');
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -71,15 +79,19 @@ const SelfTripHome = () => {
     }, [userId, userToken]),
   );
 
+
+
+
   const getSelfTripPosts = async () => {
     const response = await fetchUserSelfPosts(userId, userToken);
+
     if (response.error === false) {
       setUserSelfTripData(response.data);
     }
   };
 
   const handleStartTrip = async () => {
-    const response = await startTrip(
+    const response = await startSelfTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
         start_trip_kms: openingKms,
@@ -101,27 +113,65 @@ const SelfTripHome = () => {
       setOpeningTime('');
       setOpeningDate('');
       setSelectedTripData(null);
-      await fetchUiData();
+      setTripType('');
+      await getSelfTripPosts();
     }
   };
 
-  const handleContinueForNextDay = () => {
-    setClosingActionType('continue');
-    setShowTripProgressModal(false);
-    setShowClosingDetailsModal(true);
+  const handleContinueForNextDay = async () => {
+    setTripType('multiDay');
+    const response = await fetchMultiDayTripDetails(
+      selectedTripData?.post_booking_id,
+      userToken,
+    );
+    console.log('response', response);
+
+    if (
+      response?.error === false &&
+      response?.message === 'You need to close last day trip details'
+    ) {
+      setShowTripProgressModal(false);
+      setShowClosingDetailsModal(true);
+    } else {
+      if (response?.message === 'You have closed last day Trip ride data') {
+        setShowTripProgressModal(false);
+        setShowStartTripModal(true);
+      }
+    }
   };
 
   const handleButtonPress = (tripData) => {
-
+    console.log('tripData', tripData);
     setSelectedTripData(tripData);
+    setTripType('');
     if (tripData?.request_status === 'Start Trip') {
-
       setShowStartTripModal(true);
-
     } else if (tripData?.request_status === 'Trip in Progress') {
       setShowTripProgressModal(true);
     }
   };
+
+  const handleCloseForDay = async () => {
+    const response = await closeForDay(
+      {
+        post_bookings_id: selectedTripData?.post_booking_id,
+        end_trip_kms: closingKms,
+        end_trip_date: closingDate,
+        end_trip_time: closingTime,
+        posted_user_id: selectedTripData?.posted_user_id,
+        accepted_user_id: userId,
+      },
+      userToken,
+    );
+
+    if (response?.error === false) {
+      setShowClosingDetailsModal(false);
+      setClosingKms('')
+      setClosingTime('')
+      setClosingDate('')
+    }
+  };
+
 
   const handleEndTrip = async () => {
     setShowTripProgressModal(false);
@@ -151,60 +201,6 @@ const SelfTripHome = () => {
     setShowTripProgressModal(true);
   };
 
-
-
-
-
-  const handleAdditionalChargesNext = async (documents, charges) => {
-    const formData = new FormData();
-    formData.append(
-      'json',
-      JSON.stringify({
-        post_booking_id: selectedTripData?.post_booking_id,
-        advance: charges?.advance,
-        parking: charges?.parking,
-        tolls: charges?.tolls,
-        state_tax: charges?.stateTax,
-        cleaning: charges?.cleaning,
-        night_batta: charges?.nightBatta,
-      }),
-    );
-
-    documents.forEach((doc) => {
-      formData.append(doc.fileNumber, {
-        uri: doc.uri,
-        type: doc.type,
-        name: doc.name,
-      });
-    });
-
-    const response = await postAdditionCharges(formData, userToken);
-    if (response?.error === false) {
-      setShowAdditionalCharges(false);
-      setShowCustomerSignatureModal(true);
-    }
-  };
-
-  const handleMultiDayStart = async () => {
-    const finalData = {
-      post_bookings_id: selectedTripData?.post_booking_id,
-      start_time: openingTime,
-      start_trip_kms: openingKms,
-      start_date: openingDate,
-    };
-
-    const response = await startTripMultiDay(finalData, userToken);
-    if (response?.error === false) {
-      setShowStartTripModal(false);
-      setOpeningKms('');
-      setOpeningTime('');
-      setOpeningDate('');
-      setSelectedTripData(null);
-      setTripType('');
-      await fetchUiData();
-    }
-  };
-
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
     const response = await closeTrip(
       {
@@ -222,24 +218,54 @@ const SelfTripHome = () => {
       setShowTripSummaryModal(false);
       setShowAdditionalCharges(true);
     }
-  }
+  };
+  const handleMultiDayStart = async () => {
+    const finalData = {
+      post_bookings_id: selectedTripData?.post_booking_id,
+      start_time: openingTime,
+      start_trip_kms: openingKms,
+      start_date: openingDate,
+    };
 
-  const handleCloseForDay = async () => {
-    const response = await closeForDay(
-      {
-        post_bookings_id: selectedTripData?.post_booking_id,
-        end_trip_kms: closingKms,
-        end_trip_date: closingDate,
-        end_trip_time: closingTime,
-      },
-      userToken,
-    );
-    console.log({ response });
+    const response = await startTripMultiDay(finalData, userToken);
     if (response?.error === false) {
-      setShowClosingDetailsModal(false);
-      setClosingKms('')
-      setClosingTime('')
-      setClosingDate('')
+      setShowStartTripModal(false);
+      setOpeningKms('');
+      setOpeningTime('');
+      setOpeningDate('');
+      setSelectedTripData(null);
+      setTripType('');
+      await getSelfTripPosts();
+    }
+  };
+
+  const handleAdditionalChargesNext = async (documents, charges) => {
+    const finalData = {
+      post_booking_id: selectedTripData?.post_booking_id,
+      advance: charges?.advance,
+      parking: charges?.parking,
+      tolls: charges?.tolls,
+      state_tax: charges?.stateTax,
+      cleaning: charges?.cleaning,
+      night_batta: charges?.nightBatta,
+    };
+
+    const formData = new FormData();
+    formData.append('json', JSON.stringify(finalData));
+
+    documents.forEach((doc) => {
+      formData.append(doc.fileNumber, {
+        uri: doc.uri,
+        type: doc.type,
+        name: doc.name,
+      });
+    });
+
+    const response = await postAdditionCharges(formData, userToken);
+
+    if (response?.error === false) {
+      setShowAdditionalCharges(false);
+      setShowCustomerSignatureModal(true);
     }
   };
 
@@ -355,27 +381,6 @@ const SelfTripHome = () => {
           />
         </CustomModal>
 
-
-        <CustomModal
-          visible={showClosingDetailsModal}
-          onSecondaryAction={handleBackToTripProgress}
-        >
-          <ClosingDetailsModal
-            handleBackToTripProgress={handleBackToTripProgress}
-            closingKms={closingKms}
-            setClosingKms={setClosingKms}
-            closingTime={closingTime}
-            setClosingTime={setClosingTime}
-            closingDate={closingDate}
-            setClosingDate={setClosingDate}
-            showClosingTimePicker={showClosingTimePicker}
-            setShowClosingTimePicker={setShowClosingTimePicker}
-            showClosingDatePicker={showClosingDatePicker}
-            setShowClosingDatePicker={setShowClosingDatePicker}
-            handleCloseTrip={handleCloseForDay}
-          />
-        </CustomModal>
-
         <CustomModal
           visible={showTripSummaryModal}
           onSecondaryAction={() => setShowTripSummaryModal(false)}
@@ -384,13 +389,6 @@ const SelfTripHome = () => {
             tripSummaryData={tripSummaryData}
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
-            onPressNext={(closingDetails) => {
-              handleCloseTrip(
-                closingDetails.closingKms,
-                closingDetails.closingTime,
-                closingDetails.closingDate,
-              );
-            }}
           />
         </CustomModal>
 
