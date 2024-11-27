@@ -3,6 +3,7 @@ import { getAPI, patchFormDataAPI } from "../utils/servicesUtil";
 
 export const getProfileByUserId = async (token, userId) => {
     const response = await getAPI(`share-trip/auth/users/${userId}`, token);
+    console.log({ response })
 
     return response;
 }

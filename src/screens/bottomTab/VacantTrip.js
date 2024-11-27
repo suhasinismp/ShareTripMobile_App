@@ -102,6 +102,8 @@ const VacantTrip = () => {
   const [userVehicles, setUserVehicles] = useState([]);
   const [userVacantPostData, setUserVacantPostData] = useState([]);
 
+
+
   useFocusEffect(
     useCallback(() => {
       getUserVacantPosts();
@@ -183,7 +185,7 @@ const VacantTrip = () => {
         name: filename,
       });
     }
-    const response = await createVacantPost(formData, userToken);
+    const response = await createVacantPost(formData, userToken)
 
     if (response.error === false) {
       alert('Vacant post created successfully');

@@ -9,7 +9,7 @@ const CustomerSignatureModal = ({
   userToken,
   userId,
   onClose,
-  onEndPress,
+  fetch,
 }) => {
   const [signature, setSignature] = useState(null);
   const signatureRef = useRef();
@@ -171,6 +171,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 24,
     paddingHorizontal: 20,
+    fontWeight: 'bold',
   },
   signatureDetailsContainer: {
     backgroundColor: '#F9FAFB',

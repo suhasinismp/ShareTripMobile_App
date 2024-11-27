@@ -52,6 +52,10 @@ const PostCard = ({
   isRequested,
   packageName,
   vacantTripPostedByLoggedInUser,
+  viewTripSheet,
+  driverPayment,
+  customerPayment,
+  billsScreen,
 }) => {
   const requestStatus = isRequested ? isRequested : 'Accept';
   const isAvailable = postStatus === 'Available';
@@ -271,7 +275,8 @@ const PostCard = ({
                   )}
                 </View>
               )}
-              {vacantTripPostedByLoggedInUser === undefined && (
+              {(vacantTripPostedByLoggedInUser === undefined ||
+                billsScreen === undefined) && (
                 <View style={styles.footerRight}>
                   <TouchableOpacity
                     style={styles.acceptButton}
@@ -313,6 +318,30 @@ const PostCard = ({
               <TripSheetIcon />
             </TouchableOpacity>
           </View>
+        )}
+      </View>
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          padding: 15,
+        }}
+      >
+        {viewTripSheet && (
+          <TouchableOpacity onPress={viewTripSheet} style={styles.actionButton}>
+            <Text style={styles.buttonText}>View Trip Sheet</Text>
+          </TouchableOpacity>
+        )}
+        {driverPayment && (
+          <TouchableOpacity style={styles.actionButton}>
+            <Text style={styles.buttonText}>Driver Payment</Text>
+          </TouchableOpacity>
+        )}
+        {customerPayment && (
+          <TouchableOpacity style={styles.actionButton}>
+            <Text style={styles.buttonText}>Customer Payment</Text>
+          </TouchableOpacity>
         )}
       </View>
     </View>
@@ -515,6 +544,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'red',
   },
+  buttonText: {
+    backgroundColor: '#005680',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+    width: 100,
+    color: 'white',
+  },
+  actionButton: {},
 });
 
 export default PostCard;

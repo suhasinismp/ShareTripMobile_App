@@ -85,6 +85,7 @@ const MyTrips = () => {
   const [closingDate, setClosingDate] = useState('');
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
+  const [closingActionType, setClosingActionType] = useState('end');
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -190,7 +191,6 @@ const MyTrips = () => {
       selectedTripData?.post_booking_id,
       userToken,
     );
-    console.log('response', response);
 
     if (
       response?.error === false &&
@@ -241,15 +241,17 @@ const MyTrips = () => {
         end_trip_kms: closingKms,
         end_trip_date: closingDate,
         end_trip_time: closingTime,
+        posted_user_id: selectedTripData?.posted_user_id,
+        accepted_user_id: userId,
       },
       userToken,
     );
-    console.log({ response });
+
     if (response?.error === false) {
       setShowClosingDetailsModal(false);
-      setClosingKms('')
-      setClosingTime('')
-      setClosingDate('')
+      setClosingKms('');
+      setClosingTime('');
+      setClosingDate('');
     }
   };
 
@@ -319,12 +321,11 @@ const MyTrips = () => {
   };
 
   const handleButtonPress = (tripData) => {
-    console.log('tripData', tripData);
     setSelectedTripData(tripData);
     setTripType('');
     if (tripData?.post_trip_trip_status === 'Start Trip') {
       setShowStartTripModal(true);
-    } else if (tripData?.post_trip_trip_status === 'Trip in Progress') {
+    } else if (tripData?.post_trip_trip_status === 'On Duty') {
       setShowTripProgressModal(true);
     }
   };
@@ -406,8 +407,8 @@ const MyTrips = () => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-          onCallPress={() => { }}
-          onMessagePress={() => { }}
+          onCallPress={() => {}}
+          onMessagePress={() => {}}
           onRefreshData={fetchUiData}
           userToken={userToken}
         />
@@ -432,8 +433,8 @@ const MyTrips = () => {
         baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => handleButtonPress(item)}
         onCallPress={() => handleCall(item?.user_phone)}
-        onPlayPress={() => { }}
-        onMessagePress={() => { }}
+        onPlayPress={() => {}}
+        onMessagePress={() => {}}
         isRequested={item?.post_trip_trip_status || item?.request_status}
         packageName={item?.booking_package_name}
       />
@@ -578,7 +579,8 @@ const MyTrips = () => {
           setShowClosingTimePicker={setShowClosingTimePicker}
           showClosingDatePicker={showClosingDatePicker}
           setShowClosingDatePicker={setShowClosingDatePicker}
-          handleCloseTrip={handleCloseForDay}
+          closingActionType={closingActionType}
+          handleCloseTrip={handleCloseTrip}
         />
       </CustomModal>
 

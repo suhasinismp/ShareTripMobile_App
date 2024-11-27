@@ -1,0 +1,13 @@
+import { getAPI } from "../utils/servicesUtil"
+
+
+export const getMyDutiesBill = async (userId, token) => {
+    const response = await getAPI(`share-trip/post-trip-confirm/completed-trips?filter=myDuties&user_id=${userId}`, token,)
+    console.log('abc', response)
+    return response;
+}
+
+export const getMyPostedTripBills = async (userId, token) => {
+    const response = await getAPI(`share-trip/posted-user/completed-trips?filter=posted&user_id=${userId}`, token)
+    return response;
+}
