@@ -269,7 +269,6 @@
 
 // export default ProfileScreen;
 
-
 import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
@@ -322,7 +321,7 @@ const ProfileScreen = () => {
   const userToken = userData?.userToken;
   const userId = userData?.userId;
   const [initialUserDetails, setInitialUserDetails] = useState(null);
-  console.log('sss', initialUserDetails)
+
   const [isLoading, setIsLoading] = useState(true);
 
   const { control, handleSubmit, reset } = useForm({
@@ -333,7 +332,6 @@ const ProfileScreen = () => {
       [fieldNames.EMAIL]: 'email',
     },
   });
-
 
   useEffect(() => {
     if (userToken && userId) {

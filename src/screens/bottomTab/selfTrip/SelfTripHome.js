@@ -1,5 +1,3 @@
-
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -27,7 +25,6 @@ import {
   fetchMultiDayTripDetails,
   fetchTripDetails,
   postAdditionCharges,
-
 } from '../../../services/myTripsService';
 import axios from 'axios';
 import StartTripModal from '../../../components/tripModals/StartTripModal';
@@ -40,7 +37,6 @@ const SelfTripHome = () => {
   const userToken = userData.userToken;
   const [userSelfTripData, setUserSelfTripData] = useState([]);
   const [showStartTripModal, setShowStartTripModal] = useState(false);
-  console.log('ggg', showStartTripModal)
 
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
@@ -78,9 +74,6 @@ const SelfTripHome = () => {
       getSelfTripPosts();
     }, [userId, userToken]),
   );
-
-
-
 
   const getSelfTripPosts = async () => {
     const response = await fetchUserSelfPosts(userId, userToken);
@@ -124,7 +117,6 @@ const SelfTripHome = () => {
       selectedTripData?.post_booking_id,
       userToken,
     );
-    console.log('response', response);
 
     if (
       response?.error === false &&
@@ -141,7 +133,6 @@ const SelfTripHome = () => {
   };
 
   const handleButtonPress = (tripData) => {
-    console.log('tripData', tripData);
     setSelectedTripData(tripData);
     setTripType('');
     if (tripData?.request_status === 'Start Trip') {
@@ -166,12 +157,11 @@ const SelfTripHome = () => {
 
     if (response?.error === false) {
       setShowClosingDetailsModal(false);
-      setClosingKms('')
-      setClosingTime('')
-      setClosingDate('')
+      setClosingKms('');
+      setClosingTime('');
+      setClosingDate('');
     }
   };
-
 
   const handleEndTrip = async () => {
     setShowTripProgressModal(false);

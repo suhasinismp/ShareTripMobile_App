@@ -32,16 +32,13 @@ import ProfileIcon from '../../assets/svgs/profile.svg';
 import ProfileIconInactive from '../../assets/svgs/profileIconInactive.svg';
 import SubscriptionIcon from '../../assets/svgs/subscription.svg';
 import VehicleIcon from '../../assets/svgs/vehicle.svg';
-import { resetStore } from '../store/store';
-import Groups from '../screens/groups/GroupsScreen';
-import ViewGroupRequestsScreen from '../screens/groups/ViewGroupRequestsScreen';
-import CreateGroupScreen from '../screens/groups/CreateGroupScreen';
-import GroupStack from './GroupStack';
 import PostATripScreen from '../screens/bottomTab/postTrip/PostATripScreen';
-import SelectGroupScreen from '../screens/bottomTab/postTrip/SelectGroupScreen';
 import SelectContactScreen from '../screens/bottomTab/postTrip/SelectContactScreen';
+import SelectGroupScreen from '../screens/bottomTab/postTrip/SelectGroupScreen';
 import CreateSelfTrip from '../screens/bottomTab/selfTrip/CreateSelfTripScreen';
 import TripSheetScreen from '../screens/drawer/TripSheetScreen';
+import { resetStore } from '../store/store';
+import GroupStack from './GroupStack';
 
 const Drawer = createDrawerNavigator();
 
