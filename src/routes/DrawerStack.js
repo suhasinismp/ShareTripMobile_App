@@ -108,10 +108,10 @@ const CustomDrawerContent = (props) => {
     <DrawerContentScrollView {...props}>
       {/* Profile section */}
       <View style={styles.profileSection}>
-        <Image
-          source={require('../../assets/svgs/defaultProfilePic.png')}
+        {/* <Image
+          source={{ uri: u_profile_pic }}
           style={styles.profileImage}
-        />
+        /> */}
         <View style={styles.profileInfo}>
           <Text style={styles.userName}>{name}</Text>
         </View>
