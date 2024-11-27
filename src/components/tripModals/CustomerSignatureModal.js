@@ -9,7 +9,7 @@ const CustomerSignatureModal = ({
   userToken,
   userId,
   onClose,
-  onEndPress,
+  fetch,
 }) => {
   const [signature, setSignature] = useState(null);
   const signatureRef = useRef();
