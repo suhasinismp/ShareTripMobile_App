@@ -2,6 +2,7 @@ export const fieldNames = {
   FULL_NAME: 'fullName',
   PHONE_NUMBER: 'phoneNumber',
   EMAIL: 'email',
+  USER_NAME: 'userName',
   EMERGENCY_NUMBER_ONE: 'emergencyNumberOne',
   EMERGENCY_NUMBER_TWO: 'emergencyNumberTwo',
   PASSWORD: 'password',

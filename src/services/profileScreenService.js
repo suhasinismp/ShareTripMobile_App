@@ -9,12 +9,13 @@ export const getProfileByUserId = async (token, userId) => {
 }
 
 
-export const updateProfile = async (payload, token) => {
+export const updateProfile = async (data, token) => {
     const response = await patchFormDataAPI({
         endUrl: 'share-trip/auth/users/',
-        formData: payload,
+        formData: data,
         token: token,
     });
+    console.log('ddd', response)
     return response;
 };
 
