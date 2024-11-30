@@ -16,7 +16,12 @@ import CustomInput from '../../../components/ui/CustomInput';
 import CustomSelect from '../../../components/ui/CustomSelect';
 import CustomText from '../../../components/ui/CustomText';
 import { useTheme } from '../../../hooks/useTheme';
-import { createPost, getTripTypes } from '../../../services/postTripService';
+import {
+  createPost,
+  fetchTripByPostId,
+  generateTripPdf,
+  getTripTypes,
+} from '../../../services/postTripService';
 import {
   fetchVehicleNames,
   fetchVehicleTypes,
@@ -25,8 +30,42 @@ import { getUserDataSelector } from '../../../store/selectors';
 import AudioContainer from '../../../components/AudioContainer';
 import TimeDatePicker from '../../../components/TimeDatePicker';
 import { useNavigation } from '@react-navigation/native';
+import * as Print from 'expo-print';
+import * as FileSystem from 'expo-file-system';
 
 const { width } = Dimensions.get('window');
+
+const cleanHTML = (response) => {
+  try {
+    // Check if response is an object with html property
+    if (response && response.html) {
+      return response.html
+        .replace(/\\n/g, '\n')
+        .replace(/\\/g, '')
+        .replace(/" "/g, '"')
+        .replace(/class=\s*"\s*([^"]+)\s*"/g, 'class="$1"')
+        .replace(/\s+/g, ' ')
+        .replace(/style=\s*"\s*([^"]+)\s*"/g, 'style="$1"')
+        .replace(/<!--\s*-->/g, '')
+        .replace(/>\s+</g, '><')
+        .trim();
+    }
+    // If response is directly HTML string
+    return response
+      .replace(/\\n/g, '\n')
+      .replace(/\\/g, '')
+      .replace(/" "/g, '"')
+      .replace(/class=\s*"\s*([^"]+)\s*"/g, 'class="$1"')
+      .replace(/\s+/g, ' ')
+      .replace(/style=\s*"\s*([^"]+)\s*"/g, 'style="$1"')
+      .replace(/<!--\s*-->/g, '')
+      .replace(/>\s+</g, '><')
+      .trim();
+  } catch (error) {
+    console.error('Error cleaning HTML:', error);
+    return '<!DOCTYPE html><html><body></body></html>';
+  }
+};
 
 const VehicleButton = ({ item, isSelected, onPress, imageKey, nameKey }) => (
   <View style={{ flexDirection: 'column', alignItems: 'center' }}>
@@ -50,11 +89,14 @@ const shareTypeData = [
   { label_id: 3, label_value: 'Contact' },
 ];
 
-const PostATripScreen = () => {
+const PostATripScreen = ({ route }) => {
+  const from = route.params?.from;
+  const postId = route.params?.postId;
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const userId = userData.userId;
+  const [pdfUri, setPdfUri] = useState(null);
   const [postType, setPostType] = useState('Quick Share');
   const [tripTypes, setTripTypes] = useState([]);
   const [selectedTripType, setSelectedTripType] = useState(null);
@@ -64,6 +106,7 @@ const PostATripScreen = () => {
   const [selectedVehicleType, setSelectedVehicleType] = useState(null);
   const [selectedVehicleName, setSelectedVehicleName] = useState(null);
   const [selectedShareType, setSelectedShareType] = useState(1);
+  const [initialData, setInitialData] = useState(null);
 
   const { theme } = useTheme();
 
@@ -91,6 +134,69 @@ const PostATripScreen = () => {
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
 
+  useEffect(() => {
+    fetchConstants();
+  }, []);
+
+  useEffect(() => {
+    if (tripTypes.length > 0) {
+      const localTripType = tripTypes.find(
+        (trip) => trip.booking_type_name === 'LOCAL',
+      );
+      if (localTripType) {
+        setSelectedTripType(localTripType.id);
+        const localPackages = localTripType.bookingTypePackageAsBookingType;
+        if (localPackages.length > 0) {
+          setSelectedPackage(localPackages[0].id);
+        }
+      }
+    }
+  }, [tripTypes]);
+
+  useEffect(() => {
+    if (from != undefined) {
+      setPostType('Trip Sheet');
+      getTripSheetDetails();
+    }
+  }, [from]);
+
+  useEffect(() => {}, [initialData]);
+
+  const getTripSheetDetails = async () => {
+    const response = await fetchTripByPostId(postId, userToken);
+
+    if (response.error === false) {
+      setInitialData(response.data.postBooking);
+    }
+  };
+
+  const generateAndSavePDF = async () => {
+    const finalData = { post_booking_id: 100 };
+    const response = await generateTripPdf(finalData, userToken);
+    console.log({ response });
+
+    const cleanedHtml = cleanHTML(response);
+    const { uri } = await Print.printToFileAsync({
+      html: cleanedHtml,
+    });
+
+    console.log({ uri });
+
+    const pdfDir = `${FileSystem.cacheDirectory}pdfs/`;
+    const pdfPath = `${pdfDir}tripsheet.pdf`;
+
+    await FileSystem.makeDirectoryAsync(pdfDir, { intermediates: true });
+
+    await FileSystem.copyAsync({
+      from: uri,
+      to: pdfPath,
+    });
+
+    console.log({ pdfPath });
+
+    setPdfUri(pdfPath);
+  };
+
   const handleStartRecording = () => {
     setIsRecording(true);
   };
@@ -115,25 +221,6 @@ const PostATripScreen = () => {
   const handleTimeChange = (newTime) => {
     setSelectedTime(newTime);
   };
-
-  useEffect(() => {
-    fetchConstants();
-  }, []);
-
-  useEffect(() => {
-    if (tripTypes.length > 0) {
-      const localTripType = tripTypes.find(
-        (trip) => trip.booking_type_name === 'LOCAL',
-      );
-      if (localTripType) {
-        setSelectedTripType(localTripType.id);
-        const localPackages = localTripType.bookingTypePackageAsBookingType;
-        if (localPackages.length > 0) {
-          setSelectedPackage(localPackages[0].id);
-        }
-      }
-    }
-  }, [tripTypes]);
 
   const handleSend = async () => {
     let isValid = true;
@@ -532,28 +619,30 @@ const PostATripScreen = () => {
           />
         )}
       </View>
-      <View style={styles.shareTypeContainer}>
-        <CustomText
-          text={'Share To :'}
-          variant={'sectionTitleText'}
-          style={{ marginBottom: 10 }}
-        />
-        <FlatList
-          data={shareTypeData}
-          renderItem={({ item }) =>
-            renderSelectItem({
-              item,
-              isSelected: selectedShareType === item.label_id,
-              onPress: () => setSelectedShareType(item.label_id),
-              textKey: 'label_value',
-            })
-          }
-          keyExtractor={(item) => item.label_id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.shareTypeList}
-        />
-      </View>
+      {!from && (
+        <View style={styles.shareTypeContainer}>
+          <CustomText
+            text={'Share To :'}
+            variant={'sectionTitleText'}
+            style={{ marginBottom: 10 }}
+          />
+          <FlatList
+            data={shareTypeData}
+            renderItem={({ item }) =>
+              renderSelectItem({
+                item,
+                isSelected: selectedShareType === item.label_id,
+                onPress: () => setSelectedShareType(item.label_id),
+                textKey: 'label_value',
+              })
+            }
+            keyExtractor={(item) => item.label_id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.shareTypeList}
+          />
+        </View>
+      )}
     </>
   );
 
@@ -732,24 +821,26 @@ const PostATripScreen = () => {
         </View>
       </View>
 
-      <View style={styles.shareTypeContainer}>
-        <CustomText text={'Select to Post :'} variant={'sectionTitleText'} />
-        <FlatList
-          data={shareTypeData}
-          renderItem={({ item }) =>
-            renderSelectItem({
-              item,
-              isSelected: selectedShareType === item.label_id,
-              onPress: () => setSelectedShareType(item.label_id),
-              textKey: 'label_value',
-            })
-          }
-          keyExtractor={(item) => item.label_id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.shareTypeList}
-        />
-      </View>
+      {!from && (
+        <View style={styles.shareTypeContainer}>
+          <CustomText text={'Select to Post :'} variant={'sectionTitleText'} />
+          <FlatList
+            data={shareTypeData}
+            renderItem={({ item }) =>
+              renderSelectItem({
+                item,
+                isSelected: selectedShareType === item.label_id,
+                onPress: () => setSelectedShareType(item.label_id),
+                textKey: 'label_value',
+              })
+            }
+            keyExtractor={(item) => item.label_id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.shareTypeList}
+          />
+        </View>
+      )}
     </>
   );
 
@@ -759,7 +850,7 @@ const PostATripScreen = () => {
         backIcon={true}
         onlineIcon={true}
         muteIcon={true}
-        title={'Post A Trip'}
+        title={from != undefined ? 'Trip Sheet' : 'Post A Trip'}
       />
       <KeyboardAwareScrollView
         style={styles.container}
@@ -772,26 +863,28 @@ const PostATripScreen = () => {
         enableAutomaticScroll={true}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.postTypeContainer}>
-          <CustomSelect
-            text={'Quick Share'}
-            containerStyle={styles.postType}
-            selectedTextStyle={styles.selectedPostTypeText}
-            selectedStyle={styles.selectedPostTypeBackground}
-            isSelected={postType === 'Quick Share'}
-            onPress={() => setPostType('Quick Share')}
-            unselectedStyle={styles.unselectedBorder}
-          />
-          <CustomSelect
-            text={'Trip Sheet'}
-            containerStyle={styles.postType}
-            selectedTextStyle={styles.selectedPostTypeText}
-            selectedStyle={styles.selectedPostTypeBackground}
-            isSelected={postType === 'Trip Sheet'}
-            onPress={() => setPostType('Trip Sheet')}
-            unselectedStyle={styles.unselectedBorder}
-          />
-        </View>
+        {!from && (
+          <View style={styles.postTypeContainer}>
+            <CustomSelect
+              text={'Quick Share'}
+              containerStyle={styles.postType}
+              selectedTextStyle={styles.selectedPostTypeText}
+              selectedStyle={styles.selectedPostTypeBackground}
+              isSelected={postType === 'Quick Share'}
+              onPress={() => setPostType('Quick Share')}
+              unselectedStyle={styles.unselectedBorder}
+            />
+            <CustomSelect
+              text={'Trip Sheet'}
+              containerStyle={styles.postType}
+              selectedTextStyle={styles.selectedPostTypeText}
+              selectedStyle={styles.selectedPostTypeBackground}
+              isSelected={postType === 'Trip Sheet'}
+              onPress={() => setPostType('Trip Sheet')}
+              unselectedStyle={styles.unselectedBorder}
+            />
+          </View>
+        )}
 
         {postType === 'Quick Share'
           ? renderQuickShareContent()
@@ -812,6 +905,7 @@ const PostATripScreen = () => {
             onPress={handleSend}
           />
         </View>
+
         <View style={{ marginBottom: 40 }} />
       </KeyboardAwareScrollView>
     </>

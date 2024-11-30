@@ -181,8 +181,8 @@ const HomeScreen = () => {
       }
       onCallPress={() => handleCall(item?.User_phone)}
       onTripSheetPress={() => {
-        navigation.navigate('TripSheet', {
-          postData: item,
+        navigation.navigate('PostTrip', {
+          from: 'Home',
         });
       }}
       isRequested={item?.request_status}

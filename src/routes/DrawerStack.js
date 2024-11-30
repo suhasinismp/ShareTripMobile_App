@@ -36,7 +36,7 @@ import PostATripScreen from '../screens/bottomTab/postTrip/PostATripScreen';
 import SelectContactScreen from '../screens/bottomTab/postTrip/SelectContactScreen';
 import SelectGroupScreen from '../screens/bottomTab/postTrip/SelectGroupScreen';
 import CreateSelfTrip from '../screens/bottomTab/selfTrip/CreateSelfTripScreen';
-import TripSheetScreen from '../screens/drawer/TripSheetScreen';
+
 import { resetStore } from '../store/store';
 import GroupStack from './GroupStack';
 
@@ -215,7 +215,6 @@ const DrawerStack = () => {
       <Drawer.Screen name="SelectGroups" component={SelectGroupScreen} />
       <Drawer.Screen name="SelectContacts" component={SelectContactScreen} />
       <Drawer.Screen name="CreateSelfTrip" component={CreateSelfTrip} />
-      <Drawer.Screen name="TripSheet" component={TripSheetScreen} />
     </Drawer.Navigator>
   );
 };

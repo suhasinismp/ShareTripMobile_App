@@ -53,6 +53,7 @@ const PostCard = ({
   packageName,
   vacantTripPostedByLoggedInUser,
   viewTripSheet,
+  viewTripSheetOnPress,
   driverPayment,
   customerPayment,
   billsScreen,
@@ -275,8 +276,7 @@ const PostCard = ({
                   )}
                 </View>
               )}
-              {(vacantTripPostedByLoggedInUser === undefined ||
-                billsScreen === undefined) && (
+              {!billsScreen && vacantTripPostedByLoggedInUser === undefined && (
                 <View style={styles.footerRight}>
                   <TouchableOpacity
                     style={styles.acceptButton}
@@ -329,7 +329,10 @@ const PostCard = ({
         }}
       >
         {viewTripSheet && (
-          <TouchableOpacity onPress={viewTripSheet} style={styles.actionButton}>
+          <TouchableOpacity
+            onPress={viewTripSheetOnPress}
+            style={styles.actionButton}
+          >
             <Text style={styles.buttonText}>View Trip Sheet</Text>
           </TouchableOpacity>
         )}

@@ -36,7 +36,6 @@ import CustomerSignatureModal from '../../components/tripModals/CustomerSignatur
 import CustomAccordion from '../../components/ui/CustomAccordion';
 import CustomSelect from '../../components/ui/CustomSelect';
 import CustomModal from '../../components/ui/CustomModal';
-import { set } from 'lodash';
 
 const MyTrips = () => {
   // User data from Redux
