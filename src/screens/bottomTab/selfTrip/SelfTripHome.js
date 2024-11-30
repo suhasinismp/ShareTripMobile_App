@@ -40,7 +40,7 @@ const SelfTripHome = () => {
   const userToken = userData.userToken;
   const [userSelfTripData, setUserSelfTripData] = useState([]);
   const [showStartTripModal, setShowStartTripModal] = useState(false);
-  console.log('ggg', showStartTripModal)
+
 
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
@@ -141,12 +141,12 @@ const SelfTripHome = () => {
   };
 
   const handleButtonPress = (tripData) => {
-    console.log('tripData', tripData);
+
     setSelectedTripData(tripData);
     setTripType('');
     if (tripData?.request_status === 'Start Trip') {
       setShowStartTripModal(true);
-    } else if (tripData?.request_status === 'Trip in Progress') {
+    } else if (tripData?.request_status === 'On Duty') {
       setShowTripProgressModal(true);
     }
   };
@@ -389,6 +389,14 @@ const SelfTripHome = () => {
             tripSummaryData={tripSummaryData}
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
+            onPressNext={(closingDetails) => {
+
+              handleCloseTrip(
+                closingDetails.closingKms,
+                closingDetails.closingTime,
+                closingDetails.closingDate,
+              )
+            }}
           />
         </CustomModal>
 

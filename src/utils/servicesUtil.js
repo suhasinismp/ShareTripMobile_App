@@ -47,7 +47,7 @@ export const postAPI = async (endUrl, body, token) => {
 
     return response?.data || {};
   } catch (error) {
-    // console.log('Error occurred while posting data');
+
     return null;
   }
 };
@@ -76,7 +76,7 @@ export const patchAPI = async ({ endUrl, body, token }) => {
     const response = await api(apiConfig);
     return response?.data || {};
   } catch (error) {
-    // console.log('Error occurred while posting data');
+
     return null;
   }
 };
@@ -131,7 +131,7 @@ export const postFormDataAPI = async (endUrl, formData, token) => {
   }
 };
 export const patchFormDataAPI = async ({ endUrl, formData, token }) => {
-  console.log({ endUrl, formData, token })
+
   const headers = {
     'Content-Type': 'multipart/form-data',
   };
@@ -182,7 +182,7 @@ export const patchSelfRideAPI = async (endUrl, body, token) => {
     const response = await api(apiConfig);
     return response?.data || {};
   } catch (error) {
-    // console.log('Error occurred while posting data');
+
     return null;
   }
 };

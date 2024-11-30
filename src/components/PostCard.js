@@ -273,6 +273,19 @@ const PostCard = ({
                       <Text style={styles.amountText}>Rs {baseFareRate}/-</Text>
                     </View>
                   )}
+
+                  <TouchableOpacity
+                    style={styles.acceptButton}
+                    onPress={onRequestPress}
+                    disabled={isRequested === 'Quoted' ? true : false}
+                  >
+                    <Text style={styles.acceptButtonText}>{requestStatus}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    {isRequested === 'Accepted' && !postStatus && (
+                      <Text style={styles.cancelText}>Cancel</Text>
+                    )}
+                  </TouchableOpacity>
                 </View>
               )}
               {vacantTripPostedByLoggedInUser === undefined || billsScreen === undefined && (
@@ -285,11 +298,7 @@ const PostCard = ({
                     <Text style={styles.acceptButtonText}>{requestStatus}</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity>
-                    {isRequested === 'Accepted' && !postStatus && (
-                      <Text style={styles.cancelText}>Cancel</Text>
-                    )}
-                  </TouchableOpacity>
+
                 </View>
               )}
               {vacantTripPostedByLoggedInUser === true && (

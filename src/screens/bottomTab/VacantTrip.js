@@ -21,6 +21,7 @@ import { getAllVehiclesByUserId } from '../../services/vehicleDetailsService';
 import { useFocusEffect } from '@react-navigation/native';
 import PostCard from '../../components/PostCard';
 import { formatDate } from '../../utils/formatdateUtil';
+import AudioContainer from '../../components/AudioContainer';
 
 const { width } = Dimensions.get('window');
 
@@ -71,17 +72,19 @@ const VacantTripModal = ({
         onPress={handleStartVacantModal}
       ></TouchableOpacity>
       <View style={styles.buttonContainer}>
-        <CustomButton
-          title="post Vacant Trip"
-          style={styles.submitButton}
-          onPress={handlePostVacantTrip}
-        />
+
         <CustomButton
           title="Cancel"
           variant="text"
           style={styles.cancelButton}
           onPress={handleCancelVacantModal}
         />
+        <CustomButton
+          title="post Vacant Trip"
+          style={styles.submitButton}
+          onPress={handlePostVacantTrip}
+        />
+
       </View>
     </View>
   );
@@ -101,6 +104,7 @@ const VacantTrip = () => {
   const [vehicleName, setVehicleName] = useState('');
   const [userVehicles, setUserVehicles] = useState([]);
   const [userVacantPostData, setUserVacantPostData] = useState([]);
+  const [isRecording, setIsRecording] = useState(false)
 
 
 
@@ -134,6 +138,8 @@ const VacantTrip = () => {
   const handleStartVacantModal = () => {
     setShowVacantTripModal(true);
   };
+
+
   const handleCancelVacantModal = () => {
     setShowVacantTripModal(false);
   };
@@ -207,7 +213,7 @@ const VacantTrip = () => {
       // pickUpTime={item?.pick_up_time}
       // fromDate={item?.from_date}
       vehicleType={item?.vehicle_type}
-      vehicleName={item?.v_name}
+      vehicleName={item?.vehicle_name}
       // pickUpLocation={item?.pick_up_location}
       // destination={item?.destination}
       vacantTripPostedByLoggedInUser={
@@ -265,6 +271,11 @@ const VacantTrip = () => {
           handleStartVacantModal={handleStartVacantModal}
           handleCancelVacantModal={handleCancelVacantModal}
           handlePostVacantTrip={handlePostVacantTrip}
+          isRecording={isRecording}
+          recordedAudioUri={recordedAudioUri}
+          handleStartRecording={handleStartRecording}
+          handleStopRecording={handleStopRecording}
+          handleDeleteRecording={handleDeleteRecording}
         />
       </CustomModal>
     </>
@@ -280,6 +291,11 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     padding: 10,
     marginTop: 30,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   modalContent: {
     padding: 20,
@@ -304,7 +320,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#005680',
     borderRadius: 4,
-    width: width * 0.4,
+    width: width * 0.2,
     alignItems: 'center',
   },
   inputGroup: {
@@ -312,7 +328,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     width: width * 0.4,
-    alignItems: 'center',
+    alignItems: 'right',
     backgroundColor: '#123F67',
     borderRadius: 4,
   },

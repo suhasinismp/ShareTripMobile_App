@@ -9,7 +9,7 @@ import CustomInput from '../../components/ui/CustomInput';
 const TripSheetScreen = ({ route }) => {
   const { postData } = route.params;
   const { theme } = useTheme();
-  console.log('data', postData);
+
   const [tripData, setTripData] = useState(postData);
   const [customerName, setCustomerName] = useState(postData?.User_name);
   const [customerPhone, setCustomerPhone] = useState(postData?.User_phone);
@@ -24,7 +24,7 @@ const TripSheetScreen = ({ route }) => {
     postData?.Vehicle_name,
   );
   const [rate, setRate] = useState(postData?.bookingTypeTariff_base_fare_rate);
-  console.log('tripType', tripType);
+
   const [paymentType, setPaymentType] = useState(postData?.payment_type);
 
   return (

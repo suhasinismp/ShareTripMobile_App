@@ -44,6 +44,7 @@ const HomeScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userPostsData, setUserPostsData] = useState([]);
 
+
   const [userVehicles, setUserVehicles] = useState([]);
 
   // Constants from userData
@@ -94,7 +95,7 @@ const HomeScreen = () => {
   const getUserPosts = async () => {
     setIsLoading(true);
     const response = await fetchPostsByUserId(userId, userToken);
-
+    // console.log('www', response)
     if (response?.error === false) {
       const filteredPosts = response?.data.filter(
         (post) =>

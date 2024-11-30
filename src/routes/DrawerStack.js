@@ -1,10 +1,12 @@
+
+
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
 import { useNavigationState } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -42,6 +44,7 @@ import SelectGroupScreen from '../screens/bottomTab/postTrip/SelectGroupScreen';
 import SelectContactScreen from '../screens/bottomTab/postTrip/SelectContactScreen';
 import CreateSelfTrip from '../screens/bottomTab/selfTrip/CreateSelfTripScreen';
 import TripSheetScreen from '../screens/drawer/TripSheetScreen';
+import { getProfileByUserId } from '../services/profileScreenService';
 
 const Drawer = createDrawerNavigator();
 
@@ -76,7 +79,13 @@ const CustomDrawerContent = (props) => {
   const dispatch = useDispatch();
   const userData = useSelector(getUserDataSelector);
   const name = userData.userName;
+  const userToken = userData.userToken;
+  const userId = userData.userId;
+
   const { navigation } = props;
+  const [userSingleData, setUserSingleData] = useState(null)
+
+
 
   const currentRoute = useNavigationState((state) => {
     const route = state.routes[state.index];
@@ -104,14 +113,33 @@ const CustomDrawerContent = (props) => {
     }
   };
 
+  useEffect(() => {
+    getProfileBySingleUserId()
+  }, [])
+
+  const getProfileBySingleUserId = async () => {
+    try {
+      const response = await getProfileByUserId(userToken, userId)
+      console.log('ddd', response)
+      if (response.error === false) {
+
+        setUserSingleData(response.data); // Update state
+
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+
+  }
+
   return (
     <DrawerContentScrollView {...props}>
       {/* Profile section */}
       <View style={styles.profileSection}>
-        {/* <Image
-          source={{ uri: u_profile_pic }}
+        <Image
+          source={{ uri: userSingleData?.u_profile_pic }}
           style={styles.profileImage}
-        /> */}
+        />
         <View style={styles.profileInfo}>
           <Text style={styles.userName}>{name}</Text>
         </View>

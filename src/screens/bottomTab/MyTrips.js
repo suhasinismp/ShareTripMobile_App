@@ -60,7 +60,7 @@ const MyTrips = () => {
 
   // Modal states
   const [showStartTripModal, setShowStartTripModal] = useState(false);
-  console.log('aaa', showStartTripModal)
+
 
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
@@ -248,7 +248,7 @@ const MyTrips = () => {
       },
       userToken,
     );
-    console.log({ response });
+
     if (response?.error === false) {
       setShowClosingDetailsModal(false);
       setClosingKms('')
@@ -258,7 +258,7 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
-    console.log('hi')
+
     const response = await closeTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -324,12 +324,12 @@ const MyTrips = () => {
   };
 
   const handleButtonPress = (tripData) => {
-    console.log('tripData', tripData);
+
     setSelectedTripData(tripData);
     setTripType('');
     if (tripData?.post_trip_trip_status === 'Start Trip') {
       setShowStartTripModal(true);
-    } else if (tripData?.post_trip_trip_status === 'Trip in Progress') {
+    } else if (tripData?.post_trip_trip_status === 'On Duty') {
       setShowTripProgressModal(true);
     }
   };

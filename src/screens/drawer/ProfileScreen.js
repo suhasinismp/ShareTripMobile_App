@@ -3,13 +3,11 @@ import {
   StyleSheet,
   View,
   Image,
-  Text,
   Dimensions,
   TouchableOpacity,
-  TextInput,
+  Alert,
 } from 'react-native';
 import AppHeader from '../../components/AppHeader';
-
 import { fieldNames } from '../../constants/strings/fieldNames';
 import CustomButton from '../../components/ui/CustomButton';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,58 +16,33 @@ import UploadOptionsModal from '../../components/UploadOptionsModal';
 import { getUserDataSelector } from '../../store/selectors';
 import { useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
-import { updateUserProfile } from '../../services/registrationService';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { UserDetailsScheme } from '../../constants/schema/userDetailsScheme';
-import { getProfileByUserId, updateProfile } from '../../services/profileScreenService';
+import { getProfileByUserId } from '../../services/profileScreenService';
 import CustomInput from '../../components/ui/CustomInput';
-import CustomText from '../../components/ui/CustomText';
+import axios from 'axios';
 
 const { width } = Dimensions.get('window');
-
-// const inputFields = [
-//   {
-
-//     name: fieldNames.USER_NAME,
-//     placeholder: 'Enter Name',
-//     keyboardType: 'numeric'
-//   },
-//   {
-//     id: 2,
-//     name: fieldNames.PHONE_NUMBER,
-//     placeholder: 'Enter Phone Number',
-//   },
-//   {
-//     id: 3,
-//     name: fieldNames.EMAIL,
-//     placeholder: 'Enter Email',
-//   },
-// ];
 
 const ProfileScreen = () => {
   const { theme } = useTheme();
   const [userProfile, setUserProfile] = useState(null);
+  const [userSingleData, setUserSingleData] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [isEditModeOn, setIsEditModeOn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const userData = useSelector(getUserDataSelector);
   const userToken = userData?.userToken;
   const userId = userData?.userId;
-  const [userName, setUserName] = useState('')
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [email, setEmail] = useState('')
-  const [userProfileData, setUserProfileData] = useState('')
-  const [isLoading, setIsLoading] = useState(true);
 
   const { control, handleSubmit, reset } = useForm({
     resolver: yupResolver(UserDetailsScheme),
     defaultValues: {
-      [fieldNames.USER_NAME]: 'userName',
-      [fieldNames.PHONE_NUMBER]: 'phoneNumber',
-      [fieldNames.EMAIL]: 'email',
+      [fieldNames.USER_NAME]: '',
+      [fieldNames.PHONE_NUMBER]: '',
+      [fieldNames.EMAIL]: '',
     },
   });
-
 
   useEffect(() => {
     if (userToken && userId) {
@@ -81,23 +54,18 @@ const ProfileScreen = () => {
     setIsLoading(true);
     try {
       const response = await getProfileByUserId(userToken, userId);
-      console.log('API Response:', response); // Debug API response
-      if (response.error === false && response.data) {
-        const data = response.data;
-        setUserName(data.u_name || '');
-        setPhoneNumber(data.u_mob_num || '');
-        setEmail(data.u_email_id || '');
-        setUserProfile(data.u_profile_pic || '');
-        setUserProfileData(data)
-        // Populate form fields when initial user details are fetched
 
+      if (response.error === false && response.data) {
+        const data = response?.data;
+        setUserSingleData(data)
+        // Populate form fields using `reset` from react-hook-form
         reset({
           [fieldNames.USER_NAME]: data.u_name || '',
           [fieldNames.PHONE_NUMBER]: data.u_mob_num || '',
           [fieldNames.EMAIL]: data.u_email_id || '',
         });
       } else {
-        console.warn('No data received or error in API response');
+        Alert.alert('Error', 'Failed to load profile details.');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -106,72 +74,59 @@ const ProfileScreen = () => {
     }
   };
 
-
-
-  const handleUserProfileUpload = (file) => {
-    setUserProfile(file.uri);
-    setModalVisible(false);
-  };
-
-  // const onSubmit = async (data) => {
-  //   const finalData = {
-  //     id: userId,
-  //     u_name: data.userName,
-  //     u_mob_num: data.phoneNumber,
-  //     u_email_id: data.email,
-  //   };
-  //   console.log('www', finalData)
-  //   try {
-  //     let response = await updateProfile(finalData, userToken);
-  //     if (response.error === false) {
-  //       setIsEditModeOn(false);
-  //       alert('Profile updated successfully');
-  //     } else {
-  //       console.error('Failed to update profile:', response.message);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error updating profile:', error);
-  //   }
-  // };
-
   const onSubmit = async (data) => {
-    const finalData = {
-      id: userId,
-      u_name: data.userName,
-      u_mob_num: data.phoneNumber,
-      u_email_id: data.email,
-    };
+    try {
+      const finalData = {
+        id: userId,
+        u_name: data[fieldNames.USER_NAME],
+        u_mob_num: data[fieldNames.PHONE_NUMBER],
+        u_email_id: data[fieldNames.EMAIL],
+      };
 
-    const formData = new FormData();
-    formData.append('json', JSON.stringify(finalData))
-    console.log('userProfile', userProfile)
-    formData.append('profileUpload', {
-      uri: userProfile,
-      type: 'image/jpeg',
-      name: ``,
+      const formData = new FormData();
+      formData.append('json', JSON.stringify(finalData));
 
-    })
-    console.log('sss', formData)
-    const response = await updateProfile(formData, userToken);
-    console.log({ formData, userToken })
-    if (response.error === false) {
-      setIsEditModeOn(false);
-      alert('Profile updated successfully');
-    } else {
-      console.error('Failed to update profile:', response.message);
+      if (userProfile && userProfile.uri) {
+        formData.append('profile', {
+          uri: userProfile.uri,
+          type: userProfile.type,
+          name: userProfile.name,
+        });
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
+      const response = await axios.patch(
+        'http://ec2-43-204-97-126.ap-south-1.compute.amazonaws.com:7000/share-trip/auth/users',
+        formData,
+        config
+      );
+
+      if (response.data.error === false) {
+        Alert.alert('Success', 'Profile updated successfully');
+        getUserDetails(); // Fetch updated profile
+      } else {
+        Alert.alert('Error', response.data.message || 'Failed to update profile.');
+      }
+    } catch (error) {
+      console.error('Error occurred while updating profile:', error.message);
+      Alert.alert('Error', 'An error occurred while updating the profile.');
     }
-  }
-
+  };
 
   return (
     <View style={styles.container}>
       <AppHeader backIcon={true} title="Profile" />
       <View style={styles.userProfileContainer}>
-        {userProfile ? (
-          <Image source={{ uri: userProfile ? userProfile : userProfileData?.u_profile_pic }} style={styles.userProfile} />
-        ) : (
-          <View style={[styles.userProfile, { backgroundColor: '#E0E0E0' }]} />
-        )}
+        <Image
+          source={{ uri: userProfile ? userProfile.uri : userSingleData?.u_profile_pic }}
+          style={styles.userProfile}
+        />
         <TouchableOpacity
           style={styles.editButton}
           onPress={() => setModalVisible(true)}
@@ -184,27 +139,42 @@ const ProfileScreen = () => {
           />
         </TouchableOpacity>
       </View>
-
-      {/* <View style={styles.inputContainer}> */}
-
-      <CustomInput
-        placeholder="Enter User Name"
-        value={userName}
-        onChangeText={setUserName}
+      {/* Form Fields */}
+      <Controller
+        control={control}
+        name={fieldNames.USER_NAME}
+        render={({ field: { onChange, value } }) => (
+          <CustomInput
+            placeholder="Enter User Name"
+            value={value}
+            onChangeText={onChange}
+          />
+        )}
       />
-      <CustomInput
-        placeholder="Enter Phone number"
-        value={phoneNumber}
-        onChangeText={setPhoneNumber}
-        keyboardType="phone-pad"
+      <Controller
+        control={control}
+        name={fieldNames.PHONE_NUMBER}
+        render={({ field: { onChange, value } }) => (
+          <CustomInput
+            placeholder="Enter Phone Number"
+            value={value}
+            onChangeText={onChange}
+            keyboardType="phone-pad"
+          />
+        )}
       />
-      <CustomInput
-        placeholder="Enter email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
+      <Controller
+        control={control}
+        name={fieldNames.EMAIL}
+        render={({ field: { onChange, value } }) => (
+          <CustomInput
+            placeholder="Enter Email"
+            value={value}
+            onChangeText={onChange}
+            keyboardType="email-address"
+          />
+        )}
       />
-      {/* </View> */}
       <View style={styles.buttonContainer}>
         <CustomButton
           title="Save"
@@ -215,7 +185,7 @@ const ProfileScreen = () => {
       <UploadOptionsModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        onSelectFile={handleUserProfileUpload}
+        onSelectFile={setUserProfile}
         camera={true}
         gallery={true}
       />
@@ -247,24 +217,10 @@ const styles = StyleSheet.create({
     padding: 8,
     elevation: 4,
   },
-  inputContainer: {
-    marginTop: 20,
-    gap: 10,
-    flex: 1,
-    width: '90%',
-    alignSelf: 'center',
-  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: 250,
-  },
-  inputField: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-
-
   },
   saveButton: {
     width: width * 0.3,
