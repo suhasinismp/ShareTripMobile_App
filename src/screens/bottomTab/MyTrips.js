@@ -579,7 +579,7 @@ const MyTrips = () => {
           showClosingDatePicker={showClosingDatePicker}
           setShowClosingDatePicker={setShowClosingDatePicker}
           closingActionType={closingActionType}
-          handleCloseTrip={handleCloseTrip}
+          handleCloseTrip={handleCloseForDay}
         />
       </CustomModal>
 
