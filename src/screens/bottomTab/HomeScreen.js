@@ -6,6 +6,7 @@ import {
   FlatList,
   ActivityIndicator,
   Linking,
+  RefreshControl,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -42,6 +43,7 @@ const HomeScreen = () => {
   // State
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [userPostsData, setUserPostsData] = useState([]);
 
 
@@ -52,7 +54,9 @@ const HomeScreen = () => {
   const userToken = userData.userToken;
 
   useEffect(() => {
-    getUserMetaData();
+    if (userId && userToken) {
+      getUserMetaData();
+    }
   }, [userId, userToken]);
 
   useFocusEffect(
@@ -61,7 +65,7 @@ const HomeScreen = () => {
 
       const intervalId = setInterval(() => {
         getUserPosts();
-      }, 60000);
+      }, 20000);
 
       return () => {
         clearInterval(intervalId);
@@ -70,7 +74,9 @@ const HomeScreen = () => {
   );
 
   useEffect(() => {
-    getUserVehicles();
+    if (userId && userToken) {
+      getUserVehicles();
+    }
   }, [userId, userToken]);
 
   const getUserMetaData = async () => {
@@ -106,6 +112,23 @@ const HomeScreen = () => {
     }
     setIsLoading(false);
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await getUserPosts();
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      dispatch(
+        showSnackbar({
+          message: 'Failed to refresh. Please try again.',
+          type: 'error',
+        }),
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  }, [userId, userToken]);
 
   const handleRequestClick = async (
     postId,
@@ -182,8 +205,9 @@ const HomeScreen = () => {
       }
       onCallPress={() => handleCall(item?.User_phone)}
       onTripSheetPress={() => {
-        navigation.navigate('TripSheet', {
-          postData: item,
+        navigation.navigate('PostTrip', {
+          from: 'home',
+          postId: item?.post_booking_id,
         });
       }}
       isRequested={item?.request_status}
@@ -215,6 +239,14 @@ const HomeScreen = () => {
         keyExtractor={(item) => item.post_booking_id.toString()}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#005680']}
+            tintColor="#005680"
+          />
+        }
       />
 
       <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>

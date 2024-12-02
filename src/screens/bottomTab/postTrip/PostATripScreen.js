@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 import MicIcon from '../../../../assets/svgs/mic.svg';
 import AppHeader from '../../../components/AppHeader';
 import CustomButton from '../../../components/ui/CustomButton';
@@ -16,7 +17,13 @@ import CustomInput from '../../../components/ui/CustomInput';
 import CustomSelect from '../../../components/ui/CustomSelect';
 import CustomText from '../../../components/ui/CustomText';
 import { useTheme } from '../../../hooks/useTheme';
-import { createPost, getTripTypes } from '../../../services/postTripService';
+import {
+  createPost,
+  fetchTripByPostId,
+  fetchTripSheetByPostId,
+  getTripTypes,
+  updatePost,
+} from '../../../services/postTripService';
 import {
   fetchVehicleNames,
   fetchVehicleTypes,
@@ -24,7 +31,6 @@ import {
 import { getUserDataSelector } from '../../../store/selectors';
 import AudioContainer from '../../../components/AudioContainer';
 import TimeDatePicker from '../../../components/TimeDatePicker';
-import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -50,11 +56,16 @@ const shareTypeData = [
   { label_id: 3, label_value: 'Contact' },
 ];
 
-const PostATripScreen = () => {
+const PostATripScreen = ({ route }) => {
+  const from = route.params?.from;
+  const postId = route.params?.postId;
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const userId = userData.userId;
+  const { theme } = useTheme();
+
+  // State declarations
   const [postType, setPostType] = useState('Quick Share');
   const [tripTypes, setTripTypes] = useState([]);
   const [selectedTripType, setSelectedTripType] = useState(null);
@@ -64,12 +75,9 @@ const PostATripScreen = () => {
   const [selectedVehicleType, setSelectedVehicleType] = useState(null);
   const [selectedVehicleName, setSelectedVehicleName] = useState(null);
   const [selectedShareType, setSelectedShareType] = useState(1);
-
-  const { theme } = useTheme();
-
+  const [initialData, setInitialData] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedAudioUri, setRecordedAudioUri] = useState(null);
-
   const [message, setMessage] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -79,17 +87,113 @@ const PostATripScreen = () => {
   const [selectedPaymentType, setSelectedPaymentType] = useState('Cash');
   const [notes, setNotes] = useState('');
   const [notes1, setNotes1] = useState('');
-
   const [selectedFromDate, setSelectedFromDate] = useState(new Date());
   const [selectedToDate, setSelectedToDate] = useState(new Date());
-
   const [selectedTime, setSelectedTime] = useState(new Date());
-
   const [rate, setRate] = useState('');
   const [extraKms, setExtraKms] = useState('');
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
+
+  // Initial setup and data fetching
+  useEffect(() => {
+    if (from !== undefined) {
+      setPostType('Trip Sheet');
+      getTripSheetDetails();
+    }
+    fetchConstants();
+  }, []);
+
+  // Navigation listener for fetching trip sheet details
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (from !== undefined) {
+        getTripSheetDetails();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, from]);
+
+  // Set default trip type and package when trip types are loaded
+  useEffect(() => {
+    if (tripTypes.length > 0) {
+      const localTripType = tripTypes.find(
+        (trip) => trip.booking_type_name === 'LOCAL',
+      );
+      if (localTripType) {
+        setSelectedTripType(localTripType.id);
+        const packages = localTripType.bookingTypePackageAsBookingType;
+        if (packages.length > 0) {
+          setSelectedPackage(packages[0].id);
+        }
+      }
+    }
+  }, [tripTypes]);
+
+  useEffect(() => {
+    if (initialData) {
+      setSelectedTripType(initialData.booking_type_id);
+      setSelectedPackage(initialData.package_id);
+      setSelectedVehicleType(initialData.vehicle_type_id);
+      setSelectedVehicleName(initialData.vehicle_name_id);
+      setSelectedShareType(initialData.share_type_id);
+      setSelectedFromDate(initialData.from_date);
+      setSelectedToDate(initialData.to_date);
+      setSelectedTime(initialData.from_time);
+      setRate(initialData.rate);
+      setExtraKms(initialData.extra_kms);
+      setExtraHours(initialData.extra_hours);
+      setDayBatta(initialData.day_batta);
+      setNightBatta(initialData.night_batta);
+    }
+  }, [initialData]);
+
+  const getTripSheetDetails = async () => {
+    try {
+      if (from === 'bills') {
+        const response = await fetchTripByPostId(postId, userToken);
+
+        if (response.error === false) {
+          setInitialData(response.data.postBooking);
+        }
+      } else if (from === 'home') {
+        const response = await fetchTripSheetByPostId(postId, userToken);
+
+        if (response.error === false) {
+          setInitialData(response.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching trip sheet details:', error);
+    }
+  };
+
+  const fetchConstants = async () => {
+    try {
+      const [tripTypesResponse, vehicleTypesResponse, vehicleNamesResponse] =
+        await Promise.all([
+          getTripTypes(userToken),
+          fetchVehicleTypes(userToken),
+          fetchVehicleNames(userToken),
+        ]);
+
+      if (tripTypesResponse.error === false) {
+        setTripTypes(tripTypesResponse.data);
+      }
+
+      if (vehicleTypesResponse.error === false) {
+        setVehicleTypes(vehicleTypesResponse.data);
+      }
+
+      if (vehicleNamesResponse.error === false) {
+        setVehicleNames(vehicleNamesResponse.data);
+      }
+    } catch (error) {
+      console.error('Error fetching constants:', error);
+    }
+  };
 
   const handleStartRecording = () => {
     setIsRecording(true);
@@ -116,29 +220,11 @@ const PostATripScreen = () => {
     setSelectedTime(newTime);
   };
 
-  useEffect(() => {
-    fetchConstants();
-  }, []);
-
-  useEffect(() => {
-    if (tripTypes.length > 0) {
-      const localTripType = tripTypes.find(
-        (trip) => trip.booking_type_name === 'LOCAL',
-      );
-      if (localTripType) {
-        setSelectedTripType(localTripType.id);
-        const localPackages = localTripType.bookingTypePackageAsBookingType;
-        if (localPackages.length > 0) {
-          setSelectedPackage(localPackages[0].id);
-        }
-      }
-    }
-  }, [tripTypes]);
-
   const handleSend = async () => {
     let isValid = true;
     let errorMessage = '';
 
+    // Validation logic
     if (postType === 'Quick Share') {
       if (!selectedTripType) {
         isValid = false;
@@ -160,69 +246,45 @@ const PostATripScreen = () => {
         errorMessage = 'Please select a share type.';
       }
     } else if (postType === 'Trip Sheet') {
-      if (!selectedTripType) {
-        isValid = false;
-        errorMessage = 'Please select a trip type.';
-      } else if (!selectedPackage) {
-        isValid = false;
-        errorMessage = 'Please select a package.';
-      } else if (!selectedVehicleType) {
-        isValid = false;
-        errorMessage = 'Please select a vehicle type.';
-      } else if (!selectedVehicleName) {
-        isValid = false;
-        errorMessage = 'Please select a vehicle name.';
-      } else if (customerName.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter customer name.';
-      } else if (customerPhone.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter customer phone.';
-      } else if (pickupLocation.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter pickup location.';
-      } else if (dropLocation.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter drop location.';
-      } else if (rate.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter rate.';
-      } else if (extraKms.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter extra kms.';
-      } else if (extraHours.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter extra hours.';
-      } else if (dayBatta.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter day batta.';
-      } else if (nightBatta.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter night batta.';
-      } else if (!selectedPaymentType) {
-        isValid = false;
-        errorMessage = 'Please select a payment type.';
-      } else if (notes.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter notes.';
-      } else if (notes1.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter additional notes.';
-      } else if (visitingPlace.length === 0) {
-        isValid = false;
-        errorMessage = 'Please enter visiting place.';
-      } else if (!selectedTime) {
-        isValid = false;
-        errorMessage = 'Please select time.';
-      } else if (!selectedFromDate) {
-        isValid = false;
-        errorMessage = 'Please select from date.';
-      } else if (!selectedToDate) {
-        isValid = false;
-        errorMessage = 'Please select to date.';
-      } else if (!selectedShareType) {
-        isValid = false;
-        errorMessage = 'Please select a share type.';
+      const requiredFields = [
+        { value: selectedTripType, message: 'Please select a trip type.' },
+        { value: selectedPackage, message: 'Please select a package.' },
+        {
+          value: selectedVehicleType,
+          message: 'Please select a vehicle type.',
+        },
+        {
+          value: selectedVehicleName,
+          message: 'Please select a vehicle name.',
+        },
+        { value: customerName, message: 'Please enter customer name.' },
+        { value: customerPhone, message: 'Please enter customer phone.' },
+        { value: pickupLocation, message: 'Please enter pickup location.' },
+        { value: dropLocation, message: 'Please enter drop location.' },
+        { value: rate, message: 'Please enter rate.' },
+        { value: extraKms, message: 'Please enter extra kms.' },
+        { value: extraHours, message: 'Please enter extra hours.' },
+        { value: dayBatta, message: 'Please enter day batta.' },
+        { value: nightBatta, message: 'Please enter night batta.' },
+        {
+          value: selectedPaymentType,
+          message: 'Please select a payment type.',
+        },
+        { value: notes, message: 'Please enter notes.' },
+        { value: notes1, message: 'Please enter additional notes.' },
+        { value: visitingPlace, message: 'Please enter visiting place.' },
+        { value: selectedTime, message: 'Please select time.' },
+        { value: selectedFromDate, message: 'Please select from date.' },
+        { value: selectedToDate, message: 'Please select to date.' },
+        { value: selectedShareType, message: 'Please select a share type.' },
+      ];
+
+      for (const field of requiredFields) {
+        if (!field.value) {
+          isValid = false;
+          errorMessage = field.message;
+          break;
+        }
       }
     }
 
@@ -231,112 +293,49 @@ const PostATripScreen = () => {
       return;
     }
 
-    let finalData = { posted_user_id: userId, post_status: 'Available' };
-
-    if (selectedTripType) {
-      finalData.booking_type_id = selectedTripType;
-    }
-
-    if (selectedPackage) {
-      finalData.booking_types_package_id = selectedPackage;
-    }
-
-    if (selectedVehicleType) {
-      finalData.vehicle_type_id = selectedVehicleType;
-    }
-
-    if (selectedVehicleName) {
-      finalData.vehicle_name_id = selectedVehicleName;
-    }
+    // Prepare data for submission
+    let finalData = {
+      posted_user_id: userId,
+      post_status: 'Available',
+      booking_type_id: selectedTripType,
+      booking_types_package_id: selectedPackage,
+      vehicle_type_id: selectedVehicleType,
+      vehicle_name_id: selectedVehicleName,
+      post_type_id: selectedShareType,
+    };
 
     if (message.length > 0) {
       finalData.post_comments = message;
     }
 
+    if (postType === 'Trip Sheet') {
+      Object.assign(finalData, {
+        customer_name: customerName,
+        customer_phone_no: customerPhone,
+        pick_up_location: pickupLocation,
+        destination: dropLocation,
+        base_fare_rate: rate,
+        extra_km_rate: extraKms,
+        extra_hr_rate: extraHours,
+        day_batta_rate: dayBatta,
+        night_batta_rate: nightBatta,
+        payment_type: selectedPaymentType,
+        note_1: notes,
+        note_2: notes1,
+        visiting_place: visitingPlace,
+        pick_up_time: selectedTime,
+        from_date: selectedFromDate,
+        to_date: selectedToDate,
+      });
+    }
+
     if (selectedShareType === 1) {
-      finalData.post_type_id = 1;
-    } else if (selectedShareType === 2) {
-      finalData.post_type_id = 2;
-    } else if (selectedShareType === 3) {
-      finalData.post_type_id = 3;
-    }
-
-    if (customerName.length > 0) {
-      finalData.customer_name = customerName;
-    }
-
-    if (customerPhone.length > 0) {
-      finalData.customer_phone_no = customerPhone;
-    }
-
-    if (pickupLocation.length > 0) {
-      finalData.pick_up_location = pickupLocation;
-    }
-
-    if (dropLocation.length > 0) {
-      finalData.destination = dropLocation;
-    }
-
-    if (rate.length > 0) {
-      finalData.base_fare_rate = rate;
-    }
-
-    if (extraKms.length > 0) {
-      finalData.extra_km_rate = extraKms;
-    }
-
-    if (extraHours.length > 0) {
-      finalData.extra_hr_rate = extraHours;
-    }
-
-    if (dayBatta.length > 0) {
-      finalData.day_batta_rate = dayBatta;
-    }
-
-    if (nightBatta.length > 0) {
-      finalData.night_batta_rate = nightBatta;
-    }
-
-    if (selectedPaymentType) {
-      finalData.payment_type = selectedPaymentType;
-    }
-
-    if (notes.length > 0) {
-      finalData.note_1 = notes;
-    }
-
-    if (notes1.length > 0) {
-      finalData.note_2 = notes1;
-    }
-
-    if (visitingPlace.length > 0) {
-      finalData.visiting_place = visitingPlace;
-    }
-
-    if (selectedTime) {
-      finalData.pick_up_time = selectedTime;
-    }
-
-    if (selectedFromDate) {
-      finalData.from_date = selectedFromDate;
-    }
-
-    if (selectedToDate) {
-      finalData.to_date = selectedToDate;
-    }
-
-    if (selectedShareType == 1) {
       finalData.post_type_value = null;
-    }
-
-    if (selectedShareType == 1) {
       let formData = new FormData();
-
       formData.append('json', JSON.stringify(finalData));
 
       if (recordedAudioUri) {
         const filename = recordedAudioUri.split('/').pop();
-
         formData.append('voiceMessage', {
           uri: recordedAudioUri,
           type: 'audio/m4a',
@@ -344,37 +343,119 @@ const PostATripScreen = () => {
         });
       }
 
-      const response = await createPost(formData, userToken);
-
-      if (
-        response.error === false &&
-        response.message === 'Post Booking Data created successfully'
-      ) {
-        navigation.navigate('Home');
-      } else {
-        alert(response.message);
+      try {
+        const response = await createPost(formData, userToken);
+        if (
+          response.error === false &&
+          response.message === 'Post Booking Data created successfully'
+        ) {
+          navigation.navigate('Home');
+        } else {
+          alert(response.message);
+        }
+      } catch (error) {
+        console.error('Error creating post:', error);
+        alert('Failed to create post. Please try again.');
       }
-    } else if (selectedShareType == 2) {
+    } else if (selectedShareType === 2) {
       navigation.navigate('SelectGroups', { finalData, recordedAudioUri });
-    } else if (selectedShareType == 3) {
+    } else if (selectedShareType === 3) {
       navigation.navigate('SelectContacts', { finalData, recordedAudioUri });
     }
   };
-  const fetchConstants = async () => {
-    const response = await getTripTypes(userToken);
-    if (response.error === false) {
-      setTripTypes(response.data);
+
+  const handleUpdate = async () => {
+    let isValid = true;
+    let errorMessage = '';
+
+    // Trip Sheet validation
+    const requiredFields = [
+      { value: selectedTripType, message: 'Please select a trip type.' },
+      { value: selectedPackage, message: 'Please select a package.' },
+      { value: selectedVehicleType, message: 'Please select a vehicle type.' },
+      { value: selectedVehicleName, message: 'Please select a vehicle name.' },
+      { value: customerName, message: 'Please enter customer name.' },
+      { value: customerPhone, message: 'Please enter customer phone.' },
+      { value: pickupLocation, message: 'Please enter pickup location.' },
+      { value: dropLocation, message: 'Please enter drop location.' },
+      { value: rate, message: 'Please enter rate.' },
+      { value: extraKms, message: 'Please enter extra kms.' },
+      { value: extraHours, message: 'Please enter extra hours.' },
+      { value: dayBatta, message: 'Please enter day batta.' },
+      { value: nightBatta, message: 'Please enter night batta.' },
+      { value: selectedPaymentType, message: 'Please select a payment type.' },
+      { value: notes, message: 'Please enter notes.' },
+      { value: notes1, message: 'Please enter additional notes.' },
+      { value: visitingPlace, message: 'Please enter visiting place.' },
+      { value: selectedTime, message: 'Please select time.' },
+      { value: selectedFromDate, message: 'Please select from date.' },
+      { value: selectedToDate, message: 'Please select to date.' },
+    ];
+
+    for (const field of requiredFields) {
+      if (!field.value) {
+        isValid = false;
+        errorMessage = field.message;
+        break;
+      }
     }
 
-    const vehicleTypesResponse = await fetchVehicleTypes(userToken);
-    if (vehicleTypesResponse.error === false) {
-      setVehicleTypes(vehicleTypesResponse.data);
+    if (!isValid) {
+      alert(errorMessage);
+      return;
     }
 
-    const vehicleNamesResponse = await fetchVehicleNames(userToken);
+    // Prepare data for submission
+    let finalData = {
+      id: initialData.id,
+      post_booking_id: postId,
+      posted_user_id: userId,
+      post_status: 'Available',
+      booking_type_id: selectedTripType,
+      booking_types_package_id: selectedPackage,
+      vehicle_type_id: selectedVehicleType,
+      vehicle_name_id: selectedVehicleName,
+      customer_name: customerName,
+      customer_phone_no: customerPhone,
+      pick_up_location: pickupLocation,
+      destination: dropLocation,
+      base_fare_rate: rate,
+      extra_km_rate: extraKms,
+      extra_hr_rate: extraHours,
+      day_batta_rate: dayBatta,
+      night_batta_rate: nightBatta,
+      payment_type: selectedPaymentType,
+      note_1: notes,
+      note_2: notes1,
+      visiting_place: visitingPlace,
+      pick_up_time: selectedTime,
+      from_date: selectedFromDate,
+      to_date: selectedToDate,
+      post_type_id: selectedShareType,
+    };
 
-    if (vehicleNamesResponse.error === false) {
-      setVehicleNames(vehicleNamesResponse.data);
+    const formData = new FormData();
+    formData.append('json', JSON.stringify(finalData));
+
+    try {
+      const response = await updatePost(formData, userToken);
+
+      if (from === 'bills') {
+        navigation.navigate('Drawer', {
+          screen: 'TripBill',
+          params: { postId: initialData.id },
+        });
+      } else {
+        navigation.goBack();
+      }
+
+      // if (response.error === false) {
+      // } else {
+      //   alert(response.message);
+      // }
+    } catch (error) {
+      console.error('Error updating trip sheet:', error);
+      alert('Failed to update trip sheet. Please try again.');
     }
   };
 
@@ -463,6 +544,7 @@ const PostATripScreen = () => {
           contentContainerStyle={styles.vehicleListContainer}
         />
       </View>
+
       <View style={styles.sectionContainer}>
         <CustomText
           text={'Select Vehicle Name :'}
@@ -485,6 +567,7 @@ const PostATripScreen = () => {
           contentContainerStyle={styles.vehicleListContainer}
         />
       </View>
+
       <View style={styles.sectionContainer}>
         <CustomText text={'Select Package :'} variant={'sectionTitleText'} />
         <FlatList
@@ -532,28 +615,30 @@ const PostATripScreen = () => {
           />
         )}
       </View>
-      <View style={styles.shareTypeContainer}>
-        <CustomText
-          text={'Share To :'}
-          variant={'sectionTitleText'}
-          style={{ marginBottom: 10 }}
-        />
-        <FlatList
-          data={shareTypeData}
-          renderItem={({ item }) =>
-            renderSelectItem({
-              item,
-              isSelected: selectedShareType === item.label_id,
-              onPress: () => setSelectedShareType(item.label_id),
-              textKey: 'label_value',
-            })
-          }
-          keyExtractor={(item) => item.label_id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.shareTypeList}
-        />
-      </View>
+      {!from && (
+        <View style={styles.shareTypeContainer}>
+          <CustomText
+            text={'Share To :'}
+            variant={'sectionTitleText'}
+            style={{ marginBottom: 10 }}
+          />
+          <FlatList
+            data={shareTypeData}
+            renderItem={({ item }) =>
+              renderSelectItem({
+                item,
+                isSelected: selectedShareType === item.label_id,
+                onPress: () => setSelectedShareType(item.label_id),
+                textKey: 'label_value',
+              })
+            }
+            keyExtractor={(item) => item.label_id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.shareTypeList}
+          />
+        </View>
+      )}
     </>
   );
 
@@ -620,6 +705,7 @@ const PostATripScreen = () => {
           </View>
         </View>
       </View>
+
       <View style={styles.sectionContainer}>
         <CustomText
           text={'Payment / Duty Type :'}
@@ -646,6 +732,7 @@ const PostATripScreen = () => {
           />
         </View>
       </View>
+
       <View style={{ ...styles.sectionContainer, gap: 10 }}>
         <CustomText text={'Notes :'} variant={'sectionTitleText'} />
         <CustomInput
@@ -661,6 +748,7 @@ const PostATripScreen = () => {
           multiline={true}
         />
       </View>
+
       <View style={styles.sectionContainer}>
         <CustomText text={'Date & Time :'} variant={'sectionTitleText'} />
         <View style={styles.dateTimeContainer}>
@@ -681,75 +769,53 @@ const PostATripScreen = () => {
           variant={'sectionTitleText'}
         />
         <View style={{ marginTop: 4, gap: 10 }}>
-          <View style={styles.inputRow}>
-            {/* <Ionicons
-              name="location"
-              size={24}
-              color="#4CAF50"
-              style={styles.inputIcon}
-            /> */}
-            <CustomInput
-              placeholder="Enter Pickup Location"
-              value={pickupLocation}
-              onChangeText={setPickupLocation}
-              style={styles.fullWidthInput}
-            />
-          </View>
-          <View style={styles.inputRow}>
-            {/* <Ionicons
-              name="location"
-              size={24}
-              color="#FF5722"
-              style={styles.inputIcon}
-            /> */}
-            <CustomInput
-              placeholder="Enter Drop off Location"
-              value={dropLocation}
-              onChangeText={setDropLocation}
-              style={styles.fullWidthInput}
-            />
-          </View>
+          <CustomInput
+            placeholder="Enter Pickup Location"
+            value={pickupLocation}
+            onChangeText={setPickupLocation}
+            style={styles.fullWidthInput}
+          />
+          <CustomInput
+            placeholder="Enter Drop off Location"
+            value={dropLocation}
+            onChangeText={setDropLocation}
+            style={styles.fullWidthInput}
+          />
         </View>
       </View>
 
       <View style={styles.sectionContainer}>
         <CustomText text={'Visiting Place'} variant={'sectionTitleText'} />
         <View style={{ marginTop: 4 }}>
-          <View style={styles.inputRow}>
-            {/* <Ionicons
-              name="navigate-circle-outline"
-              size={24}
-              color="#2196F3"
-              style={styles.inputIcon}
-            /> */}
-            <CustomInput
-              placeholder="Enter Visiting Place"
-              value={visitingPlace}
-              onChangeText={setVisitingPlace}
-              style={styles.fullWidthInput}
-            />
-          </View>
+          <CustomInput
+            placeholder="Enter Visiting Place"
+            value={visitingPlace}
+            onChangeText={setVisitingPlace}
+            style={styles.fullWidthInput}
+          />
         </View>
       </View>
 
-      <View style={styles.shareTypeContainer}>
-        <CustomText text={'Select to Post :'} variant={'sectionTitleText'} />
-        <FlatList
-          data={shareTypeData}
-          renderItem={({ item }) =>
-            renderSelectItem({
-              item,
-              isSelected: selectedShareType === item.label_id,
-              onPress: () => setSelectedShareType(item.label_id),
-              textKey: 'label_value',
-            })
-          }
-          keyExtractor={(item) => item.label_id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.shareTypeList}
-        />
-      </View>
+      {!from && (
+        <View style={styles.shareTypeContainer}>
+          <CustomText text={'Select to Post :'} variant={'sectionTitleText'} />
+          <FlatList
+            data={shareTypeData}
+            renderItem={({ item }) =>
+              renderSelectItem({
+                item,
+                isSelected: selectedShareType === item.label_id,
+                onPress: () => setSelectedShareType(item.label_id),
+                textKey: 'label_value',
+              })
+            }
+            keyExtractor={(item) => item.label_id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.shareTypeList}
+          />
+        </View>
+      )}
     </>
   );
 
@@ -759,7 +825,7 @@ const PostATripScreen = () => {
         backIcon={true}
         onlineIcon={true}
         muteIcon={true}
-        title={'Post A Trip'}
+        title={from != undefined ? 'Trip Sheet' : 'Post A Trip'}
       />
       <KeyboardAwareScrollView
         style={styles.container}
@@ -772,26 +838,28 @@ const PostATripScreen = () => {
         enableAutomaticScroll={true}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.postTypeContainer}>
-          <CustomSelect
-            text={'Quick Share'}
-            containerStyle={styles.postType}
-            selectedTextStyle={styles.selectedPostTypeText}
-            selectedStyle={styles.selectedPostTypeBackground}
-            isSelected={postType === 'Quick Share'}
-            onPress={() => setPostType('Quick Share')}
-            unselectedStyle={styles.unselectedBorder}
-          />
-          <CustomSelect
-            text={'Trip Sheet'}
-            containerStyle={styles.postType}
-            selectedTextStyle={styles.selectedPostTypeText}
-            selectedStyle={styles.selectedPostTypeBackground}
-            isSelected={postType === 'Trip Sheet'}
-            onPress={() => setPostType('Trip Sheet')}
-            unselectedStyle={styles.unselectedBorder}
-          />
-        </View>
+        {!from && (
+          <View style={styles.postTypeContainer}>
+            <CustomSelect
+              text={'Quick Share'}
+              containerStyle={styles.postType}
+              selectedTextStyle={styles.selectedPostTypeText}
+              selectedStyle={styles.selectedPostTypeBackground}
+              isSelected={postType === 'Quick Share'}
+              onPress={() => setPostType('Quick Share')}
+              unselectedStyle={styles.unselectedBorder}
+            />
+            <CustomSelect
+              text={'Trip Sheet'}
+              containerStyle={styles.postType}
+              selectedTextStyle={styles.selectedPostTypeText}
+              selectedStyle={styles.selectedPostTypeBackground}
+              isSelected={postType === 'Trip Sheet'}
+              onPress={() => setPostType('Trip Sheet')}
+              unselectedStyle={styles.unselectedBorder}
+            />
+          </View>
+        )}
 
         {postType === 'Quick Share'
           ? renderQuickShareContent()
@@ -802,16 +870,15 @@ const PostATripScreen = () => {
             title={'Cancel'}
             variant="text"
             style={styles.cancelButton}
-            onPress={() => {
-              // Handle cancel action
-            }}
+            onPress={() => navigation.goBack()}
           />
           <CustomButton
-            title={'Send'}
+            title={from === (undefined || 'bills') ? 'Save' : 'Update'}
             style={styles.submitButton}
-            onPress={handleSend}
+            onPress={from === undefined ? handleSend : handleUpdate}
           />
         </View>
+
         <View style={{ marginBottom: 40 }} />
       </KeyboardAwareScrollView>
     </>
@@ -944,6 +1011,7 @@ const styles = StyleSheet.create({
   },
   tariffContainer: {
     marginTop: 8,
+    flex: 1,
   },
   tariffRow: {
     flexDirection: 'row',
@@ -951,8 +1019,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   tariffInput: {
-    width: '40%',
-    height: 30,
+    width: '44%',
+    height: 40,
+  },
+  fullWidthInput: {
+    width: '100%',
   },
 });
 

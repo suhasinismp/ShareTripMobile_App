@@ -1,12 +1,10 @@
-
-
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
 import { useNavigationState } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -34,17 +32,14 @@ import ProfileIcon from '../../assets/svgs/profile.svg';
 import ProfileIconInactive from '../../assets/svgs/profileIconInactive.svg';
 import SubscriptionIcon from '../../assets/svgs/subscription.svg';
 import VehicleIcon from '../../assets/svgs/vehicle.svg';
-import { resetStore } from '../store/store';
-import Groups from '../screens/groups/GroupsScreen';
-import ViewGroupRequestsScreen from '../screens/groups/ViewGroupRequestsScreen';
-import CreateGroupScreen from '../screens/groups/CreateGroupScreen';
-import GroupStack from './GroupStack';
 import PostATripScreen from '../screens/bottomTab/postTrip/PostATripScreen';
-import SelectGroupScreen from '../screens/bottomTab/postTrip/SelectGroupScreen';
 import SelectContactScreen from '../screens/bottomTab/postTrip/SelectContactScreen';
+import SelectGroupScreen from '../screens/bottomTab/postTrip/SelectGroupScreen';
 import CreateSelfTrip from '../screens/bottomTab/selfTrip/CreateSelfTripScreen';
-import TripSheetScreen from '../screens/drawer/TripSheetScreen';
-import { getProfileByUserId } from '../services/profileScreenService';
+
+import { resetStore } from '../store/store';
+import GroupStack from './GroupStack';
+import TripBillScreen from '../screens/bottomTab/bills/TripBillScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -79,13 +74,7 @@ const CustomDrawerContent = (props) => {
   const dispatch = useDispatch();
   const userData = useSelector(getUserDataSelector);
   const name = userData.userName;
-  const userToken = userData.userToken;
-  const userId = userData.userId;
-
   const { navigation } = props;
-  const [userSingleData, setUserSingleData] = useState(null)
-
-
 
   const currentRoute = useNavigationState((state) => {
     const route = state.routes[state.index];
@@ -113,33 +102,14 @@ const CustomDrawerContent = (props) => {
     }
   };
 
-  useEffect(() => {
-    getProfileBySingleUserId()
-  }, [])
-
-  const getProfileBySingleUserId = async () => {
-    try {
-      const response = await getProfileByUserId(userToken, userId)
-      console.log('ddd', response)
-      if (response.error === false) {
-
-        setUserSingleData(response.data); // Update state
-
-      }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-
-  }
-
   return (
     <DrawerContentScrollView {...props}>
       {/* Profile section */}
       <View style={styles.profileSection}>
-        <Image
-          source={{ uri: userSingleData?.u_profile_pic }}
+        {/* <Image
+          source={{ uri: u_profile_pic }}
           style={styles.profileImage}
-        />
+        /> */}
         <View style={styles.profileInfo}>
           <Text style={styles.userName}>{name}</Text>
         </View>
@@ -246,7 +216,7 @@ const DrawerStack = () => {
       <Drawer.Screen name="SelectGroups" component={SelectGroupScreen} />
       <Drawer.Screen name="SelectContacts" component={SelectContactScreen} />
       <Drawer.Screen name="CreateSelfTrip" component={CreateSelfTrip} />
-      <Drawer.Screen name="TripSheet" component={TripSheetScreen} />
+      <Drawer.Screen name="TripBill" component={TripBillScreen} />
     </Drawer.Navigator>
   );
 };

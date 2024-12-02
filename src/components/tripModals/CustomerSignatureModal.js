@@ -9,9 +9,9 @@ const CustomerSignatureModal = ({
   userToken,
   userId,
   onClose,
-  onEndPress,
+  fetch,
 }) => {
-  const [signature, setSignature] = useState(null);
+  const [signatureFileInfo, setSignatureFileInfo] = useState(null);
   const signatureRef = useRef();
 
   const handleSignature = async (signature) => {
@@ -29,6 +29,21 @@ const CustomerSignatureModal = ({
 
       const fileInfo = await FileSystem.getInfoAsync(path);
 
+      if (fileInfo.exists) {
+        setSignatureFileInfo(fileInfo);
+      }
+    } catch (error) {
+      console.error('Error saving signature:', error);
+    }
+  };
+
+  const handleEndTrip = async () => {
+    try {
+      if (!signatureFileInfo) {
+        console.log('No signature captured');
+        return;
+      }
+
       const finalData = {
         post_bookings_id: selectedTripData?.post_booking_id,
         accepted_user_id: userId,
@@ -38,29 +53,35 @@ const CustomerSignatureModal = ({
       let formData = new FormData();
       formData.append('json', JSON.stringify(finalData));
       formData.append('signature', {
-        uri: fileInfo?.uri,
+        uri: signatureFileInfo.uri,
         type: 'image/png',
         name: 'customer_signature.png',
       });
 
-      if (fileInfo.exists) {
-        setSignature(fileInfo?.uri);
-        const response = await uploadSignature(formData, userToken);
+      console.log('FormData contents:', {
+        json: formData.getParts().find((part) => part.fieldName === 'json')
+          ?.string,
+        signature: formData
+          .getParts()
+          .find((part) => part.fieldName === 'signature'),
+      });
 
-        if (response?.error === false) {
-          onClose();
-          await fetch();
-        }
+      const response = await uploadSignature(formData, userToken);
+      console.log('Signature upload response:', response);
+
+      if (response?.error === false) {
+        onClose();
+        await fetch();
       }
     } catch (error) {
-      console.error('Error saving signature:', error);
+      console.error('Error uploading signature:', error);
     }
   };
 
   const handleClear = () => {
     if (signatureRef.current) {
       signatureRef.current.clearSignature();
-      setSignature(null);
+      setSignatureFileInfo(null);
     }
   };
 
@@ -99,23 +120,11 @@ const CustomerSignatureModal = ({
         </View>
       </View>
 
-      {/* <View style={styles.preview}>
-        {signature ? (
-          <Image
-            resizeMode={'contain'}
-            style={styles.signatureImage}
-            source={{ uri: signature }}
-          />
-        ) : (
-          <Text style={styles.previewText}>Signature Preview</Text>
-        )}
-      </View> */}
-
       <View style={styles.signaturePadContainer}>
         <SignatureScreen
           ref={signatureRef}
           onOK={handleSignature}
-          onEmpty={() => setSignature(null)}
+          onEmpty={() => setSignatureFileInfo(null)}
           webStyle={style}
           autoClear={false}
           imageType="image/png"
@@ -134,8 +143,10 @@ const CustomerSignatureModal = ({
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => {
-              if (signatureRef.current) {
+              if (signatureRef.current && !signatureFileInfo) {
                 signatureRef.current.readSignature();
+              } else {
+                handleEndTrip();
               }
             }}
           >

@@ -53,6 +53,7 @@ const PostCard = ({
   packageName,
   vacantTripPostedByLoggedInUser,
   viewTripSheet,
+  viewTripSheetOnPress,
   driverPayment,
   customerPayment,
   billsScreen,
@@ -288,7 +289,7 @@ const PostCard = ({
                   </TouchableOpacity>
                 </View>
               )}
-              {vacantTripPostedByLoggedInUser === undefined || billsScreen === undefined && (
+              {!billsScreen && vacantTripPostedByLoggedInUser === undefined && (
                 <View style={styles.footerRight}>
                   <TouchableOpacity
                     style={styles.acceptButton}
@@ -313,7 +314,6 @@ const PostCard = ({
           ) : null}
         </View>
 
-
         {/* Action Buttons - Only show for available cards */}
         {(isAvailable || vacantTripPostedByLoggedInUser != undefined) && (
           <View style={styles.actionButtonsContainer}>
@@ -328,12 +328,20 @@ const PostCard = ({
             </TouchableOpacity>
           </View>
         )}
-
-
       </View>
-      <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', padding: 15 }}>
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          padding: 15,
+        }}
+      >
         {viewTripSheet && (
-          <TouchableOpacity onPress={viewTripSheet} style={styles.actionButton}>
+          <TouchableOpacity
+            onPress={viewTripSheetOnPress}
+            style={styles.actionButton}
+          >
             <Text style={styles.buttonText}>View Trip Sheet</Text>
           </TouchableOpacity>
         )}
@@ -348,7 +356,7 @@ const PostCard = ({
           </TouchableOpacity>
         )}
       </View>
-    </View >
+    </View>
   );
 };
 
@@ -556,10 +564,7 @@ const styles = StyleSheet.create({
     width: 100,
     color: 'white',
   },
-  actionButton: {
-
-
-  }
+  actionButton: {},
 });
 
 export default PostCard;
