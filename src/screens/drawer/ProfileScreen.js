@@ -21,11 +21,13 @@ import { UserDetailsScheme } from '../../constants/schema/userDetailsScheme';
 import { getProfileByUserId } from '../../services/profileScreenService';
 import CustomInput from '../../components/ui/CustomInput';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
 const ProfileScreen = () => {
   const { theme } = useTheme();
+  const navigation = useNavigation();
   const [userProfile, setUserProfile] = useState(null);
   const [userSingleData, setUserSingleData] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -34,6 +36,7 @@ const ProfileScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const userToken = userData?.userToken;
   const userId = userData?.userId;
+
 
   const { control, handleSubmit, reset } = useForm({
     resolver: yupResolver(UserDetailsScheme),
@@ -176,6 +179,12 @@ const ProfileScreen = () => {
         )}
       />
       <View style={styles.buttonContainer}>
+
+        <CustomButton
+          title="Rington"
+          style={styles.ringButton}
+          onPress={() => navigation.navigate('ringTons')}
+        />
         <CustomButton
           title="Save"
           style={styles.saveButton}
@@ -219,8 +228,9 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     marginBottom: 250,
+
   },
   saveButton: {
     width: width * 0.3,
@@ -229,6 +239,14 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     height: 50,
     marginTop: 50,
+  },
+  ringButton: {
+    width: width * 0.3,
+    height: 50,
+    marginTop: 50,
+    alignItems: 'flex-start',
+    backgroundColor: '#C9DDEF',
+
   },
 });
 

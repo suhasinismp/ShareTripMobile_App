@@ -80,8 +80,11 @@ const Bills = () => {
             postId: item?.post_booking_id,
           });
         }}
-        driverPayment={true}
-        customerPayment={true}
+        driverTripBill={true}
+        driverTripBillOnPress={() => {
+          navigation.navigate('TripBill', { postId: item?.post_booking_id })
+        }}
+        customerBill={true}
         billsScreen={true}
       />
     );
