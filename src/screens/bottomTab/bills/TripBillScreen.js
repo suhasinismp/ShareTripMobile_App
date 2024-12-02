@@ -11,10 +11,11 @@ import {
 import { generateTripPdf } from '../../../services/postTripService';
 import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
+import AppHeader from '../../../components/AppHeader';
 
 const INITIAL_DATA = [
   {
@@ -121,7 +122,7 @@ const TripBillScreen = ({ route }) => {
   const loadTripData = async () => {
     setIsLoading(true);
     try {
-      // Replace this with your actual API call
+      // Replace with your API call
       // const response = await getTripDetails(postId, userToken);
       // const formattedData = formatTripData(response);
       // setTripData(formattedData);
@@ -142,24 +143,13 @@ const TripBillScreen = ({ route }) => {
   const handleDownloadPDF = async () => {
     setIsPdfGenerating(true);
     try {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status === 'granted') {
-        await generateAndSavePDF();
-      } else {
-        dispatch(
-          showSnackbar({
-            visible: true,
-            message: 'Storage permission denied',
-            type: 'error',
-          }),
-        );
-      }
+      await generateAndSavePDF();
     } catch (error) {
-      console.error('Permission error:', error);
+      console.error('Error generating PDF:', error);
       dispatch(
         showSnackbar({
           visible: true,
-          message: 'Failed to get storage permission',
+          message: 'Failed to generate PDF',
           type: 'error',
         }),
       );
@@ -172,100 +162,81 @@ const TripBillScreen = ({ route }) => {
     try {
       const finalData = { post_booking_id: postId };
       const response = await generateTripPdf(finalData, userToken);
-
       const cleanedHtml = cleanHTML(response);
 
-      // Generate PDF
       const { uri } = await Print.printToFileAsync({
         html: cleanedHtml,
         base64: false,
       });
 
-      // For Android, save to Downloads folder
       if (Platform.OS === 'android') {
         try {
-          // First try the Downloads directory
-          const downloadDir = `${FileSystem.documentDirectory}Download/`;
-          await FileSystem.makeDirectoryAsync(downloadDir, {
-            intermediates: true,
-          });
-
           const filename = `tripsheet_${Date.now()}.pdf`;
-          const destinationUri = `${downloadDir}${filename}`;
+          const destinationUri = `${FileSystem.cacheDirectory}${filename}`;
 
           await FileSystem.copyAsync({
             from: uri,
             to: destinationUri,
           });
 
-          // Try to make it visible in gallery/files app
-          try {
-            await MediaLibrary.requestPermissionsAsync();
-            await MediaLibrary.createAssetAsync(destinationUri);
-          } catch (mediaError) {
-            console.log(
-              'Media library registration failed, file still saved:',
-              mediaError,
+          const isAvailable = await Sharing.isAvailableAsync();
+
+          if (isAvailable) {
+            await Sharing.shareAsync(destinationUri, {
+              mimeType: 'application/pdf',
+              dialogTitle: 'Save PDF',
+            });
+
+            setPdfUri(destinationUri);
+            dispatch(
+              showSnackbar({
+                visible: true,
+                message: 'PDF ready to be saved',
+                type: 'success',
+              }),
+            );
+          } else {
+            dispatch(
+              showSnackbar({
+                visible: true,
+                message: 'Sharing is not available on this device',
+                type: 'error',
+              }),
             );
           }
-
-          setPdfUri(destinationUri);
+        } catch (shareError) {
+          console.error('Share error:', shareError);
           dispatch(
             showSnackbar({
               visible: true,
-              message: 'PDF saved to Downloads folder',
-              type: 'success',
-            }),
-          );
-        } catch (downloadError) {
-          // Fallback to app's document directory if Downloads fails
-
-          const appDir = FileSystem.documentDirectory;
-          const filename = `tripsheet_${Date.now()}.pdf`;
-          const fallbackUri = `${appDir}${filename}`;
-
-          await FileSystem.copyAsync({
-            from: uri,
-            to: fallbackUri,
-          });
-
-          setPdfUri(fallbackUri);
-          dispatch(
-            showSnackbar({
-              visible: true,
-              message: 'PDF saved to app storage',
-              type: 'success',
+              message: 'Error sharing PDF. Please try again.',
+              type: 'error',
             }),
           );
         }
       } else {
-        // iOS handling
-        const downloadDir = `${FileSystem.documentDirectory}Downloads/`;
-        await FileSystem.makeDirectoryAsync(downloadDir, {
-          intermediates: true,
-        });
-
         const filename = `tripsheet_${Date.now()}.pdf`;
-        const destinationUri = `${downloadDir}${filename}`;
+        const destinationUri = `${FileSystem.documentDirectory}${filename}`;
 
         await FileSystem.copyAsync({
           from: uri,
           to: destinationUri,
         });
 
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          await Sharing.shareAsync(destinationUri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Save PDF',
+          });
+        }
+
         setPdfUri(destinationUri);
-        dispatch(
-          showSnackbar({
-            visible: true,
-            message: 'PDF saved successfully',
-            type: 'success',
-          }),
-        );
       }
 
-      // Delete the temporary file
+      // Cleanup: Delete the temporary file
       try {
-        await FileSystem.deleteAsync(uri);
+        await FileSystem.deleteAsync(uri, { idempotent: true });
       } catch (deleteError) {
         console.log('Error deleting temporary file:', deleteError);
       }
@@ -333,35 +304,39 @@ const TripBillScreen = ({ route }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <SectionList
-        sections={tripData}
-        keyExtractor={(item, index) => item.label + index}
-        renderItem={renderItem}
-        renderSectionHeader={({ section: { title } }) =>
-          title ? <Text style={styles.sectionHeader}>{title}</Text> : null
-        }
-        stickySectionHeadersEnabled={false}
-      />
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, isPdfGenerating && styles.buttonDisabled]}
-          onPress={handleDownloadPDF}
-          disabled={isPdfGenerating}
-        >
-          {isPdfGenerating ? (
-            <View style={styles.buttonContent}>
-              <ActivityIndicator size="small" color="#fff" />
-              <Text style={[styles.buttonText, styles.buttonTextMargin]}>
-                Generating PDF...
-              </Text>
-            </View>
-          ) : (
-            <Text style={styles.buttonText}>Download PDF</Text>
-          )}
-        </TouchableOpacity>
+    <>
+      <AppHeader title={'Trip Bill'} backIcon={true} />
+      <View style={styles.container}>
+        <SectionList
+          sections={tripData}
+          keyExtractor={(item, index) => item.label + index}
+          renderItem={renderItem}
+          renderSectionHeader={({ section: { title } }) =>
+            title ? <Text style={styles.sectionHeader}>{title}</Text> : null
+          }
+          stickySectionHeadersEnabled={false}
+          showsVerticalScrollIndicator={false}
+        />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, isPdfGenerating && styles.buttonDisabled]}
+            onPress={handleDownloadPDF}
+            disabled={isPdfGenerating}
+          >
+            {isPdfGenerating ? (
+              <View style={styles.buttonContent}>
+                <ActivityIndicator size="small" color="#fff" />
+                <Text style={[styles.buttonText, styles.buttonTextMargin]}>
+                  Generating PDF...
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.buttonText}>Share PDF</Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 
