@@ -96,8 +96,6 @@ const PostATripScreen = ({ route }) => {
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
 
-  console.log({ initialData });
-
   // Initial setup and data fetching
   useEffect(() => {
     if (from !== undefined) {
@@ -156,7 +154,7 @@ const PostATripScreen = ({ route }) => {
     try {
       if (from === 'bills') {
         const response = await fetchTripByPostId(postId, userToken);
-        console.log({ response });
+
         if (response.error === false) {
           setInitialData(response.data.postBooking);
         }
@@ -441,7 +439,7 @@ const PostATripScreen = ({ route }) => {
 
     try {
       const response = await updatePost(formData, userToken);
-      console.log({ response });
+
       if (from === 'bills') {
         navigation.navigate('Drawer', {
           screen: 'TripBill',
