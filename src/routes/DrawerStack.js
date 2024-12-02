@@ -39,6 +39,7 @@ import CreateSelfTrip from '../screens/bottomTab/selfTrip/CreateSelfTripScreen';
 
 import { resetStore } from '../store/store';
 import GroupStack from './GroupStack';
+import TripBillScreen from '../screens/bottomTab/bills/TripBillScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -215,6 +216,7 @@ const DrawerStack = () => {
       <Drawer.Screen name="SelectGroups" component={SelectGroupScreen} />
       <Drawer.Screen name="SelectContacts" component={SelectContactScreen} />
       <Drawer.Screen name="CreateSelfTrip" component={CreateSelfTrip} />
+      <Drawer.Screen name="TripBill" component={TripBillScreen} />
     </Drawer.Navigator>
   );
 };

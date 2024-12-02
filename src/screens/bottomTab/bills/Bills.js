@@ -76,7 +76,7 @@ const Bills = () => {
         viewTripSheet={true}
         viewTripSheetOnPress={() => {
           navigation.navigate('PostTrip', {
-            from: 'Bills',
+            from: 'bills',
             postId: item?.post_booking_id,
           });
         }}

@@ -131,7 +131,6 @@ export const postFormDataAPI = async (endUrl, formData, token) => {
   }
 };
 export const patchFormDataAPI = async ({ endUrl, formData, token }) => {
-  console.log({ endUrl, formData, token })
   const headers = {
     'Content-Type': 'multipart/form-data',
   };
