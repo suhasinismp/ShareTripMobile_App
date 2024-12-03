@@ -54,8 +54,9 @@ const PostCard = ({
   vacantTripPostedByLoggedInUser,
   viewTripSheet,
   viewTripSheetOnPress,
-  driverPayment,
-  customerPayment,
+  driverTripBill,
+  driverTripBillOnPress,
+  customerBill,
   billsScreen,
 }) => {
   const requestStatus = isRequested ? isRequested : 'Accept';
@@ -274,6 +275,19 @@ const PostCard = ({
                       <Text style={styles.amountText}>Rs {baseFareRate}/-</Text>
                     </View>
                   )}
+
+                  {/* <TouchableOpacity
+                    style={styles.acceptButton}
+                    onPress={onRequestPress}
+                    disabled={isRequested === 'Quoted' ? true : false}
+                  >
+                    <Text style={styles.acceptButtonText}>{requestStatus}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    {isRequested === 'Accepted' && !postStatus && (
+                      <Text style={styles.cancelText}>Cancel</Text>
+                    )}
+                  </TouchableOpacity> */}
                 </View>
               )}
               {!billsScreen && vacantTripPostedByLoggedInUser === undefined && (
@@ -286,11 +300,7 @@ const PostCard = ({
                     <Text style={styles.acceptButtonText}>{requestStatus}</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity>
-                    {isRequested === 'Accepted' && !postStatus && (
-                      <Text style={styles.cancelText}>Cancel</Text>
-                    )}
-                  </TouchableOpacity>
+
                 </View>
               )}
               {vacantTripPostedByLoggedInUser === true && (
@@ -336,14 +346,16 @@ const PostCard = ({
             <Text style={styles.buttonText}>View Trip Sheet</Text>
           </TouchableOpacity>
         )}
-        {driverPayment && (
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.buttonText}>Driver Payment</Text>
+        {driverTripBill && (
+          <TouchableOpacity
+            onPress={driverTripBillOnPress}
+            style={styles.actionButton}>
+            <Text style={styles.buttonText}>Driver Trip Bill</Text>
           </TouchableOpacity>
         )}
-        {customerPayment && (
+        {customerBill && (
           <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.buttonText}>Customer Payment</Text>
+            <Text style={styles.buttonText}>Customer Bill</Text>
           </TouchableOpacity>
         )}
       </View>

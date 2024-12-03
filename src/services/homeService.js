@@ -5,6 +5,7 @@ export const fetchPostsByUserId = async (userId, token) => {
     `share-trip/post-booking/post-booking-list/${userId}`,
     token,
   );
+
   return response;
 };
 
