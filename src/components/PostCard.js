@@ -276,7 +276,7 @@ const PostCard = ({
                     </View>
                   )}
 
-                  <TouchableOpacity
+                  {/* <TouchableOpacity
                     style={styles.acceptButton}
                     onPress={onRequestPress}
                     disabled={isRequested === 'Quoted' ? true : false}
@@ -287,7 +287,7 @@ const PostCard = ({
                     {isRequested === 'Accepted' && !postStatus && (
                       <Text style={styles.cancelText}>Cancel</Text>
                     )}
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               )}
               {!billsScreen && vacantTripPostedByLoggedInUser === undefined && (

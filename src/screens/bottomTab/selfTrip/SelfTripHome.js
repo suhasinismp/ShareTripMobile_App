@@ -84,6 +84,7 @@ const SelfTripHome = () => {
 
   const getSelfTripPosts = async () => {
     const response = await fetchUserSelfPosts(userId, userToken);
+    console.log('response', response)
 
     if (response.error === false) {
       setUserSelfTripData(response.data);
@@ -123,7 +124,7 @@ const SelfTripHome = () => {
     const response = await fetchMultiDayTripDetails(
       selectedTripData?.post_booking_id,
       userToken,
-    );
+    )
     console.log('response', response);
 
     if (
@@ -300,7 +301,7 @@ const SelfTripHome = () => {
       onMessagePress={() => {
         /* TODO: Implement messaging */
       }}
-      isRequested={item?.request_status}
+      // isRequested={item?.request_status}
       packageName={item?.bookingTypePackage_name}
     />
   );

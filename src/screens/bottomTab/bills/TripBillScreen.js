@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
 import AppHeader from '../../../components/AppHeader';
+import { cleanHTML } from '../../../utils/cleanHTML';
 
 const INITIAL_DATA = [
   {
@@ -75,33 +76,33 @@ const INITIAL_DATA = [
   },
 ];
 
-const cleanHTML = (response) => {
-  try {
-    if (!response) {
-      return '<html><body><p>No content available</p></body></html>';
-    }
+// const cleanHTML = (response) => {
+//   try {
+//     if (!response) {
+//       return '<html><body><p>No content available</p></body></html>';
+//     }
 
-    const htmlContent = response.html || response;
+//     const htmlContent = response.html || response;
 
-    if (typeof htmlContent !== 'string') {
-      return '<html><body><p>Invalid content format</p></body></html>';
-    }
+//     if (typeof htmlContent !== 'string') {
+//       return '<html><body><p>Invalid content format</p></body></html>';
+//     }
 
-    return htmlContent
-      .replace(/\\n/g, '\n')
-      .replace(/\\/g, '')
-      .replace(/" "/g, '"')
-      .replace(/class=\s*"\s*([^"]+)\s*"/g, 'class="$1"')
-      .replace(/\s+/g, ' ')
-      .replace(/style=\s*"\s*([^"]+)\s*"/g, 'style="$1"')
-      .replace(/<!--\s*-->/g, '')
-      .replace(/>\s+</g, '><')
-      .trim();
-  } catch (error) {
-    console.error('Error cleaning HTML:', error);
-    return '<html><body><p>Error processing content</p></body></html>';
-  }
-};
+//     return htmlContent
+//       .replace(/\\n/g, '\n')
+//       .replace(/\\/g, '')
+//       .replace(/" "/g, '"')
+//       .replace(/class=\s*"\s*([^"]+)\s*"/g, 'class="$1"')
+//       .replace(/\s+/g, ' ')
+//       .replace(/style=\s*"\s*([^"]+)\s*"/g, 'style="$1"')
+//       .replace(/<!--\s*-->/g, '')
+//       .replace(/>\s+</g, '><')
+//       .trim();
+//   } catch (error) {
+//     console.error('Error cleaning HTML:', error);
+//     return '<html><body><p>Error processing content</p></body></html>';
+//   }
+// };
 
 const TripBillScreen = ({ route }) => {
   const dispatch = useDispatch();

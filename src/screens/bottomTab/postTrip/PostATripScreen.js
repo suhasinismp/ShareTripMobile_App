@@ -345,6 +345,7 @@ const PostATripScreen = ({ route }) => {
 
       try {
         const response = await createPost(formData, userToken);
+        console.log({ response })
         if (
           response.error === false &&
           response.message === 'Post Booking Data created successfully'
@@ -866,12 +867,13 @@ const PostATripScreen = ({ route }) => {
           : renderTripSheetContent()}
 
         <View style={styles.buttonContainer}>
-          <CustomButton
+          {/* <CustomButton
             title={'Cancel'}
             variant="text"
             style={styles.cancelButton}
             onPress={() => navigation.goBack()}
-          />
+          /> */}
+
           <CustomButton
             title={from === (undefined || 'bills') ? 'Save' : 'Update'}
             style={styles.submitButton}
