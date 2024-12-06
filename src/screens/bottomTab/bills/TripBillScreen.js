@@ -8,7 +8,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import { generateTripPdf } from '../../../services/postTripService';
+import { generateBillPdf } from '../../../services/postTripService';
 import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -76,34 +76,6 @@ const INITIAL_DATA = [
   },
 ];
 
-// const cleanHTML = (response) => {
-//   try {
-//     if (!response) {
-//       return '<html><body><p>No content available</p></body></html>';
-//     }
-
-//     const htmlContent = response.html || response;
-
-//     if (typeof htmlContent !== 'string') {
-//       return '<html><body><p>Invalid content format</p></body></html>';
-//     }
-
-//     return htmlContent
-//       .replace(/\\n/g, '\n')
-//       .replace(/\\/g, '')
-//       .replace(/" "/g, '"')
-//       .replace(/class=\s*"\s*([^"]+)\s*"/g, 'class="$1"')
-//       .replace(/\s+/g, ' ')
-//       .replace(/style=\s*"\s*([^"]+)\s*"/g, 'style="$1"')
-//       .replace(/<!--\s*-->/g, '')
-//       .replace(/>\s+</g, '><')
-//       .trim();
-//   } catch (error) {
-//     console.error('Error cleaning HTML:', error);
-//     return '<html><body><p>Error processing content</p></body></html>';
-//   }
-// };
-
 const TripBillScreen = ({ route }) => {
   const dispatch = useDispatch();
   const [pdfUri, setPdfUri] = useState(null);
@@ -162,7 +134,7 @@ const TripBillScreen = ({ route }) => {
   const generateAndSavePDF = async () => {
     try {
       const finalData = { post_booking_id: postId };
-      const response = await generateTripPdf(finalData, userToken);
+      const response = await generateBillPdf(finalData, userToken);
       const cleanedHtml = cleanHTML(response);
 
       const { uri } = await Print.printToFileAsync({

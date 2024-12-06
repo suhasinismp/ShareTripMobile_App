@@ -6,10 +6,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import * as Print from 'expo-print';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import MicIcon from '../../../../assets/svgs/mic.svg';
 import AppHeader from '../../../components/AppHeader';
 import CustomButton from '../../../components/ui/CustomButton';
@@ -22,6 +27,7 @@ import {
   fetchTripByPostId,
   fetchTripSheetByPostId,
   getTripTypes,
+  generateTripPdf,
   updatePost,
 } from '../../../services/postTripService';
 import {
@@ -31,6 +37,7 @@ import {
 import { getUserDataSelector } from '../../../store/selectors';
 import AudioContainer from '../../../components/AudioContainer';
 import TimeDatePicker from '../../../components/TimeDatePicker';
+import { cleanHTML } from '../../../utils/cleanHTML';
 
 const { width } = Dimensions.get('window');
 
@@ -95,6 +102,8 @@ const PostATripScreen = ({ route }) => {
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+  const [pdfUri, setPdfUri] = useState(null);
 
   // Initial setup and data fetching
   useEffect(() => {
@@ -192,6 +201,80 @@ const PostATripScreen = ({ route }) => {
       }
     } catch (error) {
       console.error('Error fetching constants:', error);
+    }
+  };
+
+  const handleGeneratePDF = async () => {
+    setIsPdfGenerating(true);
+    try {
+      await generateAndSavePDF();
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsPdfGenerating(false);
+    }
+  };
+
+  const generateAndSavePDF = async () => {
+    try {
+      const finalData = { post_booking_id: postId };
+      const response = await generateTripPdf(finalData, userToken);
+      const cleanedHtml = cleanHTML(response);
+
+      const { uri } = await Print.printToFileAsync({
+        html: cleanedHtml,
+        base64: false,
+      });
+
+      if (Platform.OS === 'android') {
+        const filename = `tripsheet_${Date.now()}.pdf`;
+        const destinationUri = `${FileSystem.cacheDirectory}${filename}`;
+
+        await FileSystem.copyAsync({
+          from: uri,
+          to: destinationUri,
+        });
+
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          await Sharing.shareAsync(destinationUri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Save PDF',
+          });
+          setPdfUri(destinationUri);
+          alert('PDF ready to be saved');
+        } else {
+          alert('Sharing is not available on this device');
+        }
+      } else {
+        const filename = `tripsheet_${Date.now()}.pdf`;
+        const destinationUri = `${FileSystem.documentDirectory}${filename}`;
+
+        await FileSystem.copyAsync({
+          from: uri,
+          to: destinationUri,
+        });
+
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          await Sharing.shareAsync(destinationUri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Save PDF',
+          });
+        }
+        setPdfUri(destinationUri);
+      }
+
+      // Cleanup temporary file
+      try {
+        await FileSystem.deleteAsync(uri, { idempotent: true });
+      } catch (deleteError) {
+        console.log('Error deleting temporary file:', deleteError);
+      }
+    } catch (error) {
+      console.error('Error in PDF generation process:', error);
+      alert('Error generating PDF. Please try again.');
     }
   };
 
@@ -345,7 +428,6 @@ const PostATripScreen = ({ route }) => {
 
       try {
         const response = await createPost(formData, userToken);
-        console.log({ response })
         if (
           response.error === false &&
           response.message === 'Post Booking Data created successfully'
@@ -369,7 +451,6 @@ const PostATripScreen = ({ route }) => {
     let isValid = true;
     let errorMessage = '';
 
-    // Trip Sheet validation
     const requiredFields = [
       { value: selectedTripType, message: 'Please select a trip type.' },
       { value: selectedPackage, message: 'Please select a package.' },
@@ -406,7 +487,6 @@ const PostATripScreen = ({ route }) => {
       return;
     }
 
-    // Prepare data for submission
     let finalData = {
       id: initialData.id,
       post_booking_id: postId,
@@ -439,8 +519,7 @@ const PostATripScreen = ({ route }) => {
     formData.append('json', JSON.stringify(finalData));
 
     try {
-      const response = await updatePost(formData, userToken);
-
+      await updatePost(formData, userToken);
       if (from === 'bills') {
         navigation.navigate('Drawer', {
           screen: 'TripBill',
@@ -449,11 +528,6 @@ const PostATripScreen = ({ route }) => {
       } else {
         navigation.goBack();
       }
-
-      // if (response.error === false) {
-      // } else {
-      //   alert(response.message);
-      // }
     } catch (error) {
       console.error('Error updating trip sheet:', error);
       alert('Failed to update trip sheet. Please try again.');
@@ -867,20 +941,20 @@ const PostATripScreen = ({ route }) => {
           : renderTripSheetContent()}
 
         <View style={styles.buttonContainer}>
-          {/* <CustomButton
-            title={'Cancel'}
-            variant="text"
-            style={styles.cancelButton}
-            onPress={() => navigation.goBack()}
-          /> */}
-
+          {from === 'bills' && (
+            <CustomButton
+              title={isPdfGenerating ? 'Generating PDF...' : 'Share PDF'}
+              style={[styles.submitButton, isPdfGenerating && { opacity: 0.7 }]}
+              onPress={handleGeneratePDF}
+              disabled={isPdfGenerating}
+            />
+          )}
           <CustomButton
             title={from === (undefined || 'bills') ? 'Save' : 'Update'}
             style={styles.submitButton}
             onPress={from === undefined ? handleSend : handleUpdate}
           />
         </View>
-
         <View style={{ marginBottom: 40 }} />
       </KeyboardAwareScrollView>
     </>
@@ -985,13 +1059,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 20,
   },
-  cancelButton: {
-    borderWidth: 1,
-    borderColor: '#005680',
-    borderRadius: 4,
-    width: width * 0.4,
-    alignItems: 'center',
-  },
   submitButton: {
     width: width * 0.4,
     alignItems: 'center',
@@ -1002,14 +1069,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 8,
     gap: 10,
-  },
-  dateTimeButton: {
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 4,
-    padding: 10,
-    width: width * 0.3,
-    alignItems: 'center',
   },
   tariffContainer: {
     marginTop: 8,

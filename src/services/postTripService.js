@@ -46,6 +46,15 @@ export const generateTripPdf = async (body, token) => {
   return response;
 };
 
+export const generateBillPdf = async (body, token) => {
+  const response = await postAPI(
+    '/share-trip/trip-sheet-final/trip_bill_report',
+    body,
+    token,
+  );
+  return response;
+};
+
 export const fetchTripSheetByPostId = async (postId, token) => {
   const response = await getAPI(`/share-trip/post-booking/${postId}`, token);
   return response;
