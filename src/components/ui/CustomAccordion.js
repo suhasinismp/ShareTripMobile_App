@@ -33,7 +33,9 @@ const CustomAccordion = ({
   onRefreshData,
   userToken,
 }) => {
+  console.log({ drivers })
   const dispatch = useDispatch();
+
   const userData = useSelector(getUserDataSelector)
   const loggedInUserId = userData.userId
   const [isExpanded, setIsExpanded] = useState(false);

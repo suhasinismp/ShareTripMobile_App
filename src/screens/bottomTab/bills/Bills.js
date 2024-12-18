@@ -95,12 +95,14 @@ const Bills = () => {
 
   return (
     <>
+
       <AppHeader
         drawerIcon={true}
         groupIcon={true}
         onlineIcon={true}
         muteIcon={true}
-        search={true}
+        title={'Bills'}
+      // search={true}
       />
       <View style={styles.container}>
         <View style={styles.filterRow}>

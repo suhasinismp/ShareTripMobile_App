@@ -19,6 +19,7 @@ export const getPostedGuyInProgressTrips = async (userId, token) => {
     `share-trip/post-trip-accept/based-posted-user/${userId}`,
     token,
   );
+  console.log('kkk', response)
   return response;
 };
 
@@ -55,7 +56,7 @@ export const rejectDriverRequest = async (data, token) => {
 
 export const startTrip = async (data, token) => {
   const response = await postAPI('share-trip/trip-ride/start/', data, token);
-
+  console.log('ttt', response)
   return response;
 };
 
@@ -65,6 +66,7 @@ export const closeTrip = async (data, token) => {
     body: data,
     token: token,
   });
+  console.log('ooo', response)
   return response;
 };
 

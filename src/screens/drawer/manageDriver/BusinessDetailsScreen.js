@@ -65,6 +65,7 @@ const BusinessDetailsScreen = () => {
   const userRoleId = userData.userRoleId;
   const [initialBusinessDetails, setInitialBusinessDetails] = useState(null);
 
+
   const [isLoading, setIsLoading] = useState(true);
 
   const { theme } = useTheme();
@@ -89,6 +90,7 @@ const BusinessDetailsScreen = () => {
     setIsLoading(true);
     try {
       const response = await fetchBusinessDetailsByUserId(userToken, userId);
+      console.log('nnn', response)
 
       if (response.error === false && response?.data?.length > 0) {
         setInitialBusinessDetails(response.data[0]);

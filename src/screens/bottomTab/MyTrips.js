@@ -258,6 +258,7 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
+    console.log({ closingKms, closingTime, closingDate })
     const response = await closeTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -269,6 +270,7 @@ const MyTrips = () => {
       },
       userToken,
     );
+    console.log('yyy', response)
 
     if (response?.error === false) {
       setShowTripSummaryModal(false);
@@ -494,26 +496,7 @@ const MyTrips = () => {
       />
 
       <View style={styles.container}>
-        <View style={styles.filterRow}>
-          <CustomSelect
-            text="Confirmed"
-            isSelected={selectedFilterOne === 'Confirmed'}
-            onPress={() => setSelectedFilterOne('Confirmed')}
-          />
-          <CustomSelect
-            text="In Progress"
-            isSelected={selectedFilterOne === 'InProgress'}
-            onPress={() => setSelectedFilterOne('InProgress')}
-          />
-          <CustomSelect
-            text="Enquiry"
-            isSelected={selectedFilterOne === 'Enquiry'}
-            onPress={() => setSelectedFilterOne('Enquiry')}
-          />
-          <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
-            <FilterIcon />
-          </TouchableOpacity>
-        </View>
+
 
         {showFilters && (
           <>
@@ -528,26 +511,48 @@ const MyTrips = () => {
                 isSelected={selectedFilterTwo === 'PostedTrips'}
                 onPress={() => setSelectedFilterTwo('PostedTrips')}
               />
-            </View>
-            <View style={styles.filterRow}>
               <CustomSelect
-                text="Local"
-                isSelected={selectedFilterThree === 'Local'}
-                onPress={() => setSelectedFilterThree('Local')}
-              />
-              <CustomSelect
-                text="Out Station"
-                isSelected={selectedFilterThree === 'OutStation'}
-                onPress={() => setSelectedFilterThree('OutStation')}
-              />
-              <CustomSelect
-                text="Transfer"
-                isSelected={selectedFilterThree === 'Transfer'}
-                onPress={() => setSelectedFilterThree('Transfer')}
+                text="Enquiry"
+                isSelected={selectedFilterOne === 'Enquiry'}
+                onPress={() => setSelectedFilterOne('Enquiry')}
               />
             </View>
+
           </>
         )}
+        <View style={styles.filterRow}>
+          <CustomSelect
+            text="Confirmed"
+            isSelected={selectedFilterOne === 'Confirmed'}
+            onPress={() => setSelectedFilterOne('Confirmed')}
+          />
+          <CustomSelect
+            text="In Progress"
+            isSelected={selectedFilterOne === 'InProgress'}
+            onPress={() => setSelectedFilterOne('InProgress')}
+          />
+
+          <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
+            <FilterIcon />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.filterRow}>
+          <CustomSelect
+            text="Local"
+            isSelected={selectedFilterThree === 'Local'}
+            onPress={() => setSelectedFilterThree('Local')}
+          />
+          <CustomSelect
+            text="Out Station"
+            isSelected={selectedFilterThree === 'OutStation'}
+            onPress={() => setSelectedFilterThree('OutStation')}
+          />
+          <CustomSelect
+            text="Transfer"
+            isSelected={selectedFilterThree === 'Transfer'}
+            onPress={() => setSelectedFilterThree('Transfer')}
+          />
+        </View>
 
         <View style={styles.listContainer}>
           {isLoading ? (

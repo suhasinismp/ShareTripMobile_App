@@ -24,8 +24,10 @@ import { useTheme } from '../../../hooks/useTheme';
 import CustomText from '../../../components/ui/CustomText';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
 import AppHeader from '../../../components/AppHeader';
+import { useNavigation } from '@react-navigation/native';
 
 const DriverDocumentScreen = () => {
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
@@ -36,8 +38,10 @@ const DriverDocumentScreen = () => {
 
   const [driverDocTypes, setDriverDocTypes] = useState([]);
   const [initialDriverDocs, setInitialDriverDocs] = useState(null);
+  // console.log({ initialDriverDocs })
   const [driverFiles, setDriverFiles] = useState([]);
-  const [driverImages, setDriverImages] = useState(Array(1).fill(null));
+  console.log({ driverFiles })
+  // const [driverImages, setDriverImages] = useState(Array(1).fill(null));
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -57,11 +61,11 @@ const DriverDocumentScreen = () => {
         }));
       setDriverFiles(files);
 
-      const images = initialDriverDocs
-        .filter((doc) => doc.field_value_id >= 4 && doc.field_value_id <= 7)
-        .sort((a, b) => a.field_value_id - b.field_value_id)
-        .map((doc) => (doc.doc_upload ? { uri: doc.doc_upload } : null));
-      setDriverImages(images);
+      // const images = initialDriverDocs
+      //   .filter((doc) => doc.field_value_id >= 4 && doc.field_value_id <= 7)
+      //   .sort((a, b) => a.field_value_id - b.field_value_id)
+      //   .map((doc) => (doc.doc_upload ? { uri: doc.doc_upload } : null));
+      // setDriverImages(images);
 
       // Set initial values for form fields
       initialDriverDocs.forEach((doc) => {
@@ -74,7 +78,9 @@ const DriverDocumentScreen = () => {
 
   const fetchDriverDocs = async () => {
     try {
+
       const driverDocs = await getUserDocTypes();
+      // console.log(driverDocs.response)
       const sortedDriverDocs = driverDocs?.response.sort(
         (a, b) => a.display_order - b.display_order,
       );
@@ -85,10 +91,13 @@ const DriverDocumentScreen = () => {
   };
 
   const getAllDriverDocs = async () => {
+
     try {
       const driverDocsResponse = await getUserDocsByUserId(userId, userToken);
+      console.log('API Response:', driverDocsResponse);
       if (driverDocsResponse.noOfRecords > 0) {
         setInitialDriverDocs(driverDocsResponse.data);
+
       } else {
         setInitialDriverDocs(null);
       }
@@ -134,13 +143,13 @@ const DriverDocumentScreen = () => {
     ) {
       return (
         <View style={styles.uploadSection}>
-          <CustomText text={'Upload Driver Photo'} variant={'activeText'} />
-          <ImagePickerGrid
+          {/* <CustomText text={'Upload Driver Photo'} variant={'activeText'} /> */}
+          {/* <ImagePickerGrid
             noOfPhotos={1}
             onImagesPicked={setDriverImages}
             images={driverImages}
             fileType={item.fileType}
-          />
+          /> */}
         </View>
       );
     } else {
@@ -164,10 +173,10 @@ const DriverDocumentScreen = () => {
                 fileName
                   ? [fileName]
                   : driverFiles
-                      .filter(
-                        (file) => file.formDataKey === item.formData_key[0],
-                      )
-                      .map((file) => file.name)
+                    .filter(
+                      (file) => file.formDataKey === item.formData_key[0],
+                    )
+                    .map((file) => file.name)
               }
               onUpload={(fileName, fileUri, fileType) => {
                 handleUpload(fileName, fileUri, item.formData_key[0], fileType);
@@ -194,10 +203,114 @@ const DriverDocumentScreen = () => {
     }
   };
 
+  // const handleDriverDocsSubmit = async (data) => {
+  //   console.log({ driverFiles, driverImages })
+  //   if (
+  //     driverFiles.length === driverDocTypes.length - 1 &&
+  //     driverImages.filter((image) => image !== null).length > 0
+  //   ) {
+  //     setIsLoading(true);
+  //     const formData = new FormData();
+
+  //     let jsonData = [];
+
+  //     driverDocTypes.forEach((doc) => {
+  //       if (doc.doc_id.length > 1) {
+  //         for (let i = 0; i < doc.doc_id.length; i++) {
+  //           const existingDoc = initialDriverDocs
+  //             ? initialDriverDocs.find(
+  //               (d) => d.field_value_id === doc.doc_id[i],
+  //             )
+  //             : null;
+  //           jsonData.push({
+  //             id: existingDoc ? existingDoc.id : undefined,
+  //             doc_id: doc.doc_id[i],
+  //             doc_name: doc.doc_label[i],
+  //             doc_number: data[`${doc.doc_label[i]}`] || '',
+  //             doc_type: doc.fileType,
+  //             user_id: userId,
+  //           });
+  //         }
+  //       } else {
+  //         const existingDoc = initialDriverDocs
+  //           ? initialDriverDocs.find((d) => d.field_value_id === doc.doc_id[0])
+  //           : null;
+  //         jsonData.push({
+  //           id: existingDoc ? existingDoc.id : undefined,
+  //           doc_id: doc.doc_id[0],
+  //           doc_name: doc.doc_label[0],
+  //           doc_number: data[`${doc.doc_label[0]}`] || '',
+  //           doc_type: doc.fileType,
+  //           user_id: userId,
+  //         });
+  //       }
+  //     });
+
+  //     formData.append('json', JSON.stringify(jsonData));
+
+  //     driverFiles.forEach((file) => {
+  //       formData.append('image', {
+  //         uri: file.uri,
+  //         type: file.type,
+  //         name: file.name,
+  //       });
+  //     });
+
+  //     driverImages.forEach((image, index) => {
+  //       if (image) {
+  //         formData.append('image', {
+  //           uri: image.uri,
+  //           type: 'image/jpeg',
+  //           name: `driver_image_${index}.jpg`,
+  //         });
+  //       }
+  //     });
+
+  //     try {
+  //       const response = await uploadDriverDocs(formData, userToken);
+  //       console.log('abc', response)
+  //       if (
+  //         response.message === 'Driver docs created successfully' ||
+  //         response.message === 'Driver docs updated successfully'
+  //       ) {
+  //         dispatch(
+  //           showSnackbar({
+  //             visible: true,
+  //             message: response.message,
+  //             type: 'success',
+  //           }),
+  //         );
+  //         getAllDriverDocs(); // Refresh the documents after successful upload/update
+  //       }
+  //     } catch (error) {
+  //       console.error('Error uploading driver docs:', error);
+  //       dispatch(
+  //         showSnackbar({
+  //           visible: true,
+  //           message: 'Error uploading documents. Please try again.',
+  //           type: 'error',
+  //         }),
+  //       );
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   } else {
+  //     dispatch(
+  //       showSnackbar({
+  //         visible: true,
+  //         message: 'Please upload all the required documents',
+  //         type: 'error',
+  //       }),
+  //     );
+  //   }
+  // };
+
   const handleDriverDocsSubmit = async (data) => {
+
     if (
-      driverFiles.length === driverDocTypes.length - 1 &&
-      driverImages.filter((image) => image !== null).length > 0
+      driverFiles.length === driverDocTypes.length
+
+
     ) {
       setIsLoading(true);
       const formData = new FormData();
@@ -209,8 +322,8 @@ const DriverDocumentScreen = () => {
           for (let i = 0; i < doc.doc_id.length; i++) {
             const existingDoc = initialDriverDocs
               ? initialDriverDocs.find(
-                  (d) => d.field_value_id === doc.doc_id[i],
-                )
+                (d) => d.field_value_id === doc.doc_id[i],
+              )
               : null;
             jsonData.push({
               id: existingDoc ? existingDoc.id : undefined,
@@ -246,18 +359,11 @@ const DriverDocumentScreen = () => {
         });
       });
 
-      driverImages.forEach((image, index) => {
-        if (image) {
-          formData.append('image', {
-            uri: image.uri,
-            type: 'image/jpeg',
-            name: `driver_image_${index}.jpg`,
-          });
-        }
-      });
+
 
       try {
         const response = await uploadDriverDocs(formData, userToken);
+        console.log('abc', response)
         if (
           response.message === 'Driver docs created successfully' ||
           response.message === 'Driver docs updated successfully'
@@ -270,6 +376,10 @@ const DriverDocumentScreen = () => {
             }),
           );
           getAllDriverDocs(); // Refresh the documents after successful upload/update
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          });
         }
       } catch (error) {
         console.error('Error uploading driver docs:', error);

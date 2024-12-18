@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import SignatureScreen from 'react-native-signature-canvas';
 import * as FileSystem from 'expo-file-system';
 import { uploadSignature } from '../../services/myTripsService';
+import { useNavigation } from '@react-navigation/native';
 
 const CustomerSignatureModal = ({
   selectedTripData,
@@ -11,6 +12,7 @@ const CustomerSignatureModal = ({
   onClose,
   fetch,
 }) => {
+  const navigation = useNavigation()
   const [signatureFileInfo, setSignatureFileInfo] = useState(null);
   const signatureRef = useRef();
 
@@ -71,7 +73,8 @@ const CustomerSignatureModal = ({
 
       if (response?.error === false) {
         onClose();
-        await fetch();
+        // await fetch();
+        navigation.navigate('Bills')
       }
     } catch (error) {
       console.error('Error uploading signature:', error);

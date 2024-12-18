@@ -4,18 +4,19 @@ import {
 } from '@react-navigation/drawer';
 import { useNavigationState } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getUserDataSelector } from '../store/selectors';
 
-import ProfileScreen from '../screens/drawer/ProfileScreen';
+
 import BusinessDetailsScreen from '../screens/drawer/manageDriver/BusinessDetailsScreen';
 import DriverDocumentScreen from '../screens/drawer/manageDriver/DriverDocumentScreen';
 import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansScreen';
 import Tabs from './BottomTab';
 import VehicleStack from './VehicleStack';
+import ProfileStack from './ProfileStack';
 
 // Import your SVG icons here
 import BusinessIcon from '../../assets/svgs/business.svg';
@@ -40,6 +41,7 @@ import CreateSelfTrip from '../screens/bottomTab/selfTrip/CreateSelfTripScreen';
 import { resetStore } from '../store/store';
 import GroupStack from './GroupStack';
 import TripBillScreen from '../screens/bottomTab/bills/TripBillScreen';
+import { getProfileByUserId } from '../services/profileScreenService';
 
 const Drawer = createDrawerNavigator();
 
@@ -70,11 +72,21 @@ const CustomDrawerItem = ({ label, icon: Icon, onPress, isFocused }) => {
   );
 };
 
+
+
 const CustomDrawerContent = (props) => {
   const dispatch = useDispatch();
   const userData = useSelector(getUserDataSelector);
+  const userId = userData?.userId;
+  const userToken = userData?.userToken;
   const name = userData.userName;
   const { navigation } = props;
+  const [profilePic, setProfilePic] = useState('')
+
+
+
+
+
 
   const currentRoute = useNavigationState((state) => {
     const route = state.routes[state.index];
@@ -102,18 +114,29 @@ const CustomDrawerContent = (props) => {
     }
   };
 
+  const getProfilePicByUserId = async () => {
+    const response = await getProfileByUserId(userToken, userId)
+    setProfilePic(response.data)
+  }
+
+  useEffect(() => {
+    getProfilePicByUserId();
+  }, []);
+
   return (
     <DrawerContentScrollView {...props}>
-      {/* Profile section */}
+
       <View style={styles.profileSection}>
-        {/* <Image
-          source={{ uri: u_profile_pic }}
+        <Image
+          source={{ uri: profilePic?.u_profile_pic }}
           style={styles.profileImage}
-        /> */}
+        />
         <View style={styles.profileInfo}>
           <Text style={styles.userName}>{name}</Text>
         </View>
       </View>
+
+
 
       {/* Menu Items */}
       <View style={styles.menuSection}>
@@ -127,7 +150,7 @@ const CustomDrawerContent = (props) => {
         <CustomDrawerItem
           label="Profile"
           icon={isRouteActive('Profile') ? ProfileIconInactive : ProfileIcon}
-          onPress={() => navigation.navigate('Profile')}
+          onPress={() => navigation.navigate('Profile', { screen: 'RingtoneScreen' })}
           isFocused={isRouteActive('Profile')}
         />
         <CustomDrawerItem
@@ -200,7 +223,7 @@ const DrawerStack = () => {
       }}
     >
       <Drawer.Screen name="Home" component={Tabs} />
-      <Drawer.Screen name="Profile" component={ProfileScreen} />
+      <Drawer.Screen name="Profile" component={ProfileStack} />
       <Drawer.Screen name="ManageVehicle" component={VehicleStack} />
       <Drawer.Screen name="ManageBusiness" component={BusinessDetailsScreen} />
       <Drawer.Screen
