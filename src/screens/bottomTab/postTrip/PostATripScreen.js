@@ -115,7 +115,7 @@ const PostATripScreen = ({ route }) => {
   const [dropLocation, setDropLocation] = useState('');
   const [visitingPlace, setVisitingPlace] = useState('');
   const [notes, setNotes] = useState('');
-  const [notes1, setNotes1] = useState('');
+  // const [notes1, setNotes1] = useState('');
   const [rate, setRate] = useState('');
   const [extraKms, setExtraKms] = useState('');
   const [extraHours, setExtraHours] = useState('');
@@ -255,7 +255,7 @@ const PostATripScreen = ({ route }) => {
       setVisitingPlace(initial_visiting_place);
       setSelectedPaymentType(payment_type);
       setNotes(note_1);
-      setNotes1(note_2);
+      // setNotes1(note_2);
     }
   }, [initialData]);
 
@@ -746,7 +746,7 @@ const PostATripScreen = ({ route }) => {
   const renderQuickShareContent = useCallback(
     () => (
       <>
-        {renderCommonContent()}
+
         <View style={styles.sectionContainer}>
           <CustomInput
             placeholder={'Type your message'}
@@ -770,6 +770,7 @@ const PostATripScreen = ({ route }) => {
             />
           )}
         </View>
+        {renderCommonContent()}
         {!from && (
           <View style={styles.shareTypeContainer}>
             <CustomText text={'Share To :'} variant={'sectionTitleText'} />
@@ -904,12 +905,12 @@ const PostATripScreen = ({ route }) => {
             onChangeText={setNotes}
             multiline={true}
           />
-          <CustomInput
+          {/* <CustomInput
             placeholder="Type your message"
             value={notes1}
             onChangeText={setNotes1}
-            multiline={true}
-          />
+            multiline={true} */}
+          {/* /> */}
         </View>
 
         <View style={styles.sectionContainer}>
@@ -997,7 +998,7 @@ const PostATripScreen = ({ route }) => {
       nightBatta,
       selectedPaymentType,
       notes,
-      notes1,
+      // notes1,
       selectedFromDate,
       selectedToDate,
       selectedTime,

@@ -13,7 +13,7 @@ export const startSelfTrip = async (data, token) => {
 
 export const endSelfTrip = async (data, token) => {
     const response = await patchSelfRideAPI('share-trip/trip-ride/end-self-trip', data, token);
-
+    console.log('ddd', response)
     return response;
 }
 

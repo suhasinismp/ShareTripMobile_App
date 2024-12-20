@@ -97,25 +97,25 @@ const UploadDocumentsScreen = () => {
 
   const handleUpload =
     (isDriver = false) =>
-    (fileName, fileUri, formDataKey, fileType) => {
-      const setFiles = isDriver ? setDriverFiles : setVehicleFiles;
-      setFiles((prev) => [
-        ...prev,
-        {
-          name: fileName,
-          uri: fileUri,
-          formDataKey: formDataKey,
-          type: fileType,
-        },
-      ]);
-    };
+      (fileName, fileUri, formDataKey, fileType) => {
+        const setFiles = isDriver ? setDriverFiles : setVehicleFiles;
+        setFiles((prev) => [
+          ...prev,
+          {
+            name: fileName,
+            uri: fileUri,
+            formDataKey: formDataKey,
+            type: fileType,
+          },
+        ]);
+      };
 
   const handleDelete =
     (isDriver = false) =>
-    (indexToDelete) => {
-      const setFiles = isDriver ? setDriverFiles : setVehicleFiles;
-      setFiles((prev) => prev.filter((_, index) => index !== indexToDelete));
-    };
+      (indexToDelete) => {
+        const setFiles = isDriver ? setDriverFiles : setVehicleFiles;
+        setFiles((prev) => prev.filter((_, index) => index !== indexToDelete));
+      };
 
   const renderUploadSection = ({ item }) => {
     const isDriver = documentsType === 'driver';

@@ -39,6 +39,7 @@ const SelfTripHome = () => {
   const userId = userData.userId;
   const userToken = userData.userToken;
   const [userSelfTripData, setUserSelfTripData] = useState([]);
+  console.log('sss', userSelfTripData)
   const [showStartTripModal, setShowStartTripModal] = useState(false);
 
 
@@ -301,7 +302,7 @@ const SelfTripHome = () => {
       onMessagePress={() => {
         /* TODO: Implement messaging */
       }}
-      // isRequested={item?.request_status}
+      isRequested={item?.request_status}
       packageName={item?.bookingTypePackage_name}
     />
   );
