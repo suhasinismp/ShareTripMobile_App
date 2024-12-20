@@ -8,6 +8,7 @@ import {
   View,
   Platform,
   ActivityIndicator,
+  Text,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSelector } from 'react-redux';
@@ -29,6 +30,7 @@ import {
   getTripTypes,
   generateTripPdf,
   updatePost,
+  fetchTripTable,
 } from '../../../services/postTripService';
 import {
   fetchVehicleNames,
@@ -58,6 +60,21 @@ const POST_TYPES = {
   TRIP_SHEET: 'Trip Sheet',
 };
 
+const headers = [
+  'Date',
+  'Start Time',
+  'Start KMs',
+  'End Time',
+  'End KMs',
+  'Total KMs',
+];
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}/${date.getFullYear().toString().slice(2)}`;
+};
 // Memoized Vehicle Button Component
 const VehicleButton = React.memo(
   ({ item, isSelected, onPress, imageKey, nameKey }) => (
@@ -104,6 +121,7 @@ const PostATripScreen = ({ route }) => {
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
+  const [tripTableData, setTripTableData] = useState(null);
 
   // Selection States
   const [selectedTripType, setSelectedTripType] = useState(null);
@@ -157,6 +175,9 @@ const PostATripScreen = ({ route }) => {
         await getTripSheetDetails();
       }
       await fetchConstants();
+      if (from === 'bills') {
+        await getTripTable();
+      }
     };
 
     initializeScreen();
@@ -283,6 +304,13 @@ const PostATripScreen = ({ route }) => {
     }
   };
 
+  const getTripTable = async () => {
+    const response = await fetchTripTable(postId, userToken);
+    if (response?.error === false) {
+      setTripTableData(response?.data.tripSheetRide);
+    }
+  };
+
   // Handlers
   const handleStartRecording = useCallback(() => {
     setIsRecording(true);
@@ -308,6 +336,277 @@ const PostATripScreen = ({ route }) => {
   const handleTimeChange = useCallback((newTime) => {
     setSelectedTime(newTime);
   }, []);
+
+  const handleSend = async () => {
+    let isValid = true;
+    let errorMessage = '';
+
+    // Validation logic
+    if (postType === 'Quick Share') {
+      if (!selectedTripType) {
+        isValid = false;
+        errorMessage = 'Please select a trip type.';
+      } else if (!selectedPackage) {
+        isValid = false;
+        errorMessage = 'Please select a package.';
+      } else if (!selectedVehicleType) {
+        isValid = false;
+        errorMessage = 'Please select a vehicle type.';
+      } else if (!selectedVehicleName) {
+        isValid = false;
+        errorMessage = 'Please select a vehicle name.';
+      } else if (message.length === 0 && !recordedAudioUri) {
+        isValid = false;
+        errorMessage = 'Please enter a message or record an audio.';
+      } else if (!selectedShareType) {
+        isValid = false;
+        errorMessage = 'Please select a share type.';
+      }
+    } else if (postType === 'Trip Sheet') {
+      const requiredFields = [
+        { value: selectedTripType, message: 'Please select a trip type.' },
+        { value: selectedPackage, message: 'Please select a package.' },
+        {
+          value: selectedVehicleType,
+          message: 'Please select a vehicle type.',
+        },
+        {
+          value: selectedVehicleName,
+          message: 'Please select a vehicle name.',
+        },
+        { value: customerName, message: 'Please enter customer name.' },
+        { value: customerPhone, message: 'Please enter customer phone.' },
+        { value: pickupLocation, message: 'Please enter pickup location.' },
+        { value: dropLocation, message: 'Please enter drop location.' },
+        { value: rate, message: 'Please enter rate.' },
+        { value: extraKms, message: 'Please enter extra kms.' },
+        { value: extraHours, message: 'Please enter extra hours.' },
+        { value: dayBatta, message: 'Please enter day batta.' },
+        { value: nightBatta, message: 'Please enter night batta.' },
+        {
+          value: selectedPaymentType,
+          message: 'Please select a payment type.',
+        },
+        { value: notes, message: 'Please enter notes.' },
+        { value: notes1, message: 'Please enter additional notes.' },
+        { value: visitingPlace, message: 'Please enter visiting place.' },
+        { value: selectedTime, message: 'Please select time.' },
+        { value: selectedFromDate, message: 'Please select from date.' },
+        { value: selectedToDate, message: 'Please select to date.' },
+        { value: selectedShareType, message: 'Please select a share type.' },
+      ];
+
+      for (const field of requiredFields) {
+        if (!field.value) {
+          isValid = false;
+          errorMessage = field.message;
+          break;
+        }
+      }
+    }
+
+    if (!isValid) {
+      alert(errorMessage);
+      return;
+    }
+
+    // Prepare data for submission
+    let finalData = {
+      posted_user_id: userId,
+      post_status: 'Available',
+      booking_type_id: selectedTripType,
+      booking_types_package_id: selectedPackage,
+      vehicle_type_id: selectedVehicleType,
+      vehicle_name_id: selectedVehicleName,
+      post_type_id: selectedShareType,
+    };
+
+    if (message.length > 0) {
+      finalData.post_comments = message;
+    }
+
+    if (postType === 'Trip Sheet') {
+      Object.assign(finalData, {
+        customer_name: customerName,
+        customer_phone_no: customerPhone,
+        pick_up_location: pickupLocation,
+        destination: dropLocation,
+        base_fare_rate: rate,
+        extra_km_rate: extraKms,
+        extra_hr_rate: extraHours,
+        day_batta_rate: dayBatta,
+        night_batta_rate: nightBatta,
+        payment_type: selectedPaymentType,
+        note_1: notes,
+        note_2: notes1,
+        visiting_place: visitingPlace,
+        pick_up_time: selectedTime,
+        from_date: selectedFromDate,
+        to_date: selectedToDate,
+      });
+    }
+
+    if (selectedShareType === 1) {
+      finalData.post_type_value = null;
+      let formData = new FormData();
+      formData.append('json', JSON.stringify(finalData));
+
+      if (recordedAudioUri) {
+        const filename = recordedAudioUri.split('/').pop();
+        formData.append('voiceMessage', {
+          uri: recordedAudioUri,
+          type: 'audio/m4a',
+          name: filename,
+        });
+      }
+
+      try {
+        const response = await createPost(formData, userToken);
+        if (
+          response.error === false &&
+          response.message === 'Post Booking Data created successfully'
+        ) {
+          navigation.navigate('Home');
+        } else {
+          alert(response.message);
+        }
+      } catch (error) {
+        console.error('Error creating post:', error);
+        alert('Failed to create post. Please try again.');
+      }
+    } else if (selectedShareType === 2) {
+      navigation.navigate('SelectGroups', { finalData, recordedAudioUri });
+    } else if (selectedShareType === 3) {
+      navigation.navigate('SelectContacts', { finalData, recordedAudioUri });
+    }
+  };
+
+  const handleUpdate = async () => {
+    let isValid = true;
+    let errorMessage = '';
+
+    const requiredFields = [
+      { value: selectedTripType, message: 'Please select a trip type.' },
+      { value: selectedPackage, message: 'Please select a package.' },
+      { value: selectedVehicleType, message: 'Please select a vehicle type.' },
+      { value: selectedVehicleName, message: 'Please select a vehicle name.' },
+      { value: customerName, message: 'Please enter customer name.' },
+      { value: customerPhone, message: 'Please enter customer phone.' },
+      { value: pickupLocation, message: 'Please enter pickup location.' },
+      { value: dropLocation, message: 'Please enter drop location.' },
+      { value: rate, message: 'Please enter rate.' },
+      { value: extraKms, message: 'Please enter extra kms.' },
+      { value: extraHours, message: 'Please enter extra hours.' },
+      { value: dayBatta, message: 'Please enter day batta.' },
+      { value: nightBatta, message: 'Please enter night batta.' },
+      { value: selectedPaymentType, message: 'Please select a payment type.' },
+      { value: notes, message: 'Please enter notes.' },
+      { value: notes1, message: 'Please enter additional notes.' },
+      { value: visitingPlace, message: 'Please enter visiting place.' },
+      { value: selectedTime, message: 'Please select time.' },
+      { value: selectedFromDate, message: 'Please select from date.' },
+      { value: selectedToDate, message: 'Please select to date.' },
+    ];
+
+    for (const field of requiredFields) {
+      if (!field.value) {
+        isValid = false;
+        errorMessage = field.message;
+        break;
+      }
+    }
+
+    if (!isValid) {
+      alert(errorMessage);
+      return;
+    }
+
+    let finalData = {
+      id: initialData.id,
+      post_booking_id: postId,
+      posted_user_id: userId,
+      post_status: 'Available',
+      booking_type_id: selectedTripType,
+      booking_types_package_id: selectedPackage,
+      vehicle_type_id: selectedVehicleType,
+      vehicle_name_id: selectedVehicleName,
+      customer_name: customerName,
+      customer_phone_no: customerPhone,
+      pick_up_location: pickupLocation,
+      destination: dropLocation,
+      base_fare_rate: rate,
+      extra_km_rate: extraKms,
+      extra_hr_rate: extraHours,
+      day_batta_rate: dayBatta,
+      night_batta_rate: nightBatta,
+      payment_type: selectedPaymentType,
+      note_1: notes,
+      note_2: notes1,
+      visiting_place: visitingPlace,
+      pick_up_time: selectedTime,
+      from_date: selectedFromDate,
+      to_date: selectedToDate,
+      post_type_id: selectedShareType,
+    };
+
+    const formData = new FormData();
+    formData.append('json', JSON.stringify(finalData));
+
+    try {
+      await updatePost(formData, userToken);
+      if (from === 'bills') {
+        navigation.navigate('Drawer', {
+          screen: 'TripBill',
+          params: { postId: initialData.id },
+        });
+      } else {
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error('Error updating trip sheet:', error);
+      alert('Failed to update trip sheet. Please try again.');
+    }
+  };
+
+  const handleGeneratePDF = async () => {
+    setIsPdfGenerating(true);
+    try {
+      const finalData = { post_booking_id: postId };
+      const response = await generateTripPdf(finalData, userToken);
+      const cleanedHtml = cleanHTML(response);
+
+      const { uri } = await Print.printToFileAsync({
+        html: cleanedHtml,
+        base64: false,
+      });
+
+      const filename = `tripsheet_${Date.now()}.pdf`;
+      const destinationUri = `${Platform.OS === 'android' ? FileSystem.cacheDirectory : FileSystem.documentDirectory}${filename}`;
+
+      await FileSystem.copyAsync({
+        from: uri,
+        to: destinationUri,
+      });
+
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (isAvailable) {
+        await Sharing.shareAsync(destinationUri, {
+          mimeType: 'application/pdf',
+          dialogTitle: 'Save PDF',
+        });
+        setPdfUri(destinationUri);
+      } else {
+        alert('Sharing is not available on this device');
+      }
+
+      await FileSystem.deleteAsync(uri, { idempotent: true });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsPdfGenerating(false);
+    }
+  };
 
   // Memoized Selectors
   const getSelectedTripTypePackages = useMemo(() => {
@@ -713,146 +1012,48 @@ const PostATripScreen = ({ route }) => {
       renderCommonContent,
     ],
   );
-  const handleSubmit = async () => {
-    if (
-      !selectedTripType ||
-      !selectedPackage ||
-      !selectedVehicleType ||
-      !selectedVehicleName
-    ) {
-      alert('Please select all required fields');
-      return;
-    }
 
-    const baseData = {
-      posted_user_id: userId,
-      post_status: 'Available',
-      booking_type_id: selectedTripType,
-      booking_types_package_id: selectedPackage,
-      vehicle_type_id: selectedVehicleType,
-      vehicle_name_id: selectedVehicleName,
-      post_type_id: selectedShareType,
-    };
+  const renderTableHeader = () => (
+    <View style={styles.headerRow}>
+      {headers.map((header, index) => (
+        <View
+          key={index}
+          style={[
+            styles.headerCell,
+            index === headers.length - 1 && styles.lastCell,
+          ]}
+        >
+          <Text style={styles.headerText}>{header}</Text>
+        </View>
+      ))}
+    </View>
+  );
 
-    try {
-      if (postType === POST_TYPES.QUICK_SHARE) {
-        if (message) {
-          baseData.post_comments = message;
-        }
-
-        if (selectedShareType === 1) {
-          const formData = new FormData();
-          formData.append('json', JSON.stringify(baseData));
-
-          if (recordedAudioUri) {
-            const filename = recordedAudioUri.split('/').pop();
-            formData.append('voiceMessage', {
-              uri: recordedAudioUri,
-              type: 'audio/m4a',
-              name: filename,
-            });
-          }
-
-          const response = await createPost(formData, userToken);
-          if (!response.error) {
-            navigation.navigate('Home');
-          } else {
-            alert(response.message);
-          }
-        } else {
-          const screen =
-            selectedShareType === 2 ? 'SelectGroups' : 'SelectContacts';
-          navigation.navigate(screen, {
-            finalData: baseData,
-            recordedAudioUri,
-          });
-        }
-      } else {
-        // For Trip Sheet
-        Object.assign(baseData, {
-          customer_name: customerName,
-          customer_phone_no: customerPhone,
-          pick_up_location: pickupLocation,
-          destination: dropLocation,
-          base_fare_rate: rate,
-          extra_km_rate: extraKms,
-          extra_hr_rate: extraHours,
-          day_batta_rate: dayBatta,
-          night_batta_rate: nightBatta,
-          payment_type: selectedPaymentType,
-          note_1: notes,
-          note_2: notes1,
-          visiting_place: visitingPlace,
-          pick_up_time: selectedTime,
-          from_date: selectedFromDate,
-          to_date: selectedToDate,
-        });
-
-        const formData = new FormData();
-        formData.append('json', JSON.stringify(baseData));
-
-        if (from === undefined) {
-          const response = await createPost(formData, userToken);
-          if (!response.error) {
-            navigation.navigate('Home');
-          }
-        } else {
-          await updatePost(formData, userToken);
-          if (from === 'bills') {
-            navigation.navigate('Drawer', {
-              screen: 'TripBill',
-              params: { postId: initialData.id },
-            });
-          } else {
-            navigation.goBack();
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Failed to submit. Please try again.');
-    }
-  };
-
-  const handleGeneratePDF = async () => {
-    setIsPdfGenerating(true);
-    try {
-      const finalData = { post_booking_id: postId };
-      const response = await generateTripPdf(finalData, userToken);
-      const cleanedHtml = cleanHTML(response);
-
-      const { uri } = await Print.printToFileAsync({
-        html: cleanedHtml,
-        base64: false,
-      });
-
-      const filename = `tripsheet_${Date.now()}.pdf`;
-      const destinationUri = `${Platform.OS === 'android' ? FileSystem.cacheDirectory : FileSystem.documentDirectory}${filename}`;
-
-      await FileSystem.copyAsync({
-        from: uri,
-        to: destinationUri,
-      });
-
-      const isAvailable = await Sharing.isAvailableAsync();
-      if (isAvailable) {
-        await Sharing.shareAsync(destinationUri, {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Save PDF',
-        });
-        setPdfUri(destinationUri);
-      } else {
-        alert('Sharing is not available on this device');
-      }
-
-      await FileSystem.deleteAsync(uri, { idempotent: true });
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
-    } finally {
-      setIsPdfGenerating(false);
-    }
-  };
+  // Render table row
+  const renderItem = ({ item }) => (
+    <View style={styles.row}>
+      <View style={styles.cell}>
+        <Text style={styles.cellText}>{formatDate(item.start_date)}</Text>
+      </View>
+      <View style={styles.cell}>
+        <Text style={styles.cellText}>{item.start_time || '-'}</Text>
+      </View>
+      <View style={styles.cell}>
+        <Text style={styles.cellText}>{item.start_kms || '-'}</Text>
+      </View>
+      <View style={styles.cell}>
+        <Text style={styles.cellText}>{item.end_time || '-'}</Text>
+      </View>
+      <View style={styles.cell}>
+        <Text style={styles.cellText}>{item.end_kms || '-'}</Text>
+      </View>
+      <View style={[styles.cell, styles.lastCell]}>
+        <Text style={styles.cellText}>
+          {item.total_kms === 'NaN' ? '-' : item.total_kms}
+        </Text>
+      </View>
+    </View>
+  );
 
   if (isLoading) {
     return (
@@ -902,6 +1103,19 @@ const PostATripScreen = ({ route }) => {
           ? renderQuickShareContent()
           : renderTripSheetContent()}
 
+        {from === 'bills' && (
+          <View>
+            {renderTableHeader()}
+            <FlatList
+              data={tripTableData}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id.toString()}
+              scrollEnabled={true}
+              showsVerticalScrollIndicator={true}
+            />
+          </View>
+        )}
+
         <View style={styles.buttonContainer}>
           {from === 'bills' && (
             <CustomButton
@@ -917,7 +1131,7 @@ const PostATripScreen = ({ route }) => {
           <CustomButton
             title={from === undefined ? 'Save' : 'Update'}
             style={styles.submitButton}
-            onPress={handleSubmit}
+            onPress={from === undefined ? handleSend : handleUpdate}
           />
         </View>
         <View style={styles.bottomSpacing} />
@@ -1117,6 +1331,39 @@ const styles = StyleSheet.create({
     color: '#666666',
     fontStyle: 'italic',
     fontSize: 13,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    backgroundColor: '#f2f2f2',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  row: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  headerCell: {
+    flex: 1,
+    padding: 10,
+    borderRightWidth: 1,
+    borderRightColor: '#ddd',
+  },
+  cell: {
+    flex: 1,
+    padding: 10,
+    borderRightWidth: 1,
+    borderRightColor: '#ddd',
+  },
+  lastCell: {
+    borderRightWidth: 0,
+  },
+  headerText: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  cellText: {
+    textAlign: 'center',
   },
 });
 

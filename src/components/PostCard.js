@@ -57,6 +57,7 @@ const PostCard = ({
   driverTripBill,
   driverTripBillOnPress,
   customerBill,
+  customerBillOnPress,
   billsScreen,
 }) => {
   const requestStatus = isRequested ? isRequested : 'Accept';
@@ -299,8 +300,6 @@ const PostCard = ({
                   >
                     <Text style={styles.acceptButtonText}>{requestStatus}</Text>
                   </TouchableOpacity>
-
-
                 </View>
               )}
               {vacantTripPostedByLoggedInUser === true && (
@@ -349,12 +348,16 @@ const PostCard = ({
         {driverTripBill && (
           <TouchableOpacity
             onPress={driverTripBillOnPress}
-            style={styles.actionButton}>
+            style={styles.actionButton}
+          >
             <Text style={styles.buttonText}>Driver Trip Bill</Text>
           </TouchableOpacity>
         )}
         {customerBill && (
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={customerBillOnPress}
+          >
             <Text style={styles.buttonText}>Customer Bill</Text>
           </TouchableOpacity>
         )}
