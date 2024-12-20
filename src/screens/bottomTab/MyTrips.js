@@ -83,6 +83,7 @@ const MyTrips = () => {
 
   // Closing details states
   const [closingKms, setClosingKms] = useState('');
+  console.log({ closingKms })
   const [closingTime, setClosingTime] = useState('');
   const [closingDate, setClosingDate] = useState('');
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
@@ -96,6 +97,7 @@ const MyTrips = () => {
       if (showStartTripModal) setOpeningDate(formattedDate);
       if (showClosingDetailsModal) setClosingDate(formattedDate);
     }
+    console.log({ showClosingDetailsModal, showStartTripModal });
   }, [showStartTripModal, showClosingDetailsModal]);
 
   useEffect(() => {
@@ -258,19 +260,17 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
-    console.log({ closingKms, closingTime, closingDate })
-    const response = await closeTrip(
-      {
-        post_bookings_id: selectedTripData?.post_booking_id,
-        end_trip_kms: closingKms,
-        end_trip_date: closingDate,
-        end_trip_time: closingTime,
-        posted_user_id: selectedTripData?.posted_user_id,
-        accepted_user_id: userId,
-      },
-      userToken,
-    );
-    console.log('yyy', response)
+    console.log({ closingKms })
+    const finalData = {
+      post_bookings_id: selectedTripData?.post_booking_id,
+      end_trip_kms: closingKms,
+      end_trip_time: closingTime,
+      end_trip_date: closingDate,
+      posted_user_id: selectedTripData?.posted_user_id,
+      accepted_user_id: userId,
+    }
+    console.log({ finalData })
+    const response = await closeTrip(finalData, userToken);
 
     if (response?.error === false) {
       setShowTripSummaryModal(false);
@@ -304,10 +304,10 @@ const MyTrips = () => {
         start_trip_kms: openingKms,
         start_date: openingDate,
         start_time: openingTime,
-        pick_up_address: selectedTripData?.pick_up_location || '',
-        destination: selectedTripData?.destination || '',
-        customer_name: selectedTripData?.user_name || '',
-        customer_phone_numb: selectedTripData?.user_phone || '',
+        // pick_up_address: selectedTripData?.pick_up_location || '',
+        // destination: selectedTripData?.destination || '',
+        // customer_name: selectedTripData?.user_name || '',
+        // customer_phone_numb: selectedTripData?.user_phone || '',
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
       },
@@ -326,39 +326,6 @@ const MyTrips = () => {
 
   const handleButtonPress = async (tripData) => {
     try {
-      const response = await fetchTripSheetByPostId(
-        tripData?.post_booking_id,
-        userToken,
-      );
-
-      if (response?.error) {
-        throw new Error('Failed to fetch trip sheet');
-      }
-
-      const requiredFields = [
-        'pick_up_location',
-        'destination',
-        'pick_up_time',
-        'customer_name',
-        'customer_phone_no',
-        'from_date',
-        'to_date',
-        'note_1',
-        'note_2',
-        'visiting_place',
-      ];
-
-      const hasMissingFields = requiredFields.some(
-        (field) => !response.data[field],
-      );
-
-      if (hasMissingFields) {
-        return navigation.navigate('PostTrip', {
-          from: 'myTrips',
-          postId: tripData?.post_booking_id,
-        });
-      }
-
       setSelectedTripData(tripData);
       setTripType('');
 
@@ -597,6 +564,7 @@ const MyTrips = () => {
           setShowTimePicker={setShowTimePicker}
           showDatePicker={showDatePicker}
           setShowDatePicker={setShowDatePicker}
+
         />
       </CustomModal>
 
@@ -627,7 +595,9 @@ const MyTrips = () => {
           showClosingDatePicker={showClosingDatePicker}
           setShowClosingDatePicker={setShowClosingDatePicker}
           closingActionType={closingActionType}
+          // setClosingActionType={setClosingActionType}
           handleCloseTrip={handleCloseForDay}
+
         />
       </CustomModal>
 

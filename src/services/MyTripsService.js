@@ -61,6 +61,7 @@ export const startTrip = async (data, token) => {
 };
 
 export const closeTrip = async (data, token) => {
+  console.log({ data })
   const response = await patchAPI({
     endUrl: 'share-trip/trip-ride',
     body: data,

@@ -31,7 +31,7 @@ const ViewGroupRequestsScreen = () => {
   const userId = userData.userId;
   const dispatch = useDispatch();
   const [groupRequestData, setGroupRequestData] = useState(null);
-  
+
   const [actionType, setActionType] = useState(null);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
 
@@ -147,7 +147,7 @@ const ViewGroupRequestsScreen = () => {
                 style={styles.groupName}
               />
 
-              {item.related_users[0].is_admin && (
+              {item.related_users?.[0]?.is_admin && (
                 <Text>Admin:{item.related_users[0].user_name}</Text>
               )}
             </View>
