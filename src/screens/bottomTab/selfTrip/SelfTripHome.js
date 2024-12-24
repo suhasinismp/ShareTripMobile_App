@@ -392,12 +392,9 @@ const SelfTripHome = () => {
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
             onPressNext={(closingDetails) => {
+              handleCloseTrip({ closingKms: closingDetails.closingKms, closingTime: closingDetails.closingTime, closingDate: closingDetails.closingDate, }
 
-              handleCloseTrip(
-                closingDetails.closingKms,
-                closingDetails.closingTime,
-                closingDetails.closingDate,
-              )
+              );
             }}
           />
         </CustomModal>

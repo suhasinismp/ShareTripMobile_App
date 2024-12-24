@@ -388,7 +388,7 @@ const PostATripScreen = ({ route }) => {
           message: 'Please select a payment type.',
         },
         { value: notes, message: 'Please enter notes.' },
-        { value: notes1, message: 'Please enter additional notes.' },
+        // { value: notes1, message: 'Please enter additional notes.' },
         { value: visitingPlace, message: 'Please enter visiting place.' },
         { value: selectedTime, message: 'Please select time.' },
         { value: selectedFromDate, message: 'Please select from date.' },
@@ -438,7 +438,7 @@ const PostATripScreen = ({ route }) => {
         night_batta_rate: nightBatta,
         payment_type: selectedPaymentType,
         note_1: notes,
-        note_2: notes1,
+        // note_2: notes1,
         visiting_place: visitingPlace,
         pick_up_time: selectedTime,
         from_date: selectedFromDate,
@@ -475,6 +475,7 @@ const PostATripScreen = ({ route }) => {
         alert('Failed to create post. Please try again.');
       }
     } else if (selectedShareType === 2) {
+
       navigation.navigate('SelectGroups', { finalData, recordedAudioUri });
     } else if (selectedShareType === 3) {
       navigation.navigate('SelectContacts', { finalData, recordedAudioUri });
@@ -501,7 +502,7 @@ const PostATripScreen = ({ route }) => {
       { value: nightBatta, message: 'Please enter night batta.' },
       { value: selectedPaymentType, message: 'Please select a payment type.' },
       { value: notes, message: 'Please enter notes.' },
-      { value: notes1, message: 'Please enter additional notes.' },
+      // { value: notes1, message: 'Please enter additional notes.' },
       { value: visitingPlace, message: 'Please enter visiting place.' },
       { value: selectedTime, message: 'Please select time.' },
       { value: selectedFromDate, message: 'Please select from date.' },
@@ -541,7 +542,7 @@ const PostATripScreen = ({ route }) => {
       night_batta_rate: nightBatta,
       payment_type: selectedPaymentType,
       note_1: notes,
-      note_2: notes1,
+      // note_2: notes1,
       visiting_place: visitingPlace,
       pick_up_time: selectedTime,
       from_date: selectedFromDate,

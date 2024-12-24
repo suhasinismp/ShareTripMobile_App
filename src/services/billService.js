@@ -5,7 +5,7 @@ export const getMyDutiesBill = async (userId, token) => {
     `share-trip/post-trip-confirm/completed-trips?filter=myDuties&user_id=${userId}`,
     token,
   );
-
+  console.log('abc', response.data)
   return response;
 };
 
