@@ -7,9 +7,6 @@ import HomeScreen from '../screens/bottomTab/HomeScreen';
 import MyTrips from '../screens/bottomTab/MyTrips';
 import VacantTrip from '../screens/bottomTab/VacantTrip';
 
-
-
-
 // Import your custom SVG components
 import Home from '../../assets/svgs/home.svg';
 import MyTrip from '../../assets/svgs/myTrips.svg';
@@ -22,7 +19,6 @@ import VacantTripInactive from '../../assets/svgs/vacantTripInactive.svg';
 import BillsInactive from '../../assets/svgs/billsInactive.svg';
 import SelfTripHome from '../screens/bottomTab/selfTrip/SelfTripHome';
 import Bills from '../screens/bottomTab/bills/Bills';
-
 
 const Tab = createBottomTabNavigator();
 
