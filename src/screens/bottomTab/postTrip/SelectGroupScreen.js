@@ -55,7 +55,7 @@ const SelectGroupScreen = ({ route }) => {
       finalData.post_type_value = JSON.stringify(selectedGroupIds);
 
       const formData = new FormData();
-
+      console.log({ finalData })
       formData.append('json', JSON.stringify(finalData));
       if (recordedAudioUri) {
         const filename = recordedAudioUri.split('/').pop();

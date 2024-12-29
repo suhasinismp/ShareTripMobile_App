@@ -42,7 +42,7 @@ const CreateSelfTrip = () => {
     const [recordedAudioUri, setRecordedAudioUri] = useState(null);
     const [message, setMessage] = useState('');
     const [notes, setNotes] = useState('');
-    const [notes1, setNotes1] = useState('');
+    // const [notes1, setNotes1] = useState('');
     const [selectedPaymentType, setSelectedPaymentType] = useState('Cash');
     const [selectedFromDate, setSelectedFromDate] = useState(new Date());
     const [userProfile, setUserProfile] = useState([]);
@@ -203,10 +203,12 @@ const CreateSelfTrip = () => {
         } else if (!notes.length === 0) {
             isValid = false;
             errorMessage = 'Please enter a notes'
-        } else if (!notes1.length === 0) {
-            isValid = false;
-            errorMessage = 'Please enter a notes1'
-        } else if (!selectedTime) {
+        }
+        //  else if (!notes1.length === 0) {
+        //     isValid = false;
+        //     errorMessage = 'Please enter a notes1'
+
+        else if (!selectedTime) {
             isValid = false;
             errorMessage = 'Please select time.';
         } else if (!selectedFromDate) {
@@ -256,9 +258,9 @@ const CreateSelfTrip = () => {
         if (notes.length > 0) {
             finalData.notes = notes;
         }
-        if (notes1.length > 0) {
-            finalData.notes1 = notes
-        }
+        // if (notes1.length > 0) {
+        //     finalData.notes1 = notes
+        // }
         if (selectedTime) {
             finalData.pick_up_time = selectedTime;
         }
@@ -538,12 +540,12 @@ const CreateSelfTrip = () => {
                         onChangeText={setNotes}
                         multiline={true}
                     />
-                    <CustomInput
+                    {/* <CustomInput
                         placeholder="Type your message"
                         value={notes1}
                         onChangeText={setNotes1}
                         multiline={true}
-                    />
+                    /> */}
                 </View>
                 <View style={styles.sectionContainer}>
                     <CustomText text={'Date & Time :'} variant={'sectionTitleText'} />

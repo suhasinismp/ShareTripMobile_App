@@ -60,14 +60,14 @@ function formatTripData(responseData) {
     {
       title: 'Others Charges',
       data: [
-        { label: 'Parking', value: 0 },
-        { label: 'Tolls', value: 0 },
-        { label: 'Other State Taxes', value: 0 },
+        { label: 'Parking', value: data.parking || 0 },
+        { label: 'Tolls', value: data.tolls || 0 },
+        { label: 'Other State Taxes', value: data.state_tax || 0 },
         {
           label: 'Advance',
           value: data.total_amount - data.balance_amount || 0,
         },
-        { label: 'Cleaning Charges', value: 0 },
+        { label: 'Cleaning Charges', value: data.cleaning || 0 },
       ],
     },
     {
@@ -122,6 +122,7 @@ const TripBillScreen = ({ route }) => {
   const userData = useSelector(getUserDataSelector);
   const userToken = userData?.userToken;
   const postId = route.params?.postId;
+  console.log({ postId })
 
   useEffect(() => {
     if (postId) {
