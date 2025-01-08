@@ -12,7 +12,7 @@ const CustomerSignatureModal = ({
   onClose,
   fetch,
 }) => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const [signatureFileInfo, setSignatureFileInfo] = useState(null);
   const signatureRef = useRef();
 
@@ -42,7 +42,6 @@ const CustomerSignatureModal = ({
   const handleEndTrip = async () => {
     try {
       if (!signatureFileInfo) {
-        console.log('No signature captured');
         return;
       }
 
@@ -60,21 +59,12 @@ const CustomerSignatureModal = ({
         name: 'customer_signature.png',
       });
 
-      console.log('FormData contents:', {
-        json: formData.getParts().find((part) => part.fieldName === 'json')
-          ?.string,
-        signature: formData
-          .getParts()
-          .find((part) => part.fieldName === 'signature'),
-      });
-
       const response = await uploadSignature(formData, userToken);
-      console.log('Signature upload response:', response);
 
       if (response?.error === false) {
         onClose();
         // await fetch();
-        navigation.navigate('Bills')
+        navigation.navigate('Bills');
       }
     } catch (error) {
       console.error('Error uploading signature:', error);

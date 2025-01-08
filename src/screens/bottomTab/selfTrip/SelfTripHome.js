@@ -1,5 +1,3 @@
-
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -27,7 +25,6 @@ import {
   fetchMultiDayTripDetails,
   fetchTripDetails,
   postAdditionCharges,
-
 } from '../../../services/myTripsService';
 import axios from 'axios';
 import StartTripModal from '../../../components/tripModals/StartTripModal';
@@ -39,9 +36,7 @@ const SelfTripHome = () => {
   const userId = userData.userId;
   const userToken = userData.userToken;
   const [userSelfTripData, setUserSelfTripData] = useState([]);
-  console.log('sss', userSelfTripData)
   const [showStartTripModal, setShowStartTripModal] = useState(false);
-
 
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
@@ -80,12 +75,8 @@ const SelfTripHome = () => {
     }, [userId, userToken]),
   );
 
-
-
-
   const getSelfTripPosts = async () => {
     const response = await fetchUserSelfPosts(userId, userToken);
-    console.log('response', response)
 
     if (response.error === false) {
       setUserSelfTripData(response.data);
@@ -125,8 +116,7 @@ const SelfTripHome = () => {
     const response = await fetchMultiDayTripDetails(
       selectedTripData?.post_booking_id,
       userToken,
-    )
-    console.log('response', response);
+    );
 
     if (
       response?.error === false &&
@@ -143,7 +133,6 @@ const SelfTripHome = () => {
   };
 
   const handleButtonPress = (tripData) => {
-
     setSelectedTripData(tripData);
     setTripType('');
     if (tripData?.request_status === 'Start Trip') {
@@ -168,12 +157,11 @@ const SelfTripHome = () => {
 
     if (response?.error === false) {
       setShowClosingDetailsModal(false);
-      setClosingKms('')
-      setClosingTime('')
-      setClosingDate('')
+      setClosingKms('');
+      setClosingTime('');
+      setClosingDate('');
     }
   };
-
 
   const handleEndTrip = async () => {
     setShowTripProgressModal(false);
@@ -392,9 +380,11 @@ const SelfTripHome = () => {
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
             onPressNext={(closingDetails) => {
-              handleCloseTrip({ closingKms: closingDetails.closingKms, closingTime: closingDetails.closingTime, closingDate: closingDetails.closingDate, }
-
-              );
+              handleCloseTrip({
+                closingKms: closingDetails.closingKms,
+                closingTime: closingDetails.closingTime,
+                closingDate: closingDetails.closingDate,
+              });
             }}
           />
         </CustomModal>

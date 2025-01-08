@@ -26,14 +26,13 @@ export const uploadVehicleDocs = async (data, token) => {
 };
 
 export const uploadDriverDocs = async (data, token) => {
-  console.log({ data, token })
   try {
     const response = await postFormDataAPI(
       'share-trip/user-docs/form-data',
       data,
       token,
     );
-    console.log('ddd', response)
+
     return response;
   } catch (error) {
     console.error('Error in uploadDriverDocs:', error);
@@ -51,8 +50,6 @@ export const getVehicleDocsByVehicleId = async (vehicleId, token) => {
 };
 
 export const getUserDocsByUserId = async (userId, token) => {
-
   const response = await getAPI(`share-trip/user-docs/userID/${userId}`, token);
-  console.log({ response })
   return response;
 };

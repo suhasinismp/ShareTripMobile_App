@@ -53,6 +53,7 @@ import GroupStack from './GroupStack';
 import TripBillScreen from '../screens/bottomTab/bills/TripBillScreen';
 import { getProfileByUserId } from '../services/profileScreenService';
 import TripBillEditScreen from '../screens/bottomTab/bills/TripBillEditScreen';
+import ViewTripSheet from '../screens/bottomTab/postTrip/ViewTripSheet';
 
 const Drawer = createDrawerNavigator();
 
@@ -304,6 +305,7 @@ const DrawerStack = () => {
       <Drawer.Screen name="CreateSelfTrip" component={CreateSelfTrip} />
       <Drawer.Screen name="TripBill" component={TripBillScreen} />
       <Drawer.Screen name="TripBillEdit" component={TripBillEditScreen} />
+      <Drawer.Screen name="ViewTripSheet" component={ViewTripSheet} />
     </Drawer.Navigator>
   );
 };
