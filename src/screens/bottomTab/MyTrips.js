@@ -24,7 +24,7 @@ import {
   postAdditionCharges,
   startTrip,
   startTripMultiDay,
-} from '../../services/myTripsService';
+} from '../../services/MyTripsService';
 import { getUserDataSelector } from '../../store/selectors';
 import { handleCall } from './HomeScreen';
 import StartTripModal from '../../components/tripModals/StartTripModal';
@@ -490,8 +490,10 @@ const MyTrips = () => {
         groupIcon={true}
         onlineIcon={true}
         muteIcon={true}
+
         search={true}
       />
+      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>My Trips</Text>
 
       <View style={styles.container}>
         <View style={styles.filterRow}>

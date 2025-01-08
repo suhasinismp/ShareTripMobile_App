@@ -183,7 +183,7 @@ const ProfileScreen = () => {
         <CustomButton
           title="Rington"
           style={styles.ringButton}
-          onPress={() => navigation.navigate('ringTons')}
+          onPress={() => navigation.navigate('ringtons')}
         />
         <CustomButton
           title="Save"

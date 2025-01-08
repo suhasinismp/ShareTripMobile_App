@@ -244,8 +244,11 @@ const VacantTrip = () => {
         drawerIcon={true}
         groupIcon={true}
         onlineIcon={true}
+
         muteIcon={true}
       />
+      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Vacant Trips</Text>
+
 
       <FlatList
         data={userVacantPostData} // Ensure this is defined or passed as a prop

@@ -100,8 +100,11 @@ const Bills = () => {
         groupIcon={true}
         onlineIcon={true}
         muteIcon={true}
+
         search={true}
       />
+      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>Bills</Text>
+
       <View style={styles.container}>
         <View style={styles.filterRow}>
           <CustomSelect

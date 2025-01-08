@@ -17,6 +17,7 @@ import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansSc
 import Tabs from './BottomTab';
 import VehicleStack from './VehicleStack';
 
+
 // Import your SVG icons here
 import BusinessIcon from '../../assets/svgs/business.svg';
 import DashboardIcon from '../../assets/svgs/dasboardIcon.svg';
@@ -40,6 +41,7 @@ import CreateSelfTrip from '../screens/bottomTab/selfTrip/CreateSelfTripScreen';
 import { resetStore } from '../store/store';
 import GroupStack from './GroupStack';
 import TripBillScreen from '../screens/bottomTab/bills/TripBillScreen';
+import MyTrips from '../screens/bottomTab/MyTrips';
 
 const Drawer = createDrawerNavigator();
 
@@ -168,7 +170,11 @@ const CustomDrawerContent = (props) => {
           onPress={() => navigation.navigate('ManageDriverDocuments')}
           isFocused={isRouteActive('ManageDriverDocuments')}
         />
+
+
       </View>
+
+
 
       {/* Logout and Help section */}
       <CustomDrawerItem
@@ -181,7 +187,7 @@ const CustomDrawerContent = (props) => {
         label="Logout"
         icon={LogoutIcon}
         onPress={handleLogout}
-        isFocused={isRouteActive('Logout')}
+        isFocused={isRouteActive('Logout')} s
       />
     </DrawerContentScrollView>
   );
@@ -203,14 +209,11 @@ const DrawerStack = () => {
       <Drawer.Screen name="Profile" component={ProfileScreen} />
       <Drawer.Screen name="ManageVehicle" component={VehicleStack} />
       <Drawer.Screen name="ManageBusiness" component={BusinessDetailsScreen} />
-      <Drawer.Screen
-        name="ManageSubscription"
-        component={SubscriptionPlansScreen}
-      />
-      <Drawer.Screen
-        name="ManageDriverDocuments"
+      <Drawer.Screen name="ManageSubscription" component={SubscriptionPlansScreen} />
+      <Drawer.Screen name="ManageDriverDocuments"
         component={DriverDocumentScreen}
       />
+      <Drawer.Screen name="MyTrip" component={MyTrips} />
       <Drawer.Screen name="Group" component={GroupStack} />
       <Drawer.Screen name="PostTrip" component={PostATripScreen} />
       <Drawer.Screen name="SelectGroups" component={SelectGroupScreen} />

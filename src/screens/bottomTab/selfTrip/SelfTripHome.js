@@ -1,7 +1,7 @@
 
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { FlatList, TouchableOpacity, StyleSheet, View, Text } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AddPostIcon from '../../../../assets/svgs/addPost.svg';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,7 +28,7 @@ import {
   fetchTripDetails,
   postAdditionCharges,
 
-} from '../../../services/myTripsService';
+} from '../../../services/MyTripsService'
 import axios from 'axios';
 import StartTripModal from '../../../components/tripModals/StartTripModal';
 
@@ -314,8 +314,10 @@ const SelfTripHome = () => {
           groupIcon={true}
           onlineIcon={true}
           muteIcon={true}
+
           search={true}
         />
+        <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Self Trips</Text>
 
         <FlatList
           data={userSelfTripData} // Ensure this is defined or passed as a prop

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
+  Text,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
@@ -232,6 +233,7 @@ const HomeScreen = () => {
         muteIcon={true}
         search={true}
       />
+      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>Home</Text>
 
       <FlatList
         data={userPostsData}

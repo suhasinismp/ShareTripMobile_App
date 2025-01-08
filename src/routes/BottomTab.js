@@ -12,11 +12,11 @@ import VacantTrip from '../screens/bottomTab/VacantTrip';
 
 // Import your custom SVG components
 import Home from '../../assets/svgs/home.svg';
-import MyTrip from '../../assets/svgs/myTrips.svg';
+import MyTripsActive from '../../assets/svgs/myTripsActive.svg'
 import Vacant from '../../assets/svgs/vacantTrip.svg';
 import SelfTrip from '../../assets/svgs/selfTrip.svg';
 import Bill from '../../assets/svgs/bills.svg';
-import MyTripInactive from '../../assets/svgs/myTripInactive.svg';
+import MyTripsInactive from '../../assets/svgs/myTripsInactive.svg';
 import SelfTripInactive from '../../assets/svgs/selfTripInactive.svg';
 import VacantTripInactive from '../../assets/svgs/vacantTripInactive.svg';
 import BillsInactive from '../../assets/svgs/billsInactive.svg';
@@ -75,9 +75,9 @@ const Tabs = () => {
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <MyTrip width={24} height={24} />
+              <MyTripsActive width={24} height={24} />
             ) : (
-              <MyTripInactive width={24} height={24} />
+              <MyTripsInactive width={24} height={24} />
             ),
         }}
       />
