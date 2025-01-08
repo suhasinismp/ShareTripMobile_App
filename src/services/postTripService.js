@@ -26,6 +26,7 @@ export const updatePost = async (data, token) => {
     formData: data,
     token: token,
   });
+
   return response;
 };
 
@@ -57,5 +58,13 @@ export const generateBillPdf = async (body, token) => {
 
 export const fetchTripSheetByPostId = async (postId, token) => {
   const response = await getAPI(`/share-trip/post-booking/${postId}`, token);
+  return response;
+};
+
+export const fetchTripTable = async (postId, token) => {
+  const response = await getAPI(
+    `/share-trip/trip-sheet-ride/based-post-booking/${postId}`,
+    token,
+  );
   return response;
 };

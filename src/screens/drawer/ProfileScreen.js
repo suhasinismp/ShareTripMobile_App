@@ -22,6 +22,10 @@ import { getProfileByUserId } from '../../services/profileScreenService';
 import CustomInput from '../../components/ui/CustomInput';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import RightArrow from '../../../assets/svgs/rightArrow.svg';
+import RingtoneScreen from './RingtoneScreen';
+
+
 
 const { width } = Dimensions.get('window');
 
@@ -32,10 +36,9 @@ const ProfileScreen = () => {
   const [userSingleData, setUserSingleData] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
   const userData = useSelector(getUserDataSelector);
-  const userToken = userData?.userToken;
   const userId = userData?.userId;
+  const userToken = userData?.userToken;
 
 
   const { control, handleSubmit, reset } = useForm({
@@ -181,9 +184,10 @@ const ProfileScreen = () => {
       <View style={styles.buttonContainer}>
 
         <CustomButton
-          title="Rington"
+          title="Ringtons"
           style={styles.ringButton}
-          onPress={() => navigation.navigate('ringtons')}
+          onPress={() => navigation.navigate('Ringtones')}
+          RightIcon={RightArrow}
         />
         <CustomButton
           title="Save"
@@ -238,14 +242,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#005680',
     borderRadius: 4,
     height: 50,
-    marginTop: 50,
+    marginTop: 120,
   },
   ringButton: {
     width: width * 0.3,
     height: 50,
     marginTop: 50,
     alignItems: 'flex-start',
-    backgroundColor: '#C9DDEF',
+    backgroundColor: 'gray',
 
   },
 });

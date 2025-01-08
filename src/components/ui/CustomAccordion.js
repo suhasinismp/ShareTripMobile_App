@@ -34,8 +34,9 @@ const CustomAccordion = ({
   userToken,
 }) => {
   const dispatch = useDispatch();
-  const userData = useSelector(getUserDataSelector)
-  const loggedInUserId = userData.userId
+
+  const userData = useSelector(getUserDataSelector);
+  const loggedInUserId = userData.userId;
   const [isExpanded, setIsExpanded] = useState(false);
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotate = useRef(new Animated.Value(0)).current;
@@ -220,7 +221,7 @@ const CustomAccordion = ({
               amount={driver.booking_tarif_base_fare_rate}
               onAccept={() => handleAcceptDriver(driver)}
               onReject={() => handleRejectDriver(driver)}
-              onCall={() => { }}
+              onCall={() => {}}
             />
           </View>
         ))}

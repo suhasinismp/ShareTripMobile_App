@@ -19,6 +19,7 @@ export const getPostedGuyInProgressTrips = async (userId, token) => {
     `share-trip/post-trip-accept/based-posted-user/${userId}`,
     token,
   );
+
   return response;
 };
 
@@ -65,6 +66,7 @@ export const closeTrip = async (data, token) => {
     body: data,
     token: token,
   });
+
   return response;
 };
 

@@ -3,5 +3,5 @@ export const snackBarConfigSelector = (state) => {
   };
 
   export const getUserDataSelector =(state)=>{
-   return state?.userInfo;
-  }
+    return state?.userInfo;
+   }

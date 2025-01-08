@@ -17,71 +17,108 @@ import { getUserDataSelector } from '../../../store/selectors';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
 import AppHeader from '../../../components/AppHeader';
 import { cleanHTML } from '../../../utils/cleanHTML';
+import { fetchTripBill } from '../../../services/tripBillService';
+import { useNavigation } from '@react-navigation/native';
 
-const INITIAL_DATA = [
-  {
-    title: '',
-    data: [
-      {
-        type: 'header',
-        totalPayable: 2500,
-        advance: 500,
-        totalAmount: 3000,
-      },
-    ],
-  },
-  {
-    title: 'Fare Breakdown',
-    data: [
-      { label: 'Booking Type', value: 'Out Station' },
-      { label: 'Slab rate', value: '800' },
-      { label: 'Slab kms', value: '30kms' },
-      { label: 'Extra Kms Charges', value: '15kms*13 = 195rs' },
-      { label: 'Drivers Batta', value: '400' },
-    ],
-  },
-  {
-    title: 'Others Charges',
-    data: [
-      { label: 'Parking', value: '200' },
-      { label: 'Tolls', value: '170' },
-      { label: 'Other State Taxes', value: '600' },
-      { label: 'Advance', value: '500' },
-      { label: 'Cleaning Charges', value: '' },
-    ],
-  },
-  {
-    title: 'Customer Detail',
-    data: [{ label: 'Manu', value: '987653210' }],
-  },
-  {
-    title: 'Driver Detail',
-    data: [
-      {
-        type: 'driver',
-        name: 'Ramu Nayak',
-        phone: '9876543210',
-        vehicle: 'Toyota SUV',
-        number: 'KA05 ED 6411',
-      },
-    ],
-  },
-  {
-    title: 'Trip Usage',
-    data: [
-      { label: 'Trip Usage', value: '45kms' },
-      { label: 'Pickup Place', value: 'Rajajai Nagar' },
-      { label: 'Visiting Places', value: 'Place 1' },
-    ],
-  },
-];
+function formatTripData(responseData) {
+  const data = responseData;
+
+  const extraKmsCharge = `${data.extra_kms}kms*${data.bookingTypeTariff_extra_km_rate} = ${data.extra_km_amount}rs`;
+
+  return [
+    {
+      title: '',
+      data: [
+        {
+          type: 'header',
+          totalPayable: data.total_amount,
+          advance: data.total_amount - data.balance_amount,
+          totalAmount: data.balance_amount,
+        },
+      ],
+    },
+    {
+      title: 'Fare Breakdown',
+      data: [
+        { label: 'Booking Type', value: data.bookingType_name },
+        {
+          label: 'Slab rate',
+          value: data.bookingTypeTariff_base_fare_rate.toString(),
+        },
+        { label: 'Slab kms', value: `${data.packageKms}kms` },
+        { label: 'Extra Kms Charges', value: extraKmsCharge },
+        {
+          label: 'Day Batta',
+          value: data.day_batta_count || 0,
+        },
+        {
+          label: 'Night Batta',
+          value: data.night_batta_count || 0,
+        },
+      ],
+    },
+    {
+      title: 'Others Charges',
+      data: [
+        { label: 'Parking', value: data.parking || 0 },
+        { label: 'Tolls', value: data.tolls || 0 },
+        { label: 'Other State Taxes', value: data.state_tax || 0 },
+        {
+          label: 'Advance',
+          value: data.total_amount - data.balance_amount || 0,
+        },
+        { label: 'Cleaning Charges', value: data.cleaning || 0 },
+      ],
+    },
+    {
+      title: 'Customer Details',
+      data: [
+        {
+          label: data.customer_name,
+          value: data.customer_phone_no,
+        },
+      ],
+    },
+    {
+      title: 'Driver & Vehicle Details',
+      data: [
+        {
+          type: 'driver',
+          name: data.driver_name,
+          phone: data.driver_phone,
+          vehicle: data.Vehicle_type_name,
+          number: data.vehicle_registration_number,
+        },
+      ],
+    },
+    {
+      title: 'Trip Usage',
+      data: [
+        {
+          label: 'Trip Usage',
+          value: `${data.extra_kms + data.packageKms}kms`,
+        },
+        {
+          label: 'Pickup Place',
+          value: data.pick_up_location,
+        },
+        {
+          label: 'Visiting Places',
+          value: data.visiting_place,
+        },
+      ],
+    },
+  ];
+}
 
 const TripBillScreen = ({ route }) => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const [pdfUri, setPdfUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
-  const [tripData, setTripData] = useState(INITIAL_DATA);
+  const [tripData, setTripData] = useState([]);
+
   const userData = useSelector(getUserDataSelector);
   const userToken = userData?.userToken;
   const postId = route.params?.postId;
@@ -95,10 +132,11 @@ const TripBillScreen = ({ route }) => {
   const loadTripData = async () => {
     setIsLoading(true);
     try {
-      // Replace with your API call
-      // const response = await getTripDetails(postId, userToken);
-      // const formattedData = formatTripData(response);
-      // setTripData(formattedData);
+      const response = await fetchTripBill(postId, userToken);
+
+      const formattedData = formatTripData(response?.data);
+
+      setTripData(formattedData);
     } catch (error) {
       console.error('Error loading trip data:', error);
       dispatch(
@@ -211,7 +249,7 @@ const TripBillScreen = ({ route }) => {
       try {
         await FileSystem.deleteAsync(uri, { idempotent: true });
       } catch (deleteError) {
-        console.log('Error deleting temporary file:', deleteError);
+        console.error('Error deleting temporary file:', deleteError);
       }
     } catch (error) {
       console.error('Error in PDF generation process:', error);
@@ -307,6 +345,13 @@ const TripBillScreen = ({ route }) => {
               <Text style={styles.buttonText}>Share PDF</Text>
             )}
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, isPdfGenerating && styles.buttonDisabled]}
+            onPress={() => navigation.navigate('TripBillEdit', { postId })}
+            disabled={isPdfGenerating}
+          >
+            <Text style={styles.buttonText}>Edit</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </>
@@ -365,7 +410,6 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 18,
     fontWeight: '600',
-    backgroundColor: '#fff',
     padding: 15,
     color: '#34495e',
   },
@@ -373,7 +417,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 15,
-    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
@@ -386,7 +429,6 @@ const styles = StyleSheet.create({
     color: '#7f8c8d',
   },
   driverContainer: {
-    backgroundColor: '#fff',
     padding: 15,
   },
   driverDetail: {
@@ -419,6 +461,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   button: {
     backgroundColor: '#2980b9',

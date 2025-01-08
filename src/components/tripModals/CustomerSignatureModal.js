@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import SignatureScreen from 'react-native-signature-canvas';
 import * as FileSystem from 'expo-file-system';
-import { uploadSignature } from '../../services/MyTripsService'
+import { uploadSignature } from '../../services/MyTripsService';
+import { useNavigation } from '@react-navigation/native';
 
 const CustomerSignatureModal = ({
   selectedTripData,
@@ -11,6 +12,7 @@ const CustomerSignatureModal = ({
   onClose,
   fetch,
 }) => {
+  const navigation = useNavigation();
   const [signatureFileInfo, setSignatureFileInfo] = useState(null);
   const signatureRef = useRef();
 
@@ -40,7 +42,6 @@ const CustomerSignatureModal = ({
   const handleEndTrip = async () => {
     try {
       if (!signatureFileInfo) {
-        console.log('No signature captured');
         return;
       }
 
@@ -58,20 +59,12 @@ const CustomerSignatureModal = ({
         name: 'customer_signature.png',
       });
 
-      console.log('FormData contents:', {
-        json: formData.getParts().find((part) => part.fieldName === 'json')
-          ?.string,
-        signature: formData
-          .getParts()
-          .find((part) => part.fieldName === 'signature'),
-      });
-
       const response = await uploadSignature(formData, userToken);
-      console.log('Signature upload response:', response);
 
       if (response?.error === false) {
         onClose();
-        await fetch();
+        // await fetch();
+        navigation.navigate('Bills');
       }
     } catch (error) {
       console.error('Error uploading signature:', error);

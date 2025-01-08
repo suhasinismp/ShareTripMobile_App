@@ -59,7 +59,6 @@ const SignInScreen = () => {
       u_pswd: data.password,
     };
 
-
     const response = await doLogin(finalData);
 
     if (response?.token) {

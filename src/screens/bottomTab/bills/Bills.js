@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 
-// import CustomSelect from '../../../components/ui/CustomSelect';
-// import PostCard from '../../../components/PostCard';
-// import CustomAccordion from '../../../components/ui/CustomAccordion';
 import {
   getMyDutiesBill,
   getMyPostedTripBills,
@@ -82,9 +79,12 @@ const Bills = () => {
         }}
         driverTripBill={true}
         driverTripBillOnPress={() => {
-          navigation.navigate('TripBill', { postId: item?.post_booking_id })
+          navigation.navigate('TripBill', { postId: item?.post_booking_id });
         }}
         customerBill={true}
+        customerBillOnPress={() => {
+          navigation.navigate('TripBill', { postId: item?.post_booking_id });
+        }}
         billsScreen={true}
       />
     );
@@ -95,13 +95,14 @@ const Bills = () => {
 
   return (
     <>
+
       <AppHeader
         drawerIcon={true}
         groupIcon={true}
         onlineIcon={true}
         muteIcon={true}
-
-        search={true}
+        title={'Bills'}
+      // search={true}
       />
       <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>Bills</Text>
 

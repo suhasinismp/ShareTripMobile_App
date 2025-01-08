@@ -47,7 +47,6 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [userPostsData, setUserPostsData] = useState([]);
 
-
   const [userVehicles, setUserVehicles] = useState([]);
 
   // Constants from userData
@@ -102,7 +101,7 @@ const HomeScreen = () => {
   const getUserPosts = async () => {
     setIsLoading(true);
     const response = await fetchPostsByUserId(userId, userToken);
-    // console.log('www', response)
+
     if (response?.error === false) {
       const filteredPosts = response?.data.filter(
         (post) =>
@@ -206,7 +205,7 @@ const HomeScreen = () => {
       }
       onCallPress={() => handleCall(item?.User_phone)}
       onTripSheetPress={() => {
-        navigation.navigate('PostTrip', {
+        navigation.navigate('ViewTripSheet', {
           from: 'home',
           postId: item?.post_booking_id,
         });

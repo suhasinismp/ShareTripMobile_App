@@ -24,7 +24,7 @@ import {
   postAdditionCharges,
   startTrip,
   startTripMultiDay,
-} from '../../services/MyTripsService';
+} from '../../services/MyTripsService'
 import { getUserDataSelector } from '../../store/selectors';
 import { handleCall } from './HomeScreen';
 import StartTripModal from '../../components/tripModals/StartTripModal';
@@ -83,6 +83,7 @@ const MyTrips = () => {
 
   // Closing details states
   const [closingKms, setClosingKms] = useState('');
+
   const [closingTime, setClosingTime] = useState('');
   const [closingDate, setClosingDate] = useState('');
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
@@ -258,17 +259,16 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
-    const response = await closeTrip(
-      {
-        post_bookings_id: selectedTripData?.post_booking_id,
-        end_trip_kms: closingKms,
-        end_trip_date: closingDate,
-        end_trip_time: closingTime,
-        posted_user_id: selectedTripData?.posted_user_id,
-        accepted_user_id: userId,
-      },
-      userToken,
-    );
+    const finalData = {
+      post_bookings_id: selectedTripData?.post_booking_id,
+      end_trip_kms: closingKms,
+      end_trip_time: closingTime,
+      end_trip_date: closingDate,
+      posted_user_id: selectedTripData?.posted_user_id,
+      accepted_user_id: userId,
+    };
+
+    const response = await closeTrip(finalData, userToken);
 
     if (response?.error === false) {
       setShowTripSummaryModal(false);
@@ -302,10 +302,10 @@ const MyTrips = () => {
         start_trip_kms: openingKms,
         start_date: openingDate,
         start_time: openingTime,
-        pick_up_address: selectedTripData?.pick_up_location || '',
-        destination: selectedTripData?.destination || '',
-        customer_name: selectedTripData?.user_name || '',
-        customer_phone_numb: selectedTripData?.user_phone || '',
+        // pick_up_address: selectedTripData?.pick_up_location || '',
+        // destination: selectedTripData?.destination || '',
+        // customer_name: selectedTripData?.user_name || '',
+        // customer_phone_numb: selectedTripData?.user_phone || '',
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
       },
@@ -324,39 +324,6 @@ const MyTrips = () => {
 
   const handleButtonPress = async (tripData) => {
     try {
-      const response = await fetchTripSheetByPostId(
-        tripData?.post_booking_id,
-        userToken,
-      );
-
-      if (response?.error) {
-        throw new Error('Failed to fetch trip sheet');
-      }
-
-      const requiredFields = [
-        'pick_up_location',
-        'destination',
-        'pick_up_time',
-        'customer_name',
-        'customer_phone_no',
-        'from_date',
-        'to_date',
-        'note_1',
-        'note_2',
-        'visiting_place',
-      ];
-
-      const hasMissingFields = requiredFields.some(
-        (field) => !response.data[field],
-      );
-
-      if (hasMissingFields) {
-        return navigation.navigate('PostTrip', {
-          from: 'myTrips',
-          postId: tripData?.post_booking_id,
-        });
-      }
-
       setSelectedTripData(tripData);
       setTripType('');
 
@@ -449,8 +416,8 @@ const MyTrips = () => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-          onCallPress={() => { }}
-          onMessagePress={() => { }}
+          onCallPress={() => {}}
+          onMessagePress={() => {}}
           onRefreshData={fetchUiData}
           userToken={userToken}
         />
@@ -475,10 +442,16 @@ const MyTrips = () => {
         baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => handleButtonPress(item)}
         onCallPress={() => handleCall(item?.user_phone)}
-        onPlayPress={() => { }}
-        onMessagePress={() => { }}
+        onTripSheetPress={() => {
+          navigation.navigate('ViewTripSheet', {
+            from: 'myTrips',
+            postId: item?.post_booking_id,
+          });
+        }}
+        onMessagePress={() => {}}
         isRequested={item?.post_trip_trip_status || item?.request_status}
         packageName={item?.booking_package_name}
+        postStatus={'Available'}
       />
     );
   };
@@ -496,27 +469,6 @@ const MyTrips = () => {
       <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>My Trips</Text>
 
       <View style={styles.container}>
-        <View style={styles.filterRow}>
-          <CustomSelect
-            text="Confirmed"
-            isSelected={selectedFilterOne === 'Confirmed'}
-            onPress={() => setSelectedFilterOne('Confirmed')}
-          />
-          <CustomSelect
-            text="In Progress"
-            isSelected={selectedFilterOne === 'InProgress'}
-            onPress={() => setSelectedFilterOne('InProgress')}
-          />
-          <CustomSelect
-            text="Enquiry"
-            isSelected={selectedFilterOne === 'Enquiry'}
-            onPress={() => setSelectedFilterOne('Enquiry')}
-          />
-          <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
-            <FilterIcon />
-          </TouchableOpacity>
-        </View>
-
         {showFilters && (
           <>
             <View style={styles.filterRow}>
@@ -530,26 +482,47 @@ const MyTrips = () => {
                 isSelected={selectedFilterTwo === 'PostedTrips'}
                 onPress={() => setSelectedFilterTwo('PostedTrips')}
               />
-            </View>
-            <View style={styles.filterRow}>
               <CustomSelect
-                text="Local"
-                isSelected={selectedFilterThree === 'Local'}
-                onPress={() => setSelectedFilterThree('Local')}
-              />
-              <CustomSelect
-                text="Out Station"
-                isSelected={selectedFilterThree === 'OutStation'}
-                onPress={() => setSelectedFilterThree('OutStation')}
-              />
-              <CustomSelect
-                text="Transfer"
-                isSelected={selectedFilterThree === 'Transfer'}
-                onPress={() => setSelectedFilterThree('Transfer')}
+                text="Enquiry"
+                isSelected={selectedFilterOne === 'Enquiry'}
+                onPress={() => setSelectedFilterOne('Enquiry')}
               />
             </View>
           </>
         )}
+        <View style={styles.filterRow}>
+          <CustomSelect
+            text="Confirmed"
+            isSelected={selectedFilterOne === 'Confirmed'}
+            onPress={() => setSelectedFilterOne('Confirmed')}
+          />
+          <CustomSelect
+            text="In Progress"
+            isSelected={selectedFilterOne === 'InProgress'}
+            onPress={() => setSelectedFilterOne('InProgress')}
+          />
+
+          <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
+            <FilterIcon />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.filterRow}>
+          <CustomSelect
+            text="Local"
+            isSelected={selectedFilterThree === 'Local'}
+            onPress={() => setSelectedFilterThree('Local')}
+          />
+          <CustomSelect
+            text="Out Station"
+            isSelected={selectedFilterThree === 'OutStation'}
+            onPress={() => setSelectedFilterThree('OutStation')}
+          />
+          <CustomSelect
+            text="Transfer"
+            isSelected={selectedFilterThree === 'Transfer'}
+            onPress={() => setSelectedFilterThree('Transfer')}
+          />
+        </View>
 
         <View style={styles.listContainer}>
           {isLoading ? (
@@ -624,6 +597,7 @@ const MyTrips = () => {
           showClosingDatePicker={showClosingDatePicker}
           setShowClosingDatePicker={setShowClosingDatePicker}
           closingActionType={closingActionType}
+          // setClosingActionType={setClosingActionType}
           handleCloseTrip={handleCloseForDay}
         />
       </CustomModal>
@@ -637,11 +611,11 @@ const MyTrips = () => {
           setShowTripSummaryModal={setShowTripSummaryModal}
           setShowAdditionalCharges={setShowAdditionalCharges}
           onPressNext={(closingDetails) => {
-            handleCloseTrip(
-              closingDetails.closingKms,
-              closingDetails.closingTime,
-              closingDetails.closingDate,
-            );
+            handleCloseTrip({
+              closingKms: closingDetails.closingKms,
+              closingTime: closingDetails.closingTime,
+              closingDate: closingDetails.closingDate,
+            });
           }}
         />
       </CustomModal>
