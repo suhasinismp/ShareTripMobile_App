@@ -28,7 +28,7 @@ import {
   fetchTripDetails,
   postAdditionCharges,
 
-} from '../../../services/myTripsService';
+} from '../../../services/MyTripsService'
 import axios from 'axios';
 import StartTripModal from '../../../components/tripModals/StartTripModal';
 

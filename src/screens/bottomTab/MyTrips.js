@@ -24,7 +24,7 @@ import {
   postAdditionCharges,
   startTrip,
   startTripMultiDay,
-} from '../../services/myTripsService';
+} from '../../services/MyTripsService'
 import { getUserDataSelector } from '../../store/selectors';
 import { handleCall } from './HomeScreen';
 import StartTripModal from '../../components/tripModals/StartTripModal';
