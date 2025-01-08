@@ -1,15 +1,12 @@
-import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import DotDivider from '../../assets/svgs/dotDivider.svg';
 import CallIcon from '../../assets/svgs/call.svg';
-import PlayIcon from '../../assets/svgs/playSound.svg';
+import DotDivider from '../../assets/svgs/dotDivider.svg';
 import TripSheetIcon from '../../assets/svgs/tripSheet.svg';
 import { FONTS } from '../styles/fonts';
-import DistanceLine from '../../assets/svgs/distanceLine.svg';
 import AudioPlayer from './AudioPlayer';
-import VacantTrip from '../screens/bottomTab/VacantTrip';
 
 const capitalizeWords = (str) => {
   if (!str) return '';
@@ -47,7 +44,6 @@ const PostCard = ({
   // Action Props
   onRequestPress,
   onCallPress,
-  onPlayPress,
   onTripSheetPress,
   isRequested,
   packageName,

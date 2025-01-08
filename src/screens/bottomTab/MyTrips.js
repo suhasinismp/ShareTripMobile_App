@@ -83,7 +83,7 @@ const MyTrips = () => {
 
   // Closing details states
   const [closingKms, setClosingKms] = useState('');
-  console.log({ closingKms })
+
   const [closingTime, setClosingTime] = useState('');
   const [closingDate, setClosingDate] = useState('');
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
@@ -97,7 +97,6 @@ const MyTrips = () => {
       if (showStartTripModal) setOpeningDate(formattedDate);
       if (showClosingDetailsModal) setClosingDate(formattedDate);
     }
-    console.log({ showClosingDetailsModal, showStartTripModal });
   }, [showStartTripModal, showClosingDetailsModal]);
 
   useEffect(() => {
@@ -260,7 +259,6 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
-    console.log({ closingKms })
     const finalData = {
       post_bookings_id: selectedTripData?.post_booking_id,
       end_trip_kms: closingKms,
@@ -268,8 +266,8 @@ const MyTrips = () => {
       end_trip_date: closingDate,
       posted_user_id: selectedTripData?.posted_user_id,
       accepted_user_id: userId,
-    }
-    console.log({ finalData })
+    };
+
     const response = await closeTrip(finalData, userToken);
 
     if (response?.error === false) {
@@ -342,7 +340,6 @@ const MyTrips = () => {
   };
 
   const handleAdditionalChargesNext = async (documents, charges) => {
-    console.log('abc', selectedTripData?.post_booking_id);
     const formData = new FormData();
     formData.append(
       'json',
@@ -419,8 +416,8 @@ const MyTrips = () => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-          onCallPress={() => { }}
-          onMessagePress={() => { }}
+          onCallPress={() => {}}
+          onMessagePress={() => {}}
           onRefreshData={fetchUiData}
           userToken={userToken}
         />
@@ -445,10 +442,16 @@ const MyTrips = () => {
         baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => handleButtonPress(item)}
         onCallPress={() => handleCall(item?.user_phone)}
-        onPlayPress={() => { }}
-        onMessagePress={() => { }}
+        onTripSheetPress={() => {
+          navigation.navigate('ViewTripSheet', {
+            from: 'myTrips',
+            postId: item?.post_booking_id,
+          });
+        }}
+        onMessagePress={() => {}}
         isRequested={item?.post_trip_trip_status || item?.request_status}
         packageName={item?.booking_package_name}
+        postStatus={'Available'}
       />
     );
   };
@@ -464,8 +467,6 @@ const MyTrips = () => {
       />
 
       <View style={styles.container}>
-
-
         {showFilters && (
           <>
             <View style={styles.filterRow}>
@@ -485,7 +486,6 @@ const MyTrips = () => {
                 onPress={() => setSelectedFilterOne('Enquiry')}
               />
             </View>
-
           </>
         )}
         <View style={styles.filterRow}>
@@ -565,7 +565,6 @@ const MyTrips = () => {
           setShowTimePicker={setShowTimePicker}
           showDatePicker={showDatePicker}
           setShowDatePicker={setShowDatePicker}
-
         />
       </CustomModal>
 
@@ -598,7 +597,6 @@ const MyTrips = () => {
           closingActionType={closingActionType}
           // setClosingActionType={setClosingActionType}
           handleCloseTrip={handleCloseForDay}
-
         />
       </CustomModal>
 
@@ -611,9 +609,11 @@ const MyTrips = () => {
           setShowTripSummaryModal={setShowTripSummaryModal}
           setShowAdditionalCharges={setShowAdditionalCharges}
           onPressNext={(closingDetails) => {
-            handleCloseTrip({ closingKms: closingDetails.closingKms, closingTime: closingDetails.closingTime, closingDate: closingDetails.closingDate, }
-
-            );
+            handleCloseTrip({
+              closingKms: closingDetails.closingKms,
+              closingTime: closingDetails.closingTime,
+              closingDate: closingDetails.closingDate,
+            });
           }}
         />
       </CustomModal>

@@ -12,9 +12,8 @@ import store from './src/store/store';
 import { ThemeContext } from './src/styles/theme';
 import { setInterceptors } from './src/utils/apiInterceptorUtil';
 
-
 SplashScreen.preventAutoHideAsync();
-setInterceptors(store)
+setInterceptors(store);
 
 function ThemeSwitcher() {
   const { theme, isDarkMode, toggleTheme } = useTheme();

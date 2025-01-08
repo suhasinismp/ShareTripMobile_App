@@ -210,52 +210,44 @@ const PostATripScreen = ({ route }) => {
   }, [tripTypes]);
 
   useEffect(() => {
-    if (initialData) {
-      const {
-        booking_type_id,
-        package_id,
-        vehicle_type_id,
-        vehicle_name_id,
-        share_type_id,
-        from_date,
-        to_date,
-        from_time,
-        rate: initialRate,
-        extra_kms,
-        extra_hours,
-        day_batta,
-        night_batta,
-        customer_name,
-        customer_phone,
-        pick_up_location,
-        destination,
-        visiting_place: initial_visiting_place,
-        payment_type,
-        note_1,
-        note_2,
-      } = initialData;
+    if (initialData && initialData.length > 0) {
+      const data = initialData[0]; // Access the first item in the array
 
-      setSelectedTripType(booking_type_id);
-      setSelectedPackage(package_id);
-      setSelectedVehicleType(vehicle_type_id);
-      setSelectedVehicleName(vehicle_name_id);
-      setSelectedShareType(share_type_id);
-      setSelectedFromDate(from_date);
-      setSelectedToDate(to_date);
-      setSelectedTime(from_time);
-      setRate(initialRate);
-      setExtraKms(extra_kms);
-      setExtraHours(extra_hours);
-      setDayBatta(day_batta);
-      setNightBatta(night_batta);
-      setCustomerName(customer_name);
-      setCustomerPhone(customer_phone);
-      setPickupLocation(pick_up_location);
-      setDropLocation(destination);
-      setVisitingPlace(initial_visiting_place);
-      setSelectedPaymentType(payment_type);
-      setNotes(note_1);
-      // setNotes1(note_2);
+      setSelectedTripType(data.booking_type_id);
+      setSelectedPackage(data.bookingTypePackage_id);
+      setSelectedVehicleType(data.vehicle_type_id);
+      setSelectedVehicleName(data.vehicle_name_id);
+      setSelectedShareType(data.post_type_id);
+
+      // Handle date and time
+      setSelectedFromDate(new Date(data.from_date));
+      setSelectedToDate(new Date(data.to_date));
+      if (data.pick_up_time) {
+        // Convert time string to Date object
+        const [time, period] = data.pick_up_time.split(' ');
+        const [hours, minutes] = time.split(':');
+        const date = new Date();
+        let hour = parseInt(hours);
+        if (period === 'PM' && hour !== 12) hour += 12;
+        if (period === 'AM' && hour === 12) hour = 0;
+        date.setHours(hour, parseInt(minutes), 0);
+        setSelectedTime(date);
+      }
+
+      // Set other form fields
+      setRate(data.bookingTypeTariff_base_fare_rate?.toString() || '');
+      setCustomerName(data.customer_name || '');
+      setCustomerPhone(data.customer_phone_no || '');
+      setPickupLocation(data.pick_up_location || '');
+      setDropLocation(data.destination || '');
+      setVisitingPlace(data.visiting_place || '');
+      setSelectedPaymentType(data.payment_type || PAYMENT_TYPES.CASH);
+      setNotes(data.note_1 || '');
+
+      // Set message if it exists
+      if (data.post_comments) {
+        setMessage(data.post_comments);
+      }
     }
   }, [initialData]);
 
@@ -378,11 +370,11 @@ const PostATripScreen = ({ route }) => {
         { value: customerPhone, message: 'Please enter customer phone.' },
         { value: pickupLocation, message: 'Please enter pickup location.' },
         { value: dropLocation, message: 'Please enter drop location.' },
-        { value: rate, message: 'Please enter rate.' },
-        { value: extraKms, message: 'Please enter extra kms.' },
-        { value: extraHours, message: 'Please enter extra hours.' },
-        { value: dayBatta, message: 'Please enter day batta.' },
-        { value: nightBatta, message: 'Please enter night batta.' },
+        // { value: rate, message: 'Please enter rate.' },
+        // { value: extraKms, message: 'Please enter extra kms.' },
+        // { value: extraHours, message: 'Please enter extra hours.' },
+        // { value: dayBatta, message: 'Please enter day batta.' },
+        // { value: nightBatta, message: 'Please enter night batta.' },
         {
           value: selectedPaymentType,
           message: 'Please select a payment type.',
@@ -475,7 +467,6 @@ const PostATripScreen = ({ route }) => {
         alert('Failed to create post. Please try again.');
       }
     } else if (selectedShareType === 2) {
-
       navigation.navigate('SelectGroups', { finalData, recordedAudioUri });
     } else if (selectedShareType === 3) {
       navigation.navigate('SelectContacts', { finalData, recordedAudioUri });
@@ -495,11 +486,11 @@ const PostATripScreen = ({ route }) => {
       { value: customerPhone, message: 'Please enter customer phone.' },
       { value: pickupLocation, message: 'Please enter pickup location.' },
       { value: dropLocation, message: 'Please enter drop location.' },
-      { value: rate, message: 'Please enter rate.' },
-      { value: extraKms, message: 'Please enter extra kms.' },
-      { value: extraHours, message: 'Please enter extra hours.' },
-      { value: dayBatta, message: 'Please enter day batta.' },
-      { value: nightBatta, message: 'Please enter night batta.' },
+      // { value: rate, message: 'Please enter rate.' },
+      // { value: extraKms, message: 'Please enter extra kms.' },
+      // { value: extraHours, message: 'Please enter extra hours.' },
+      // { value: dayBatta, message: 'Please enter day batta.' },
+      // { value: nightBatta, message: 'Please enter night batta.' },
       { value: selectedPaymentType, message: 'Please select a payment type.' },
       { value: notes, message: 'Please enter notes.' },
       // { value: notes1, message: 'Please enter additional notes.' },
@@ -747,7 +738,6 @@ const PostATripScreen = ({ route }) => {
   const renderQuickShareContent = useCallback(
     () => (
       <>
-
         <View style={styles.sectionContainer}>
           <CustomInput
             placeholder={'Type your message'}
@@ -857,22 +847,26 @@ const PostATripScreen = ({ route }) => {
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
-              <CustomInput
-                placeholder="Day Batta"
-                value={dayBatta}
-                onChangeText={setDayBatta}
-                style={styles.tariffInput}
-                keyboardType="numeric"
-              />
+              {selectedTripType !== 1 && selectedTripType !== 2 && (
+                <CustomInput
+                  placeholder="Day Batta"
+                  value={dayBatta}
+                  onChangeText={setDayBatta}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              )}
             </View>
             <View style={styles.tariffRow}>
-              <CustomInput
-                placeholder="Night Batta"
-                value={nightBatta}
-                onChangeText={setNightBatta}
-                style={styles.tariffInput}
-                keyboardType="numeric"
-              />
+              {selectedTripType != 1 && (
+                <CustomInput
+                  placeholder="Night Batta"
+                  value={nightBatta}
+                  onChangeText={setNightBatta}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              )}
             </View>
           </View>
         </View>
@@ -1182,7 +1176,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#008B8B',
   },
   selectedBackground: {
-    backgroundColor: '#CCE3F4',
+    backgroundColor: '#6DB8F0',
   },
   unselectedBorder: {
     borderColor: '#005680',
@@ -1196,7 +1190,7 @@ const styles = StyleSheet.create({
   },
   listContentContainer: {
     marginTop: 12,
-    paddingHorizontal: 4,
+    padding: 4,
   },
   selectItem: {
     marginRight: 10,
@@ -1243,14 +1237,14 @@ const styles = StyleSheet.create({
     color: '#333333',
   },
   shareTypeContainer: {
-    marginTop: 20,
+    marginVertical: 20,
   },
   shareTypeTitle: {
     marginBottom: 12,
   },
   shareTypeList: {
     justifyContent: 'flex-start',
-    paddingHorizontal: 4,
+    padding: 4,
   },
   tariffContainer: {
     marginTop: 12,

@@ -10,7 +10,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { getUserDataSelector } from '../store/selectors';
 
-
 import BusinessDetailsScreen from '../screens/drawer/manageDriver/BusinessDetailsScreen';
 import DriverDocumentScreen from '../screens/drawer/manageDriver/DriverDocumentScreen';
 import SubscriptionPlansScreen from '../screens/registration/SubscriptionPlansScreen';
@@ -28,11 +27,22 @@ import LogoutIcon from '../../assets/svgs/logout.svg';
 import ManageBusinessInactive from '../../assets/svgs/manageBusinessInactive.svg';
 import ManageDriverDocumentsInactive from '../../assets/svgs/manageDriverDocumentsInactive.svg';
 import ManageSubscriptionInactive from '../../assets/svgs/manageSubscriptionInactive.svg';
+import HistoryActiveIcon from '../../assets/svgs/historyActive.svg';
+import HistoryInactiveIcon from '../../assets/svgs/historyInActive.svg';
 import ManageVehicleInactive from '../../assets/svgs/manageVehicleInactive.svg';
 import ProfileIcon from '../../assets/svgs/profile.svg';
 import ProfileIconInactive from '../../assets/svgs/profileIconInactive.svg';
 import SubscriptionIcon from '../../assets/svgs/subscription.svg';
 import VehicleIcon from '../../assets/svgs/vehicle.svg';
+import MyTrip from '../../assets/svgs/myTrips.svg';
+import Vacant from '../../assets/svgs/vacantTrip.svg';
+import SelfTrip from '../../assets/svgs/selfTrip.svg';
+import Bill from '../../assets/svgs/bills.svg';
+import MyTripInactive from '../../assets/svgs/myTripInactive.svg';
+import SelfTripInactive from '../../assets/svgs/selfTripInactive.svg';
+import VacantTripInactive from '../../assets/svgs/vacantTripInactive.svg';
+import BillsInactive from '../../assets/svgs/billsInactive.svg';
+
 import PostATripScreen from '../screens/bottomTab/postTrip/PostATripScreen';
 import SelectContactScreen from '../screens/bottomTab/postTrip/SelectContactScreen';
 import SelectGroupScreen from '../screens/bottomTab/postTrip/SelectGroupScreen';
@@ -43,6 +53,7 @@ import GroupStack from './GroupStack';
 import TripBillScreen from '../screens/bottomTab/bills/TripBillScreen';
 import { getProfileByUserId } from '../services/profileScreenService';
 import TripBillEditScreen from '../screens/bottomTab/bills/TripBillEditScreen';
+import ViewTripSheet from '../screens/bottomTab/postTrip/ViewTripSheet';
 
 const Drawer = createDrawerNavigator();
 
@@ -73,8 +84,6 @@ const CustomDrawerItem = ({ label, icon: Icon, onPress, isFocused }) => {
   );
 };
 
-
-
 const CustomDrawerContent = (props) => {
   const dispatch = useDispatch();
   const userData = useSelector(getUserDataSelector);
@@ -82,21 +91,40 @@ const CustomDrawerContent = (props) => {
   const userToken = userData?.userToken;
   const name = userData.userName;
   const { navigation } = props;
-  const [profilePic, setProfilePic] = useState('')
-
-
-
-
-
+  const [profilePic, setProfilePic] = useState('');
 
   const currentRoute = useNavigationState((state) => {
+    if (!state) return '';
+
     const route = state.routes[state.index];
-    return route.state
-      ? route.state.routes[route.state.index].name
-      : route.name;
+
+    // Handle nested navigation states
+    if (route.state) {
+      const bottomTabState = route.state;
+      const currentBottomTab = bottomTabState.routes[bottomTabState.index];
+
+      // If there's another level of nesting (for tab screens)
+      if (currentBottomTab.state) {
+        return currentBottomTab.state.routes[currentBottomTab.state.index].name;
+      }
+
+      // Return the current bottom tab name if no further nesting
+      return currentBottomTab.name;
+    }
+
+    // Return the main route name if no nesting
+    return route.name;
   });
 
-  const isRouteActive = (routeName) => currentRoute === routeName;
+  const isRouteActive = (routeName) => {
+    // Special handling for bottom tab routes
+    if (['My Trips', 'Self Trip', 'Vacant Trip', 'Bills'].includes(routeName)) {
+      return currentRoute === routeName;
+    }
+
+    // Handle other routes as before
+    return currentRoute === routeName;
+  };
 
   const handleLogout = async () => {
     try {
@@ -116,9 +144,9 @@ const CustomDrawerContent = (props) => {
   };
 
   const getProfilePicByUserId = async () => {
-    const response = await getProfileByUserId(userToken, userId)
-    setProfilePic(response.data)
-  }
+    const response = await getProfileByUserId(userToken, userId);
+    setProfilePic(response.data);
+  };
 
   useEffect(() => {
     getProfilePicByUserId();
@@ -126,7 +154,6 @@ const CustomDrawerContent = (props) => {
 
   return (
     <DrawerContentScrollView {...props}>
-
       <View style={styles.profileSection}>
         <Image
           source={{ uri: profilePic?.u_profile_pic }}
@@ -136,8 +163,6 @@ const CustomDrawerContent = (props) => {
           <Text style={styles.userName}>{name}</Text>
         </View>
       </View>
-
-
 
       {/* Menu Items */}
       <View style={styles.menuSection}>
@@ -151,7 +176,9 @@ const CustomDrawerContent = (props) => {
         <CustomDrawerItem
           label="Profile"
           icon={isRouteActive('Profile') ? ProfileIconInactive : ProfileIcon}
-          onPress={() => navigation.navigate('Profile', { screen: 'RingtoneScreen' })}
+          onPress={() =>
+            navigation.navigate('Profile', { screen: 'RingtoneScreen' })
+          }
           isFocused={isRouteActive('Profile')}
         />
         <CustomDrawerItem
@@ -192,6 +219,42 @@ const CustomDrawerContent = (props) => {
           onPress={() => navigation.navigate('ManageDriverDocuments')}
           isFocused={isRouteActive('ManageDriverDocuments')}
         />
+        <CustomDrawerItem
+          label="History"
+          icon={
+            isRouteActive('History') ? HistoryInactiveIcon : HistoryActiveIcon
+          }
+          onPress={() => navigation.navigate('ManageDriverDocuments')}
+          isFocused={isRouteActive('History')}
+        />
+        <View style={{ marginTop: 24 }}>
+          <CustomDrawerItem
+            label="My Trips"
+            icon={isRouteActive('My Trips') ? MyTripInactive : MyTrip}
+            onPress={() => navigation.navigate('Home', { screen: 'My Trips' })}
+            isFocused={isRouteActive('My Trips')}
+          />
+          <CustomDrawerItem
+            label="Self Trip"
+            icon={isRouteActive('Self Trip') ? SelfTripInactive : SelfTrip}
+            onPress={() => navigation.navigate('Home', { screen: 'Self Trip' })}
+            isFocused={isRouteActive('Self Trip')}
+          />
+          <CustomDrawerItem
+            label="Vacant Trip"
+            icon={isRouteActive('Vacant Trip') ? VacantTripInactive : Vacant}
+            onPress={() =>
+              navigation.navigate('Home', { screen: 'Vacant Trip' })
+            }
+            isFocused={isRouteActive('Vacant Trip')}
+          />
+          <CustomDrawerItem
+            label="Bills"
+            icon={isRouteActive('Bills') ? BillsInactive : Bill}
+            onPress={() => navigation.navigate('Home', { screen: 'Bills' })}
+            isFocused={isRouteActive('Bills')}
+          />
+        </View>
       </View>
 
       {/* Logout and Help section */}
@@ -242,6 +305,7 @@ const DrawerStack = () => {
       <Drawer.Screen name="CreateSelfTrip" component={CreateSelfTrip} />
       <Drawer.Screen name="TripBill" component={TripBillScreen} />
       <Drawer.Screen name="TripBillEdit" component={TripBillEditScreen} />
+      <Drawer.Screen name="ViewTripSheet" component={ViewTripSheet} />
     </Drawer.Navigator>
   );
 };

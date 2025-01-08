@@ -122,7 +122,6 @@ const TripBillScreen = ({ route }) => {
   const userData = useSelector(getUserDataSelector);
   const userToken = userData?.userToken;
   const postId = route.params?.postId;
-  console.log({ postId })
 
   useEffect(() => {
     if (postId) {
@@ -250,7 +249,7 @@ const TripBillScreen = ({ route }) => {
       try {
         await FileSystem.deleteAsync(uri, { idempotent: true });
       } catch (deleteError) {
-        console.log('Error deleting temporary file:', deleteError);
+        console.error('Error deleting temporary file:', deleteError);
       }
     } catch (error) {
       console.error('Error in PDF generation process:', error);

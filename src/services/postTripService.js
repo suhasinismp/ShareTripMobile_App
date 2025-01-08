@@ -26,6 +26,7 @@ export const updatePost = async (data, token) => {
     formData: data,
     token: token,
   });
+
   return response;
 };
 
