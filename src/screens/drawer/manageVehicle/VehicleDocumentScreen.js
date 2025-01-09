@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-  FlatList,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -30,6 +24,7 @@ const VehicleDocumentScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const userVehicleId = userData.userVehicleId;
+  console.log('userVehicleId', userVehicleId);
   const { theme } = useTheme();
 
   const { control, handleSubmit, setValue } = useForm();
@@ -90,6 +85,7 @@ const VehicleDocumentScreen = () => {
         userVehicleId,
         userToken,
       );
+      console.log('vehicleDocsResponse', vehicleDocsResponse);
       if (vehicleDocsResponse.data.length > 0) {
         setInitialVehicleDocs(vehicleDocsResponse.data);
       } else {
@@ -167,10 +163,10 @@ const VehicleDocumentScreen = () => {
                 fileName
                   ? [fileName]
                   : vehicleFiles
-                    .filter(
-                      (file) => file.formDataKey === item.formData_key[0],
-                    )
-                    .map((file) => file.name)
+                      .filter(
+                        (file) => file.formDataKey === item.formData_key[0],
+                      )
+                      .map((file) => file.name)
               }
               onUpload={(fileName, fileUri, fileType) => {
                 handleUpload(fileName, fileUri, item.formData_key[0], fileType);
@@ -211,8 +207,8 @@ const VehicleDocumentScreen = () => {
           for (let i = 0; i < doc.doc_id.length; i++) {
             const existingDoc = initialVehicleDocs
               ? initialVehicleDocs.find(
-                (d) => d.field_value_id === doc.doc_id[i],
-              )
+                  (d) => d.field_value_id === doc.doc_id[i],
+                )
               : null;
             jsonData.push({
               id: existingDoc ? existingDoc.id : undefined,

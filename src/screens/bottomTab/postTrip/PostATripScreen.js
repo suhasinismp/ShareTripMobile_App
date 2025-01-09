@@ -329,80 +329,96 @@ const PostATripScreen = ({ route }) => {
     setSelectedTime(newTime);
   }, []);
 
-  const handleSend = async () => {
-    let isValid = true;
-    let errorMessage = '';
-
-    // Validation logic
-    if (postType === 'Quick Share') {
-      if (!selectedTripType) {
-        isValid = false;
-        errorMessage = 'Please select a trip type.';
-      } else if (!selectedPackage) {
-        isValid = false;
-        errorMessage = 'Please select a package.';
-      } else if (!selectedVehicleType) {
-        isValid = false;
-        errorMessage = 'Please select a vehicle type.';
-      } else if (!selectedVehicleName) {
-        isValid = false;
-        errorMessage = 'Please select a vehicle name.';
-      } else if (message.length === 0 && !recordedAudioUri) {
-        isValid = false;
-        errorMessage = 'Please enter a message or record an audio.';
-      } else if (!selectedShareType) {
-        isValid = false;
-        errorMessage = 'Please select a share type.';
-      }
-    } else if (postType === 'Trip Sheet') {
-      const requiredFields = [
-        { value: selectedTripType, message: 'Please select a trip type.' },
-        { value: selectedPackage, message: 'Please select a package.' },
+  const validateMandatoryFields = (fields, postType) => {
+    // For Quick Share
+    if (postType === POST_TYPES.QUICK_SHARE) {
+      const mandatoryFields = [
         {
-          value: selectedVehicleType,
+          value: fields.selectedTripType,
+          message: 'Please select a trip type.',
+        },
+        { value: fields.selectedPackage, message: 'Please select a package.' },
+        {
+          value: fields.selectedVehicleType,
           message: 'Please select a vehicle type.',
         },
         {
-          value: selectedVehicleName,
+          value: fields.selectedVehicleName,
           message: 'Please select a vehicle name.',
         },
-        { value: customerName, message: 'Please enter customer name.' },
-        { value: customerPhone, message: 'Please enter customer phone.' },
-        { value: pickupLocation, message: 'Please enter pickup location.' },
-        { value: dropLocation, message: 'Please enter drop location.' },
-        // { value: rate, message: 'Please enter rate.' },
-        // { value: extraKms, message: 'Please enter extra kms.' },
-        // { value: extraHours, message: 'Please enter extra hours.' },
-        // { value: dayBatta, message: 'Please enter day batta.' },
-        // { value: nightBatta, message: 'Please enter night batta.' },
         {
-          value: selectedPaymentType,
-          message: 'Please select a payment type.',
+          value: fields.selectedShareType,
+          message: 'Please select a share type.',
         },
-        { value: notes, message: 'Please enter notes.' },
-        // { value: notes1, message: 'Please enter additional notes.' },
-        { value: visitingPlace, message: 'Please enter visiting place.' },
-        { value: selectedTime, message: 'Please select time.' },
-        { value: selectedFromDate, message: 'Please select from date.' },
-        { value: selectedToDate, message: 'Please select to date.' },
-        { value: selectedShareType, message: 'Please select a share type.' },
       ];
 
-      for (const field of requiredFields) {
+      // Additional validation for message or audio
+      if (!fields.message && !fields.recordedAudioUri) {
+        return {
+          isValid: false,
+          errorMessage: 'Please enter a message or record an audio.',
+        };
+      }
+
+      for (const field of mandatoryFields) {
         if (!field.value) {
-          isValid = false;
-          errorMessage = field.message;
-          break;
+          return { isValid: false, errorMessage: field.message };
         }
       }
     }
+    // For Trip Sheet
+    else if (postType === POST_TYPES.TRIP_SHEET) {
+      const mandatoryFields = [
+        {
+          value: fields.selectedTripType,
+          message: 'Please select a trip type.',
+        },
+        { value: fields.selectedPackage, message: 'Please select a package.' },
+        {
+          value: fields.selectedVehicleType,
+          message: 'Please select a vehicle type.',
+        },
+        {
+          value: fields.selectedVehicleName,
+          message: 'Please select a vehicle name.',
+        },
+        {
+          value: fields.selectedShareType,
+          message: 'Please select a share type.',
+        },
+      ];
+
+      for (const field of mandatoryFields) {
+        if (!field.value) {
+          return { isValid: false, errorMessage: field.message };
+        }
+      }
+    }
+
+    return { isValid: true, errorMessage: '' };
+  };
+
+  const handleSend = async () => {
+    // Validation based on postType
+    const { isValid, errorMessage } = validateMandatoryFields(
+      {
+        selectedTripType,
+        selectedPackage,
+        selectedVehicleType,
+        selectedVehicleName,
+        selectedShareType,
+        message,
+        recordedAudioUri,
+      },
+      postType,
+    );
 
     if (!isValid) {
       alert(errorMessage);
       return;
     }
 
-    // Prepare data for submission
+    // Prepare base data with mandatory fields
     let finalData = {
       posted_user_id: userId,
       post_status: 'Available',
@@ -413,29 +429,28 @@ const PostATripScreen = ({ route }) => {
       post_type_id: selectedShareType,
     };
 
-    if (message.length > 0) {
+    // Add message for Quick Share
+    if (postType === POST_TYPES.QUICK_SHARE && message) {
       finalData.post_comments = message;
     }
 
-    if (postType === 'Trip Sheet') {
-      Object.assign(finalData, {
-        customer_name: customerName,
-        customer_phone_no: customerPhone,
-        pick_up_location: pickupLocation,
-        destination: dropLocation,
-        base_fare_rate: rate,
-        extra_km_rate: extraKms,
-        extra_hr_rate: extraHours,
-        day_batta_rate: dayBatta,
-        night_batta_rate: nightBatta,
-        payment_type: selectedPaymentType,
-        note_1: notes,
-        // note_2: notes1,
-        visiting_place: visitingPlace,
-        pick_up_time: selectedTime,
-        from_date: selectedFromDate,
-        to_date: selectedToDate,
-      });
+    // Add optional fields for Trip Sheet
+    if (postType === POST_TYPES.TRIP_SHEET) {
+      if (customerName) finalData.customer_name = customerName;
+      if (customerPhone) finalData.customer_phone_no = customerPhone;
+      if (pickupLocation) finalData.pick_up_location = pickupLocation;
+      if (dropLocation) finalData.destination = dropLocation;
+      if (rate) finalData.base_fare_rate = rate;
+      if (extraKms) finalData.extra_km_rate = extraKms;
+      if (extraHours) finalData.extra_hr_rate = extraHours;
+      if (dayBatta) finalData.day_batta_rate = dayBatta;
+      if (nightBatta) finalData.night_batta_rate = nightBatta;
+      if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
+      if (notes) finalData.note_1 = notes;
+      if (visitingPlace) finalData.visiting_place = visitingPlace;
+      if (selectedTime) finalData.pick_up_time = selectedTime;
+      if (selectedFromDate) finalData.from_date = selectedFromDate;
+      if (selectedToDate) finalData.to_date = selectedToDate;
     }
 
     if (selectedShareType === 1) {
@@ -443,7 +458,7 @@ const PostATripScreen = ({ route }) => {
       let formData = new FormData();
       formData.append('json', JSON.stringify(finalData));
 
-      if (recordedAudioUri) {
+      if (recordedAudioUri && postType === POST_TYPES.QUICK_SHARE) {
         const filename = recordedAudioUri.split('/').pop();
         formData.append('voiceMessage', {
           uri: recordedAudioUri,
@@ -474,39 +489,17 @@ const PostATripScreen = ({ route }) => {
   };
 
   const handleUpdate = async () => {
-    let isValid = true;
-    let errorMessage = '';
-
-    const requiredFields = [
-      { value: selectedTripType, message: 'Please select a trip type.' },
-      { value: selectedPackage, message: 'Please select a package.' },
-      { value: selectedVehicleType, message: 'Please select a vehicle type.' },
-      { value: selectedVehicleName, message: 'Please select a vehicle name.' },
-      { value: customerName, message: 'Please enter customer name.' },
-      { value: customerPhone, message: 'Please enter customer phone.' },
-      { value: pickupLocation, message: 'Please enter pickup location.' },
-      { value: dropLocation, message: 'Please enter drop location.' },
-      // { value: rate, message: 'Please enter rate.' },
-      // { value: extraKms, message: 'Please enter extra kms.' },
-      // { value: extraHours, message: 'Please enter extra hours.' },
-      // { value: dayBatta, message: 'Please enter day batta.' },
-      // { value: nightBatta, message: 'Please enter night batta.' },
-      { value: selectedPaymentType, message: 'Please select a payment type.' },
-      { value: notes, message: 'Please enter notes.' },
-      // { value: notes1, message: 'Please enter additional notes.' },
-      { value: visitingPlace, message: 'Please enter visiting place.' },
-      { value: selectedTime, message: 'Please select time.' },
-      { value: selectedFromDate, message: 'Please select from date.' },
-      { value: selectedToDate, message: 'Please select to date.' },
-    ];
-
-    for (const field of requiredFields) {
-      if (!field.value) {
-        isValid = false;
-        errorMessage = field.message;
-        break;
-      }
-    }
+    console.log();
+    const { isValid, errorMessage } = validateMandatoryFields(
+      {
+        selectedTripType,
+        selectedPackage,
+        selectedVehicleType,
+        selectedVehicleName,
+        selectedShareType,
+      },
+      POST_TYPES.TRIP_SHEET,
+    );
 
     if (!isValid) {
       alert(errorMessage);
@@ -514,32 +507,32 @@ const PostATripScreen = ({ route }) => {
     }
 
     let finalData = {
-      id: initialData.id,
+      id: postId,
       post_booking_id: postId,
       posted_user_id: userId,
-      post_status: 'Available',
       booking_type_id: selectedTripType,
       booking_types_package_id: selectedPackage,
       vehicle_type_id: selectedVehicleType,
       vehicle_name_id: selectedVehicleName,
-      customer_name: customerName,
-      customer_phone_no: customerPhone,
-      pick_up_location: pickupLocation,
-      destination: dropLocation,
-      base_fare_rate: rate,
-      extra_km_rate: extraKms,
-      extra_hr_rate: extraHours,
-      day_batta_rate: dayBatta,
-      night_batta_rate: nightBatta,
-      payment_type: selectedPaymentType,
-      note_1: notes,
-      // note_2: notes1,
-      visiting_place: visitingPlace,
-      pick_up_time: selectedTime,
-      from_date: selectedFromDate,
-      to_date: selectedToDate,
       post_type_id: selectedShareType,
     };
+    console.log({ finalData });
+    // Add optional fields
+    if (customerName) finalData.customer_name = customerName;
+    if (customerPhone) finalData.customer_phone_no = customerPhone;
+    if (pickupLocation) finalData.pick_up_location = pickupLocation;
+    if (dropLocation) finalData.destination = dropLocation;
+    if (rate) finalData.base_fare_rate = rate;
+    if (extraKms) finalData.extra_km_rate = extraKms;
+    if (extraHours) finalData.extra_hr_rate = extraHours;
+    if (dayBatta) finalData.day_batta_rate = dayBatta;
+    if (nightBatta) finalData.night_batta_rate = nightBatta;
+    if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
+    if (notes) finalData.note_1 = notes;
+    if (visitingPlace) finalData.visiting_place = visitingPlace;
+    if (selectedTime) finalData.pick_up_time = selectedTime;
+    if (selectedFromDate) finalData.from_date = selectedFromDate;
+    if (selectedToDate) finalData.to_date = selectedToDate;
 
     const formData = new FormData();
     formData.append('json', JSON.stringify(finalData));
