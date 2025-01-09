@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import SignatureScreen from 'react-native-signature-canvas';
 import * as FileSystem from 'expo-file-system';
-import { uploadSignature } from '../../services/myTripsService';
+import { uploadSignature } from '../../services/MyTripsService';
 import { useNavigation } from '@react-navigation/native';
 
 const CustomerSignatureModal = ({

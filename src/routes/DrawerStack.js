@@ -34,7 +34,7 @@ import ProfileIcon from '../../assets/svgs/profile.svg';
 import ProfileIconInactive from '../../assets/svgs/profileIconInactive.svg';
 import SubscriptionIcon from '../../assets/svgs/subscription.svg';
 import VehicleIcon from '../../assets/svgs/vehicle.svg';
-import MyTrip from '../../assets/svgs/myTrips.svg';
+import MyTripsActive from '../../assets/svgs/myTripsActive.svg';
 import Vacant from '../../assets/svgs/vacantTrip.svg';
 import SelfTrip from '../../assets/svgs/selfTrip.svg';
 import Bill from '../../assets/svgs/bills.svg';
@@ -230,7 +230,7 @@ const CustomDrawerContent = (props) => {
         <View style={{ marginTop: 24 }}>
           <CustomDrawerItem
             label="My Trips"
-            icon={isRouteActive('My Trips') ? MyTripInactive : MyTrip}
+            icon={isRouteActive('My Trips') ? MyTripInactive : MyTripsActive}
             onPress={() => navigation.navigate('Home', { screen: 'My Trips' })}
             isFocused={isRouteActive('My Trips')}
           />
