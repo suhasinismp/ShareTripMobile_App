@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 import {
   getMyDutiesBill,
   getMyPostedTripBills,
 } from '../../../services/billService';
-import { useSelector } from 'react-redux';
-
 import { getUserDataSelector } from '../../../store/selectors';
 import AppHeader from '../../../components/AppHeader';
 import CustomSelect from '../../../components/ui/CustomSelect';
@@ -24,11 +24,6 @@ const Bills = () => {
 
   const [MyDutiesBill, setMyDutiesBill] = useState([]);
   const [postedTripBills, setPostedTripBills] = useState([]);
-
-  useEffect(() => {
-    fetchMyDutiesBill();
-    fetchPostedTripsBills();
-  }, []);
 
   const fetchMyDutiesBill = async () => {
     try {
@@ -52,6 +47,17 @@ const Bills = () => {
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchMyDutiesBill();
+      fetchPostedTripsBills();
+
+      return () => {
+        // Optional cleanup if needed
+      };
+    }, []),
+  );
+
   const renderItem = ({ item }) => {
     return (
       <PostCard
@@ -68,11 +74,10 @@ const Bills = () => {
         destination={item?.destination}
         postComments={item?.post_comments}
         postVoiceMessage={item?.post_voice_message}
-        // isRequested={item?.post_trip_trip_status || item?.request_status}
         packageName={item?.booking_package_name}
         viewTripSheet={true}
         viewTripSheetOnPress={() => {
-          navigation.navigate('PostTrip', {
+          navigation.navigate('ViewTripSheet', {
             from: 'bills',
             postId: item?.post_booking_id,
           });
@@ -95,17 +100,14 @@ const Bills = () => {
 
   return (
     <>
-
       <AppHeader
         drawerIcon={true}
         groupIcon={true}
         onlineIcon={true}
         muteIcon={true}
         title={'Bills'}
-      // search={true}
       />
-      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>Bills</Text>
-
+      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Bills</Text>
       <View style={styles.container}>
         <View style={styles.filterRow}>
           <CustomSelect
@@ -123,19 +125,16 @@ const Bills = () => {
           <CustomSelect
             text="Local"
             isSelected={selectedFilterOne === 'myDuties' || 'PostedTrips'}
-            // isSelected={selectedFilterTwo === 'Local'}
             onPress={() => setSelectedFilterTwo('Local')}
           />
           <CustomSelect
             text="Out Station"
             isSelected={selectedFilterOne === 'myDuties' || 'PostedTrips'}
-            // isSelected={selectedFilterTwo === 'OutStation'}
             onPress={() => setSelectedFilterTwo('OutStation')}
           />
           <CustomSelect
             text="Transfer"
             isSelected={selectedFilterOne === 'myDuties' || 'PostedTrips'}
-            // isSelected={selectedFilterTwo === 'Transfer'}
             onPress={() => setSelectedFilterTwo('Transfer')}
           />
         </View>

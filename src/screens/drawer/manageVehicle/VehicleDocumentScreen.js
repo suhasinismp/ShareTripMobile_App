@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-  FlatList,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -30,6 +24,7 @@ const VehicleDocumentScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const userVehicleId = userData.userVehicleId;
+  console.log('userVehicleId', userVehicleId);
   const { theme } = useTheme();
 
   const { control, handleSubmit, setValue } = useForm();
@@ -90,6 +85,7 @@ const VehicleDocumentScreen = () => {
         userVehicleId,
         userToken,
       );
+      console.log('vehicleDocsResponse', vehicleDocsResponse);
       if (vehicleDocsResponse.data.length > 0) {
         setInitialVehicleDocs(vehicleDocsResponse.data);
       } else {

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Modal,
@@ -18,7 +19,7 @@ import { useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../store/selectors';
 import { createVacantPost, getVacantPost } from '../../services/vacantService';
 import { getAllVehiclesByUserId } from '../../services/vehicleDetailsService';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import PostCard from '../../components/PostCard';
 import { formatDate } from '../../utils/formatdateUtil';
 import AudioContainer from '../../components/AudioContainer';
@@ -72,7 +73,6 @@ const VacantTripModal = ({
         onPress={handleStartVacantModal}
       ></TouchableOpacity>
       <View style={styles.buttonContainer}>
-
         <CustomButton
           title="Cancel"
           variant="text"
@@ -84,13 +84,13 @@ const VacantTripModal = ({
           style={styles.submitButton}
           onPress={handlePostVacantTrip}
         />
-
       </View>
     </View>
   );
 };
 
 const VacantTrip = () => {
+  const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const userId = userData.userId;
@@ -104,9 +104,7 @@ const VacantTrip = () => {
   const [vehicleName, setVehicleName] = useState('');
   const [userVehicles, setUserVehicles] = useState([]);
   const [userVacantPostData, setUserVacantPostData] = useState([]);
-  const [isRecording, setIsRecording] = useState(false)
-
-
+  const [isRecording, setIsRecording] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -138,7 +136,6 @@ const VacantTrip = () => {
   const handleStartVacantModal = () => {
     setShowVacantTripModal(true);
   };
-
 
   const handleCancelVacantModal = () => {
     setShowVacantTripModal(false);
@@ -191,10 +188,14 @@ const VacantTrip = () => {
         name: filename,
       });
     }
-    const response = await createVacantPost(formData, userToken)
+    const response = await createVacantPost(formData, userToken);
 
     if (response.error === false) {
       alert('Vacant post created successfully');
+      setTypeMessage('');
+      setRecordedAudioUri(null);
+      setIsRecording(false);
+      setShowVacantTripModal(false);
       handleCancelVacantModal();
     } else {
       alert(response.message);
@@ -226,9 +227,15 @@ const VacantTrip = () => {
       // baseFareRate={item?.bookingTypeTariff_base_fare_rate}
 
       // Action Props
-      onRequestPress={() => handleButtonPress(item)}
+
       onPlayPress={() => {
         /* TODO: Implement voice message playback */
+      }}
+      onTripSheetPress={() => {
+        navigation.navigate('ViewTripSheet', {
+          from: 'myTrips',
+          postId: item?.post_booking_id,
+        });
       }}
       onMessagePress={() => {
         /* TODO: Implement messaging */

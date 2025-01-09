@@ -1,7 +1,8 @@
 
 
+
 // import React, { useState, useCallback, useEffect } from 'react';
-// import { FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
+// import { FlatList, TouchableOpacity, StyleSheet, View, Text } from 'react-native';
 // import { useFocusEffect, useNavigation } from '@react-navigation/native';
 // import AddPostIcon from '../../../../assets/svgs/addPost.svg';
 // import { useDispatch, useSelector } from 'react-redux';
@@ -39,7 +40,6 @@
 //   const userId = userData.userId;
 //   const userToken = userData.userToken;
 //   const [userSelfTripData, setUserSelfTripData] = useState([]);
-//   console.log('sss', userSelfTripData)
 //   const [showStartTripModal, setShowStartTripModal] = useState(false);
 
 
@@ -272,6 +272,7 @@
 //   };
 
 //   const handleAddPost = () => {
+//     console.log('Navigating to CreateSelfTrip');
 //     navigation.navigate('CreateSelfTrip');
 //   };
 //   const renderSelfPostCard = ({ item }) => (
@@ -302,7 +303,7 @@
 //       onMessagePress={() => {
 //         /* TODO: Implement messaging */
 //       }}
-//       isRequested={item?.request_status}
+//       // isRequested={item?.request_status}
 //       packageName={item?.bookingTypePackage_name}
 //     />
 //   );
@@ -315,8 +316,10 @@
 //           groupIcon={true}
 //           onlineIcon={true}
 //           muteIcon={true}
+
 //           search={true}
 //         />
+//         <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Self Trips</Text>
 
 //         <FlatList
 //           data={userSelfTripData} // Ensure this is defined or passed as a prop
@@ -392,9 +395,12 @@
 //             setShowTripSummaryModal={setShowTripSummaryModal}
 //             setShowAdditionalCharges={setShowAdditionalCharges}
 //             onPressNext={(closingDetails) => {
-//               handleCloseTrip({ closingKms: closingDetails.closingKms, closingTime: closingDetails.closingTime, closingDate: closingDetails.closingDate, }
 
-//               );
+//               handleCloseTrip(
+//                 closingDetails.closingKms,
+//                 closingDetails.closingTime,
+//                 closingDetails.closingDate,
+//               )
 //             }}
 //           />
 //         </CustomModal>
@@ -443,8 +449,6 @@
 // });
 
 // export default SelfTripHome;
-
-
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { FlatList, TouchableOpacity, StyleSheet, View, Text } from 'react-native';
