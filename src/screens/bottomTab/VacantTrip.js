@@ -251,8 +251,8 @@ const VacantTrip = () => {
         drawerIcon={true}
         groupIcon={true}
         onlineIcon={true}
-
         muteIcon={true}
+        search={true}
       />
       <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Vacant Trips</Text>
 

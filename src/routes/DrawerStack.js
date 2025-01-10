@@ -39,7 +39,7 @@ import MyTripsActive from '../../assets/svgs/myTripsActive.svg';
 import Vacant from '../../assets/svgs/vacantTrip.svg';
 import SelfTrip from '../../assets/svgs/selfTrip.svg';
 import Bill from '../../assets/svgs/bills.svg';
-import MyTripInactive from '../../assets/svgs/myTripInactive.svg';
+import MyTripInactive from '../../assets/svgs/myTripsInactive.svg';
 import SelfTripInactive from '../../assets/svgs/selfTripInactive.svg';
 import VacantTripInactive from '../../assets/svgs/vacantTripInactive.svg';
 import BillsInactive from '../../assets/svgs/billsInactive.svg';
@@ -55,6 +55,7 @@ import TripBillScreen from '../screens/bottomTab/bills/TripBillScreen';
 import { getProfileByUserId } from '../services/profileScreenService';
 import TripBillEditScreen from '../screens/bottomTab/bills/TripBillEditScreen';
 import ViewTripSheet from '../screens/bottomTab/postTrip/ViewTripSheet';
+import MyTrips from '../screens/bottomTab/MyTrips';
 
 const Drawer = createDrawerNavigator();
 
@@ -255,11 +256,9 @@ const CustomDrawerContent = (props) => {
             onPress={() => navigation.navigate('Home', { screen: 'Bills' })}
             isFocused={isRouteActive('Bills')}
           />
+
         </View>
       </View>
-
-
-
       {/* Logout and Help section */}
       <CustomDrawerItem
         label="Help"

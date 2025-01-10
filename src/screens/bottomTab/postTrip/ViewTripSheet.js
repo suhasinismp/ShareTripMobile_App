@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, FlatList } from 'react-native';
+import { StyleSheet, View, Text, FlatList, Platform, Dimensions } from 'react-native';
 import AppHeader from '../../../components/AppHeader';
-import { fetchTripSheetByPostId } from '../../../services/postTripService';
+import { fetchTripSheetByPostId, generateTripPdf } from '../../../services/postTripService';
 import { useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
 import CustomButton from '../../../components/ui/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import { cleanHTML } from '../../../utils/cleanHTML';
+const { width } = Dimensions.get('window');
+import * as Print from 'expo-print';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 const ViewTripSheet = ({ route }) => {
   const { postId, from } = route.params;
+  console.log({ from })
   const navigation = useNavigation();
 
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const [tripDetails, setTripDetails] = useState(null);
+  const [pdfUri, setPdfUri] = useState(null);
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   console.log({ tripDetails });
 
   useEffect(() => {
@@ -66,6 +74,48 @@ const ViewTripSheet = ({ route }) => {
     return data;
   };
 
+
+  const handleGeneratePDF = async () => {
+    setIsPdfGenerating(true);
+    try {
+      const finalData = { post_booking_id: postId };
+      const response = await generateTripPdf(finalData, userToken);
+      const cleanedHtml = cleanHTML(response);
+
+      const { uri } = await Print.printToFileAsync({
+        html: cleanedHtml,
+        base64: false,
+      });
+
+      const filename = `tripsheet_${Date.now()}.pdf`;
+      const destinationUri = `${Platform.OS === 'android' ? FileSystem.cacheDirectory : FileSystem.documentDirectory}${filename}`;
+
+      await FileSystem.copyAsync({
+        from: uri,
+        to: destinationUri,
+      });
+
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (isAvailable) {
+        await Sharing.shareAsync(destinationUri, {
+          mimeType: 'application/pdf',
+          dialogTitle: 'Save PDF',
+        });
+        setPdfUri(destinationUri);
+      } else {
+        alert('Sharing is not available on this device');
+      }
+
+      await FileSystem.deleteAsync(uri, { idempotent: true });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsPdfGenerating(false);
+    }
+  };
+
+
   const renderItem = ({ item }) => (
     <View style={styles.row}>
       <Text style={styles.label}>{item.label}</Text>
@@ -92,13 +142,25 @@ const ViewTripSheet = ({ route }) => {
         {from !== 'home' && (
           <CustomButton
             title={'Edit'}
-            style={{ marginTop: 20, width: 150, alignSelf: 'flex-end' }}
+            style={{ marginTop: 40, width: 150, alignSelf: 'flex-end' }}
             onPress={() => {
               navigation.navigate('PostTrip', {
                 from: 'home',
                 postId: postId,
               });
             }}
+          />
+        )}
+        {from == 'bills' && (
+          <CustomButton
+            title={isPdfGenerating ? 'Generating PDF...' : 'Share PDF'}
+            style={[
+              styles.submitButton,
+
+              isPdfGenerating && styles.disabledButton,
+            ]}
+            onPress={handleGeneratePDF}
+            disabled={isPdfGenerating}
           />
         )}
       </View>
@@ -143,6 +205,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#113F67',
     textAlign: 'center',
+  },
+  submitButton: {
+    width: width * 0.45,
+    alignItems: 'center',
+    backgroundColor: '#008B8B',
+    borderRadius: 8,
+    paddingVertical: 14,
   },
 });
 
