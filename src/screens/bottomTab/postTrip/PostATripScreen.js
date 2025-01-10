@@ -516,7 +516,7 @@ const PostATripScreen = ({ route }) => {
       vehicle_name_id: selectedVehicleName,
       post_type_id: selectedShareType,
     };
-    console.log({ finalData });
+
     // Add optional fields
     if (customerName) finalData.customer_name = customerName;
     if (customerPhone) finalData.customer_phone_no = customerPhone;

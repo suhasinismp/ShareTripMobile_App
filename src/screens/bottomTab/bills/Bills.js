@@ -107,7 +107,16 @@ const Bills = () => {
         muteIcon={true}
         search={true}
       />
-      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Bills</Text>
+      <Text
+        style={{
+          textAlign: 'center',
+          fontWeight: 'bold',
+          fontSize: 20,
+          marginBottom: 10,
+        }}
+      >
+        Bills
+      </Text>
       <View style={styles.container}>
         <View style={styles.filterRow}>
           <CustomSelect

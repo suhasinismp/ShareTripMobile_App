@@ -1,5 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { FlatList, TouchableOpacity, StyleSheet, View, Text } from 'react-native';
+import {
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  View,
+  Text,
+} from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import AddPostIcon from '../../../../assets/svgs/addPost.svg';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,8 +32,7 @@ import {
   fetchTripDetails,
   postAdditionCharges,
   startTripMultiDay,
-
-} from '../../../services/MyTripsService'
+} from '../../../services/MyTripsService';
 import axios from 'axios';
 import StartTripModal from '../../../components/tripModals/StartTripModal';
 
@@ -41,12 +46,11 @@ const SelfTripHome = () => {
 
   const [showStartTripModal, setShowStartTripModal] = useState(false);
 
-
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
   const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
-  console.log({ showAdditionalCharges })
+  console.log({ showAdditionalCharges });
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
   const [selectedTripData, setSelectedTripData] = useState(null);
@@ -64,7 +68,7 @@ const SelfTripHome = () => {
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
-  console.log({ closingKms, closingTime, closingDate })
+  console.log({ closingKms, closingTime, closingDate });
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -81,12 +85,9 @@ const SelfTripHome = () => {
     }, [userId, userToken]),
   );
 
-
-
-
   const getSelfTripPosts = async () => {
     const response = await fetchUserSelfPosts(userId, userToken);
-    console.log('response', response)
+    console.log('response', response);
 
     if (response.error === false) {
       setUserSelfTripData(response.data);
@@ -126,7 +127,7 @@ const SelfTripHome = () => {
     const response = await fetchMultiDayTripDetails(
       selectedTripData?.post_booking_id,
       userToken,
-    )
+    );
     console.log('response', response);
 
     if (
@@ -144,7 +145,6 @@ const SelfTripHome = () => {
   };
 
   const handleButtonPress = (tripData) => {
-
     setSelectedTripData(tripData);
     setTripType('');
     if (tripData?.request_status === 'Start Trip') {
@@ -169,12 +169,11 @@ const SelfTripHome = () => {
 
     if (response?.error === false) {
       setShowClosingDetailsModal(false);
-      setClosingKms('')
-      setClosingTime('')
-      setClosingDate('')
+      setClosingKms('');
+      setClosingTime('');
+      setClosingDate('');
     }
   };
-
 
   const handleEndTrip = async () => {
     setShowTripProgressModal(false);
@@ -199,10 +198,6 @@ const SelfTripHome = () => {
     }
   };
 
-
-
-
-
   const handleBackToTripProgress = () => {
     setShowClosingDetailsModal(false);
     setShowTripProgressModal(true);
@@ -220,7 +215,7 @@ const SelfTripHome = () => {
       },
       userToken,
     );
-    console.log({ response })
+    console.log({ response });
     if (response?.error === false) {
       setShowTripSummaryModal(false);
       setShowAdditionalCharges(true);
@@ -256,7 +251,7 @@ const SelfTripHome = () => {
       cleaning: charges?.cleaning,
       night_batta: charges?.nightBatta,
     };
-    console.log({ finalData })
+    console.log({ finalData });
     const formData = new FormData();
     formData.append('json', JSON.stringify(finalData));
 
@@ -320,10 +315,18 @@ const SelfTripHome = () => {
           groupIcon={true}
           onlineIcon={true}
           muteIcon={true}
-
           search={true}
         />
-        <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Self Trips</Text>
+        <Text
+          style={{
+            textAlign: 'center',
+            fontWeight: 'bold',
+            fontSize: 20,
+            marginBottom: 10,
+          }}
+        >
+          Self Trips
+        </Text>
 
         <FlatList
           data={userSelfTripData} // Ensure this is defined or passed as a prop
@@ -357,7 +360,6 @@ const SelfTripHome = () => {
             showDatePicker={showDatePicker}
             setShowDatePicker={setShowDatePicker}
           />
-
         </CustomModal>
 
         <CustomModal
@@ -400,10 +402,10 @@ const SelfTripHome = () => {
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
             onPressNext={(closingDetails) => {
-              handleCloseTrip(closingDetails.closingKms,
+              handleCloseTrip(
+                closingDetails.closingKms,
                 closingDetails.closingTime,
                 closingDetails.closingDate,
-
               );
             }}
           />
