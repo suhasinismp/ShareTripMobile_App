@@ -25,6 +25,7 @@ import {
   fetchMultiDayTripDetails,
   fetchTripDetails,
   postAdditionCharges,
+  startTripMultiDay,
 
 } from '../../../services/MyTripsService'
 import axios from 'axios';
