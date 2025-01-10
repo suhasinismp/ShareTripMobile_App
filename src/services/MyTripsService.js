@@ -73,7 +73,7 @@ export const closeTrip = async (data, token) => {
 export const fetchTripDetails = async (tripId, token) => {
   const response = await getAPI(
     `share-trip/trip-ride/based-post-booking/${tripId}`,
-    token,
+    token, s
   );
   return response;
 };

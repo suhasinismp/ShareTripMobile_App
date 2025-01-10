@@ -17,6 +17,7 @@ import Tabs from './BottomTab';
 import VehicleStack from './VehicleStack';
 import ProfileStack from './ProfileStack';
 
+
 // Import your SVG icons here
 import BusinessIcon from '../../assets/svgs/business.svg';
 import DashboardIcon from '../../assets/svgs/dasboardIcon.svg';
@@ -257,6 +258,8 @@ const CustomDrawerContent = (props) => {
         </View>
       </View>
 
+
+
       {/* Logout and Help section */}
       <CustomDrawerItem
         label="Help"
@@ -268,7 +271,7 @@ const CustomDrawerContent = (props) => {
         label="Logout"
         icon={LogoutIcon}
         onPress={handleLogout}
-        isFocused={isRouteActive('Logout')}
+        isFocused={isRouteActive('Logout')} s
       />
     </DrawerContentScrollView>
   );
@@ -290,14 +293,11 @@ const DrawerStack = () => {
       <Drawer.Screen name="Profile" component={ProfileStack} />
       <Drawer.Screen name="ManageVehicle" component={VehicleStack} />
       <Drawer.Screen name="ManageBusiness" component={BusinessDetailsScreen} />
-      <Drawer.Screen
-        name="ManageSubscription"
-        component={SubscriptionPlansScreen}
-      />
-      <Drawer.Screen
-        name="ManageDriverDocuments"
+      <Drawer.Screen name="ManageSubscription" component={SubscriptionPlansScreen} />
+      <Drawer.Screen name="ManageDriverDocuments"
         component={DriverDocumentScreen}
       />
+      <Drawer.Screen name="MyTrip" component={MyTrips} />
       <Drawer.Screen name="Group" component={GroupStack} />
       <Drawer.Screen name="PostTrip" component={PostATripScreen} />
       <Drawer.Screen name="SelectGroups" component={SelectGroupScreen} />
