@@ -105,7 +105,7 @@ const Bills = () => {
         groupIcon={true}
         onlineIcon={true}
         muteIcon={true}
-        title={'Bills'}
+        search={true}
       />
       <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Bills</Text>
       <View style={styles.container}>
@@ -115,10 +115,16 @@ const Bills = () => {
             isSelected={selectedFilterOne === 'myDuties'}
             onPress={() => setSelectedFilterOne('myDuties')}
           />
+
           <CustomSelect
             text="Posted Trips"
             isSelected={selectedFilterOne === 'PostedTrips'}
             onPress={() => setSelectedFilterOne('PostedTrips')}
+          />
+          <CustomSelect
+            text="Self Trips"
+            isSelected={selectedFilterOne === 'SelfTrips'}
+            onPress={() => setSelectedFilterOne('SelfTrips')}
           />
         </View>
         <View style={styles.filterRow}>

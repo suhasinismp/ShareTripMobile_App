@@ -111,7 +111,7 @@ const ViewGroupRequestsScreen = () => {
           type: 'error',
         }),
       );
-    }
+    } ss
   };
   const fetchGroupRequests = async () => {
     const response = await getGroupRequestByUserId(userId, userToken);
