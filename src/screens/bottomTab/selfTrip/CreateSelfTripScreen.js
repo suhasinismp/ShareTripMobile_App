@@ -272,6 +272,7 @@ const CreateSelfTrip = () => {
                 muteIcon={true}
                 search={true}
             />
+            <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Self Trips</Text>
 
             <KeyboardAwareScrollView
                 style={styles.container}

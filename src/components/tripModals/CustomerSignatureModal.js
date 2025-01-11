@@ -86,7 +86,7 @@ const CustomerSignatureModal = ({
       border-radius: 8px;
       background-color: #FFFFFF;
     }`;
-
+  console.log('selectedTripData?.user_name:', selectedTripData?.user_name);
   return (
     <View style={styles.signatureModalContainer}>
       <View style={styles.signatureHeaderContainer}>
@@ -108,6 +108,7 @@ const CustomerSignatureModal = ({
             <Text style={styles.signatureLabel}>Customer Name</Text>
             <Text style={styles.signatureValue}>
               : {selectedTripData?.user_name || 'N/A'}
+
             </Text>
           </View>
         </View>
