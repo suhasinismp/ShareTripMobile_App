@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
     },
     selectedPostTypeBackground: { backgroundColor: '#008B8B' },
     selectedBackground: {
-        backgroundColor: '#CCE3F4',
+        backgroundColor: '#6DB8F0',
     },
     image: {
         width: 60,

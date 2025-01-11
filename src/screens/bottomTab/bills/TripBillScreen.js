@@ -43,7 +43,9 @@ function formatTripData(responseData) {
         { label: 'Booking Type', value: data.bookingType_name },
         {
           label: 'Slab rate',
-          value: data.bookingTypeTariff_base_fare_rate.toString(),
+          value: data.bookingTypeTariff_base_fare_rate != null
+            ? data.bookingTypeTariff_base_fare_rate.toString()
+            : 'N/A',
         },
         { label: 'Slab kms', value: `${data.packageKms}kms` },
         { label: 'Extra Kms Charges', value: extraKmsCharge },
@@ -116,6 +118,7 @@ const TripBillScreen = ({ route }) => {
   const navigation = useNavigation();
   const [pdfUri, setPdfUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  console.log({ isLoading })
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const [tripData, setTripData] = useState([]);
 
@@ -133,7 +136,7 @@ const TripBillScreen = ({ route }) => {
     setIsLoading(true);
     try {
       const response = await fetchTripBill(postId, userToken);
-
+      console.log('ooo', response)
       const formattedData = formatTripData(response?.data);
 
       setTripData(formattedData);
