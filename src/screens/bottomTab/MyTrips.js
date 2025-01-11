@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -210,13 +209,12 @@ const MyTrips = () => {
   };
 
   const handleEndTrip = async () => {
-
     setShowTripProgressModal(false);
     const tripDetails = await fetchTripDetails(
       selectedTripData?.post_booking_id,
       userToken,
     );
-    console.log({ tripDetails })
+    console.log({ tripDetails });
     if (tripDetails?.error === false) {
       setTripSummaryData({
         openingKms: tripDetails?.data?.start_trip_kms || '',
@@ -342,7 +340,6 @@ const MyTrips = () => {
     }
   };
 
-
   const handleAdditionalChargesNext = async (documents, charges) => {
     const formData = new FormData();
     formData.append(
@@ -420,8 +417,8 @@ const MyTrips = () => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-          onCallPress={() => { }}
-          onMessagePress={() => { }}
+          onCallPress={() => {}}
+          onMessagePress={() => {}}
           onRefreshData={fetchUiData}
           userToken={userToken}
         />
@@ -446,12 +443,12 @@ const MyTrips = () => {
         baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => handleButtonPress(item)}
         onCallPress={() => handleCall(item?.user_phone)}
-        onPlayPress={() => { }}
+        onPlayPress={() => {}}
         onTripSheetPress={() => {
           navigation.navigate('ViewTripSheet', {
             from: 'myTrips',
             postId: item?.post_booking_id,
-          })
+          });
         }}
         isRequested={item?.post_trip_trip_status || item?.request_status}
         packageName={item?.booking_package_name}
@@ -467,10 +464,11 @@ const MyTrips = () => {
         groupIcon={true}
         onlineIcon={true}
         muteIcon={true}
-
         search={true}
       />
-      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>My Trips</Text>
+      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>
+        My Trips
+      </Text>
 
       <View style={styles.container}>
         <View style={styles.filterRow}>
@@ -571,6 +569,7 @@ const MyTrips = () => {
           setShowTimePicker={setShowTimePicker}
           showDatePicker={showDatePicker}
           setShowDatePicker={setShowDatePicker}
+          onClose={() => setShowStartTripModal(false)}
         />
       </CustomModal>
 
@@ -581,6 +580,7 @@ const MyTrips = () => {
         <TripProgressModal
           handleContinueForNextDay={handleContinueForNextDay}
           handleEndTrip={handleEndTrip}
+          onClose={() => setShowTripProgressModal(false)}
         />
       </CustomModal>
 
@@ -602,6 +602,7 @@ const MyTrips = () => {
           setShowClosingDatePicker={setShowClosingDatePicker}
           closingActionType={closingActionType}
           handleCloseTrip={handleCloseForDay}
+          onClose={() => setShowClosingDetailsModal(false)}
         />
       </CustomModal>
 
@@ -620,6 +621,7 @@ const MyTrips = () => {
               closingDetails.closingDate,
             );
           }}
+          onClose={() => setShowTripSummaryModal(false)}
         />
       </CustomModal>
 
@@ -627,7 +629,10 @@ const MyTrips = () => {
         visible={showAdditionalCharges}
         onSecondaryAction={() => setShowAdditionalCharges(false)}
       >
-        <AdditionalChargesModal onNext={handleAdditionalChargesNext} />
+        <AdditionalChargesModal
+          onNext={handleAdditionalChargesNext}
+          onClose={() => setShowAdditionalCharges(false)}
+        />
       </CustomModal>
 
       <CustomModal

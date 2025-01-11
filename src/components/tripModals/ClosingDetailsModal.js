@@ -24,9 +24,16 @@ const ClosingDetailsModal = ({
   showClosingDatePicker,
   setShowClosingDatePicker,
   handleCloseTrip,
+  onClose,
 }) => {
   return (
     <View style={styles.modalContent}>
+      <TouchableOpacity
+        style={{ position: 'absolute', top: 10, right: 10 }}
+        onPress={onClose}
+      >
+        <FontAwesome name="times" size={24} color="#333" />
+      </TouchableOpacity>
       <View style={styles.modalHeader}>
         <TouchableOpacity
           style={styles.backButton}

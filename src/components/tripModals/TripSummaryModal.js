@@ -16,6 +16,7 @@ const TripSummaryModal = ({
   setShowTripSummaryModal,
   setShowAdditionalCharges,
   onPressNext,
+  onClose,
 }) => {
   // Opening details states
   const [openingKms, setOpeningKms] = useState(
@@ -92,6 +93,13 @@ const TripSummaryModal = ({
       style={styles.modalContent}
       showsVerticalScrollIndicator={false}
     >
+      <TouchableOpacity
+        style={{ position: 'absolute', top: 10, right: 10 }}
+        onPress={onClose}
+        hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+      >
+        <FontAwesome name="times" size={24} color="#333" />
+      </TouchableOpacity>
       <Text style={styles.modalTitle}>Trip Details</Text>
 
       <View style={[styles.summaryContainer, styles.elevation]}>

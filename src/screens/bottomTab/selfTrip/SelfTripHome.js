@@ -50,7 +50,7 @@ const SelfTripHome = () => {
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
   const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
-  console.log({ showAdditionalCharges });
+
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
   const [selectedTripData, setSelectedTripData] = useState(null);
@@ -344,6 +344,7 @@ const SelfTripHome = () => {
           visible={showStartTripModal}
           onPrimaryAction={handleStartTrip}
           onSecondaryAction={() => setShowStartTripModal(false)}
+          hideButtons={true}
         >
           <StartTripModal
             openingKms={openingKms}
@@ -359,23 +360,19 @@ const SelfTripHome = () => {
             setShowTimePicker={setShowTimePicker}
             showDatePicker={showDatePicker}
             setShowDatePicker={setShowDatePicker}
+            onClose={() => setShowStartTripModal(false)}
           />
         </CustomModal>
 
-        <CustomModal
-          visible={showTripProgressModal}
-          onSecondaryAction={() => setShowTripProgressModal(false)}
-        >
+        <CustomModal visible={showTripProgressModal}>
           <TripProgressModal
             handleContinueForNextDay={handleContinueForNextDay}
             handleEndTrip={handleEndTrip}
+            onClose={() => setShowTripProgressModal(false)}
           />
         </CustomModal>
 
-        <CustomModal
-          visible={showClosingDetailsModal}
-          onSecondaryAction={handleBackToTripProgress}
-        >
+        <CustomModal visible={showClosingDetailsModal}>
           <ClosingDetailsModal
             handleBackToTripProgress={handleBackToTripProgress}
             closingKms={closingKms}
@@ -390,13 +387,11 @@ const SelfTripHome = () => {
             setShowClosingDatePicker={setShowClosingDatePicker}
             closingActionType={closingActionType}
             handleCloseTrip={handleCloseForDay}
+            onClose={() => setShowClosingDetailsModal(false)}
           />
         </CustomModal>
 
-        <CustomModal
-          visible={showTripSummaryModal}
-          onSecondaryAction={() => setShowTripSummaryModal(false)}
-        >
+        <CustomModal visible={showTripSummaryModal}>
           <TripSummaryModal
             tripSummaryData={tripSummaryData}
             setShowTripSummaryModal={setShowTripSummaryModal}
@@ -408,14 +403,15 @@ const SelfTripHome = () => {
                 closingDetails.closingDate,
               );
             }}
+            onClose={() => setShowTripSummaryModal(false)}
           />
         </CustomModal>
 
-        <CustomModal
-          visible={showAdditionalCharges}
-          onSecondaryAction={() => setShowAdditionalCharges(false)}
-        >
-          <AdditionalChargesModal onNext={handleAdditionalChargesNext} />
+        <CustomModal visible={showAdditionalCharges}>
+          <AdditionalChargesModal
+            onNext={handleAdditionalChargesNext}
+            onClose={() => setShowAdditionalCharges(false)}
+          />
         </CustomModal>
 
         <CustomModal

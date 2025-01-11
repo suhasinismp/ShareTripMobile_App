@@ -1,9 +1,20 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 
-const TripProgressModal = ({ handleContinueForNextDay, handleEndTrip }) => {
+const TripProgressModal = ({
+  handleContinueForNextDay,
+  handleEndTrip,
+  onClose,
+}) => {
   return (
     <View style={styles.modalContent}>
+      <TouchableOpacity
+        style={{ position: 'absolute', top: 10, right: 10 }}
+        onPress={onClose}
+      >
+        <FontAwesome name="times" size={24} color="#333" />
+      </TouchableOpacity>
       <Text style={styles.modalTitle}>Trip Status</Text>
       <Text style={styles.tripStatus}>Your Trip is in Progress</Text>
 

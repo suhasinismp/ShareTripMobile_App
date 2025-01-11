@@ -22,10 +22,16 @@ const StartTripModal = ({
   setShowTimePicker,
   showDatePicker,
   setShowDatePicker,
+  onClose,
 }) => {
   return (
     <View style={styles.modalContent}>
-      <Text style={styles.modalTitle}>Opening Trip Details</Text>
+      <View style={styles.modalHeader}>
+        <Text style={styles.modalTitle}>Opening Trip Details</Text>
+        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+          <FontAwesome name="times" size={24} color="#333" />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.inputGroup}>
         <CustomInput
@@ -135,12 +141,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 8,
   },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
     color: '#333',
-    marginBottom: 20,
+  },
+  closeButton: {
+    padding: 5,
   },
   inputGroup: {
     marginBottom: 16,

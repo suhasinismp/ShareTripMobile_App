@@ -10,7 +10,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import CustomInput from '../../components/ui/CustomInput';
 import UploadOptionsModal from '../../components/UploadOptionsModal';
 
-const AdditionalChargesModal = ({ onNext }) => {
+const AdditionalChargesModal = ({ onNext, onClose }) => {
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [activeField, setActiveField] = useState('');
   const [documents, setDocuments] = useState([]);
@@ -77,6 +77,13 @@ const AdditionalChargesModal = ({ onNext }) => {
 
   return (
     <View style={styles.modalContainer}>
+      <TouchableOpacity
+        style={{ position: 'absolute', top: 10, right: 10 }}
+        hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+        onPress={onClose}
+      >
+        <FontAwesome name="times" size={24} color="#333" />
+      </TouchableOpacity>
       <View style={styles.header}>
         <Text style={styles.title}>Additional Charges</Text>
       </View>

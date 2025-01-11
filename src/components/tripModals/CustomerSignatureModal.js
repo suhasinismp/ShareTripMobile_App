@@ -4,6 +4,7 @@ import SignatureScreen from 'react-native-signature-canvas';
 import * as FileSystem from 'expo-file-system';
 import { uploadSignature } from '../../services/MyTripsService';
 import { useNavigation } from '@react-navigation/native';
+import { FontAwesome } from '@expo/vector-icons';
 
 const CustomerSignatureModal = ({
   selectedTripData,
@@ -89,6 +90,12 @@ const CustomerSignatureModal = ({
   console.log('selectedTripData?.user_name:', selectedTripData?.user_name);
   return (
     <View style={styles.signatureModalContainer}>
+      <TouchableOpacity
+        style={{ position: 'absolute', top: 10, right: 10 }}
+        onPress={onClose}
+      >
+        <FontAwesome name="times" size={24} color="#333" />
+      </TouchableOpacity>
       <View style={styles.signatureHeaderContainer}>
         <Text style={styles.signatureTitle}>Customer Signature</Text>
 
@@ -108,7 +115,6 @@ const CustomerSignatureModal = ({
             <Text style={styles.signatureLabel}>Customer Name</Text>
             <Text style={styles.signatureValue}>
               : {selectedTripData?.user_name || 'N/A'}
-
             </Text>
           </View>
         </View>
