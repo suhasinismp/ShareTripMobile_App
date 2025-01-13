@@ -23,16 +23,24 @@ export const startSelfTrip = async (data, token) => {
   return response;
 };
 
-export const endSelfTrip = async (data, token) => {
+export const fetchTripDetails = async (tripId, token) => {
+  const response = await getAPI(
+    `share-trip/trip-ride/based-post-booking/${tripId}`,
+    token,
+  );
+}
 
+export const endSelfTrip = async (data, token) => {
+  console.log({ data, token })
   const response = await patchSelfRideAPI(
     'share-trip/trip-ride/end-self-trip',
     data,
     token,
   );
-
+  console.log('uuu', response)
   return response;
 };
+
 
 export const fetchUserSelfPosts = async (userId, token) => {
   const response = await getAPI(

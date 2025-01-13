@@ -64,7 +64,7 @@ const SelfTripHome = () => {
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
-  console.log({ closingKms, closingTime, closingDate })
+
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -182,6 +182,7 @@ const SelfTripHome = () => {
       selectedTripData?.post_booking_id,
       userToken,
     );
+    console.log({ tripDetails })
     if (tripDetails?.error === false) {
       setTripSummaryData({
         openingKms: tripDetails?.data?.start_trip_kms || '',
@@ -208,19 +209,21 @@ const SelfTripHome = () => {
     setShowTripProgressModal(true);
   };
 
-  const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
+  const handleCloseTrip = async ({ closingDate, closingKms, closingTime, }) => {
+    console.log({ closingDate, closingKms, closingTime })
     const response = await endSelfTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
-        end_trip_kms: closingKms,
+
         end_trip_date: closingDate,
+        end_trip_kms: closingKms,
         end_trip_time: closingTime,
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
       },
       userToken,
     );
-    console.log({ response })
+    console.log('ddd', response)
     if (response?.error === false) {
       setShowTripSummaryModal(false);
       setShowAdditionalCharges(true);
