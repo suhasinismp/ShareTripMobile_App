@@ -259,6 +259,7 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
+    console.log({ closingKms, closingTime, closingDate })
     const response = await closeTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,

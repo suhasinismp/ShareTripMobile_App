@@ -61,6 +61,7 @@ export const startTrip = async (data, token) => {
 };
 
 export const closeTrip = async (data, token) => {
+  console.log({ data, token })
   const response = await patchAPI({
     endUrl: 'share-trip/trip-ride',
     body: data,
@@ -75,6 +76,8 @@ export const fetchTripDetails = async (tripId, token) => {
     `share-trip/trip-ride/based-post-booking/${tripId}`,
     token,
   );
+
+  console.log('rrr', response)
   return response;
 };
 
