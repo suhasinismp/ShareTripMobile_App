@@ -24,6 +24,7 @@ export const startSelfTrip = async (data, token) => {
 };
 
 export const endSelfTrip = async (data, token) => {
+  console.log({ data })
   const response = await patchSelfRideAPI(
     'share-trip/trip-ride/end-self-trip',
     data,

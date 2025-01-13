@@ -184,7 +184,7 @@
 // export default Bills;
 
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
@@ -213,6 +213,19 @@ const Bills = () => {
   const [MyDutiesBill, setMyDutiesBill] = useState([]);
   const [postedTripBills, setPostedTripBills] = useState([]);
   const [selfTripBills, setSelfTripBills] = useState([]);
+  const [dataSource, setDataSource] = useState([]);
+
+
+  useEffect(() => {
+    if (selectedFilterOne === 'myDuties') {
+      setDataSource(MyDutiesBill)
+    } else if (selectedFilterOne === 'PostedTrips') {
+      setDataSource(postedTripBills)
+    } else {
+      setDataSource(selfTripBills)
+
+    }
+  }, [selectedFilterOne])
 
 
 
@@ -242,10 +255,10 @@ const Bills = () => {
     try {
       const response = await getMySelfTripBills(userId, userToken);
       if (response?.error === false) {
-        console.log(setSelfTripBills(response?.data || []))
+
         setSelfTripBills(response?.data || []);
       }
-      console.log('fff', response)
+
     } catch (error) {
       console.error('Error fetching Self Trip bills:', error);
     }
@@ -261,28 +274,28 @@ const Bills = () => {
   );
 
   const renderItem = ({ item }) => {
-    const isSelfTrip = selectedFilterOne === 'SelfTrips';
+
     return (
       <PostCard
-        bookingType={item?.booking_type_name}
+        bookingType={item?.booking_type_name || item?.postBooking?.bookingType?.booking_type_name}
         userProfilePic={
-          item?.user_profile_pic || 'https://via.placeholder.com/150'
+          item?.user_profile_pic || item?.postBooking?.User?.u_profile_pic
         }
-        userName={item?.user_name}
+        userName={item?.user_name || item?.postBooking?.User?.u_name}
         pickUpTime={item?.pick_up_time}
         fromDate={item?.from_date}
-        vehicleType={item?.vehicle_type}
-        vehicleName={item?.vehicle_name}
+        vehicleType={item?.vehicle_type || item?.postBooking?.VehicleTypes?.v_type}
+        vehicleName={item?.vehicle_name || item?.postBooking?.VehicleNames?.v_name}
         pickUpLocation={item?.pick_up_location}
         destination={item?.destination}
-        postComments={item?.post_comments}
+        postComments={item?.post_comments || item?.postBooking?.post_comments}
         postVoiceMessage={item?.post_voice_message}
-        packageName={item?.booking_package_name}
+        packageName={item?.booking_package_name || item?.postBooking?.bookingTypeTariff?.bookingTypePackage?.package_name}
         viewTripSheet={true}
         viewTripSheetOnPress={() => {
           navigation.navigate('ViewTripSheet', {
             from: 'bills',
-            postId: item?.post_booking_id,
+            postId: item?.post_booking_id || item?.post_bookings_id
           });
         }}
         driverTripBill={true}
@@ -294,13 +307,13 @@ const Bills = () => {
           navigation.navigate('TripBill', { postId: item?.post_booking_id });
         }}
         billsScreen={true}
-        selfTip={isSelfTrip}
+
       />
     );
   };
 
-  const dataSource =
-    selectedFilterOne === 'myDuties' ? MyDutiesBill : selectedFilterOne === 'PostedTrips' ? postedTripBills : selfTripBills
+
+
 
   return (
     <>

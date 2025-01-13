@@ -18,7 +18,8 @@ export const getMyPostedTripBills = async (userId, token) => {
 };
 
 export const getMySelfTripBills = async (userId, token) => {
+
   const response = await getAPI(`share-trip/trip-ride/self-trip/${userId}`, token,);
-  console.log('www', response)
+  console.log('scdd', response.data)
   return response;
 }

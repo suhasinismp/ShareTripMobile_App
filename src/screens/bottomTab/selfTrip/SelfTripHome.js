@@ -204,6 +204,7 @@ const SelfTripHome = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
+
     const response = await endSelfTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -215,7 +216,7 @@ const SelfTripHome = () => {
       },
       userToken,
     );
-    console.log({ response });
+
     if (response?.error === false) {
       setShowTripSummaryModal(false);
       setShowAdditionalCharges(true);
@@ -393,14 +394,25 @@ const SelfTripHome = () => {
 
         <CustomModal visible={showTripSummaryModal}>
           <TripSummaryModal
+
             tripSummaryData={tripSummaryData}
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
+            // onPressNext={(closingDetails) => {
+            //   handleCloseTrip(
+            //     closingDetails.closingKms,
+            //     closingDetails.closingTime,
+            //     closingDetails.closingDate,
+            //   );
+            // }}
             onPressNext={(closingDetails) => {
-              handleCloseTrip(
-                closingDetails.closingKms,
-                closingDetails.closingTime,
-                closingDetails.closingDate,
+              console.log('Received closing details:', closingDetails); // Check if values are received
+              handleCloseTrip({
+                closingKms: closingDetails.closingKms,
+                closingTime: closingDetails.closingTime,
+                closingDate: closingDetails.closingDate
+              }
+
               );
             }}
             onClose={() => setShowTripSummaryModal(false)}

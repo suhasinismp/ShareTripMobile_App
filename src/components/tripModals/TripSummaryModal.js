@@ -80,6 +80,15 @@ const TripSummaryModal = ({
     }
   };
 
+  // const handleNext = () => {
+  //   const closingDetails = {
+  //     closingKms: closingKms,
+  //     closingTime: closingTime,
+  //     closingDate: closingDate,
+  //   }
+  //   onPressNext(closingDetails)
+  // };
+
   const handleNext = () => {
     onPressNext({
       closingKms,

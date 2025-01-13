@@ -418,8 +418,8 @@ const MyTrips = () => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-          onCallPress={() => {}}
-          onMessagePress={() => {}}
+          onCallPress={() => { }}
+          onMessagePress={() => { }}
           onRefreshData={fetchUiData}
           userToken={userToken}
         />
@@ -444,7 +444,7 @@ const MyTrips = () => {
         baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => handleButtonPress(item)}
         onCallPress={() => handleCall(item?.user_phone)}
-        onPlayPress={() => {}}
+        onPlayPress={() => { }}
         onTripSheetPress={() => {
           navigation.navigate('ViewTripSheet', {
             from: 'myTrips',
@@ -616,10 +616,13 @@ const MyTrips = () => {
           setShowTripSummaryModal={setShowTripSummaryModal}
           setShowAdditionalCharges={setShowAdditionalCharges}
           onPressNext={(closingDetails) => {
-            handleCloseTrip(
-              closingDetails.closingKms,
-              closingDetails.closingTime,
-              closingDetails.closingDate,
+            console.log('Received closing details:', closingDetails); // Check if values are received
+            handleCloseTrip({
+              closingKms: closingDetails.closingKms,
+              closingTime: closingDetails.closingTime,
+              closingDate: closingDetails.closingDate
+            }
+
             );
           }}
           onClose={() => setShowTripSummaryModal(false)}

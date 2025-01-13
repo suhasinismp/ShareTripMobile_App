@@ -382,10 +382,7 @@ const PostATripScreen = ({ route }) => {
           value: fields.selectedVehicleName,
           message: 'Please select a vehicle name.',
         },
-        {
-          value: fields.selectedShareType,
-          message: 'Please select a share type.',
-        },
+
       ];
 
       for (const field of mandatoryFields) {
