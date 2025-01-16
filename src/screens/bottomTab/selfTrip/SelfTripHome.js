@@ -54,6 +54,7 @@ const SelfTripHome = () => {
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
   const [selectedTripData, setSelectedTripData] = useState(null);
+  console.log({ selectedTripData })
 
   const [tripSummaryData, setTripSummaryData] = useState(null);
   const [tripType, setTripType] = useState('');
@@ -103,13 +104,14 @@ const SelfTripHome = () => {
         start_time: openingTime,
         pick_up_address: selectedTripData?.pick_up_location || '',
         destination: selectedTripData?.destination || '',
-        customer_name: selectedTripData?.user_name || '',
+        customer_name: selectedTripData?.customer_name || '',
         customer_phone_numb: selectedTripData?.user_phone || '',
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
       },
       userToken,
     );
+    console.log('kkk', response)
 
     if (response?.error === false) {
       setShowStartTripModal(false);
@@ -398,15 +400,9 @@ const SelfTripHome = () => {
             tripSummaryData={tripSummaryData}
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
-            // onPressNext={(closingDetails) => {
-            //   handleCloseTrip(
-            //     closingDetails.closingKms,
-            //     closingDetails.closingTime,
-            //     closingDetails.closingDate,
-            //   );
-            // }}
+
             onPressNext={(closingDetails) => {
-              console.log('Received closing details:', closingDetails); // Check if values are received
+              console.log('Received closing details:', closingDetails);
               handleCloseTrip({
                 closingKms: closingDetails.closingKms,
                 closingTime: closingDetails.closingTime,

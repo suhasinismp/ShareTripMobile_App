@@ -20,6 +20,7 @@ export const startSelfTrip = async (data, token) => {
     data,
     token,
   );
+  console.log('sss', response)
   return response;
 };
 

@@ -118,7 +118,7 @@ const TripBillScreen = ({ route }) => {
   const navigation = useNavigation();
   const [pdfUri, setPdfUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  console.log({ isLoading })
+
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const [tripData, setTripData] = useState([]);
 
@@ -136,7 +136,7 @@ const TripBillScreen = ({ route }) => {
     setIsLoading(true);
     try {
       const response = await fetchTripBill(postId, userToken);
-      console.log('ooo', response)
+
       const formattedData = formatTripData(response?.data);
 
       setTripData(formattedData);
