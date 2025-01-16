@@ -67,6 +67,7 @@ const CreateSelfTrip = () => {
     const [extraHrs, setExtraHrs] = useState('');
     const [dayBata, setDayBata] = useState('');
     const [nightBata, setNightBata] = useState('')
+    const [slabRate, setSlabRate] = useState('');
     // const [showTariffModal, setShowTariffModal] = useState('');
     const [packages, setPackages] = useState([]);
 
@@ -78,6 +79,7 @@ const CreateSelfTrip = () => {
         setExtraKms('');
         setExtraHrs('');
         setNightBata('');
+        setSlabRate('');
         setDayBata('');
         setRecordedAudioUri(null);
     };
@@ -230,6 +232,7 @@ const CreateSelfTrip = () => {
         if (extraKms) finalData.extra_km_rate = extraKms;
         if (extraHrs) finalData.extra_hr_rate = extraHrs;
         if (nightBata) finalData.night_batta_rate = nightBata;
+        if (slabRate) finalData.slab_rate = slabRate;
         if (dayBata) finalData.day_batta_rate = dayBata;
 
         // Debugging: Check finalData before sending
@@ -403,39 +406,61 @@ const CreateSelfTrip = () => {
                                 style={styles.tariffInput}
                                 keyboardType="numeric"
                             />
-                            <CustomInput
-                                placeholder="Extra Kms"
-                                value={extraKms}
-                                onChangeText={setExtraKms}
-                                style={styles.tariffInput}
-                                keyboardType="numeric"
-                            />
+                            {selectedTripType !== 2 && (
+                                <CustomInput
+                                    placeholder="Extra Kms"
+                                    value={extraKms}
+                                    onChangeText={setExtraKms}
+                                    style={styles.tariffInput}
+                                    keyboardType="numeric"
+                                />
+                            )}
                         </View>
                         <View style={styles.tariffRow}>
-                            <CustomInput
-                                placeholder="Extra Hours"
-                                value={extraHrs}
-                                onChangeText={setExtraHrs}
-                                style={styles.tariffInput}
-                                keyboardType="numeric"
-                            />
-                            <CustomInput
-                                placeholder="Day Batta"
-                                value={dayBata}
-                                onChangeText={setDayBata}
-                                style={styles.tariffInput}
-                                keyboardType="numeric"
-                            />
+                            {selectedTripType !== 2 && selectedTripType !== 3 && (
+                                <CustomInput
+                                    placeholder="Extra Hours"
+                                    value={extraHrs}
+                                    onChangeText={setExtraHrs}
+                                    style={styles.tariffInput}
+                                    keyboardType="numeric"
+                                />
+                            )}
+                            {selectedTripType !== 1 && selectedTripType !== 3 && (
+                                <CustomInput
+                                    placeholder="Day Batta"
+                                    value={dayBata}
+                                    onChangeText={setDayBata}
+                                    style={styles.tariffInput}
+                                    keyboardType="numeric"
+                                />
+                            )}
                         </View>
+
                         <View style={styles.tariffRow}>
-                            <CustomInput
-                                placeholder="Night Batta"
-                                value={nightBata}
-                                onChangeText={setNightBata}
-                                style={styles.tariffInput}
-                                keyboardType="numeric"
-                            />
+                            {selectedTripType != 1 && selectedTripType != 2 && selectedTripType != 3 && (
+                                <CustomInput
+                                    placeholder="Night Batta"
+                                    value={nightBata}
+                                    onChangeText={setNightBata}
+                                    style={styles.tariffInput}
+                                    keyboardType="numeric"
+                                />
+                            )}
                         </View>
+
+                        {selectedTripType === 3 && (
+                            <View style={styles.tariffRow}>
+                                <CustomInput
+                                    placeholder="Slab Rate"
+                                    value={slabRate}
+                                    onChangeText={setSlabRate}
+                                    style={styles.tariffInput}
+                                    keyboardType="numeric"
+                                />
+
+                            </View>
+                        )}
                     </View>
                 </View>
 

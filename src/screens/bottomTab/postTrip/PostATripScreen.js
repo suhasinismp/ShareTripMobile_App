@@ -121,6 +121,7 @@ const PostATripScreen = ({ route }) => {
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
+  const [slabRate, setSlabRate] = useState('');
   const [tripTableData, setTripTableData] = useState(null);
 
   // Selection States
@@ -151,6 +152,7 @@ const PostATripScreen = ({ route }) => {
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const [pdfUri, setPdfUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
 
   // Effects
   useEffect(() => {
@@ -442,6 +444,7 @@ const PostATripScreen = ({ route }) => {
       if (extraHours) finalData.extra_hr_rate = extraHours;
       if (dayBatta) finalData.day_batta_rate = dayBatta;
       if (nightBatta) finalData.night_batta_rate = nightBatta;
+      if (slabRate) finalData.slab_rate = slabRate;
       if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
       if (notes) finalData.note_1 = notes;
       if (visitingPlace) finalData.visiting_place = visitingPlace;
@@ -524,6 +527,7 @@ const PostATripScreen = ({ route }) => {
     if (extraHours) finalData.extra_hr_rate = extraHours;
     if (dayBatta) finalData.day_batta_rate = dayBatta;
     if (nightBatta) finalData.night_batta_rate = nightBatta;
+    if (slabRate) finalData.slab_rate = slabRate;
     if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
     if (notes) finalData.note_1 = notes;
     if (visitingPlace) finalData.visiting_place = visitingPlace;
@@ -821,23 +825,27 @@ const PostATripScreen = ({ route }) => {
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
-              <CustomInput
-                placeholder="Extra Kms"
-                value={extraKms}
-                onChangeText={setExtraKms}
-                style={styles.tariffInput}
-                keyboardType="numeric"
-              />
+              {selectedTripType !== 2 && (
+                <CustomInput
+                  placeholder="Extra Kms"
+                  value={extraKms}
+                  onChangeText={setExtraKms}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              )}
             </View>
             <View style={styles.tariffRow}>
-              <CustomInput
-                placeholder="Extra Hours"
-                value={extraHours}
-                onChangeText={setExtraHours}
-                style={styles.tariffInput}
-                keyboardType="numeric"
-              />
-              {selectedTripType !== 1 && selectedTripType !== 2 && (
+              {selectedTripType !== 2 && selectedTripType !== 3 && (
+                <CustomInput
+                  placeholder="Extra Hours"
+                  value={extraHours}
+                  onChangeText={setExtraHours}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              )}
+              {selectedTripType !== 1 && selectedTripType !== 3 && (
                 <CustomInput
                   placeholder="Day Batta"
                   value={dayBatta}
@@ -848,7 +856,7 @@ const PostATripScreen = ({ route }) => {
               )}
             </View>
             <View style={styles.tariffRow}>
-              {selectedTripType != 1 && (
+              {selectedTripType != 1 && selectedTripType != 2 && selectedTripType != 3 && (
                 <CustomInput
                   placeholder="Night Batta"
                   value={nightBatta}
@@ -858,6 +866,18 @@ const PostATripScreen = ({ route }) => {
                 />
               )}
             </View>
+            {selectedTripType === 3 && (
+              <View style={styles.tariffRow}>
+                <CustomInput
+                  placeholder="Slab Rate"
+                  value={slabRate}
+                  onChangeText={setSlabRate}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+
+              </View>
+            )}
           </View>
         </View>
 
@@ -981,6 +1001,7 @@ const PostATripScreen = ({ route }) => {
       extraHours,
       dayBatta,
       nightBatta,
+      slabRate,
       selectedPaymentType,
       notes,
       // notes1,

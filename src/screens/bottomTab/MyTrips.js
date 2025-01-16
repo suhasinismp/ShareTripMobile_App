@@ -474,15 +474,16 @@ const MyTrips = () => {
       <View style={styles.container}>
         <View style={styles.filterRow}>
           <CustomSelect
-            text="Confirmed"
-            isSelected={selectedFilterOne === 'Confirmed'}
-            onPress={() => setSelectedFilterOne('Confirmed')}
+            text="My Duties"
+            isSelected={selectedFilterTwo === 'MyDuties'}
+            onPress={() => setSelectedFilterTwo('MyDuties')}
           />
           <CustomSelect
-            text="In Progress"
-            isSelected={selectedFilterOne === 'InProgress'}
-            onPress={() => setSelectedFilterOne('InProgress')}
+            text="Posted Trips"
+            isSelected={selectedFilterTwo === 'PostedTrips'}
+            onPress={() => setSelectedFilterTwo('PostedTrips')}
           />
+
           <CustomSelect
             text="Enquiry"
             isSelected={selectedFilterOne === 'Enquiry'}
@@ -495,17 +496,22 @@ const MyTrips = () => {
 
         {showFilters && (
           <>
-            <View style={styles.filterRow}>
+            <View style={styles.filterRow2}>
+
               <CustomSelect
-                text="My Duties"
-                isSelected={selectedFilterTwo === 'MyDuties'}
-                onPress={() => setSelectedFilterTwo('MyDuties')}
+                text="Confirmed"
+                isSelected={selectedFilterOne === 'Confirmed'}
+                onPress={() => setSelectedFilterOne('Confirmed')}
               />
               <CustomSelect
-                text="Posted Trips"
-                isSelected={selectedFilterTwo === 'PostedTrips'}
-                onPress={() => setSelectedFilterTwo('PostedTrips')}
+                text="In Progress"
+                isSelected={selectedFilterOne === 'InProgress'}
+                onPress={() => setSelectedFilterOne('InProgress')}
               />
+              <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
+                <FilterIcon />
+              </TouchableOpacity>
+
             </View>
             <View style={styles.filterRow}>
               <CustomSelect
@@ -671,7 +677,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    margin: 20,
+    margin: 10,
+
+  },
+  filterRow2: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    margin: 5,
+    gap: 10,
+
+
   },
   center: {
     flex: 1,

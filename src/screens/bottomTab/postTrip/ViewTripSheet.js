@@ -78,7 +78,9 @@ const ViewTripSheet = ({ route }) => {
   const handleGeneratePDF = async () => {
     setIsPdfGenerating(true);
     try {
+
       const finalData = { post_booking_id: postId };
+
       const response = await generateTripPdf(finalData, userToken);
       const cleanedHtml = cleanHTML(response);
 
