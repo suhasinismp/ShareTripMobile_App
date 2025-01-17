@@ -97,6 +97,7 @@ export const uploadSignature = async (data, token) => {
     formData: data,
     token: token,
   });
+  console.log('uploadSignature', response)
   return response;
 };
 

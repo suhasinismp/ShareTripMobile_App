@@ -489,7 +489,7 @@ const PostATripScreen = ({ route }) => {
   };
 
   const handleUpdate = async () => {
-    console.log();
+
     const { isValid, errorMessage } = validateMandatoryFields(
       {
         selectedTripType,

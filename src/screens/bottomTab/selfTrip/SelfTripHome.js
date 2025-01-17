@@ -56,6 +56,7 @@ const SelfTripHome = () => {
   const [selectedTripData, setSelectedTripData] = useState(null);
   console.log({ selectedTripData })
 
+
   const [tripSummaryData, setTripSummaryData] = useState(null);
   const [tripType, setTripType] = useState('');
   const [openingKms, setOpeningKms] = useState('');
@@ -69,7 +70,7 @@ const SelfTripHome = () => {
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
-  console.log({ closingKms, closingTime, closingDate });
+
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -88,7 +89,7 @@ const SelfTripHome = () => {
 
   const getSelfTripPosts = async () => {
     const response = await fetchUserSelfPosts(userId, userToken);
-    console.log('response', response);
+    console.log('iii', response)
 
     if (response.error === false) {
       setUserSelfTripData(response.data);
@@ -104,14 +105,14 @@ const SelfTripHome = () => {
         start_time: openingTime,
         pick_up_address: selectedTripData?.pick_up_location || '',
         destination: selectedTripData?.destination || '',
-        customer_name: selectedTripData?.customer_name || '',
+        customer_name: selectedTripData?.user_name || '',
         customer_phone_numb: selectedTripData?.user_phone || '',
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
       },
       userToken,
     );
-    console.log('kkk', response)
+
 
     if (response?.error === false) {
       setShowStartTripModal(false);
@@ -130,7 +131,7 @@ const SelfTripHome = () => {
       selectedTripData?.post_booking_id,
       userToken,
     );
-    console.log('response', response);
+
 
     if (
       response?.error === false &&
@@ -254,7 +255,7 @@ const SelfTripHome = () => {
       cleaning: charges?.cleaning,
       night_batta: charges?.nightBatta,
     };
-    console.log({ finalData });
+
     const formData = new FormData();
     formData.append('json', JSON.stringify(finalData));
 
@@ -372,6 +373,7 @@ const SelfTripHome = () => {
             handleContinueForNextDay={handleContinueForNextDay}
             handleEndTrip={handleEndTrip}
             onClose={() => setShowTripProgressModal(false)}
+            transfer={selectedTripData?.bookingType_name === 'Transfer'}
           />
         </CustomModal>
 
@@ -402,7 +404,7 @@ const SelfTripHome = () => {
             setShowAdditionalCharges={setShowAdditionalCharges}
 
             onPressNext={(closingDetails) => {
-              console.log('Received closing details:', closingDetails);
+
               handleCloseTrip({
                 closingKms: closingDetails.closingKms,
                 closingTime: closingDetails.closingTime,

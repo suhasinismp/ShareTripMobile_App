@@ -117,12 +117,12 @@ const Bills = () => {
         }}
         driverTripBill={true}
         driverTripBillOnPress={() => {
-          console.log("Post ID:", item?.post_bookings_id);
-          navigation.navigate('TripBill', { postId: item?.post_booking_id || item?.post_booking_id });
+
+          navigation.navigate('TripBill', { postId: item?.post_booking_id || item?.post_bookings_id });
         }}
         customerBill={true}
         customerBillOnPress={() => {
-          navigation.navigate('TripBill', { postId: item?.post_booking_id || item?.post_booking_id });
+          navigation.navigate('TripBill', { postId: item?.post_booking_id || item?.post_bookings_id });
         }}
         billsScreen={true}
 

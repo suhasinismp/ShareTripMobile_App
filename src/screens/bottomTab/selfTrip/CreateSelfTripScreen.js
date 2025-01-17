@@ -193,7 +193,7 @@ const CreateSelfTrip = () => {
 
     const handleSave = async () => {
         // Debugging: Check userVehicles
-        console.log("User Vehicles:", userVehicles);
+
 
         if (!userVehicles || userVehicles.length === 0 ||
             !userVehicles[0]?.vehicles?.vehicle_types_id ||
@@ -251,10 +251,10 @@ const CreateSelfTrip = () => {
         }
 
         // Debugging: Check formData
-        console.log("FormData:", formData);
+
 
         const response = await selfCreatePost(formData, userToken);
-        console.log('ttt', response)
+
         if (!response.error) {
             resetFields();
             navigation.goBack();

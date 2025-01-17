@@ -14,15 +14,16 @@ import * as Sharing from 'expo-sharing';
 
 const ViewTripSheet = ({ route }) => {
   const { postId, from } = route.params;
-  console.log({ from })
+
   const navigation = useNavigation();
 
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const [tripDetails, setTripDetails] = useState(null);
+  console.log({ tripDetails })
   const [pdfUri, setPdfUri] = useState(null);
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
-  console.log({ tripDetails });
+
 
   useEffect(() => {
     fetchTripSheetByPostId(postId, userToken)

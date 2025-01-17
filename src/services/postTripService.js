@@ -21,13 +21,13 @@ export const createPost = async (data, token) => {
 };
 
 export const updatePost = async (data, token) => {
-  console.log('data', data);
+
   const response = await patchFormDataAPI({
     endUrl: 'share-trip/post-booking',
     formData: data,
     token: token,
   });
-  console.log('response', response);
+
   return response;
 };
 

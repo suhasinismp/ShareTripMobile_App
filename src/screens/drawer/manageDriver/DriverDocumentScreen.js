@@ -79,7 +79,7 @@ const DriverDocumentScreen = () => {
   const fetchDriverDocs = async () => {
     try {
       const driverDocs = await getUserDocTypes();
-      // console.log(driverDocs.response)
+
       const sortedDriverDocs = driverDocs?.response.sort(
         (a, b) => a.display_order - b.display_order,
       );
@@ -170,10 +170,10 @@ const DriverDocumentScreen = () => {
                 fileName
                   ? [fileName]
                   : driverFiles
-                      .filter(
-                        (file) => file.formDataKey === item.formData_key[0],
-                      )
-                      .map((file) => file.name)
+                    .filter(
+                      (file) => file.formDataKey === item.formData_key[0],
+                    )
+                    .map((file) => file.name)
               }
               onUpload={(fileName, fileUri, fileType) => {
                 handleUpload(fileName, fileUri, item.formData_key[0], fileType);
@@ -314,8 +314,8 @@ const DriverDocumentScreen = () => {
           for (let i = 0; i < doc.doc_id.length; i++) {
             const existingDoc = initialDriverDocs
               ? initialDriverDocs.find(
-                  (d) => d.field_value_id === doc.doc_id[i],
-                )
+                (d) => d.field_value_id === doc.doc_id[i],
+              )
               : null;
             jsonData.push({
               id: existingDoc ? existingDoc.id : undefined,

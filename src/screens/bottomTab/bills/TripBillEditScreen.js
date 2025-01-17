@@ -70,9 +70,9 @@ const TripBillEditScreen = ({ navigation, route }) => {
     setIsLoading(true);
     try {
       const response = await fetchTripBill(postId, userToken);
-      console.log('ttt', response)
+
       const data = response?.data;
-      console.log('uuu', response)
+
       if (data) {
         setBookingType(data.bookingType_id?.toString() || '');
         setSelectedTripType(data.bookingType_id || '');

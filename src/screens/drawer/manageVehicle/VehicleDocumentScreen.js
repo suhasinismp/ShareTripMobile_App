@@ -24,7 +24,7 @@ const VehicleDocumentScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const userVehicleId = userData.userVehicleId;
-  console.log('userVehicleId', userVehicleId);
+
   const { theme } = useTheme();
 
   const { control, handleSubmit, setValue } = useForm();
@@ -85,7 +85,7 @@ const VehicleDocumentScreen = () => {
         userVehicleId,
         userToken,
       );
-      console.log('vehicleDocsResponse', vehicleDocsResponse);
+
       if (vehicleDocsResponse.data.length > 0) {
         setInitialVehicleDocs(vehicleDocsResponse.data);
       } else {

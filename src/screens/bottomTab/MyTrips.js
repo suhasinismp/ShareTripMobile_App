@@ -72,6 +72,7 @@ const MyTrips = () => {
 
   // Trip data states
   const [selectedTripData, setSelectedTripData] = useState(null);
+  console.log('selectedTripData', selectedTripData)
   const [tripSummaryData, setTripSummaryData] = useState(null);
   const [tripType, setTripType] = useState('');
   // Start trip states
@@ -171,6 +172,7 @@ const MyTrips = () => {
       if (response?.error === false) {
         setConfirmedDriverData(response?.data);
       }
+      console.log('fetchConfirmedDriverData', response?.data)
     } catch (error) {
       console.error('Error fetching confirmed driver data:', error);
     }
@@ -588,6 +590,7 @@ const MyTrips = () => {
           handleContinueForNextDay={handleContinueForNextDay}
           handleEndTrip={handleEndTrip}
           onClose={() => setShowTripProgressModal(false)}
+          transfer={selectedTripData?.booking_type_name === 'Transfer'}
         />
       </CustomModal>
 
