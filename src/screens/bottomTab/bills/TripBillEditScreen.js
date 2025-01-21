@@ -92,7 +92,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
         setDriverPhone(data.driver_phone || '');
         setVehicleType(data.Vehicle_type_name || '');
         setVehicleNumber(data.vehicle_registration_number || '');
-        setTripUsage(data.tripSheetRide?.[0]?.total_kms?.toString() || '');
+        setTripUsage(data.tripSheetRide?.reduce((total, trip) => total + parseInt(trip.total_kms), 0).toString() || '');
         setPickupDetail(data.pick_up_location || '');
         setVisitingPlaces(data.visiting_place || '');
       }
@@ -370,7 +370,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
         {/* Trip Usage Section */}
         <View style={styles.section}>
           <CustomText
-            text="Trip Usage"
+            text="Total Usage"
             variant="sectionTitleText"
             style={styles.sectionTitle}
           />
@@ -379,7 +379,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
               <CustomInput
                 value={tripUsage || ''}
                 onChangeText={setTripUsage}
-                placeholder={'Trip Usage'}
+                placeholder={'Total Usage'}
               />
             </View>
             <View style={styles.inputRow}>

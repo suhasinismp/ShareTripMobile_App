@@ -8,7 +8,7 @@ const TripProgressModal = ({
   onClose,
   transfer
 }) => {
-  console.log('transfer', transfer)
+
   return (
     <View style={styles.modalContent}>
       <TouchableOpacity

@@ -4,6 +4,8 @@ import {
   postAPI,
   postFormDataAPI,
 } from '../utils/servicesUtil';
+import store from '../store/store.js';
+import { setTripDetailsToStore } from '../store/slices/viewTripSlice';
 
 export const getTripTypes = async (token) => {
   const response = await getAPI('share-trip/booking-types', token);
@@ -36,6 +38,7 @@ export const fetchTripByPostId = async (postId, token) => {
     `share-trip/trip-ride/based-post-booking/${postId}`,
     token,
   );
+
   return response;
 };
 
@@ -59,10 +62,13 @@ export const generateBillPdf = async (body, token) => {
 
 export const fetchTripSheetByPostId = async (postId, token) => {
   const response = await getAPI(`/share-trip/post-booking/${postId}`, token);
+
+  store.dispatch(setTripDetailsToStore({ tripDetailsInBill: response.data }))
   return response;
 };
 
 export const fetchTripTable = async (postId, token) => {
+
   const response = await getAPI(
     `/share-trip/trip-sheet-ride/based-post-booking/${postId}`,
     token,

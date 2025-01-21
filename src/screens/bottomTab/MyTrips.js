@@ -72,7 +72,7 @@ const MyTrips = () => {
 
   // Trip data states
   const [selectedTripData, setSelectedTripData] = useState(null);
-  console.log('selectedTripData', selectedTripData)
+
   const [tripSummaryData, setTripSummaryData] = useState(null);
   const [tripType, setTripType] = useState('');
   // Start trip states
@@ -172,7 +172,7 @@ const MyTrips = () => {
       if (response?.error === false) {
         setConfirmedDriverData(response?.data);
       }
-      console.log('fetchConfirmedDriverData', response?.data)
+
     } catch (error) {
       console.error('Error fetching confirmed driver data:', error);
     }
@@ -216,7 +216,7 @@ const MyTrips = () => {
       selectedTripData?.post_booking_id,
       userToken,
     );
-    console.log({ tripDetails });
+
     if (tripDetails?.error === false) {
       setTripSummaryData({
         openingKms: tripDetails?.data?.start_trip_kms || '',
@@ -261,7 +261,7 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
-    console.log({ closingKms, closingTime, closingDate })
+
     const response = await closeTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -625,7 +625,7 @@ const MyTrips = () => {
           setShowTripSummaryModal={setShowTripSummaryModal}
           setShowAdditionalCharges={setShowAdditionalCharges}
           onPressNext={(closingDetails) => {
-            console.log('Received closing details:', closingDetails); // Check if values are received
+            // Check if values are received
             handleCloseTrip({
               closingKms: closingDetails.closingKms,
               closingTime: closingDetails.closingTime,

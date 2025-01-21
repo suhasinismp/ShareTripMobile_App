@@ -11,7 +11,7 @@ import {
   getMyPostedTripBills,
   getMySelfTripBills,
 } from '../../../services/billService';
-import { getUserDataSelector } from '../../../store/selectors';
+import { getMyDutiesBillsSelector, getPostedBillsSelector, getSelfTripBillsSelector, getUserDataSelector } from '../../../store/selectors';
 import AppHeader from '../../../components/AppHeader';
 import CustomSelect from '../../../components/ui/CustomSelect';
 import PostCard from '../../../components/PostCard';
@@ -20,16 +20,16 @@ import { useNavigation } from '@react-navigation/native';
 const Bills = () => {
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
+  const MyDutiesBill = useSelector(getMyDutiesBillsSelector);
+
+  const postedTripBills = useSelector(getPostedBillsSelector);
+  const selfTripBills = useSelector(getSelfTripBillsSelector)
   const userId = userData.userId;
   const userToken = userData.userToken;
 
+
   const [selectedFilterOne, setSelectedFilterOne] = useState('myDuties');
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('PostedTrips');
-
-
-  const [MyDutiesBill, setMyDutiesBill] = useState([]);
-  const [postedTripBills, setPostedTripBills] = useState([]);
-  const [selfTripBills, setSelfTripBills] = useState([]);
   const [dataSource, setDataSource] = useState([]);
 
 
@@ -49,9 +49,7 @@ const Bills = () => {
   const fetchMyDutiesBill = async () => {
     try {
       const response = await getMyDutiesBill(userId, userToken);
-      if (response?.error === false) {
-        setMyDutiesBill(response?.data || []);
-      }
+
     } catch (error) {
       console.error('Error fetching My Duties bills:', error);
     }
@@ -60,9 +58,7 @@ const Bills = () => {
   const fetchPostedTripsBills = async () => {
     try {
       const response = await getMyPostedTripBills(userId, userToken);
-      if (response?.error === false) {
-        setPostedTripBills(response?.data || []);
-      }
+
     } catch (error) {
       console.error('Error fetching Posted Trips bills:', error);
     }
@@ -71,10 +67,7 @@ const Bills = () => {
   const fetchSelfTripBills = async () => {
     try {
       const response = await getMySelfTripBills(userId, userToken);
-      if (response?.error === false) {
 
-        setSelfTripBills(response?.data || []);
-      }
 
     } catch (error) {
       console.error('Error fetching Self Trip bills:', error);
@@ -91,7 +84,7 @@ const Bills = () => {
   );
 
   const renderItem = ({ item }) => {
-    console.log('Item Data:', item);
+
     return (
       <PostCard
         bookingType={item?.booking_type_name || item?.postBooking?.bookingType?.booking_type_name}

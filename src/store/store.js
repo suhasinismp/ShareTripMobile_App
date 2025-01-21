@@ -1,6 +1,8 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import snackBarReducer from './slices/snackBarSlice';
 import loginReducer from './slices/loginSlice';
+import billReducer from './slices/billSlice';
+import viewReducer from './slices/viewTripSlice';
 
 export const resetStore = () => {
   return {
@@ -11,6 +13,8 @@ export const resetStore = () => {
 const rootReducer = combineReducers({
   snackBar: snackBarReducer,
   userInfo: loginReducer,
+  bill: billReducer,
+  viewTrip: viewReducer,
 });
 
 const rootReducerWithReset = (state, action) => {

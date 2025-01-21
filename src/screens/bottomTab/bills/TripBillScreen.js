@@ -94,11 +94,12 @@ function formatTripData(responseData) {
       ],
     },
     {
-      title: 'Trip Usage',
+      title: 'Total Usage',
       data: [
         {
-          label: 'Trip Usage',
-          value: `${data.extra_kms + data.packageKms}kms`,
+          label: 'Total Usage',
+          // value: data.tripSheetRide?.[0]?.total_kms?.toString(),
+          value: data.tripSheetRide?.reduce((total, trip) => total + parseInt(trip.total_kms), 0).toString(),
         },
         {
           label: 'Pickup Place',
@@ -121,6 +122,8 @@ const TripBillScreen = ({ route }) => {
 
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const [tripData, setTripData] = useState([]);
+
+
 
   const userData = useSelector(getUserDataSelector);
   const userToken = userData?.userToken;

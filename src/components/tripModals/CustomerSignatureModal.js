@@ -88,8 +88,7 @@ const CustomerSignatureModal = ({
       border-radius: 8px;
       background-color: #FFFFFF;
     }`;
-  console.log('selectedTripData?.user_name:', selectedTripData?.user_name);
-  console.log('selectedTripData?.post_booking_id:', selectedTripData?.post_booking_id)
+
   return (
     <View style={styles.signatureModalContainer}>
       <TouchableOpacity

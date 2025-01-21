@@ -40,6 +40,9 @@ import { getUserDataSelector } from '../../../store/selectors';
 import AudioContainer from '../../../components/AudioContainer';
 import TimeDatePicker from '../../../components/TimeDatePicker';
 import { cleanHTML } from '../../../utils/cleanHTML';
+import { getMyDutiesBill, getMyPostedTripBills, getMySelfTripBills } from '../../../services/billService';
+import { parseTime } from '../../../utils/parseTimeUtil';
+import { parseDate } from '../../../utils/parseDate';
 
 const { width } = Dimensions.get('window');
 
@@ -101,6 +104,7 @@ VehicleButton.displayName = 'VehicleButton';
 
 const PostATripScreen = ({ route }) => {
   const { from, postId } = route.params || {};
+
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
   const { userToken, userId } = userData;
@@ -124,6 +128,7 @@ const PostATripScreen = ({ route }) => {
   const [slabRate, setSlabRate] = useState('');
   const [tripTableData, setTripTableData] = useState(null);
 
+
   // Selection States
   const [selectedTripType, setSelectedTripType] = useState(null);
   const [selectedPackage, setSelectedPackage] = useState(null);
@@ -136,6 +141,7 @@ const PostATripScreen = ({ route }) => {
 
   // Date and Time States
   const [selectedFromDate, setSelectedFromDate] = useState(new Date());
+
   const [selectedToDate, setSelectedToDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
 
@@ -145,6 +151,8 @@ const PostATripScreen = ({ route }) => {
   const [allVehicleNames, setAllVehicleNames] = useState([]);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
   const [initialData, setInitialData] = useState(null);
+
+
 
   // UI States
   const [isRecording, setIsRecording] = useState(false);
@@ -212,9 +220,12 @@ const PostATripScreen = ({ route }) => {
   }, [tripTypes]);
 
   useEffect(() => {
-    if (initialData && initialData.length > 0) {
-      const data = initialData[0]; // Access the first item in the array
 
+    if (initialData) {
+
+      const data = initialData;
+      // Access the first item in the array
+      console.log({ data })
       setSelectedTripType(data.booking_type_id);
       setSelectedPackage(data.bookingTypePackage_id);
       setSelectedVehicleType(data.vehicle_type_id);
@@ -222,19 +233,9 @@ const PostATripScreen = ({ route }) => {
       setSelectedShareType(data.post_type_id);
 
       // Handle date and time
-      setSelectedFromDate(new Date(data.from_date));
-      setSelectedToDate(new Date(data.to_date));
-      if (data.pick_up_time) {
-        // Convert time string to Date object
-        const [time, period] = data.pick_up_time.split(' ');
-        const [hours, minutes] = time.split(':');
-        const date = new Date();
-        let hour = parseInt(hours);
-        if (period === 'PM' && hour !== 12) hour += 12;
-        if (period === 'AM' && hour === 12) hour = 0;
-        date.setHours(hour, parseInt(minutes), 0);
-        setSelectedTime(date);
-      }
+      setSelectedFromDate(parseDate(data.from_date));
+      setSelectedToDate(parseDate(data.to_date));
+      setSelectedTime(parseTime(data.pick_up_time));
 
       // Set other form fields
       setRate(data.bookingTypeTariff_base_fare_rate?.toString() || '');
@@ -285,6 +286,7 @@ const PostATripScreen = ({ route }) => {
         from === 'bills'
           ? await fetchTripByPostId(postId, userToken)
           : await fetchTripSheetByPostId(postId, userToken);
+
 
       if (!response.error) {
         setInitialData(
@@ -490,6 +492,7 @@ const PostATripScreen = ({ route }) => {
 
   const handleUpdate = async () => {
 
+
     const { isValid, errorMessage } = validateMandatoryFields(
       {
         selectedTripType,
@@ -515,7 +518,9 @@ const PostATripScreen = ({ route }) => {
       vehicle_type_id: selectedVehicleType,
       vehicle_name_id: selectedVehicleName,
       post_type_id: selectedShareType,
+
     };
+
 
     // Add optional fields
     if (customerName) finalData.customer_name = customerName;
@@ -539,13 +544,17 @@ const PostATripScreen = ({ route }) => {
     formData.append('json', JSON.stringify(finalData));
 
     try {
-      await updatePost(formData, userToken);
+
+      const response = await updatePost(formData, userToken);
+
       if (from === 'bills') {
-        navigation.navigate('Drawer', {
-          screen: 'TripBill',
-          params: { postId: initialData.id },
-        });
+        navigation.goBack();
+        await getMyDutiesBill(userId, userToken)
+        await getMyPostedTripBills(userId, userToken)
+        await getMySelfTripBills(userId, userToken)
+        await fetchTripSheetByPostId(postId, userToken)
       } else {
+
         navigation.goBack();
       }
     } catch (error) {
@@ -1040,7 +1049,7 @@ const PostATripScreen = ({ route }) => {
   const renderItem = ({ item }) => (
     <View style={styles.row}>
       <View style={styles.cell}>
-        <Text style={styles.cellText}>{formatDate(item.start_date)}</Text>
+        <Text style={styles.cellText}>{item.start_date || '-'}</Text>
       </View>
       <View style={styles.cell}>
         <Text style={styles.cellText}>{item.start_time || '-'}</Text>

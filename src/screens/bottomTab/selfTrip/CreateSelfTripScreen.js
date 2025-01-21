@@ -236,7 +236,7 @@ const CreateSelfTrip = () => {
         if (dayBata) finalData.day_batta_rate = dayBata;
 
         // Debugging: Check finalData before sending
-        console.log("Final Data:", finalData);
+
 
         let formData = new FormData();
         formData.append('json', JSON.stringify(finalData));

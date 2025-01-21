@@ -14,6 +14,7 @@ const loginSlice = createSlice({
     userMobile: '',
     userToken: null,
     userVehicleId: null,
+
     // userPic: null,
   },
   reducers: {
@@ -42,6 +43,7 @@ const loginSlice = createSlice({
         set(state, 'userVehicleId', action.payload.userVehicleId);
       }
     },
+
   },
 });
 export const { setUserDataToStore, setUserVehicleIdToStore } =

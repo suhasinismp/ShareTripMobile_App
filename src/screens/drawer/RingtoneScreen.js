@@ -316,9 +316,9 @@ const RingtoneScreen = () => {
       buzzer_sound_accepted: userData?.buzzer_sound_accepted,
       buzzer_sound_confirmed: userData?.buzzer_sound_confirmed
     }
-    console.log({ finalData })
+
     const response = await ringtoneScreenPost(finalData)
-    console.log({ response })
+
     if (response && response.error === false) {
       console.error("Error saving preferences:", response.message);
     } else {

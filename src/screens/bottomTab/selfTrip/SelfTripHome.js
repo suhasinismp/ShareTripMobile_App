@@ -54,7 +54,7 @@ const SelfTripHome = () => {
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
   const [selectedTripData, setSelectedTripData] = useState(null);
-  console.log({ selectedTripData })
+
 
 
   const [tripSummaryData, setTripSummaryData] = useState(null);
@@ -89,7 +89,7 @@ const SelfTripHome = () => {
 
   const getSelfTripPosts = async () => {
     const response = await fetchUserSelfPosts(userId, userToken);
-    console.log('iii', response)
+
 
     if (response.error === false) {
       setUserSelfTripData(response.data);
@@ -214,7 +214,7 @@ const SelfTripHome = () => {
         end_trip_kms: closingKms,
         end_trip_date: closingDate,
         end_trip_time: closingTime,
-        posted_user_id: selectedTripData?.posted_user_id,
+        posted_user_id: userId,
         accepted_user_id: userId,
       },
       userToken,

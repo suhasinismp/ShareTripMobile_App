@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, FlatList, Platform, Dimensions } from 'react-na
 import AppHeader from '../../../components/AppHeader';
 import { fetchTripSheetByPostId, generateTripPdf } from '../../../services/postTripService';
 import { useSelector } from 'react-redux';
-import { getUserDataSelector } from '../../../store/selectors';
+import { getTripDetailsSelector, getUserDataSelector } from '../../../store/selectors';
 import CustomButton from '../../../components/ui/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import { cleanHTML } from '../../../utils/cleanHTML';
@@ -19,25 +19,29 @@ const ViewTripSheet = ({ route }) => {
 
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
-  const [tripDetails, setTripDetails] = useState(null);
-  console.log({ tripDetails })
+  const tripDetails = useSelector(getTripDetailsSelector);
+
+
+
   const [pdfUri, setPdfUri] = useState(null);
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
 
 
   useEffect(() => {
     fetchTripSheetByPostId(postId, userToken)
-      .then((response) => {
-        if (!response.error && response.data) {
-          setTripDetails(response.data);
-        }
-      })
-      .catch((error) => {
-        console.error('Error', error);
-      });
+    // .then((response) => {
+    //   if (!response.error && response.data) {
+    //     setTripDetails(response.data);
+    //   }
+    // })
+    // .catch((error) => {
+    //   console.error('Error', error);
+    // });
+
   }, [postId, userToken]);
 
   const getTripData = () => {
+
     if (!tripDetails) {
       return [];
     }
@@ -46,7 +50,7 @@ const ViewTripSheet = ({ route }) => {
       { label: 'Booking Type', value: tripDetails[0].bookingType_name },
       { label: 'Package', value: tripDetails[0].bookingTypePackage_name },
       { label: 'Vehicle Type', value: tripDetails[0].Vehicle_type_name },
-      { label: 'Vehicle', value: tripDetails[0].Vehicle_name },
+      { label: 'Vehicle name', value: tripDetails[0].Vehicle_name },
       { label: 'Trip Starts On', value: tripDetails[0].from_date },
       { label: 'Trip Ends On', value: tripDetails[0].to_date },
       {
@@ -142,30 +146,33 @@ const ViewTripSheet = ({ route }) => {
             </View>
           }
         />
-        {from !== 'home' && (
-          <CustomButton
-            title={'Edit'}
-            style={{ marginTop: 40, width: 150, alignSelf: 'flex-end' }}
-            onPress={() => {
-              navigation.navigate('PostTrip', {
-                from: 'home',
-                postId: postId,
-              });
-            }}
-          />
-        )}
-        {from == 'bills' && (
-          <CustomButton
-            title={isPdfGenerating ? 'Generating PDF...' : 'Share PDF'}
-            style={[
-              styles.submitButton,
+        <View style={{ justifyContent: 'space-between', flexDirection: 'row', padding: 16 }}>
+          {from == 'bills' && (
+            <CustomButton
+              title={isPdfGenerating ? 'Generating PDF...' : 'Share PDF'}
+              style={[
+                styles.submitButton,
 
-              isPdfGenerating && styles.disabledButton,
-            ]}
-            onPress={handleGeneratePDF}
-            disabled={isPdfGenerating}
-          />
-        )}
+                isPdfGenerating && styles.disabledButton,
+              ]}
+              onPress={handleGeneratePDF}
+              disabled={isPdfGenerating}
+            />
+          )}
+          {from !== 'home' && (
+            <CustomButton
+              title={'Edit'}
+              style={{ width: 150, alignSelf: 'flex-end', }}
+              onPress={() => {
+                navigation.navigate('PostTrip', {
+                  from: from,
+                  postId: postId,
+                });
+              }}
+            />
+          )}
+
+        </View>
       </View>
     </>
   );

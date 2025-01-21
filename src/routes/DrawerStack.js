@@ -43,6 +43,7 @@ import MyTripInactive from '../../assets/svgs/myTripsInactive.svg';
 import SelfTripInactive from '../../assets/svgs/selfTripInactive.svg';
 import VacantTripInactive from '../../assets/svgs/vacantTripInactive.svg';
 import BillsInactive from '../../assets/svgs/billsInactive.svg';
+import Group from '../../assets/svgs/group.svg';
 
 import PostATripScreen from '../screens/bottomTab/postTrip/PostATripScreen';
 import SelectContactScreen from '../screens/bottomTab/postTrip/SelectContactScreen';
@@ -256,6 +257,14 @@ const CustomDrawerContent = (props) => {
             onPress={() => navigation.navigate('Home', { screen: 'Bills' })}
             isFocused={isRouteActive('Bills')}
           />
+          {/* <customDrawerItem
+            label="Groups"
+            icon={isRouteActive('GroupScreen')}
+            onPress={() => navigation.navigate('Home', { screen: 'GroupScreen' })}
+            isFocused={isRouteActive('Groups')}
+          /> */}
+
+
 
         </View>
       </View>
