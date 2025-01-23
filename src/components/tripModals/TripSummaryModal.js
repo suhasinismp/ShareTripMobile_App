@@ -10,6 +10,7 @@ import {
 import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomInput from '../ui/CustomInput';
+import CustomText from '../ui/CustomText';
 
 const TripSummaryModal = ({
   tripSummaryData,
@@ -80,6 +81,15 @@ const TripSummaryModal = ({
     }
   };
 
+  // const handleNext = () => {
+  //   const closingDetails = {
+  //     closingKms: closingKms,
+  //     closingTime: closingTime,
+  //     closingDate: closingDate,
+  //   }
+  //   onPressNext(closingDetails)
+  // };
+
   const handleNext = () => {
     onPressNext({
       closingKms,
@@ -102,53 +112,29 @@ const TripSummaryModal = ({
       </TouchableOpacity>
       <Text style={styles.modalTitle}>Trip Details</Text>
 
-      <View style={[styles.summaryContainer, styles.elevation]}>
+      <View style={[styles.summaryContainer]}>
         <View style={styles.summarySection}>
           <Text style={styles.sectionTitle}>Opening Details</Text>
 
-          <View style={styles.inputGroup}>
-            <CustomInput
-              placeholder="Opening Kilometers"
-              value={openingKms}
-              onChangeText={setOpeningKms}
-              keyboardType="numeric"
-              editable={false}
-            />
+          <View style={styles.inputRow}>
+            <CustomText text={"Opening Kms : "} style={{ fontWeight: 'bold' }} />
+            <CustomText text={`${openingKms} km`} />
+
+
+          </View>
+          <View style={styles.inputRow}>
+            <CustomText text={"Opening Time : "} style={{ fontWeight: 'bold' }} />
+            <CustomText text={openingTime} />
+
+          </View>
+          <View style={styles.inputRow}>
+            <CustomText text={"Opening Date : "} style={{ fontWeight: 'bold' }} />
+            <CustomText text={openingDate} />
+
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Opening Time</Text>
-            <View
-              style={[styles.timePickerContainer, styles.disabledContainer]}
-            >
-              <FontAwesome
-                name="clock-o"
-                size={20}
-                color="#9E9E9E"
-                style={styles.inputIcon}
-              />
-              <Text style={[styles.pickerInput, styles.disabledText]}>
-                {openingTime || 'No time selected'}
-              </Text>
-            </View>
-          </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Opening Date</Text>
-            <View
-              style={[styles.timePickerContainer, styles.disabledContainer]}
-            >
-              <FontAwesome
-                name="calendar"
-                size={20}
-                color="#9E9E9E"
-                style={styles.inputIcon}
-              />
-              <Text style={[styles.pickerInput, styles.disabledText]}>
-                {openingDate || 'No date selected'}
-              </Text>
-            </View>
-          </View>
+
         </View>
 
         <View style={styles.divider} />
@@ -256,16 +242,22 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   summarySection: {
-    marginBottom: 16,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   inputGroup: {
     marginBottom: 12,
+
+  },
+  inputRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 6,
   },
   inputLabel: {
     fontSize: 16,
@@ -291,15 +283,16 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   divider: {
-    height: 1,
+    height: 2,
     backgroundColor: '#E5E7EB',
     marginVertical: 16,
+
   },
   nextButton: {
     backgroundColor: '#005680',
     padding: 16,
     borderRadius: 8,
-    marginTop: 20,
+
   },
   nextButtonText: {
     color: 'white',

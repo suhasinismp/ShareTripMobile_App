@@ -36,10 +36,13 @@ import {
   fetchVehicleNames,
   fetchVehicleTypes,
 } from '../../../services/vehicleDetailsService';
-import { getUserDataSelector } from '../../../store/selectors';
+import { getTripDetailsSelector, getUserDataSelector } from '../../../store/selectors';
 import AudioContainer from '../../../components/AudioContainer';
 import TimeDatePicker from '../../../components/TimeDatePicker';
 import { cleanHTML } from '../../../utils/cleanHTML';
+import { getMyDutiesBill, getMyPostedTripBills, getMySelfTripBills } from '../../../services/billService';
+import { parseTime } from '../../../utils/parseTimeUtil';
+import { parseDate } from '../../../utils/parseDate';
 
 const { width } = Dimensions.get('window');
 
@@ -101,8 +104,11 @@ VehicleButton.displayName = 'VehicleButton';
 
 const PostATripScreen = ({ route }) => {
   const { from, postId } = route.params || {};
+  console.log({ from, postId })
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
+  const tripDetails = useSelector(getTripDetailsSelector);
+
   const { userToken, userId } = userData;
   const { theme } = useTheme();
 
@@ -121,7 +127,9 @@ const PostATripScreen = ({ route }) => {
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
+  const [slabRate, setSlabRate] = useState('');
   const [tripTableData, setTripTableData] = useState(null);
+
 
   // Selection States
   const [selectedTripType, setSelectedTripType] = useState(null);
@@ -135,6 +143,7 @@ const PostATripScreen = ({ route }) => {
 
   // Date and Time States
   const [selectedFromDate, setSelectedFromDate] = useState(new Date());
+
   const [selectedToDate, setSelectedToDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
 
@@ -145,12 +154,15 @@ const PostATripScreen = ({ route }) => {
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
   const [initialData, setInitialData] = useState(null);
 
+
+
   // UI States
   const [isRecording, setIsRecording] = useState(false);
   const [recordedAudioUri, setRecordedAudioUri] = useState(null);
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const [pdfUri, setPdfUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
 
   // Effects
   useEffect(() => {
@@ -181,17 +193,17 @@ const PostATripScreen = ({ route }) => {
     };
 
     initializeScreen();
-  }, [from]);
+  }, [from, postId]);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      if (from !== undefined) {
-        getTripSheetDetails();
-      }
-    });
+  // useEffect(() => {
+  //   const unsubscribe = navigation.addListener('focus', () => {
+  //     if (from !== undefined) {
+  //       getTripSheetDetails();
+  //     }
+  //   });
 
-    return unsubscribe;
-  }, [navigation, from]);
+  //   return unsubscribe;
+  // }, [navigation, from]);
 
   useEffect(() => {
     if (tripTypes.length > 0) {
@@ -210,9 +222,12 @@ const PostATripScreen = ({ route }) => {
   }, [tripTypes]);
 
   useEffect(() => {
-    if (initialData && initialData.length > 0) {
-      const data = initialData[0]; // Access the first item in the array
 
+    if (initialData) {
+
+      const data = initialData;
+      // Access the first item in the array
+      console.log({ data })
       setSelectedTripType(data.booking_type_id);
       setSelectedPackage(data.bookingTypePackage_id);
       setSelectedVehicleType(data.vehicle_type_id);
@@ -220,19 +235,9 @@ const PostATripScreen = ({ route }) => {
       setSelectedShareType(data.post_type_id);
 
       // Handle date and time
-      setSelectedFromDate(new Date(data.from_date));
-      setSelectedToDate(new Date(data.to_date));
-      if (data.pick_up_time) {
-        // Convert time string to Date object
-        const [time, period] = data.pick_up_time.split(' ');
-        const [hours, minutes] = time.split(':');
-        const date = new Date();
-        let hour = parseInt(hours);
-        if (period === 'PM' && hour !== 12) hour += 12;
-        if (period === 'AM' && hour === 12) hour = 0;
-        date.setHours(hour, parseInt(minutes), 0);
-        setSelectedTime(date);
-      }
+      setSelectedFromDate(parseDate(data.from_date));
+      setSelectedToDate(parseDate(data.to_date));
+      setSelectedTime(parseTime(data.pick_up_time));
 
       // Set other form fields
       setRate(data.bookingTypeTariff_base_fare_rate?.toString() || '');
@@ -283,6 +288,7 @@ const PostATripScreen = ({ route }) => {
         from === 'bills'
           ? await fetchTripByPostId(postId, userToken)
           : await fetchTripSheetByPostId(postId, userToken);
+
 
       if (!response.error) {
         setInitialData(
@@ -382,10 +388,7 @@ const PostATripScreen = ({ route }) => {
           value: fields.selectedVehicleName,
           message: 'Please select a vehicle name.',
         },
-        {
-          value: fields.selectedShareType,
-          message: 'Please select a share type.',
-        },
+
       ];
 
       for (const field of mandatoryFields) {
@@ -445,6 +448,7 @@ const PostATripScreen = ({ route }) => {
       if (extraHours) finalData.extra_hr_rate = extraHours;
       if (dayBatta) finalData.day_batta_rate = dayBatta;
       if (nightBatta) finalData.night_batta_rate = nightBatta;
+      if (slabRate) finalData.slab_rate = slabRate;
       if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
       if (notes) finalData.note_1 = notes;
       if (visitingPlace) finalData.visiting_place = visitingPlace;
@@ -489,7 +493,8 @@ const PostATripScreen = ({ route }) => {
   };
 
   const handleUpdate = async () => {
-    console.log();
+
+
     const { isValid, errorMessage } = validateMandatoryFields(
       {
         selectedTripType,
@@ -515,7 +520,9 @@ const PostATripScreen = ({ route }) => {
       vehicle_type_id: selectedVehicleType,
       vehicle_name_id: selectedVehicleName,
       post_type_id: selectedShareType,
+
     };
+
 
     // Add optional fields
     if (customerName) finalData.customer_name = customerName;
@@ -527,6 +534,7 @@ const PostATripScreen = ({ route }) => {
     if (extraHours) finalData.extra_hr_rate = extraHours;
     if (dayBatta) finalData.day_batta_rate = dayBatta;
     if (nightBatta) finalData.night_batta_rate = nightBatta;
+    if (slabRate) finalData.slab_rate = slabRate;
     if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
     if (notes) finalData.note_1 = notes;
     if (visitingPlace) finalData.visiting_place = visitingPlace;
@@ -538,13 +546,17 @@ const PostATripScreen = ({ route }) => {
     formData.append('json', JSON.stringify(finalData));
 
     try {
-      await updatePost(formData, userToken);
+
+      const response = await updatePost(formData, userToken);
+
       if (from === 'bills') {
-        navigation.navigate('Drawer', {
-          screen: 'TripBill',
-          params: { postId: initialData.id },
-        });
+        navigation.goBack();
+        await getMyDutiesBill(userId, userToken)
+        await getMyPostedTripBills(userId, userToken)
+        await getMySelfTripBills(userId, userToken)
+        await fetchTripSheetByPostId(postId, userToken)
       } else {
+
         navigation.goBack();
       }
     } catch (error) {
@@ -824,23 +836,27 @@ const PostATripScreen = ({ route }) => {
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
-              <CustomInput
-                placeholder="Extra Kms"
-                value={extraKms}
-                onChangeText={setExtraKms}
-                style={styles.tariffInput}
-                keyboardType="numeric"
-              />
+              {selectedTripType !== 2 && (
+                <CustomInput
+                  placeholder="Extra Kms"
+                  value={extraKms}
+                  onChangeText={setExtraKms}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              )}
             </View>
             <View style={styles.tariffRow}>
-              <CustomInput
-                placeholder="Extra Hours"
-                value={extraHours}
-                onChangeText={setExtraHours}
-                style={styles.tariffInput}
-                keyboardType="numeric"
-              />
-              {selectedTripType !== 1 && selectedTripType !== 2 && (
+              {selectedTripType !== 2 && selectedTripType !== 3 && (
+                <CustomInput
+                  placeholder="Extra Hours"
+                  value={extraHours}
+                  onChangeText={setExtraHours}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              )}
+              {selectedTripType !== 1 && selectedTripType !== 3 && (
                 <CustomInput
                   placeholder="Day Batta"
                   value={dayBatta}
@@ -851,7 +867,7 @@ const PostATripScreen = ({ route }) => {
               )}
             </View>
             <View style={styles.tariffRow}>
-              {selectedTripType != 1 && (
+              {selectedTripType != 1 && selectedTripType != 2 && selectedTripType != 3 && (
                 <CustomInput
                   placeholder="Night Batta"
                   value={nightBatta}
@@ -861,6 +877,18 @@ const PostATripScreen = ({ route }) => {
                 />
               )}
             </View>
+            {selectedTripType === 3 && (
+              <View style={styles.tariffRow}>
+                <CustomInput
+                  placeholder="Slab Rate"
+                  value={slabRate}
+                  onChangeText={setSlabRate}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+
+              </View>
+            )}
           </View>
         </View>
 
@@ -984,6 +1012,7 @@ const PostATripScreen = ({ route }) => {
       extraHours,
       dayBatta,
       nightBatta,
+      slabRate,
       selectedPaymentType,
       notes,
       // notes1,
@@ -1022,7 +1051,7 @@ const PostATripScreen = ({ route }) => {
   const renderItem = ({ item }) => (
     <View style={styles.row}>
       <View style={styles.cell}>
-        <Text style={styles.cellText}>{formatDate(item.start_date)}</Text>
+        <Text style={styles.cellText}>{item.start_date || '-'}</Text>
       </View>
       <View style={styles.cell}>
         <Text style={styles.cellText}>{item.start_time || '-'}</Text>

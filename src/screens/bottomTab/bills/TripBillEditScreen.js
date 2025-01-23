@@ -9,13 +9,16 @@ import AppHeader from '../../../components/AppHeader';
 import { getTripTypes } from '../../../services/postTripService';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
-import { fetchTripBill } from '../../../services/tripBillService';
+import { fetchTripBill, updateTripBill } from '../../../services/tripBillService';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
 
 const { width } = Dimensions.get('window');
 
 const TripBillEditScreen = ({ navigation, route }) => {
   const postId = route.params.postId;
+
+
+  console.log({ postId })
   const userData = useSelector(getUserDataSelector);
   const dispatch = useDispatch();
   const { userToken, userId } = userData;
@@ -44,6 +47,9 @@ const TripBillEditScreen = ({ navigation, route }) => {
   const [tripUsage, setTripUsage] = useState('');
   const [pickupDetail, setPickupDetail] = useState('');
   const [visitingPlaces, setVisitingPlaces] = useState('');
+  const [tripId, setTripId] = useState(null);
+  console.log({ tripId })
+
 
   const fetchConstants = async () => {
     setIsLoading(true);
@@ -70,11 +76,12 @@ const TripBillEditScreen = ({ navigation, route }) => {
     setIsLoading(true);
     try {
       const response = await fetchTripBill(postId, userToken);
-      console.log('ttt', response)
+
       const data = response?.data;
-      console.log('uuu', response)
+
       if (data) {
         setBookingType(data.bookingType_id?.toString() || '');
+        setTripId(data.trip_sheet_id || '');
         setSelectedTripType(data.bookingType_id || '');
         setSlabRate(data.bookingTypeTariff_base_fare_rate?.toString() || '');
         setSlabKms(data.packageKms?.toString() || '');
@@ -92,10 +99,11 @@ const TripBillEditScreen = ({ navigation, route }) => {
         setDriverPhone(data.driver_phone || '');
         setVehicleType(data.Vehicle_type_name || '');
         setVehicleNumber(data.vehicle_registration_number || '');
-        setTripUsage(data.tripSheetRide?.[0]?.total_kms?.toString() || '');
+        setTripUsage(data.tripSheetRide?.reduce((total, trip) => total + parseInt(trip.total_kms), 0).toString() || '');
         setPickupDetail(data.pick_up_location || '');
         setVisitingPlaces(data.visiting_place || '');
       }
+
     } catch (error) {
       console.error('Error loading trip data:', error);
       dispatch(
@@ -121,9 +129,12 @@ const TripBillEditScreen = ({ navigation, route }) => {
   }, [postId]);
 
   const handleSave = async () => {
-    // Implement save functionality
+
+    console.log('hi')
+
     try {
       const updatedData = {
+        id: tripId,
         booking_type_id: selectedTripType,
         bookingTypeTariff_base_fare_rate: slabRate,
         packageKms: slabKms,
@@ -143,20 +154,27 @@ const TripBillEditScreen = ({ navigation, route }) => {
         pick_up_location: pickupDetail,
         visiting_place: visitingPlaces,
       };
+      console.log({ updatedData })
+      let formData = new FormData();
+      formData.append('json', JSON.stringify(updatedData));
 
-      // Add your API call here
-      // await updateTripBill(postId, updatedData, userToken);
+      const response = await updateTripBill(formData, userToken);
+      console.log('Response:', response);
+      if (response.error === false) {
+        await fetchTripBill(postId, userToken)
+        dispatch(
+          showSnackbar({
+            visible: true,
+            message: 'Trip details updated successfully',
+            type: 'success',
+          }),
+        );
+        navigation.goBack();
+      }
 
-      dispatch(
-        showSnackbar({
-          visible: true,
-          message: 'Trip details updated successfully',
-          type: 'success',
-        }),
-      );
-      navigation.goBack();
     } catch (error) {
       console.error('Error updating trip details:', error);
+
       dispatch(
         showSnackbar({
           visible: true,
@@ -370,7 +388,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
         {/* Trip Usage Section */}
         <View style={styles.section}>
           <CustomText
-            text="Trip Usage"
+            text="Total Usage"
             variant="sectionTitleText"
             style={styles.sectionTitle}
           />
@@ -379,7 +397,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
               <CustomInput
                 value={tripUsage || ''}
                 onChangeText={setTripUsage}
-                placeholder={'Trip Usage'}
+                placeholder={'Total Usage'}
               />
             </View>
             <View style={styles.inputRow}>

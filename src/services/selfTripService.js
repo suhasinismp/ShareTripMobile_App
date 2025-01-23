@@ -20,12 +20,25 @@ export const startSelfTrip = async (data, token) => {
     data,
     token,
   );
+
   return response;
 };
 
+// export const endSelfTrip = async (data, token) => {
+
+//   const response = await patchSelfRideAPI(
+//     'share-trip/trip-ride/end-self-trip',
+//     data,
+//     token,
+//   );
+
+//   return response;
+// };
+
 export const endSelfTrip = async (data, token) => {
+
   const response = await patchSelfRideAPI(
-    'share-trip/trip-ride/end-self-trip',
+    'share-trip/trip-ride/',
     data,
     token,
   );
@@ -38,5 +51,6 @@ export const fetchUserSelfPosts = async (userId, token) => {
     `share-trip/post-booking/self-booking-trip-list/${userId}`,
     token,
   );
+
   return response;
 };

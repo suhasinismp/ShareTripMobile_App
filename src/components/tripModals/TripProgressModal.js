@@ -6,7 +6,9 @@ const TripProgressModal = ({
   handleContinueForNextDay,
   handleEndTrip,
   onClose,
+  transfer
 }) => {
+
   return (
     <View style={styles.modalContent}>
       <TouchableOpacity
@@ -17,13 +19,13 @@ const TripProgressModal = ({
       </TouchableOpacity>
       <Text style={styles.modalTitle}>Trip Status</Text>
       <Text style={styles.tripStatus}>Your Trip is in Progress</Text>
-
-      <TouchableOpacity
+      {transfer ? null : (<TouchableOpacity
         style={[styles.actionButton]}
         onPress={handleContinueForNextDay}
       >
         <Text style={styles.actionButtonText}>Continue for Next Day</Text>
-      </TouchableOpacity>
+      </TouchableOpacity>)}
+
 
       <TouchableOpacity style={styles.actionButton} onPress={handleEndTrip}>
         <Text style={styles.actionButtonText}>End Trip</Text>

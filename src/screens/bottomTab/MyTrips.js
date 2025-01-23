@@ -72,6 +72,7 @@ const MyTrips = () => {
 
   // Trip data states
   const [selectedTripData, setSelectedTripData] = useState(null);
+
   const [tripSummaryData, setTripSummaryData] = useState(null);
   const [tripType, setTripType] = useState('');
   // Start trip states
@@ -171,6 +172,7 @@ const MyTrips = () => {
       if (response?.error === false) {
         setConfirmedDriverData(response?.data);
       }
+
     } catch (error) {
       console.error('Error fetching confirmed driver data:', error);
     }
@@ -214,7 +216,7 @@ const MyTrips = () => {
       selectedTripData?.post_booking_id,
       userToken,
     );
-    console.log({ tripDetails });
+
     if (tripDetails?.error === false) {
       setTripSummaryData({
         openingKms: tripDetails?.data?.start_trip_kms || '',
@@ -259,7 +261,7 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
-    console.log({ closingKms, closingTime, closingDate })
+
     const response = await closeTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -418,8 +420,8 @@ const MyTrips = () => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-          onCallPress={() => {}}
-          onMessagePress={() => {}}
+          onCallPress={() => { }}
+          onMessagePress={() => { }}
           onRefreshData={fetchUiData}
           userToken={userToken}
         />
@@ -444,7 +446,7 @@ const MyTrips = () => {
         baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => handleButtonPress(item)}
         onCallPress={() => handleCall(item?.user_phone)}
-        onPlayPress={() => {}}
+        onPlayPress={() => { }}
         onTripSheetPress={() => {
           navigation.navigate('ViewTripSheet', {
             from: 'myTrips',
@@ -474,15 +476,16 @@ const MyTrips = () => {
       <View style={styles.container}>
         <View style={styles.filterRow}>
           <CustomSelect
-            text="Confirmed"
-            isSelected={selectedFilterOne === 'Confirmed'}
-            onPress={() => setSelectedFilterOne('Confirmed')}
+            text="My Duties"
+            isSelected={selectedFilterTwo === 'MyDuties'}
+            onPress={() => setSelectedFilterTwo('MyDuties')}
           />
           <CustomSelect
-            text="In Progress"
-            isSelected={selectedFilterOne === 'InProgress'}
-            onPress={() => setSelectedFilterOne('InProgress')}
+            text="Posted Trips"
+            isSelected={selectedFilterTwo === 'PostedTrips'}
+            onPress={() => setSelectedFilterTwo('PostedTrips')}
           />
+
           <CustomSelect
             text="Enquiry"
             isSelected={selectedFilterOne === 'Enquiry'}
@@ -495,17 +498,22 @@ const MyTrips = () => {
 
         {showFilters && (
           <>
-            <View style={styles.filterRow}>
+            <View style={styles.filterRow2}>
+
               <CustomSelect
-                text="My Duties"
-                isSelected={selectedFilterTwo === 'MyDuties'}
-                onPress={() => setSelectedFilterTwo('MyDuties')}
+                text="Confirmed"
+                isSelected={selectedFilterOne === 'Confirmed'}
+                onPress={() => setSelectedFilterOne('Confirmed')}
               />
               <CustomSelect
-                text="Posted Trips"
-                isSelected={selectedFilterTwo === 'PostedTrips'}
-                onPress={() => setSelectedFilterTwo('PostedTrips')}
+                text="In Progress"
+                isSelected={selectedFilterOne === 'InProgress'}
+                onPress={() => setSelectedFilterOne('InProgress')}
               />
+              <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
+                <FilterIcon />
+              </TouchableOpacity>
+
             </View>
             <View style={styles.filterRow}>
               <CustomSelect
@@ -582,6 +590,7 @@ const MyTrips = () => {
           handleContinueForNextDay={handleContinueForNextDay}
           handleEndTrip={handleEndTrip}
           onClose={() => setShowTripProgressModal(false)}
+          transfer={selectedTripData?.booking_type_name === 'Transfer'}
         />
       </CustomModal>
 
@@ -616,10 +625,13 @@ const MyTrips = () => {
           setShowTripSummaryModal={setShowTripSummaryModal}
           setShowAdditionalCharges={setShowAdditionalCharges}
           onPressNext={(closingDetails) => {
-            handleCloseTrip(
-              closingDetails.closingKms,
-              closingDetails.closingTime,
-              closingDetails.closingDate,
+            // Check if values are received
+            handleCloseTrip({
+              closingKms: closingDetails.closingKms,
+              closingTime: closingDetails.closingTime,
+              closingDate: closingDetails.closingDate
+            }
+
             );
           }}
           onClose={() => setShowTripSummaryModal(false)}
@@ -668,7 +680,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    margin: 20,
+    margin: 10,
+
+  },
+  filterRow2: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    margin: 5,
+    gap: 10,
+
+
   },
   center: {
     flex: 1,
