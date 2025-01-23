@@ -36,7 +36,7 @@ import {
   fetchVehicleNames,
   fetchVehicleTypes,
 } from '../../../services/vehicleDetailsService';
-import { getUserDataSelector } from '../../../store/selectors';
+import { getTripDetailsSelector, getUserDataSelector } from '../../../store/selectors';
 import AudioContainer from '../../../components/AudioContainer';
 import TimeDatePicker from '../../../components/TimeDatePicker';
 import { cleanHTML } from '../../../utils/cleanHTML';
@@ -104,9 +104,11 @@ VehicleButton.displayName = 'VehicleButton';
 
 const PostATripScreen = ({ route }) => {
   const { from, postId } = route.params || {};
-
+  console.log({ from, postId })
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
+  const tripDetails = useSelector(getTripDetailsSelector);
+
   const { userToken, userId } = userData;
   const { theme } = useTheme();
 
@@ -191,17 +193,17 @@ const PostATripScreen = ({ route }) => {
     };
 
     initializeScreen();
-  }, [from]);
+  }, [from, postId]);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      if (from !== undefined) {
-        getTripSheetDetails();
-      }
-    });
+  // useEffect(() => {
+  //   const unsubscribe = navigation.addListener('focus', () => {
+  //     if (from !== undefined) {
+  //       getTripSheetDetails();
+  //     }
+  //   });
 
-    return unsubscribe;
-  }, [navigation, from]);
+  //   return unsubscribe;
+  // }, [navigation, from]);
 
   useEffect(() => {
     if (tripTypes.length > 0) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, FlatList, Platform, Dimensions } from 'react-native';
 import AppHeader from '../../../components/AppHeader';
-import { fetchTripSheetByPostId, generateTripPdf } from '../../../services/postTripService';
+import { fetchTripSheetByPostId, generateSelfTripPdf, generateTripPdf } from '../../../services/postTripService';
 import { useSelector } from 'react-redux';
 import { getTripDetailsSelector, getUserDataSelector } from '../../../store/selectors';
 import CustomButton from '../../../components/ui/CustomButton';
@@ -12,8 +12,22 @@ import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
+function formatTime(isoString) {
+  const date = new Date(isoString); // Convert the ISO string to a Date object
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+
+  // Convert to 12-hour format
+  hours = hours % 12 || 12; // Converts 0 hours to 12
+  const formattedMinutes = minutes.toString().padStart(2, "0");
+
+  return `${hours}:${formattedMinutes} ${ampm}`;
+}
+
 const ViewTripSheet = ({ route }) => {
-  const { postId, from } = route.params;
+  const { postId, from, isSelfTrip } = route.params;
+  console.log({ isSelfTrip })
 
   const navigation = useNavigation();
 
@@ -29,14 +43,7 @@ const ViewTripSheet = ({ route }) => {
 
   useEffect(() => {
     fetchTripSheetByPostId(postId, userToken)
-    // .then((response) => {
-    //   if (!response.error && response.data) {
-    //     setTripDetails(response.data);
-    //   }
-    // })
-    // .catch((error) => {
-    //   console.error('Error', error);
-    // });
+
 
   }, [postId, userToken]);
 
@@ -61,7 +68,7 @@ const ViewTripSheet = ({ route }) => {
       { label: 'Visiting Places', value: tripDetails[0].visiting_place || '-' },
       { label: 'From Date', value: tripDetails[0].from_date || '-' },
       { label: 'To Date', value: tripDetails[0].to_date || '-' },
-      { label: 'Pick Up Time', value: tripDetails[0].pick_up_time || '-' },
+      { label: 'Pick Up Time', value: formatTime(tripDetails[0].pick_up_time) || '-' },
       { label: 'Payment Type', value: tripDetails[0].payment_type || '-' },
       { label: 'Note', value: tripDetails[0].note_1 || '-' },
     ];
@@ -80,13 +87,21 @@ const ViewTripSheet = ({ route }) => {
   };
 
 
-  const handleGeneratePDF = async () => {
+
+  const handleGeneratePDF = async (selfTrip) => {
     setIsPdfGenerating(true);
     try {
-
       const finalData = { post_booking_id: postId };
 
-      const response = await generateTripPdf(finalData, userToken);
+      let response;
+      if (isSelfTrip === true) {
+        // Call selfTrip API
+        response = await generateSelfTripPdf(finalData, userToken); // replace with actual self-trip API function
+      } else {
+        // Call the original generateTripPdf API
+        response = await generateTripPdf(finalData, userToken);
+      }
+
       const cleanedHtml = cleanHTML(response);
 
       const { uri } = await Print.printToFileAsync({

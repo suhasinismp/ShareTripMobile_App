@@ -122,3 +122,10 @@ export const startTripMultiDay = async (data, token) => {
   const response = await postAPI('share-trip/multiple-day-trip', data, token);
   return response;
 };
+
+
+export const postedMyTrips = async (userId, token) => {
+  const response = await getAPI(`share-trip/post-booking/post-booking-list-by-posted-user/${userId}`, data, token);
+  console.log('sss', response)
+  return response;
+}

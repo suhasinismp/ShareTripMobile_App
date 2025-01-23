@@ -13,7 +13,7 @@ import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUserDataSelector } from '../../../store/selectors';
+import { getTripBillSelector, getUserDataSelector } from '../../../store/selectors';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
 import AppHeader from '../../../components/AppHeader';
 import { cleanHTML } from '../../../utils/cleanHTML';
@@ -21,9 +21,11 @@ import { fetchTripBill } from '../../../services/tripBillService';
 import { useNavigation } from '@react-navigation/native';
 
 function formatTripData(responseData) {
+
+
   const data = responseData;
 
-  const extraKmsCharge = `${data.extra_kms}kms*${data.bookingTypeTariff_extra_km_rate} = ${data.extra_km_amount}rs`;
+  const extraKmsCharge = `${data?.extra_kms}kms*${data?.bookingTypeTariff_extra_km_rate} = ${data?.extra_km_amount}rs`;
 
   return [
     {
@@ -31,53 +33,53 @@ function formatTripData(responseData) {
       data: [
         {
           type: 'header',
-          totalPayable: data.total_amount,
-          advance: data.total_amount - data.balance_amount,
-          totalAmount: data.balance_amount,
+          totalPayable: data?.total_amount,
+          advance: data?.total_amount - data?.balance_amount,
+          totalAmount: data?.balance_amount,
         },
       ],
     },
     {
       title: 'Fare Breakdown',
       data: [
-        { label: 'Booking Type', value: data.bookingType_name },
+        { label: 'Booking Type', value: data?.bookingType_name },
         {
           label: 'Slab rate',
-          value: data.bookingTypeTariff_base_fare_rate != null
-            ? data.bookingTypeTariff_base_fare_rate.toString()
+          value: data?.bookingTypeTariff_base_fare_rate != null
+            ? data?.bookingTypeTariff_base_fare_rate.toString()
             : 'N/A',
         },
-        { label: 'Slab kms', value: `${data.packageKms}kms` },
+        { label: 'Slab kms', value: `${data?.packageKms}kms` },
         { label: 'Extra Kms Charges', value: extraKmsCharge },
         {
           label: 'Day Batta',
-          value: data.day_batta_count || 0,
+          value: data?.day_batta_count || 0,
         },
         {
           label: 'Night Batta',
-          value: data.night_batta_count || 0,
+          value: data?.night_batta_count || 0,
         },
       ],
     },
     {
       title: 'Others Charges',
       data: [
-        { label: 'Parking', value: data.parking || 0 },
-        { label: 'Tolls', value: data.tolls || 0 },
-        { label: 'Other State Taxes', value: data.state_tax || 0 },
+        { label: 'Parking', value: data?.parking || 0 },
+        { label: 'Tolls', value: data?.tolls || 0 },
+        { label: 'Other State Taxes', value: data?.state_tax || 0 },
         {
           label: 'Advance',
-          value: data.total_amount - data.balance_amount || 0,
+          value: data?.total_amount - data?.balance_amount || 0,
         },
-        { label: 'Cleaning Charges', value: data.cleaning || 0 },
+        { label: 'Cleaning Charges', value: data?.cleaning || 0 },
       ],
     },
     {
       title: 'Customer Details',
       data: [
         {
-          label: data.customer_name,
-          value: data.customer_phone_no,
+          label: data?.customer_name,
+          value: data?.customer_phone_no,
         },
       ],
     },
@@ -86,10 +88,10 @@ function formatTripData(responseData) {
       data: [
         {
           type: 'driver',
-          name: data.driver_name,
-          phone: data.driver_phone,
-          vehicle: data.Vehicle_type_name,
-          number: data.vehicle_registration_number,
+          name: data?.driver_name,
+          phone: data?.driver_phone,
+          vehicle: data?.Vehicle_type_name,
+          number: data?.vehicle_registration_number,
         },
       ],
     },
@@ -98,16 +100,16 @@ function formatTripData(responseData) {
       data: [
         {
           label: 'Total Usage',
-          // value: data.tripSheetRide?.[0]?.total_kms?.toString(),
-          value: data.tripSheetRide?.reduce((total, trip) => total + parseInt(trip.total_kms), 0).toString(),
+          // value: data?.tripSheetRide?.[0]?.total_kms?.toString(),
+          value: data?.tripSheetRide?.reduce((total, trip) => total + parseInt(trip.total_kms), 0).toString(),
         },
         {
           label: 'Pickup Place',
-          value: data.pick_up_location,
+          value: data?.pick_up_location,
         },
         {
           label: 'Visiting Places',
-          value: data.visiting_place,
+          value: data?.visiting_place,
         },
       ],
     },
@@ -122,12 +124,12 @@ const TripBillScreen = ({ route }) => {
 
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const [tripData, setTripData] = useState([]);
-
-
-
   const userData = useSelector(getUserDataSelector);
+  const tripDataFromStore = useSelector(getTripBillSelector);
+  // console.log('eee', tripData)
   const userToken = userData?.userToken;
   const postId = route.params?.postId;
+
 
   useEffect(() => {
     if (postId) {
@@ -135,14 +137,20 @@ const TripBillScreen = ({ route }) => {
     }
   }, [postId]);
 
+  useEffect(() => {
+    const formattedData = formatTripData(tripDataFromStore);
+
+    setTripData(formattedData);
+  }, [tripDataFromStore]);
+
   const loadTripData = async () => {
     setIsLoading(true);
+
+
     try {
       const response = await fetchTripBill(postId, userToken);
 
-      const formattedData = formatTripData(response?.data);
 
-      setTripData(formattedData);
     } catch (error) {
       console.error('Error loading trip data:', error);
       dispatch(

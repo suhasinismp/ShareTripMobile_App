@@ -20,5 +20,10 @@ export const getSelfTripBillsSelector = (state) => {
 }
 
 export const getTripDetailsSelector = (state) => {
+
   return state?.viewTrip.tripDetails;
+}
+export const getTripBillSelector = (state) => {
+
+  return state?.tripBill.data;
 }

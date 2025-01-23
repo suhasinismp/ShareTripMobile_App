@@ -24,12 +24,14 @@ import { showSnackbar } from '../../store/slices/snackBarSlice';
 import PostCard from '../../components/PostCard';
 import CustomModal from '../../components/ui/CustomModal';
 import AppHeader from '../../components/AppHeader';
+import { Audio } from 'expo-av';
 
 // Assets
 import ModalProfileIcon from '../../../assets/svgs/modalProfile.svg';
 import AddPostIcon from '../../../assets/svgs/addPost.svg';
 import { getAllVehiclesByUserId } from '../../services/vehicleDetailsService';
 import { formatDate } from '../../utils/formatdateUtil';
+import { getRingToneScreen } from '../../services/ringtoneScreenService';
 
 export const handleCall = (phoneNumber) => {
   Linking.openURL(`tel:${phoneNumber}`).catch((err) =>
@@ -47,6 +49,7 @@ const HomeScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [userPostsData, setUserPostsData] = useState([]);
+  const [ringTone, setRingTone] = useState()
 
   const [userVehicles, setUserVehicles] = useState([]);
 
@@ -80,6 +83,12 @@ const HomeScreen = () => {
     }
   }, [userId, userToken]);
 
+
+  useEffect(() => {
+    getRingTones();
+  }, [])
+
+
   const getUserMetaData = async () => {
     const response = await fetchUserMetaData(userId, userToken);
     const ringtoneResponse = await getCurrentRingtone
@@ -94,6 +103,14 @@ const HomeScreen = () => {
       setIsModalVisible(true);
     }
   };
+
+  const getRingTones = async () => {
+    const response = await getRingToneScreen(userId, userToken);
+
+    if (response) {
+      setRingTone(response.data);
+    }
+  }
 
   const getUserVehicles = async () => {
     const response = await getAllVehiclesByUserId(userToken, userId);
@@ -119,6 +136,7 @@ const HomeScreen = () => {
     setRefreshing(true);
     try {
       await getUserPosts();
+
     } catch (error) {
       console.error('Error refreshing data:', error);
       dispatch(
@@ -167,6 +185,8 @@ const HomeScreen = () => {
   const handleAddPost = () => {
     navigation.navigate('PostTrip');
   };
+
+
 
   const renderPostCard = ({ item }) => (
     <PostCard

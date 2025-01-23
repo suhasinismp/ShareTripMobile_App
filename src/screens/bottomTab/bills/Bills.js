@@ -29,6 +29,9 @@ const Bills = () => {
 
 
   const [selectedFilterOne, setSelectedFilterOne] = useState('myDuties');
+  const [isSelfTrip, setIsSelfTrip] = useState(false)
+  console.log({ isSelfTrip });
+
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('PostedTrips');
   const [dataSource, setDataSource] = useState([]);
 
@@ -42,6 +45,13 @@ const Bills = () => {
       setDataSource(selfTripBills)
 
     }
+  }, [selectedFilterOne,])
+
+  useEffect(() => {
+    if (selectedFilterOne === 'SelfTrips') {
+      setIsSelfTrip(true)
+    } else { setIsSelfTrip(false) }
+
   }, [selectedFilterOne])
 
 
@@ -105,17 +115,18 @@ const Bills = () => {
         viewTripSheetOnPress={() => {
           navigation.navigate('ViewTripSheet', {
             from: 'bills',
+            isSelfTrip: isSelfTrip,
             postId: item?.post_booking_id || item?.post_bookings_id
           });
         }}
         driverTripBill={true}
         driverTripBillOnPress={() => {
 
-          navigation.navigate('TripBill', { postId: item?.post_booking_id || item?.post_bookings_id });
+          navigation.navigate('TripBill', { postId: item?.post_booking_id || item?.post_bookings_id, });
         }}
         customerBill={true}
         customerBillOnPress={() => {
-          navigation.navigate('TripBill', { postId: item?.post_booking_id || item?.post_bookings_id });
+          navigation.navigate('TripBill', { postId: item?.post_booking_id || item?.post_bookings_id, });
         }}
         billsScreen={true}
 
