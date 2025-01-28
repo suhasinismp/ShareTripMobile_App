@@ -34,6 +34,7 @@ export const updatePost = async (data, token) => {
 };
 
 export const fetchTripByPostId = async (postId, token) => {
+  console.log('hi')
   const response = await getAPI(
     `share-trip/trip-ride/based-post-booking/${postId}`,
     token,

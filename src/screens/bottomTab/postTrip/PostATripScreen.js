@@ -116,7 +116,9 @@ const PostATripScreen = ({ route }) => {
   const [postType, setPostType] = useState(POST_TYPES.QUICK_SHARE);
   const [message, setMessage] = useState('');
   const [customerName, setCustomerName] = useState('');
+  console.log({ customerName })
   const [customerPhone, setCustomerPhone] = useState('');
+  console.log({ customerPhone })
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropLocation, setDropLocation] = useState('');
   const [visitingPlace, setVisitingPlace] = useState('');
@@ -153,6 +155,7 @@ const PostATripScreen = ({ route }) => {
   const [allVehicleNames, setAllVehicleNames] = useState([]);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
   const [initialData, setInitialData] = useState(null);
+  console.log({ initialData })
 
 
 
@@ -228,30 +231,30 @@ const PostATripScreen = ({ route }) => {
       const data = initialData;
       // Access the first item in the array
       console.log({ data })
-      setSelectedTripType(data.booking_type_id);
-      setSelectedPackage(data.bookingTypePackage_id);
-      setSelectedVehicleType(data.vehicle_type_id);
-      setSelectedVehicleName(data.vehicle_name_id);
-      setSelectedShareType(data.post_type_id);
+      setSelectedTripType(data?.postBooking?.booking_type_id);
+      setSelectedPackage(data?.bookingTypePackage_id);
+      setSelectedVehicleType(data?.postBooking?.vehicle_type_id);
+      setSelectedVehicleName(data?.postBooking?.vehicle_name_id);
+      setSelectedShareType(data?.postBooking?.post_type_id);
 
       // Handle date and time
-      setSelectedFromDate(parseDate(data.from_date));
-      setSelectedToDate(parseDate(data.to_date));
-      setSelectedTime(parseTime(data.pick_up_time));
+      setSelectedFromDate(parseDate(data?.start_date));
+      setSelectedToDate(parseDate(data?.end_trip_date));
+      setSelectedTime(parseTime(data?.postBooking?.pick_up_time));
 
       // Set other form fields
-      setRate(data.bookingTypeTariff_base_fare_rate?.toString() || '');
-      setCustomerName(data.customer_name || '');
-      setCustomerPhone(data.customer_phone_no || '');
-      setPickupLocation(data.pick_up_location || '');
-      setDropLocation(data.destination || '');
-      setVisitingPlace(data.visiting_place || '');
-      setSelectedPaymentType(data.payment_type || PAYMENT_TYPES.CASH);
-      setNotes(data.note_1 || '');
+      setRate(data?.bookingTypeTariff_base_fare_rate?.toString() || '');
+      setCustomerName(data?.postBooking?.customer_name || '');
+      setCustomerPhone(data?.postBooking?.customer_phone_no || '');
+      setPickupLocation(data?.postBooking?.pick_up_location || '');
+      setDropLocation(data?.postBooking?.destination || '');
+      setVisitingPlace(data?.postBooking?.visiting_place || '');
+      setSelectedPaymentType(data?.postBooking?.payment_type || PAYMENT_TYPES.CASH);
+      setNotes(data?.postBooking?.note_1 || '');
 
       // Set message if it exists
-      if (data.post_comments) {
-        setMessage(data.post_comments);
+      if (data?.post_comments) {
+        setMessage(data?.post_comments);
       }
     }
   }, [initialData]);
@@ -292,7 +295,7 @@ const PostATripScreen = ({ route }) => {
 
       if (!response.error) {
         setInitialData(
-          from === 'bills' ? response.data.postBooking : response.data,
+          response.data,
         );
       }
     } catch (error) {
@@ -305,7 +308,7 @@ const PostATripScreen = ({ route }) => {
   const getTripTable = async () => {
     const response = await fetchTripTable(postId, userToken);
     if (response?.error === false) {
-      setTripTableData(response?.data.tripSheetRide);
+      setTripTableData(response?.data?.tripSheetRide);
     }
   };
 
@@ -473,6 +476,7 @@ const PostATripScreen = ({ route }) => {
 
       try {
         const response = await createPost(formData, userToken);
+        console.log({ response })
         if (
           response.error === false &&
           response.message === 'Post Booking Data created successfully'

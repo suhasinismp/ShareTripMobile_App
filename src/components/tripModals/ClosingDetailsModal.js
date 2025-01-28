@@ -10,6 +10,9 @@ import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomInput from '../../components/ui/CustomInput';
 import BackIcon from '../../../assets/svgs/back.svg';
+import CheckBoxActive from '../../../assets/svgs/checkBoxActive.svg';
+import CheckBoxInactive from '../../../assets/svgs/checkBoxInactive.svg';
+
 
 const ClosingDetailsModal = ({
   handleBackToTripProgress,
@@ -25,6 +28,8 @@ const ClosingDetailsModal = ({
   setShowClosingDatePicker,
   handleCloseTrip,
   onClose,
+  isGst,
+  SetIsGst,
 }) => {
   return (
     <View style={styles.modalContent}>
@@ -95,6 +100,16 @@ const ClosingDetailsModal = ({
             editable={false}
             placeholderTextColor="#999"
           />
+        </TouchableOpacity>
+      </View>
+      <View style={{ display: 'flex', justifyContent: 'space-between', }}>
+        <Text >GST</Text>
+        <TouchableOpacity onPress={() => SetIsGst(!isGst)}>
+          {isGst ? (<CheckBoxActive width={24} height={24} />
+          ) : (
+            <CheckBoxInactive width={24} height={24} />
+          )}
+
         </TouchableOpacity>
       </View>
 

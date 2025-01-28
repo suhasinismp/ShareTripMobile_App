@@ -72,16 +72,30 @@ const CreateSelfTrip = () => {
     const [packages, setPackages] = useState([]);
 
     const resetFields = () => {
+        setCustomerName('');
+        setCustomerPhone('');
+        setIsRecording(false);
+        setRecordedAudioUri(null);
         setMessage('');
+        setNotes('');
+        setSelectedPaymentType('Cash');
+        setSelectedFromDate(new Date());
+        setSelectedToDate(new Date());
+        setSelectedTime(new Date());
         setSelectedTripType(null);
         setSelectedPackage(null);
-        setBaseRate('');
-        setExtraKms('');
-        setExtraHrs('');
-        setNightBata('');
-        setSlabRate('');
-        setDayBata('');
-        setRecordedAudioUri(null);
+        setModalVisible(false)
+        setPickupLocation('')
+        setDropLocation('')
+        setVisitingPlace('')
+        setSelfTripTypes('')
+        setBaseRate('')
+        setExtraKms('')
+        setExtraHrs('')
+        setDayBata('')
+        setNightBata('')
+        setSlabRate('')
+        setPackages('')
     };
 
     useEffect(() => {
@@ -217,7 +231,7 @@ const CreateSelfTrip = () => {
 
         if (message.length > 0) finalData.message = message;
         if (customerName) finalData.customer_name = customerName;
-        if (customerPhone) finalData.customer_phone = customerPhone;
+        if (customerPhone) finalData.customer_phone_no = customerPhone;
         if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
         if (selectedTripType) finalData.booking_type_id = selectedTripType;
         if (selectedPackage) finalData.booking_types_package_id = selectedPackage;
@@ -254,7 +268,7 @@ const CreateSelfTrip = () => {
 
 
         const response = await selfCreatePost(formData, userToken);
-
+        console.log('vineet', response)
         if (!response.error) {
             resetFields();
             navigation.goBack();

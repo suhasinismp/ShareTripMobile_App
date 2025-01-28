@@ -52,7 +52,7 @@ const ViewTripSheet = ({ route }) => {
     if (!tripDetails) {
       return [];
     }
-
+    console.log({ tripDetails })
     const data = [
       { label: 'Booking Type', value: tripDetails[0].bookingType_name },
       { label: 'Package', value: tripDetails[0].bookingTypePackage_name },
@@ -77,8 +77,7 @@ const ViewTripSheet = ({ route }) => {
       data.unshift(
         { label: 'Customer Name', value: tripDetails[0].customer_name || '-' },
         {
-          label: 'Customer Phone',
-          value: tripDetails[0].customer_phone_no || '-',
+          label: 'Customer Phone', value: tripDetails[0]?.customer_phone_no || '-',
         },
       );
     }

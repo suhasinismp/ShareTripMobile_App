@@ -12,6 +12,7 @@ import FilterIcon from '../../../assets/svgs/filter.svg';
 import AppHeader from '../../components/AppHeader';
 import PostCard from '../../components/PostCard';
 
+
 import {
   closeForDay,
   closeTrip,
@@ -69,6 +70,7 @@ const MyTrips = () => {
   const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
+  const [isGst, setIsGst] = useState(false)
 
   // Trip data states
   const [selectedTripData, setSelectedTripData] = useState(null);
@@ -225,12 +227,14 @@ const MyTrips = () => {
         closingKms: tripDetails?.data?.end_trip_kms || '',
         closingTime: tripDetails?.data?.end_trip_time || '',
         closingDate: tripDetails?.data?.end_trip_date || '',
+        isGst: tripDetails?.data?.is_gst || false,
       });
 
       setShowTripSummaryModal(true);
       setClosingKms('');
       setClosingTime('');
       setClosingDate('');
+      setIsGst('');
     }
   };
 
@@ -248,6 +252,8 @@ const MyTrips = () => {
         end_trip_time: closingTime,
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
+        is_gst: isGst,
+
       },
       userToken,
     );
@@ -257,6 +263,7 @@ const MyTrips = () => {
       setClosingKms('');
       setClosingTime('');
       setClosingDate('');
+      setIsGst('');
     }
   };
 
@@ -270,6 +277,7 @@ const MyTrips = () => {
         end_trip_time: closingTime,
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
+        is_gst: isGst,
       },
       userToken,
     );
@@ -644,8 +652,17 @@ const MyTrips = () => {
       >
         <AdditionalChargesModal
           onNext={handleAdditionalChargesNext}
-          onClose={() => setShowAdditionalCharges(false)}
+          onClose={() =>
+            setShowAdditionalCharges(false)}
         />
+
+        {/* <AdditionalChargesModal
+          onNext={handleAdditionalChargesNext}
+          onClose={() => {
+            console.log('Close button clicked!'); // Add log here
+            setShowAdditionalCharges(false); // This will close the modal
+          }}
+        /> */}
       </CustomModal>
 
       <CustomModal

@@ -23,6 +23,7 @@ const StartTripModal = ({
   showDatePicker,
   setShowDatePicker,
   onClose,
+
 }) => {
   return (
     <View style={styles.modalContent}>

@@ -280,7 +280,7 @@ const TripBillScreen = ({ route }) => {
   const renderHeader = ({ item }) => (
     <View style={styles.headerContainer}>
       <Text style={styles.headerTitle}>Total Amount Payable</Text>
-      <Text style={styles.headerAmount}>Rs {item.totalPayable}</Text>
+      <Text style={styles.headerAmount}>Rs {item.totalAmount}</Text>
       <View style={styles.headerDetailsRow}>
         <View>
           <Text style={styles.headerLabel}>Advance</Text>
@@ -288,7 +288,7 @@ const TripBillScreen = ({ route }) => {
         </View>
         <View>
           <Text style={styles.headerLabel}>Total Amount</Text>
-          <Text style={styles.headerValue}>Rs {item.totalAmount}</Text>
+          <Text style={styles.headerValue}>Rs {item.totalPayable}</Text>
         </View>
       </View>
     </View>

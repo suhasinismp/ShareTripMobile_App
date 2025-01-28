@@ -11,6 +11,8 @@ import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomInput from '../ui/CustomInput';
 import CustomText from '../ui/CustomText';
+import CheckBoxActive from '../../../assets/svgs/checkBoxActive.svg';
+import CheckBoxInactive from '../../../assets/svgs/checkBoxInactive.svg';
 
 const TripSummaryModal = ({
   tripSummaryData,
@@ -40,6 +42,7 @@ const TripSummaryModal = ({
   const [closingDate, setClosingDate] = useState(
     tripSummaryData?.closingDate || '',
   );
+  const [isGst, SetIsGst] = useState(tripSummaryData?.isGst || false);
 
   // Date & Time picker states
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
@@ -95,6 +98,7 @@ const TripSummaryModal = ({
       closingKms,
       closingTime,
       closingDate,
+      isGst,
     });
   };
 
@@ -185,7 +189,18 @@ const TripSummaryModal = ({
                 {closingDate || 'Select Date'}
               </Text>
             </TouchableOpacity>
+
           </View>
+        </View>
+        <View style={{ display: 'flex', justifyContent: 'space-between', }}>
+          <Text >GST</Text>
+          <TouchableOpacity onPress={() => SetIsGst(!isGst)}>
+            {isGst ? (<CheckBoxActive width={24} height={24} />
+            ) : (
+              <CheckBoxInactive width={24} height={24} />
+            )}
+
+          </TouchableOpacity>
         </View>
       </View>
 
