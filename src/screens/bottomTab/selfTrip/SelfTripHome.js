@@ -447,7 +447,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   listContainer: {
-    paddingBottom: 16,
+    flex: 1,
+    marginHorizontal: 20,
+    // paddingBottom: 16,
   },
   floatingButton: {
     position: 'absolute',

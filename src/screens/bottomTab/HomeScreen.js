@@ -31,7 +31,7 @@ import ModalProfileIcon from '../../../assets/svgs/modalProfile.svg';
 import AddPostIcon from '../../../assets/svgs/addPost.svg';
 import { getAllVehiclesByUserId } from '../../services/vehicleDetailsService';
 import { formatDate } from '../../utils/formatdateUtil';
-import { getRingToneScreen } from '../../services/ringtoneScreenService';
+// import { getRingToneScreen } from '../../services/ringtoneScreenService';
 
 export const handleCall = (phoneNumber) => {
   Linking.openURL(`tel:${phoneNumber}`).catch((err) =>
@@ -84,9 +84,9 @@ const HomeScreen = () => {
   }, [userId, userToken]);
 
 
-  useEffect(() => {
-    getRingTones();
-  }, [])
+  // useEffect(() => {
+  //   getRingTones();
+  // }, [])
 
 
   const getUserMetaData = async () => {
@@ -104,13 +104,13 @@ const HomeScreen = () => {
     }
   };
 
-  const getRingTones = async () => {
-    const response = await getRingToneScreen(userId, userToken);
+  // const getRingTones = async () => {
+  //   const response = await getRingToneScreen(userId, userToken);
 
-    if (response) {
-      setRingTone(response.data);
-    }
-  }
+  //   if (response) {
+  //     setRingTone(response.data);
+  //   }
+  // }
 
   const getUserVehicles = async () => {
     const response = await getAllVehiclesByUserId(userToken, userId);

@@ -238,8 +238,8 @@ const PostATripScreen = ({ route }) => {
       setSelectedShareType(data?.postBooking?.post_type_id);
 
       // Handle date and time
-      setSelectedFromDate(parseDate(data?.start_date));
-      setSelectedToDate(parseDate(data?.end_trip_date));
+      setSelectedFromDate(parseDate(data?.start_date || data?.from_date));
+      setSelectedToDate(parseDate(data?.end_trip_date || data?.to_date));
       setSelectedTime(parseTime(data?.postBooking?.pick_up_time));
 
       // Set other form fields

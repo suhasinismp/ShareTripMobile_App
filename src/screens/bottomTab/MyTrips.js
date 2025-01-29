@@ -496,8 +496,8 @@ const MyTrips = () => {
 
           <CustomSelect
             text="Enquiry"
-            isSelected={selectedFilterOne === 'Enquiry'}
-            onPress={() => setSelectedFilterOne('Enquiry')}
+            isSelected={selectedFilterTwo === 'Enquiry'}
+            onPress={() => setSelectedFilterTwo('Enquiry')}
           />
           <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
             <FilterIcon />

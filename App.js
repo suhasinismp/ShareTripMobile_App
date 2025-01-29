@@ -59,6 +59,7 @@ export default function App() {
     <Provider store={store}>
       <ThemeContext.Provider value={themeContext}>
         <NavigationContainer>
+
           <AppStack />
           <CustomSnackbar />
           <StatusBar style="auto" />

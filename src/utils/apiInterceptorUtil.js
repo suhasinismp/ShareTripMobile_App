@@ -13,6 +13,7 @@ export const setInterceptors = (store) => {
     (error) => {
       if (error.response) {
         const status = error.response.status;
+        console.log(error.response);
 
         const message = error.response.data?.message || 'An error occurred';
 
