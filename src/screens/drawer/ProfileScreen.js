@@ -88,9 +88,9 @@ const ProfileScreen = () => {
         u_mob_num: data[fieldNames.PHONE_NUMBER],
         u_email_id: data[fieldNames.EMAIL],
       };
-
+      console.log({ finalData })
       const formData = new FormData();
-      formData.append('json', JSON.stringify(finalData));
+      formData.append('json', JSON.stringify(finalData, userId));
 
       if (userProfile && userProfile.uri) {
         formData.append('profile', {

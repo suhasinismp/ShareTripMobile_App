@@ -16,7 +16,7 @@ export const fetchTripBill = async (postId, token) => {
 export const updateTripBill = async (data, token) => {
   const response = await patchFormDataAPI({
     endUrl: 'share-trip/trip-sheet-final/',
-    updatedData: data,
+    formData: data,
     token: token,
   })
 

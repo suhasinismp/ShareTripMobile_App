@@ -343,7 +343,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   listContainer: {
-    paddingBottom: 16,
+    flex: 1,
+    marginHorizontal: 20,
   },
 });
 

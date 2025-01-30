@@ -48,6 +48,8 @@ const TripBillEditScreen = ({ navigation, route }) => {
   const [pickupDetail, setPickupDetail] = useState('');
   const [visitingPlaces, setVisitingPlaces] = useState('');
   const [tripId, setTripId] = useState(null);
+  const [postedUserId, setPostedUserId] = useState(null)
+  const [disabled, setDisabled] = useState(true);
   console.log({ tripId })
 
 
@@ -78,21 +80,22 @@ const TripBillEditScreen = ({ navigation, route }) => {
       const response = await fetchTripBill(postId, userToken);
 
       const data = response?.data;
-
+      console.log({ data })
       if (data) {
         setBookingType(data.bookingType_id?.toString() || '');
         setTripId(data.trip_sheet_id || '');
+        setPostedUserId(data.posted_User_id)
         setSelectedTripType(data.bookingType_id || '');
         setSlabRate(data.bookingTypeTariff_base_fare_rate?.toString() || '');
         setSlabKms(data.packageKms?.toString() || '');
         setExtraKmsCharges(data.extra_km_amount?.toString() || '');
-        setDayBatta(data.day_batta_count?.toString() || '');
-        setNightBatta(data.night_batta_count?.toString() || '');
+        setDayBatta(data.bookingTypeTariff_day_batta_rate?.toString() || '');
+        setNightBatta(data.bookingTypeTariff_night_batta_rate?.toString() || '');
         setParking(data.parking?.toString() || '');
         setTolls(data.tolls?.toString() || '');
-        setOtherStateTaxes(data.other_state_taxes?.toString() || '');
+        setOtherStateTaxes(data.state_tax?.toString() || '');
         setAdvance(data.advance?.toString() || '');
-        setCleaningCharges(data.cleaning_charges?.toString() || '');
+        setCleaningCharges(data.cleaning?.toString() || '');
         setCustomerName(data.customer_name || '');
         setCustomerPhone(data.customer_phone_no || '');
         setDriverName(data.driver_name || '');
@@ -135,17 +138,19 @@ const TripBillEditScreen = ({ navigation, route }) => {
     try {
       const updatedData = {
         id: tripId,
+        post_booking_id: postId,
+        // posted_user_id:
         booking_type_id: selectedTripType,
         bookingTypeTariff_base_fare_rate: slabRate,
         packageKms: slabKms,
         extra_km_amount: extraKmsCharges,
-        day_batta_count: dayBatta,
-        night_batta_count: nightBatta,
+        bookingTypeTariff_day_batta_rate: dayBatta,
+        bookingTypeTariff_night_batta_rate: nightBatta,
         parking: parking,
         tolls: tolls,
-        other_state_taxes: otherStateTaxes,
+        state_tax: otherStateTaxes,
         advance: advance,
-        cleaning_charges: cleaningCharges,
+        cleaning: cleaningCharges,
         customer_name: customerName,
         customer_phone_no: customerPhone,
         driver_name: driverName,
@@ -247,8 +252,9 @@ const TripBillEditScreen = ({ navigation, route }) => {
             <View style={styles.inputRow}>
               <CustomInput
                 value={extraKmsCharges || ''}
-                onChangeText={setExtraKmsCharges}
+                onChangeText={disabled ? undefined : onChangeText}
                 placeholder={'Extra Kms Charges'}
+                editable={!disabled}
               />
             </View>
             <View style={styles.inputRow}>

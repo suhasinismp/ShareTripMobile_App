@@ -28,6 +28,11 @@ const RingtoneScreen = () => {
   const [playingId, setPlayingId] = useState(null);
   const [sound, setSound] = useState(null);
   const userData = useSelector(getUserDataSelector);
+  const [offlineOnlineStatus, setOfflineOnlineStatus] = useState();
+  const [muteUnmuteStatus, setMuteUnmuteStatus] = useState();
+  const [buzzerSoundAccepted, setBuzzerSoundAccepted] = useState()
+  const [buzzerSoundConfirmed, setBuzzerSoundConfirmed] = useState()
+
   const userId = userData?.userId;
   const userToken = userData?.userToken;
 
@@ -81,13 +86,13 @@ const RingtoneScreen = () => {
   const handleSave = async () => {
     const finalData = {
       user_id: userId,
-      offline_online_status: userData?.offline_online_status,
-      mute_unmute_status: userData?.mute_unmute_status,
+      offline_online_status: userData?.offlineOnlineStatus,
+      mute_unmute_status: userData?.muteUnmuteStatus,
       buzzer_sound_new_post: selectedId,
-      buzzer_sound_accepted: userData?.buzzer_sound_accepted,
-      buzzer_sound_confirmed: userData?.buzzer_sound_confirmed
+      buzzer_sound_accepted: userData?.buzzerSoundAccepted,
+      buzzer_sound_confirmed: userData?.buzzerSoundConfirmed
     }
-
+    console.log('ooo', finalData)
     const response = await ringtoneScreenPost(finalData)
 
     if (response && response.error === false) {
