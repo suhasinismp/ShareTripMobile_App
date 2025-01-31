@@ -40,7 +40,9 @@ export const confirmedPostedGuyTrips = async (userId, token) => {
 };
 
 export const acceptDriverRequest = async (data, token) => {
+  console.log({ data, token })
   const response = await postAPI('share-trip/post-trip-confirm/', data, token);
+  console.log('iii', response)
   return response;
 };
 

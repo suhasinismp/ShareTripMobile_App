@@ -39,6 +39,7 @@ import CustomSelect from '../../components/ui/CustomSelect';
 import CustomModal from '../../components/ui/CustomModal';
 import { fetchTripSheetByPostId } from '../../services/postTripService';
 import { useNavigation } from '@react-navigation/native';
+import BillMeBillDriverModal from '../../components/tripModals/BillMeBillDriverModal';
 
 const MyTrips = () => {
   const navigation = useNavigation();
@@ -91,6 +92,7 @@ const MyTrips = () => {
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
+  const [showBillMeBillDriverModal, setShowBillMeBillDriverModal] = useState();
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -238,10 +240,26 @@ const MyTrips = () => {
     }
   };
 
+  const handleContinue = () => {
+    setShowBillMeBillDriverModal(false)
+  }
+
+  const handleCancel = () => {
+    setShowBillMeBillDriverModal(false)
+  }
+
   const handleBackToTripProgress = () => {
     setShowClosingDetailsModal(false);
     setShowTripProgressModal(true);
   };
+
+  // const handleBillMe = () => {
+  //   setShowBillMeBillDriverModal(true)
+  // }
+
+  // const handleBillDriver = () => {
+  //   setShowBillMeBillDriverModal(true)
+  // }
 
   const handleCloseForDay = async () => {
     const response = await closeForDay(
@@ -601,6 +619,8 @@ const MyTrips = () => {
           transfer={selectedTripData?.booking_type_name === 'Transfer'}
         />
       </CustomModal>
+
+
 
       <CustomModal
         visible={showClosingDetailsModal}

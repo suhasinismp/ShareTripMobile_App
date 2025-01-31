@@ -17,6 +17,8 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { showSnackbar } from '../../store/slices/snackBarSlice';
 import { getUserDataSelector } from '../../store/selectors';
+import CustomModal from './CustomModal';
+import BillMeBillDriverModal from '../tripModals/BillMeBillDriverModal';
 
 const CustomAccordion = ({
   bookingType,
@@ -38,6 +40,9 @@ const CustomAccordion = ({
   const userData = useSelector(getUserDataSelector);
   const loggedInUserId = userData.userId;
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showBillMeBillDriverModal, setShowBillMeBillDriverModal] = useState(false)
+  const [billToDriver, setBillToDriver] = useState(true)
+  const [billToMe, setBillToMe] = useState(false)
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotate = useRef(new Animated.Value(0)).current;
 
@@ -70,7 +75,16 @@ const CustomAccordion = ({
     outputRange: [0, 400],
   });
 
-  const handleAcceptDriver = async (driver) => {
+  const handleCancel = () => {
+    setShowBillMeBillDriverModal(false)
+  }
+
+  const handleAcceptDriver = async () => {
+    setShowBillMeBillDriverModal(true)
+  };
+  const handleContinue = async (driver) => {
+    console.log('hi')
+
     try {
       let finalData = {
         post_bookings_id: driver?.post_id,
@@ -79,10 +93,11 @@ const CustomAccordion = ({
         post_chat: 'SOME CHATS HERE',
         final_bill_by_poster: true,
         posted_user_id: loggedInUserId,
+        bill_access: billToMe ? false : true
       };
-
+      console.log("finalData", finalData)
       const response = await acceptDriverRequest(finalData, userToken);
-
+      console.log('ooo', response)
       if (response?.status === 'Start Trip') {
         dispatch(
           showSnackbar({
@@ -105,9 +120,10 @@ const CustomAccordion = ({
         }),
       );
     }
-  };
+  }
 
   const handleRejectDriver = async (driver) => {
+
     try {
       let finalData = {
         post_bookings_id: driver?.post_id,
@@ -221,11 +237,26 @@ const CustomAccordion = ({
               amount={driver.booking_tarif_base_fare_rate}
               onAccept={() => handleAcceptDriver(driver)}
               onReject={() => handleRejectDriver(driver)}
-              onCall={() => {}}
+              onCall={() => { }}
             />
           </View>
         ))}
       </Animated.View>
+      <CustomModal
+        visible={showBillMeBillDriverModal}
+        onSecondaryAction={() => setShowBillMeBillDriverModal(false)}
+      >
+        <BillMeBillDriverModal
+          BillToMe={billToMe}
+          BillToDriver={billToDriver}
+          SetBillToMe={setBillToMe}
+          SetBillToDriver={setBillToDriver}
+          handleContinue={handleContinue}
+          handleCancel={handleCancel}
+          onClose={() => setShowBillMeBillDriverModal(false)}
+
+        />
+      </CustomModal>
     </View>
   );
 };

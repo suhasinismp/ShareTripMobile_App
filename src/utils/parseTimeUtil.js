@@ -21,7 +21,9 @@ export const parseTime = (formattedTime) => {
 
     // Format the time as "hh:mm AM/PM"
     const formattedISTTime = `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
-
+    console.log({ formattedISTTime })
 
     return formattedISTTime;
 };
+
+

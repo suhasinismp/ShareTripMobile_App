@@ -116,9 +116,9 @@ const PostATripScreen = ({ route }) => {
   const [postType, setPostType] = useState(POST_TYPES.QUICK_SHARE);
   const [message, setMessage] = useState('');
   const [customerName, setCustomerName] = useState('');
-  console.log({ customerName })
+
   const [customerPhone, setCustomerPhone] = useState('');
-  console.log({ customerPhone })
+
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropLocation, setDropLocation] = useState('');
   const [visitingPlace, setVisitingPlace] = useState('');
@@ -148,6 +148,7 @@ const PostATripScreen = ({ route }) => {
 
   const [selectedToDate, setSelectedToDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
+  console.log({ selectedTime })
 
   // Data States
   const [tripTypes, setTripTypes] = useState([]);
@@ -230,7 +231,7 @@ const PostATripScreen = ({ route }) => {
 
       const data = initialData;
       // Access the first item in the array
-      console.log({ data })
+      // console.log({ data })
       setSelectedTripType(data?.postBooking?.booking_type_id);
       setSelectedPackage(data?.bookingTypePackage_id);
       setSelectedVehicleType(data?.postBooking?.vehicle_type_id);
@@ -240,7 +241,7 @@ const PostATripScreen = ({ route }) => {
       // Handle date and time
       setSelectedFromDate(parseDate(data?.start_date || data?.from_date));
       setSelectedToDate(parseDate(data?.end_trip_date || data?.to_date));
-      setSelectedTime(parseTime(data?.postBooking?.pick_up_time));
+      setSelectedTime(parseTime(data?.pick_up_time));
 
       // Set other form fields
       setRate(data?.bookingTypeTariff_base_fare_rate?.toString() || '');
@@ -545,6 +546,8 @@ const PostATripScreen = ({ route }) => {
     if (selectedTime) finalData.pick_up_time = selectedTime;
     if (selectedFromDate) finalData.from_date = selectedFromDate;
     if (selectedToDate) finalData.to_date = selectedToDate;
+
+    console.log({ finalData })
 
     const formData = new FormData();
     formData.append('json', JSON.stringify(finalData));

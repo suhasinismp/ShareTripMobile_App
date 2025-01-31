@@ -50,6 +50,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
   const [tripId, setTripId] = useState(null);
   const [postedUserId, setPostedUserId] = useState(null)
   const [disabled, setDisabled] = useState(true);
+  const [discount, setDiscount] = useState('')
   console.log({ tripId })
 
 
@@ -91,6 +92,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
         setExtraKmsCharges(data.extra_km_amount?.toString() || '');
         setDayBatta(data.bookingTypeTariff_day_batta_rate?.toString() || '');
         setNightBatta(data.bookingTypeTariff_night_batta_rate?.toString() || '');
+
         setParking(data.parking?.toString() || '');
         setTolls(data.tolls?.toString() || '');
         setOtherStateTaxes(data.state_tax?.toString() || '');
@@ -147,6 +149,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
         bookingTypeTariff_day_batta_rate: dayBatta,
         bookingTypeTariff_night_batta_rate: nightBatta,
         parking: parking,
+        discount: discount,
         tolls: tolls,
         state_tax: otherStateTaxes,
         advance: advance,
@@ -272,6 +275,15 @@ const TripBillEditScreen = ({ navigation, route }) => {
                 keyboardType="numeric"
                 placeholder={'Night Batta'}
               />
+            </View>
+            <View style={styles.inputRow}>
+              <CustomInput
+                value={discount || ''}
+                onChangeText={setDiscount}
+                keyboardType="numeric"
+                placeholder={'Discount'}
+              />
+
             </View>
           </View>
         </View>
