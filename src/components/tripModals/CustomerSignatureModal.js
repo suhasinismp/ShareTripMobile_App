@@ -65,8 +65,15 @@ const CustomerSignatureModal = ({
 
       if (response?.error === false) {
         onClose();
-        // await fetch();
+        // if (selectedTripData?.tripType === 'multiDay')
+        await fetch();
+        // }
+        // else {
+        //   console.log('Single-day trip: Navigating to Bills');
+
         navigation.navigate('Bills');
+
+
       }
     } catch (error) {
       console.error('Error uploading signature:', error);

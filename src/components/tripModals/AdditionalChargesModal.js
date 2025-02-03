@@ -5,10 +5,12 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  TextInput,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import CustomInput from '../../components/ui/CustomInput';
 import UploadOptionsModal from '../../components/UploadOptionsModal';
+
 
 const AdditionalChargesModal = ({ onNext, onClose }) => {
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
@@ -21,17 +23,20 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
     stateTax: '',
     cleaning: '',
     nightBatta: '',
+
+
   });
 
   const fieldToFileNumber = {
-    advance: 'file1',
-    parking: 'file2',
-    tolls: 'file3',
-    stateTax: 'file4',
-    cleaning: 'file5',
+    advance: 'advance_image[]',
+    parking: 'parking_image[]',
+    tolls: 'tolls_image[]',
+    stateTax: 'state_tax_image[]',
+    cleaning: 'state_tax_image[]',
   };
 
   const handleUpload = (field) => {
+
     setActiveField(field);
     setUploadModalVisible(true);
   };
@@ -66,6 +71,9 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
     return documents.some((doc) => doc.fileNumber === fieldToFileNumber[field]);
   };
 
+
+
+
   const chargeFields = [
     { id: 'advance', label: 'Advance', hasUpload: true },
     { id: 'parking', label: 'Parking', hasUpload: true },
@@ -73,7 +81,10 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
     { id: 'stateTax', label: 'State Tax', hasUpload: true },
     { id: 'cleaning', label: 'Cleaning', hasUpload: true },
     { id: 'nightBatta', label: 'Night Batta', hasUpload: false },
+
   ];
+
+
 
   return (
     <View style={styles.modalContainer}>
@@ -112,7 +123,7 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
                     style={[
                       styles.uploadButton,
                       isFieldHasDocument(field.id) &&
-                        styles.uploadButtonWithDoc,
+                      styles.uploadButtonWithDoc,
                     ]}
                     onPress={() => handleUpload(field.id)}
                   >
@@ -126,6 +137,12 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
               </View>
             </View>
           ))}
+
+
+
+
+
+
 
           {documents.length > 0 && (
             <View style={styles.documentsContainer}>
@@ -165,6 +182,8 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
         gallery={true}
         pdf={false}
       />
+
+
     </View>
   );
 };
@@ -175,6 +194,30 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     height: 600,
+  },
+  dateContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  fieldContainer: {
+    marginBottom: 16,
+  },
+  datePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+  },
+  pickerInput: {
+    flex: 1,
+    fontSize: 16,
+    marginLeft: 10,
+    color: '#333',
+  },
+  inputIcon: {
+    marginRight: 8,
   },
   header: {
     flexDirection: 'row',
@@ -192,6 +235,17 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingBottom: 80,
   },
+  label: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    marginBottom: 8,
+  },
+
+  fieldContainer: {
+    marginBottom: 16,
+  },
+
   scrollContentContainer: {
     padding: 20,
   },

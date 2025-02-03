@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Dimensions, FlatList } from 'react-native';
+import { StyleSheet, View, Dimensions, FlatList, TouchableOpacity } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomInput from '../../../components/ui/CustomInput';
 import CustomText from '../../../components/ui/CustomText';
@@ -9,8 +9,11 @@ import AppHeader from '../../../components/AppHeader';
 import { getTripTypes } from '../../../services/postTripService';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
+import { Feather } from '@expo/vector-icons';
 import { fetchTripBill, updateTripBill } from '../../../services/tripBillService';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
+import TripBillEditModal from '../../../components/tripModals/TripBillEditModal';
+import CustomModal from '../../../components/ui/CustomModal';
 
 const { width } = Dimensions.get('window');
 
@@ -33,11 +36,15 @@ const TripBillEditScreen = ({ navigation, route }) => {
   const [extraKmsCharges, setExtraKmsCharges] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
-  const [parking, setParking] = useState('');
-  const [tolls, setTolls] = useState('');
+  // const [parking, setParking] = useState('');
+  const [gst, setGst] = useState('');
+  const [TollParking, setTollParking] = useState('');
+  const [showTripBillEditModal, setShowTripBillEditModal] = useState(false)
+  const [bill, setBill] = useState([]);
+
   const [otherStateTaxes, setOtherStateTaxes] = useState('');
-  const [advance, setAdvance] = useState('');
-  const [cleaningCharges, setCleaningCharges] = useState('');
+  const [amount, setAmount] = useState('');
+  const [otherCharges, setOtherCharges] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [driverName, setDriverName] = useState('');
@@ -53,6 +60,69 @@ const TripBillEditScreen = ({ navigation, route }) => {
   const [discount, setDiscount] = useState('')
   console.log({ tripId })
 
+
+  const TripCard = React.memo(({ tripData, index, onEdit }) => {
+    return (
+      <View style={styles.cardContainer}>
+        {/* Header with Day number, Date and Edit icon */}
+        <View style={styles.cardHeader}>
+          <CustomText text={`Day ${index + 1}`} style={styles.dayText} />
+          <View style={styles.headerRight}>
+            <CustomText
+              text={tripData.start_date || '-'}
+              style={styles.dateText}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                onEdit && onEdit(tripData);  // Call onEdit if it exists
+                setShowTripBillEditModal(true);  // Open the modal
+              }}
+              style={styles.editButton}
+            >
+              <Feather name="edit-2" size={16} color="#008B8B" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Trip Time Section */}
+        <View style={styles.infoRow}>
+          <View style={styles.timeSection}>
+            <CustomText text="Total Time:" style={styles.labelText} />
+            <CustomText
+              text={`${tripData.start_time || '-'} to ${tripData.end_time || '-'}`}
+              style={styles.valueText}
+            />
+          </View>
+          <View style={styles.totalSection}>
+            <CustomText text="Total hrs:" style={styles.labelText} />
+            <CustomText text={tripData.total_hours} style={styles.valueText} />
+          </View>
+        </View>
+
+        {/* Trip KMs Section */}
+        <View style={styles.infoRow}>
+          <View style={styles.timeSection}>
+            <CustomText text="Total KMs:" style={styles.labelText} />
+            <CustomText
+              text={`${tripData.start_kms || '-'} - ${tripData.end_kms || '-'}`}
+              style={styles.valueText}
+            />
+          </View>
+          <View style={styles.totalSection}>
+            <CustomText text="Total:" style={styles.labelText} />
+            <CustomText
+              text={
+                tripData.total_kms === 'NaN' ? '-' : `${tripData.total_kms} KMs`
+              }
+              style={styles.valueText}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  });
+
+  TripCard.displayName = 'TripCard';
 
   const fetchConstants = async () => {
     setIsLoading(true);
@@ -78,26 +148,27 @@ const TripBillEditScreen = ({ navigation, route }) => {
   const loadTripData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetchTripBill(postId, userToken);
+      const { data } = await fetchTripBill(postId, userToken);
 
-      const data = response?.data;
+      setBill(data)
       console.log({ data })
       if (data) {
         setBookingType(data.bookingType_id?.toString() || '');
-        setTripId(data.trip_sheet_id || '');
+        setTripId(data.trip_sheet_ride_id || '');
         setPostedUserId(data.posted_User_id)
         setSelectedTripType(data.bookingType_id || '');
         setSlabRate(data.bookingTypeTariff_base_fare_rate?.toString() || '');
         setSlabKms(data.packageKms?.toString() || '');
         setExtraKmsCharges(data.extra_km_amount?.toString() || '');
-        setDayBatta(data.bookingTypeTariff_day_batta_rate?.toString() || '');
-        setNightBatta(data.bookingTypeTariff_night_batta_rate?.toString() || '');
+        setDayBatta(data?.tripSheetRide?.day_batta?.toString() || '');
+        setNightBatta(data?.tripSheetRide?.night_batta?.toString() || '');
 
-        setParking(data.parking?.toString() || '');
-        setTolls(data.tolls?.toString() || '');
-        setOtherStateTaxes(data.state_tax?.toString() || '');
-        setAdvance(data.advance?.toString() || '');
-        setCleaningCharges(data.cleaning?.toString() || '');
+        setAmount(data?.tripSheetRide?.amount?.toString() || '');
+        setGst(data?.tripSheetRide?.gst_amt?.toString() || '');
+        setTollParking(data.tripSheetRide?.tot_toll_park?.toString() || '')
+        setOtherStateTaxes(data.tripSheetRide?.state_tax?.toString() || '');
+        // setAdvance(data.advance?.toString() || '');
+        setOtherCharges(data.tripSheetRide?.toString() || '');
         setCustomerName(data.customer_name || '');
         setCustomerPhone(data.customer_phone_no || '');
         setDriverName(data.driver_name || '');
@@ -148,11 +219,13 @@ const TripBillEditScreen = ({ navigation, route }) => {
         extra_km_amount: extraKmsCharges,
         bookingTypeTariff_day_batta_rate: dayBatta,
         bookingTypeTariff_night_batta_rate: nightBatta,
-        parking: parking,
+        // parking: parking,
+        tot_toll_park: TollParking,
         discount: discount,
-        tolls: tolls,
+        gst_amt: gst,
         state_tax: otherStateTaxes,
-        advance: advance,
+        other_charges: otherCharges,
+        amount: amount,
         cleaning: cleaningCharges,
         customer_name: customerName,
         customer_phone_no: customerPhone,
@@ -285,57 +358,60 @@ const TripBillEditScreen = ({ navigation, route }) => {
               />
 
             </View>
-          </View>
-        </View>
+            <View style={styles.section}>
+              <CustomText
+                text="Others Charges"
+                variant="sectionTitleText"
+                style={styles.sectionTitle}
+              />
+              <View style={styles.inputGroup}>
+                <View style={styles.inputRow}>
+                  <CustomInput
+                    value={TollParking || ''}
+                    onChangeText={setTollParking}
+                    keyboardType="numeric"
+                    placeholder={'TollParking'}
+                  />
+                </View>
+                <View style={styles.inputRow}>
+                  <CustomInput
+                    value={gst || ''}
+                    onChangeText={setGst}
+                    keyboardType="numeric"
+                    placeholder={'Gst'}
+                  />
+                </View>
+                <View style={styles.inputRow}>
+                  <CustomInput
+                    value={amount || ''}
+                    onChangeText={setAmount}
+                    keyboardType="numeric"
+                    placeholder={'Amount'}
+                  />
+                </View>
+                <View style={styles.inputRow}>
+                  <CustomInput
+                    value={otherCharges || ''}
+                    onChangeText={setOtherCharges}
+                    keyboardType="numeric"
+                    placeholder={'Other Charges'}
+                  />
+                </View>
+                <View style={styles.inputRow}>
+                  <CustomInput
+                    value={otherStateTaxes || ''}
+                    onChangeText={setOtherStateTaxes}
+                    keyboardType="numeric"
+                    placeholder={'Other State Charges'}
+                  />
+                </View>
+              </View>
+            </View>
 
-        {/* Others Charges Section */}
-        <View style={styles.section}>
-          <CustomText
-            text="Others Charges"
-            variant="sectionTitleText"
-            style={styles.sectionTitle}
-          />
-          <View style={styles.inputGroup}>
-            <View style={styles.inputRow}>
-              <CustomInput
-                value={parking || ''}
-                onChangeText={setParking}
-                keyboardType="numeric"
-                placeholder={'Parking'}
-              />
-            </View>
-            <View style={styles.inputRow}>
-              <CustomInput
-                value={tolls || ''}
-                onChangeText={setTolls}
-                keyboardType="numeric"
-                placeholder={'Tolls'}
-              />
-            </View>
-            <View style={styles.inputRow}>
-              <CustomInput
-                value={otherStateTaxes || ''}
-                onChangeText={setOtherStateTaxes}
-                keyboardType="numeric"
-                placeholder={'Other State Taxes'}
-              />
-            </View>
-            <View style={styles.inputRow}>
-              <CustomInput
-                value={advance || ''}
-                onChangeText={setAdvance}
-                keyboardType="numeric"
-                placeholder={'Advance'}
-              />
-            </View>
-            <View style={styles.inputRow}>
-              <CustomInput
-                value={cleaningCharges || ''}
-                onChangeText={setCleaningCharges}
-                keyboardType="numeric"
-                placeholder={'Cleaning Charges'}
-              />
-            </View>
+
+
+
+
           </View>
         </View>
 
@@ -418,7 +494,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
                 placeholder={'Total Usage'}
               />
             </View>
-            <View style={styles.inputRow}>
+            {/* <View style={styles.inputRow}>
               <CustomInput
                 value={pickupDetail || ''}
                 onChangeText={setPickupDetail}
@@ -431,11 +507,27 @@ const TripBillEditScreen = ({ navigation, route }) => {
                 onChangeText={setVisitingPlaces}
                 placeholder={'Visiting Places'}
               />
-            </View>
+            </View> */}
           </View>
         </View>
 
         {/* Action Buttons */}
+
+
+
+        <View style={styles.cardsContainer}>
+          <FlatList
+            data={bill?.tripSheetRide}
+            renderItem={({ item, index }) => (
+              <TripCard tripData={item} index={index} />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+
+          />
+        </View>
+
         <View style={styles.buttonContainer}>
           <CustomButton
             title="Cancel"
@@ -460,6 +552,69 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F5FD',
     padding: 16,
   },
+  cardContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  sectionList: {
+    flexGrow: 0, // Prevents SectionList from taking extra space
+    marginBottom: 0,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+
+  },
+  cardsContainer: {
+    marginTop: 0,
+    flex: 1,
+  },
+  listContainer: {
+    paddingBottom: 16,
+    flexGrow: 1,
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  editButton: {
+    padding: 4,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  timeSection: {
+    flex: 3,
+  },
+  labelText: {
+    fontSize: 12,
+    color: '#666666',
+    marginBottom: 2,
+  },
+  valueText: {
+    fontSize: 13,
+    color: '#333333',
+    fontWeight: '500',
+  },
+  totalSection: {
+    flex: 2,
+    alignItems: 'flex-end',
+  },
   section: {
     marginBottom: 24,
     borderRadius: 8,
@@ -481,6 +636,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#37474f',
+  },
+  listContainer: {
+    paddingBottom: 16,
+    flexGrow: 1,
   },
   input: {
     flex: 1,

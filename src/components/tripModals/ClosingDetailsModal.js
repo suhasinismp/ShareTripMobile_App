@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -28,9 +28,18 @@ const ClosingDetailsModal = ({
   setShowClosingDatePicker,
   handleCloseTrip,
   onClose,
-  isGst,
-  SetIsGst,
+  setIsGstClosingForDay
+
 }) => {
+
+  const [isGst, setIsGst] = useState(false)
+
+
+
+  useEffect(() => {
+    setIsGstClosingForDay(isGst);
+  }, [isGst])
+
   return (
     <View style={styles.modalContent}>
       <TouchableOpacity
@@ -104,7 +113,8 @@ const ClosingDetailsModal = ({
       </View>
       <View style={{ display: 'flex', justifyContent: 'space-between', }}>
         <Text >GST</Text>
-        <TouchableOpacity onPress={() => SetIsGst(!isGst)}>
+        <TouchableOpacity onPress={() => setIsGst(!isGst)}>
+
           {isGst ? (<CheckBoxActive width={24} height={24} />
           ) : (
             <CheckBoxInactive width={24} height={24} />

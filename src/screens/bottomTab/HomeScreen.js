@@ -91,7 +91,7 @@ const HomeScreen = () => {
 
   const getUserMetaData = async () => {
     const response = await fetchUserMetaData(userId, userToken);
-    const ringtoneResponse = await getCurrentRingtone
+    // const ringtoneResponse = await getCurrentRingtone
 
     if (
       response?.userStatuses?.vehicleStatusExists === false ||

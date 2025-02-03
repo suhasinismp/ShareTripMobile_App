@@ -52,7 +52,38 @@ const ViewTripSheet = ({ route }) => {
     if (!tripDetails) {
       return [];
     }
-    console.log({ tripDetails })
+
+    const tripData = tripDetails[0].tripSheetFinal[0].tripSheetRide
+    console.log({ tripData })
+    const lengthOfData = tripData.length
+    let totalHours = 0;
+    let totalMinutes = 0;
+    let totalKms = 0;
+
+    tripData.forEach((trip) => {
+      // Extract hours and minutes
+      const match = trip.total_hours.match(/(\d+)h:(\d+)m/);
+      if (match) {
+        totalHours += parseInt(match[1], 10);
+        totalMinutes += parseInt(match[2], 10);
+      }
+
+      // Add total kilometers
+      totalKms += parseInt(trip.total_kms, 10);
+    });
+
+    // Convert excess minutes to hours
+    totalHours += Math.floor(totalMinutes / 60);
+    totalMinutes = totalMinutes % 60;
+
+    const totalTripHrs = `${totalHours}h:${totalMinutes}m`;
+    const totalTripKms = `${totalKms} kms`;
+
+
+
+
+
+
     const data = [
       { label: 'Booking Type', value: tripDetails[0].bookingType_name },
       { label: 'Package', value: tripDetails[0].bookingTypePackage_name },
@@ -72,6 +103,15 @@ const ViewTripSheet = ({ route }) => {
       { label: 'Payment Type', value: tripDetails[0].payment_type || '-' },
       { label: 'Note', value: tripDetails[0].note_1 || '-' },
     ];
+
+    if (from === 'bills') {
+      data.push(
+        { label: 'Start kms', value: tripDetails[0].tripSheetFinal?.[0].tripSheetRide?.[0].start_kms || '-' },
+        { label: 'End Kms', value: tripDetails[0].tripSheetFinal?.[0].tripSheetRide?.[lengthOfData - 1].end_kms || '-' },
+        { label: 'Total kms', value: totalTripKms || '-' },
+        { label: 'Total Hrs', value: totalTripHrs || '-' }
+      )
+    }
 
     if (from != 'home') {
       data.unshift(

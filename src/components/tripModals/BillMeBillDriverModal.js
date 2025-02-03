@@ -4,35 +4,25 @@ import { FontAwesome } from '@expo/vector-icons';
 
 
 
-const BillMeBillDriverModal = ({ onClose, SetBillToDriver, handleContinue, SetBillToMe, BillToDriver, BillToMe, handleCancel }) => {
+const BillMeBillDriverModal = ({ onClose, SetBillToDriver, handleContinue, SetBillToMe, BillToMe, handleCancel }) => {
     const [selectedOption, setSelectedOption] = useState('');
 
 
 
     // Options
     const options = [
-        { id: '1', label: 'Bill to Me', value: false },
-        { id: '2', label: 'Bill to Driver', value: true }
+        // { id: '1', label: 'Bill to Me', value: false },
+        { id: '1', label: 'Bill to Driver', value: true }
     ];
 
 
     const handleSelect = (value) => {
         setSelectedOption(value);
-        if (value === false) {
-            SetBillToMe(false);
-        } else {
-            SetBillToDriver(true)
-        }
+        SetBillToMe((pre) => !pre);
     }
 
-
-
-
-
-
-
     return (
-        <View styel={style.modalContainer}>
+        <View style={style.modalContainer}>
             <TouchableOpacity
                 style={{ position: 'absolute', top: 10, right: 10 }} onPress={onClose}
             >
@@ -47,7 +37,7 @@ const BillMeBillDriverModal = ({ onClose, SetBillToDriver, handleContinue, SetBi
                     onPress={() => handleSelect(option.value)}
                 >
                     <FontAwesome
-                        name={selectedOption === option.value ? "dot-circle-o" : "circle-o"}
+                        name={BillToMe === true ? "dot-circle-o" : "circle-o"}
                         size={24}
                         color="#004c75"
                         style={style.radioIcon}

@@ -54,6 +54,8 @@ const SelfTripHome = () => {
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
   const [selectedTripData, setSelectedTripData] = useState(null);
+  const [isGstClosingForDay, setIsGstClosingForDay] = useState(false)
+  const [isGstSummaryValue, setIsGstSummaryValue] = useState(false)
 
 
 
@@ -166,6 +168,7 @@ const SelfTripHome = () => {
         end_trip_time: closingTime,
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
+        is_gst: isGstClosingForDay,
       },
       userToken,
     );
@@ -175,6 +178,8 @@ const SelfTripHome = () => {
       setClosingKms('');
       setClosingTime('');
       setClosingDate('');
+      // setIsGst(true);
+      setShowAdditionalCharges(true);
     }
   };
 
@@ -216,6 +221,7 @@ const SelfTripHome = () => {
         end_trip_time: closingTime,
         posted_user_id: userId,
         accepted_user_id: userId,
+        is_gst: isGstSummaryValue,
       },
       userToken,
     );
@@ -255,7 +261,7 @@ const SelfTripHome = () => {
       cleaning: charges?.cleaning,
       night_batta: charges?.nightBatta,
     };
-
+    console.log("finalData", finalData)
     const formData = new FormData();
     formData.append('json', JSON.stringify(finalData));
 
@@ -299,13 +305,15 @@ const SelfTripHome = () => {
       // Amount Props
       baseFareRate={item?.bookingTypeTariff_base_fare_rate}
       // Action Props
-      onRequestPress={() => handleButtonPress(item)}
-      onPlayPress={() => {
-        /* TODO: Implement voice message playback */
-      }}
-      onMessagePress={() => {
-        /* TODO: Implement messaging */
-      }}
+      // onRequestPress={() => handleButtonPress(item)}
+      // onTripSheetPress={() => {
+      //   navigation.navigate('ViewTripSheet', {
+      //     from: 'selfTrips',
+      //     postId: item?.post_booking_id,
+      //   });
+      // }}
+
+
       isRequested={item?.request_status}
       packageName={item?.bookingTypePackage_name}
     />
@@ -393,6 +401,7 @@ const SelfTripHome = () => {
             closingActionType={closingActionType}
             handleCloseTrip={handleCloseForDay}
             onClose={() => setShowClosingDetailsModal(false)}
+            setIsGstClosingForDay={setIsGstClosingForDay}
           />
         </CustomModal>
 
@@ -402,6 +411,7 @@ const SelfTripHome = () => {
             tripSummaryData={tripSummaryData}
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
+            setIsGstSummaryValue={setIsGstSummaryValue}
 
             onPressNext={(closingDetails) => {
 
@@ -433,6 +443,7 @@ const SelfTripHome = () => {
             userToken={userToken}
             userId={userId}
             onClose={() => setShowCustomerSignatureModal(false)}
+
             fetch={getSelfTripPosts}
           />
         </CustomModal>
@@ -446,11 +457,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F0F0F0',
   },
-  listContainer: {
-    flex: 1,
-    marginHorizontal: 20,
-    // paddingBottom: 16,
+  list: {
+    flexGrow: 1,
   },
+
+
+  // paddingBottom: 16,
+
   floatingButton: {
     position: 'absolute',
     bottom: 50,

@@ -11,8 +11,6 @@ import { useSelector } from 'react-redux';
 import FilterIcon from '../../../assets/svgs/filter.svg';
 import AppHeader from '../../components/AppHeader';
 import PostCard from '../../components/PostCard';
-
-
 import {
   closeForDay,
   closeTrip,
@@ -71,7 +69,12 @@ const MyTrips = () => {
   const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
-  const [isGst, setIsGst] = useState(false)
+  const [isGstClosingForDay, setIsGstClosingForDay] = useState(false)
+  const [isGstSummaryValue, setIsGstSummaryValue] = useState(false)
+
+
+
+
 
   // Trip data states
   const [selectedTripData, setSelectedTripData] = useState(null);
@@ -236,7 +239,6 @@ const MyTrips = () => {
       setClosingKms('');
       setClosingTime('');
       setClosingDate('');
-      setIsGst('');
     }
   };
 
@@ -270,7 +272,7 @@ const MyTrips = () => {
         end_trip_time: closingTime,
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
-        is_gst: isGst,
+        is_gst: isGstClosingForDay,
 
       },
       userToken,
@@ -281,7 +283,8 @@ const MyTrips = () => {
       setClosingKms('');
       setClosingTime('');
       setClosingDate('');
-      setIsGst('');
+      // setIsGst(true);
+      setShowAdditionalCharges(true);
     }
   };
 
@@ -295,7 +298,7 @@ const MyTrips = () => {
         end_trip_time: closingTime,
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
-        is_gst: isGst,
+        is_gst: isGstSummaryValue,
       },
       userToken,
     );
@@ -370,33 +373,8 @@ const MyTrips = () => {
   };
 
   const handleAdditionalChargesNext = async (documents, charges) => {
-    const formData = new FormData();
-    formData.append(
-      'json',
-      JSON.stringify({
-        post_booking_id: selectedTripData?.post_booking_id,
-        advance: charges?.advance,
-        parking: charges?.parking,
-        tolls: charges?.tolls,
-        state_tax: charges?.stateTax,
-        cleaning: charges?.cleaning,
-        night_batta: charges?.nightBatta,
-      }),
-    );
 
-    documents.forEach((doc) => {
-      formData.append(doc.fileNumber, {
-        uri: doc.uri,
-        type: doc.type,
-        name: doc.name,
-      });
-    });
-
-    const response = await postAdditionCharges(formData, userToken);
-    if (response?.error === false) {
-      setShowAdditionalCharges(false);
-      setShowCustomerSignatureModal(true);
-    }
+    console.log('hi')
   };
 
   const getEmptyStateMessage = () => {
@@ -641,6 +619,8 @@ const MyTrips = () => {
           closingActionType={closingActionType}
           handleCloseTrip={handleCloseForDay}
           onClose={() => setShowClosingDetailsModal(false)}
+
+          setIsGstClosingForDay={setIsGstClosingForDay}
         />
       </CustomModal>
 
@@ -652,6 +632,7 @@ const MyTrips = () => {
           tripSummaryData={tripSummaryData}
           setShowTripSummaryModal={setShowTripSummaryModal}
           setShowAdditionalCharges={setShowAdditionalCharges}
+          setIsGstSummaryValue={setIsGstSummaryValue}
           onPressNext={(closingDetails) => {
             // Check if values are received
             handleCloseTrip({
@@ -676,13 +657,7 @@ const MyTrips = () => {
             setShowAdditionalCharges(false)}
         />
 
-        {/* <AdditionalChargesModal
-          onNext={handleAdditionalChargesNext}
-          onClose={() => {
-            console.log('Close button clicked!'); // Add log here
-            setShowAdditionalCharges(false); // This will close the modal
-          }}
-        /> */}
+
       </CustomModal>
 
       <CustomModal

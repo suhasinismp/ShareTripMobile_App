@@ -36,13 +36,23 @@ import {
   fetchVehicleNames,
   fetchVehicleTypes,
 } from '../../../services/vehicleDetailsService';
-import { getTripDetailsSelector, getUserDataSelector } from '../../../store/selectors';
+import {
+  getTripDetailsSelector,
+  getUserDataSelector,
+} from '../../../store/selectors';
 import AudioContainer from '../../../components/AudioContainer';
 import TimeDatePicker from '../../../components/TimeDatePicker';
 import { cleanHTML } from '../../../utils/cleanHTML';
-import { getMyDutiesBill, getMyPostedTripBills, getMySelfTripBills } from '../../../services/billService';
+import {
+  getMyDutiesBill,
+  getMyPostedTripBills,
+  getMySelfTripBills,
+} from '../../../services/billService';
 import { parseTime } from '../../../utils/parseTimeUtil';
 import { parseDate } from '../../../utils/parseDate';
+import { Feather } from '@expo/vector-icons';
+import CustomModal from '../../../components/ui/CustomModal';
+import TripBillEditModal from '../../../components/tripModals/TripBillEditModal';
 
 const { width } = Dimensions.get('window');
 
@@ -71,13 +81,67 @@ const headers = [
   'End KMs',
   'Total KMs',
 ];
-const formatDate = (dateString) => {
-  if (!dateString) return '-';
-  const date = new Date(dateString);
-  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}/${date.getFullYear().toString().slice(2)}`;
-};
+
+const TripCard = React.memo(({ tripData, index, onEdit }) => {
+  return (
+    <View style={styles.cardContainer}>
+      {/* Header with Day number, Date and Edit icon */}
+      <View style={styles.cardHeader}>
+        <CustomText text={`Day ${index + 1}`} style={styles.dayText} />
+        <View style={styles.headerRight}>
+          <CustomText
+            text={tripData.start_date || '-'}
+            style={styles.dateText}
+          />
+          <TouchableOpacity
+            onPress={() => setShowTripBillEditModal(true)}
+            style={styles.editButton}
+          >
+            <Feather name="edit-2" size={16} color="#008B8B" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Trip Time Section */}
+      <View style={styles.infoRow}>
+        <View style={styles.timeSection}>
+          <CustomText text="Trip Time:" style={styles.labelText} />
+          <CustomText
+            text={`${tripData.start_time || '-'} to ${tripData.end_time || '-'}`}
+            style={styles.valueText}
+          />
+        </View>
+        <View style={styles.totalSection}>
+          <CustomText text="Duration:" style={styles.labelText} />
+          <CustomText text={tripData.total_hours} style={styles.valueText} />
+        </View>
+      </View>
+
+      {/* Trip KMs Section */}
+      <View style={styles.infoRow}>
+        <View style={styles.timeSection}>
+          <CustomText text="Trip KMs:" style={styles.labelText} />
+          <CustomText
+            text={`${tripData.start_kms || '-'} - ${tripData.end_kms || '-'}`}
+            style={styles.valueText}
+          />
+        </View>
+        <View style={styles.totalSection}>
+          <CustomText text="Total:" style={styles.labelText} />
+          <CustomText
+            text={
+              tripData.total_kms === 'NaN' ? '-' : `${tripData.total_kms} KMs`
+            }
+            style={styles.valueText}
+          />
+        </View>
+      </View>
+    </View>
+  );
+});
+
+TripCard.displayName = 'TripCard';
+
 // Memoized Vehicle Button Component
 const VehicleButton = React.memo(
   ({ item, isSelected, onPress, imageKey, nameKey }) => (
@@ -104,7 +168,7 @@ VehicleButton.displayName = 'VehicleButton';
 
 const PostATripScreen = ({ route }) => {
   const { from, postId } = route.params || {};
-  console.log({ from, postId })
+  console.log({ from, postId });
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
   const tripDetails = useSelector(getTripDetailsSelector);
@@ -116,9 +180,9 @@ const PostATripScreen = ({ route }) => {
   const [postType, setPostType] = useState(POST_TYPES.QUICK_SHARE);
   const [message, setMessage] = useState('');
   const [customerName, setCustomerName] = useState('');
-
+  console.log({ customerName });
   const [customerPhone, setCustomerPhone] = useState('');
-
+  console.log({ customerPhone });
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropLocation, setDropLocation] = useState('');
   const [visitingPlace, setVisitingPlace] = useState('');
@@ -131,7 +195,15 @@ const PostATripScreen = ({ route }) => {
   const [nightBatta, setNightBatta] = useState('');
   const [slabRate, setSlabRate] = useState('');
   const [tripTableData, setTripTableData] = useState(null);
+  const [showTripBillEditModal, setShowTripBillEditModal] = useState();
+  const [totalTime, setTotalTime] = useState('');
+  const [totalHrs, setTotalHrs] = useState('');
+  const [totalKms, setTotalKms] = useState('');
+  const [total, setTotal] = useState('');
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
+  console.log({ tripTableData });
 
   // Selection States
   const [selectedTripType, setSelectedTripType] = useState(null);
@@ -148,7 +220,6 @@ const PostATripScreen = ({ route }) => {
 
   const [selectedToDate, setSelectedToDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
-  console.log({ selectedTime })
 
   // Data States
   const [tripTypes, setTripTypes] = useState([]);
@@ -156,9 +227,7 @@ const PostATripScreen = ({ route }) => {
   const [allVehicleNames, setAllVehicleNames] = useState([]);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
   const [initialData, setInitialData] = useState(null);
-  console.log({ initialData })
-
-
+  console.log({ initialData });
 
   // UI States
   const [isRecording, setIsRecording] = useState(false);
@@ -167,6 +236,32 @@ const PostATripScreen = ({ route }) => {
   const [pdfUri, setPdfUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const resetFields = () => {
+    setCustomerPhone('');
+    setCustomerName('');
+    setPickupLocation('');
+    setDropLocation('');
+    setVisitingPlace('');
+    setNotes('');
+    setSelectedPaymentType('');
+    setSelectedFromDate('');
+    setSelectedToDate('');
+    setSelectedTime('');
+    setSelectedTripType(null);
+    setSelectedPackage(null);
+    setSelectedVehicleType(null);
+    setSelectedVehicleName(null);
+    setSelectedShareType(1);
+    setIsRecording(false);
+    setIsPdfGenerating(false);
+    setIsLoading(false);
+    setRate('');
+    setDayBatta('');
+    setMessage('');
+    setRecordedAudioUri('');
+
+
+  }
 
   // Effects
   useEffect(() => {
@@ -226,12 +321,10 @@ const PostATripScreen = ({ route }) => {
   }, [tripTypes]);
 
   useEffect(() => {
-
     if (initialData) {
-
       const data = initialData;
       // Access the first item in the array
-      // console.log({ data })
+      console.log({ data });
       setSelectedTripType(data?.postBooking?.booking_type_id);
       setSelectedPackage(data?.bookingTypePackage_id);
       setSelectedVehicleType(data?.postBooking?.vehicle_type_id);
@@ -241,7 +334,7 @@ const PostATripScreen = ({ route }) => {
       // Handle date and time
       setSelectedFromDate(parseDate(data?.start_date || data?.from_date));
       setSelectedToDate(parseDate(data?.end_trip_date || data?.to_date));
-      setSelectedTime(parseTime(data?.pick_up_time));
+      setSelectedTime(parseTime(data?.postBooking?.pick_up_time));
 
       // Set other form fields
       setRate(data?.bookingTypeTariff_base_fare_rate?.toString() || '');
@@ -250,7 +343,9 @@ const PostATripScreen = ({ route }) => {
       setPickupLocation(data?.postBooking?.pick_up_location || '');
       setDropLocation(data?.postBooking?.destination || '');
       setVisitingPlace(data?.postBooking?.visiting_place || '');
-      setSelectedPaymentType(data?.postBooking?.payment_type || PAYMENT_TYPES.CASH);
+      setSelectedPaymentType(
+        data?.postBooking?.payment_type || PAYMENT_TYPES.CASH,
+      );
       setNotes(data?.postBooking?.note_1 || '');
 
       // Set message if it exists
@@ -293,11 +388,8 @@ const PostATripScreen = ({ route }) => {
           ? await fetchTripByPostId(postId, userToken)
           : await fetchTripSheetByPostId(postId, userToken);
 
-
       if (!response.error) {
-        setInitialData(
-          response.data,
-        );
+        setInitialData(response.data);
       }
     } catch (error) {
       console.error('Error fetching trip sheet details:', error);
@@ -392,7 +484,6 @@ const PostATripScreen = ({ route }) => {
           value: fields.selectedVehicleName,
           message: 'Please select a vehicle name.',
         },
-
       ];
 
       for (const field of mandatoryFields) {
@@ -477,11 +568,12 @@ const PostATripScreen = ({ route }) => {
 
       try {
         const response = await createPost(formData, userToken);
-        console.log({ response })
+        console.log({ response });
         if (
           response.error === false &&
           response.message === 'Post Booking Data created successfully'
         ) {
+          resetFields();
           navigation.navigate('Home');
         } else {
           alert(response.message);
@@ -498,8 +590,6 @@ const PostATripScreen = ({ route }) => {
   };
 
   const handleUpdate = async () => {
-
-
     const { isValid, errorMessage } = validateMandatoryFields(
       {
         selectedTripType,
@@ -525,9 +615,7 @@ const PostATripScreen = ({ route }) => {
       vehicle_type_id: selectedVehicleType,
       vehicle_name_id: selectedVehicleName,
       post_type_id: selectedShareType,
-
     };
-
 
     // Add optional fields
     if (customerName) finalData.customer_name = customerName;
@@ -547,23 +635,19 @@ const PostATripScreen = ({ route }) => {
     if (selectedFromDate) finalData.from_date = selectedFromDate;
     if (selectedToDate) finalData.to_date = selectedToDate;
 
-    console.log({ finalData })
-
     const formData = new FormData();
     formData.append('json', JSON.stringify(finalData));
 
     try {
-
       const response = await updatePost(formData, userToken);
 
       if (from === 'bills') {
         navigation.goBack();
-        await getMyDutiesBill(userId, userToken)
-        await getMyPostedTripBills(userId, userToken)
-        await getMySelfTripBills(userId, userToken)
-        await fetchTripSheetByPostId(postId, userToken)
+        await getMyDutiesBill(userId, userToken);
+        await getMyPostedTripBills(userId, userToken);
+        await getMySelfTripBills(userId, userToken);
+        await fetchTripSheetByPostId(postId, userToken);
       } else {
-
         navigation.goBack();
       }
     } catch (error) {
@@ -571,6 +655,10 @@ const PostATripScreen = ({ route }) => {
       alert('Failed to update trip sheet. Please try again.');
     }
   };
+
+  const handleTripBillEdit = () => {
+
+  }
 
   const handleGeneratePDF = async () => {
     setIsPdfGenerating(true);
@@ -874,15 +962,17 @@ const PostATripScreen = ({ route }) => {
               )}
             </View>
             <View style={styles.tariffRow}>
-              {selectedTripType != 1 && selectedTripType != 2 && selectedTripType != 3 && (
-                <CustomInput
-                  placeholder="Night Batta"
-                  value={nightBatta}
-                  onChangeText={setNightBatta}
-                  style={styles.tariffInput}
-                  keyboardType="numeric"
-                />
-              )}
+              {selectedTripType != 1 &&
+                selectedTripType != 2 &&
+                selectedTripType != 3 && (
+                  <CustomInput
+                    placeholder="Night Batta"
+                    value={nightBatta}
+                    onChangeText={setNightBatta}
+                    style={styles.tariffInput}
+                    keyboardType="numeric"
+                  />
+                )}
             </View>
             {selectedTripType === 3 && (
               <View style={styles.tariffRow}>
@@ -893,7 +983,6 @@ const PostATripScreen = ({ route }) => {
                   style={styles.tariffInput}
                   keyboardType="numeric"
                 />
-
               </View>
             )}
           </View>
@@ -1038,48 +1127,6 @@ const PostATripScreen = ({ route }) => {
     ],
   );
 
-  const renderTableHeader = () => (
-    <View style={styles.headerRow}>
-      {headers.map((header, index) => (
-        <View
-          key={index}
-          style={[
-            styles.headerCell,
-            index === headers.length - 1 && styles.lastCell,
-          ]}
-        >
-          <Text style={styles.headerText}>{header}</Text>
-        </View>
-      ))}
-    </View>
-  );
-
-  // Render table row
-  const renderItem = ({ item }) => (
-    <View style={styles.row}>
-      <View style={styles.cell}>
-        <Text style={styles.cellText}>{item.start_date || '-'}</Text>
-      </View>
-      <View style={styles.cell}>
-        <Text style={styles.cellText}>{item.start_time || '-'}</Text>
-      </View>
-      <View style={styles.cell}>
-        <Text style={styles.cellText}>{item.start_kms || '-'}</Text>
-      </View>
-      <View style={styles.cell}>
-        <Text style={styles.cellText}>{item.end_time || '-'}</Text>
-      </View>
-      <View style={styles.cell}>
-        <Text style={styles.cellText}>{item.end_kms || '-'}</Text>
-      </View>
-      <View style={[styles.cell, styles.lastCell]}>
-        <Text style={styles.cellText}>
-          {item.total_kms === 'NaN' ? '-' : item.total_kms}
-        </Text>
-      </View>
-    </View>
-  );
-
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -1129,17 +1176,40 @@ const PostATripScreen = ({ route }) => {
           : renderTripSheetContent()}
 
         {from === 'bills' && (
-          <View>
-            {renderTableHeader()}
+          <View style={styles.cardsContainer}>
             <FlatList
               data={tripTableData}
-              renderItem={renderItem}
+              renderItem={({ item, index }) => (
+                <TripCard tripData={item} index={index} />
+              )}
               keyExtractor={(item) => item.id.toString()}
-              scrollEnabled={true}
-              showsVerticalScrollIndicator={true}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.cardsContentContainer}
             />
           </View>
         )}
+
+        <CustomModal
+          visible={showTripBillEditModal}
+          onPrimaryAction={handleTripBillEdit}
+          onSecondaryAction={() => showTripBillEditModal(false)}
+        >
+          <TripBillEditModal
+            totalTime={totalTime}
+            setTotalTime={setTotalTime}
+            totalKms={totalKms}
+            setTotalKms={setTotalKms}
+            totalHrs={totalHrs}
+            setTotalHrs={setTotalHrs}
+            total={total}
+            setTotal={setTotal}
+            showTimePicker={showTimePicker}
+            setShowTimePicker={setShowTimePicker}
+            showDatePicker={showDatePicker}
+            setShowDatePicker={setShowDatePicker}
+            onClose={() => showTripBillEditModal(false)}
+          />
+        </CustomModal>
 
         <View style={styles.buttonContainer}>
           {from === 'bills' && (
@@ -1389,6 +1459,93 @@ const styles = StyleSheet.create({
   },
   cellText: {
     textAlign: 'center',
+  },
+  cardRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  cardField: {
+    flex: 1,
+  },
+  cardLabel: {
+    fontSize: 12,
+    color: '#666666',
+    marginBottom: 4,
+  },
+  cardValue: {
+    fontSize: 14,
+    color: '#333333',
+    fontWeight: '500',
+  },
+
+  cardsContainer: {
+    marginTop: 16,
+  },
+  cardsContentContainer: {
+    paddingBottom: 16,
+  },
+  cardContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  dayText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#008B8B',
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  timeSection: {
+    flex: 3,
+  },
+  totalSection: {
+    flex: 2,
+    alignItems: 'flex-end',
+  },
+  labelText: {
+    fontSize: 12,
+    color: '#666666',
+    marginBottom: 2,
+  },
+  valueText: {
+    fontSize: 13,
+    color: '#333333',
+    fontWeight: '500',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  editButton: {
+    padding: 4,
   },
 });
 

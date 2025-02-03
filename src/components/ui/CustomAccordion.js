@@ -43,8 +43,10 @@ const CustomAccordion = ({
   const [showBillMeBillDriverModal, setShowBillMeBillDriverModal] = useState(false)
   const [billToDriver, setBillToDriver] = useState(true)
   const [billToMe, setBillToMe] = useState(false)
+  const [driverDetails, setDriverDetails] = useState({})
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotate = useRef(new Animated.Value(0)).current;
+
 
   const toggleAccordion = () => {
     const toValue = isExpanded ? 0 : 1;
@@ -79,7 +81,8 @@ const CustomAccordion = ({
     setShowBillMeBillDriverModal(false)
   }
 
-  const handleAcceptDriver = async () => {
+  const handleAcceptDriver = async (driver) => {
+    setDriverDetails(driver)
     setShowBillMeBillDriverModal(true)
   };
   const handleContinue = async (driver) => {
@@ -87,18 +90,19 @@ const CustomAccordion = ({
 
     try {
       let finalData = {
-        post_bookings_id: driver?.post_id,
-        accepted_user_id: driver?.user_id,
-        vehicle_id: driver?.vehicle_id,
+        post_bookings_id: driverDetails?.post_id,
+        accepted_user_id: driverDetails?.user_id,
+        vehicle_id: driverDetails?.vehicle_id,
         post_chat: 'SOME CHATS HERE',
         final_bill_by_poster: true,
         posted_user_id: loggedInUserId,
         bill_access: billToMe ? false : true
       };
-      console.log("finalData", finalData)
+      // console.log("finalData", finalData)
       const response = await acceptDriverRequest(finalData, userToken);
       console.log('ooo', response)
       if (response?.status === 'Start Trip') {
+        setShowBillMeBillDriverModal(false)
         dispatch(
           showSnackbar({
             visible: true,
