@@ -54,6 +54,8 @@ const SelfTripHome = () => {
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
   const [selectedTripData, setSelectedTripData] = useState(null);
+  const [isGstClosingForDay, setIsGstClosingForDay] = useState(false)
+  const [isGstSummaryValue, setIsGstSummaryValue] = useState(false)
 
 
 
@@ -67,6 +69,7 @@ const SelfTripHome = () => {
   const [closingKms, setClosingKms] = useState('');
   const [closingTime, setClosingTime] = useState('');
   const [closingDate, setClosingDate] = useState('');
+  // const [endDate, setEndDate] = useState('');
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
@@ -166,6 +169,7 @@ const SelfTripHome = () => {
         end_trip_time: closingTime,
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
+        is_gst: isGstClosingForDay,
       },
       userToken,
     );
@@ -175,6 +179,8 @@ const SelfTripHome = () => {
       setClosingKms('');
       setClosingTime('');
       setClosingDate('');
+      // setIsGst(true);
+      setShowAdditionalCharges(true);
     }
   };
 
@@ -216,6 +222,7 @@ const SelfTripHome = () => {
         end_trip_time: closingTime,
         posted_user_id: userId,
         accepted_user_id: userId,
+        is_gst: isGstSummaryValue,
       },
       userToken,
     );
@@ -246,29 +253,53 @@ const SelfTripHome = () => {
   };
 
   const handleAdditionalChargesNext = async (documents, charges) => {
-    const finalData = {
-      post_booking_id: selectedTripData?.post_booking_id,
-      advance: charges?.advance,
-      parking: charges?.parking,
-      tolls: charges?.tolls,
-      state_tax: charges?.stateTax,
-      cleaning: charges?.cleaning,
-      night_batta: charges?.nightBatta,
-    };
+    const formData = new FormData()
+    formData.append(
+      'json',
+      JSON.stringify({
+        post_booking_id: selectedTripData?.post_booking_id,
+        advance: charges?.advance * 1,
+        parking: charges?.parking * 1,
+        tolls: charges?.tolls * 1,
+        state_tax: charges?.stateTax * 1,
+        cleaning: charges?.cleaning * 1,
+        night_batta: charges?.nightBatta * 1,
+        end_date: "2025/01/02"
+      })
+    )
+    // Group documents by fileNumber
+    if (documents && documents.length > 0) {
+      let groupedDocuments = {};
 
-    const formData = new FormData();
-    formData.append('json', JSON.stringify(finalData));
-
-    documents.forEach((doc) => {
-      formData.append(doc.fileNumber, {
-        uri: doc.uri,
-        type: doc.type,
-        name: doc.name,
-      });
-    });
+      for (const doc of documents) {
+        if (!groupedDocuments[doc.fileNumber]) {
+          groupedDocuments[doc.fileNumber] = [];
+        }
+        groupedDocuments[doc.fileNumber].push({
+          uri: doc.uri,
+          type: doc.type,
+          name: doc.name,
+        });
+      }
+      console.log("documents==>", documents)
+      // Append each file in correct format
+      for (const key in groupedDocuments) {
+        if (groupedDocuments[key].length > 0) {
+          for (const file of groupedDocuments[key]) {
+            if (file.uri) {
+              formData.append(key, {
+                uri: file.uri,
+                type: file.type,
+                name: file.name,
+              });
+            }
+          }
+        }
+      }
+    }
 
     const response = await postAdditionCharges(formData, userToken);
-
+    console.log('selfTrip', response)
     if (response?.error === false) {
       setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
@@ -298,14 +329,16 @@ const SelfTripHome = () => {
       postVoiceMessage={item?.post_voice_message}
       // Amount Props
       baseFareRate={item?.bookingTypeTariff_base_fare_rate}
-      // Action Props
+      Action Props
       onRequestPress={() => handleButtonPress(item)}
-      onPlayPress={() => {
-        /* TODO: Implement voice message playback */
+      onTripSheetPress={() => {
+        navigation.navigate('ViewTripSheet', {
+          from: 'selfTrips',
+          postId: item?.post_booking_id,
+        });
       }}
-      onMessagePress={() => {
-        /* TODO: Implement messaging */
-      }}
+
+
       isRequested={item?.request_status}
       packageName={item?.bookingTypePackage_name}
     />
@@ -393,6 +426,7 @@ const SelfTripHome = () => {
             closingActionType={closingActionType}
             handleCloseTrip={handleCloseForDay}
             onClose={() => setShowClosingDetailsModal(false)}
+            setIsGstClosingForDay={setIsGstClosingForDay}
           />
         </CustomModal>
 
@@ -402,6 +436,7 @@ const SelfTripHome = () => {
             tripSummaryData={tripSummaryData}
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
+            setIsGstSummaryValue={setIsGstSummaryValue}
 
             onPressNext={(closingDetails) => {
 
@@ -433,6 +468,7 @@ const SelfTripHome = () => {
             userToken={userToken}
             userId={userId}
             onClose={() => setShowCustomerSignatureModal(false)}
+
             fetch={getSelfTripPosts}
           />
         </CustomModal>
@@ -446,11 +482,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F0F0F0',
   },
-  listContainer: {
-    flex: 1,
-    marginHorizontal: 20,
-    // paddingBottom: 16,
+  list: {
+    flexGrow: 1,
   },
+
+
+  // paddingBottom: 16,
+
   floatingButton: {
     position: 'absolute',
     bottom: 50,

@@ -1,5 +1,6 @@
 import {
   getAPI,
+  patchAPI,
   patchFormDataAPI,
   postAPI,
   postFormDataAPI,
@@ -86,3 +87,12 @@ export const fetchTripTable = async (postId, token) => {
   );
   return response;
 };
+
+
+export const updateViewTripBillTable = async (data, token) => {
+  const response = await patchAPI(
+    'share-trip/trip-sheet-ride/', token,
+  );
+
+  return response;
+}

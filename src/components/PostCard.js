@@ -311,19 +311,22 @@ const PostCard = ({
         </View>
 
         {/* Action Buttons - Only show for available cards */}
-        {(isAvailable || vacantTripPostedByLoggedInUser != undefined) && (
-          <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity onPress={onCallPress}>
-              <CallIcon />
-            </TouchableOpacity>
-            {/* <TouchableOpacity onPress={onPlayPress}>
-              <PlayIcon />
-            </TouchableOpacity> */}
-            <TouchableOpacity onPress={onTripSheetPress}>
-              <TripSheetIcon />
-            </TouchableOpacity>
-          </View>
+        {(isAvailable || vacantTripPostedByLoggedInUser !== undefined) && (
+          (onRequestPress || onTripSheetPress) && (
+            <View style={styles.actionButtonsContainer}>
+              <TouchableOpacity onPress={onCallPress}>
+                <CallIcon />
+              </TouchableOpacity>
+              {/* <TouchableOpacity onPress={onPlayPress}>
+        <PlayIcon />
+      </TouchableOpacity> */}
+              <TouchableOpacity onPress={onTripSheetPress}>
+                <TripSheetIcon />
+              </TouchableOpacity>
+            </View>
+          )
         )}
+
       </View>
       <View
         style={{

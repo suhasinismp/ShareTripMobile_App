@@ -263,6 +263,7 @@ const VacantTrip = () => {
         keyExtractor={(item) => item?.vacant_post_id.toString()}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
+
       />
       <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
         <AddPostIcon />
@@ -343,8 +344,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   listContainer: {
-    flex: 1,
-    marginHorizontal: 20,
+    // flex: 1,
+    // marginHorizontal: 20,
+    flexGrow: 1,
+    // borderRadius: 4,
   },
 });
 

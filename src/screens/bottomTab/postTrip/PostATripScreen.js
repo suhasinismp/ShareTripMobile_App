@@ -31,6 +31,7 @@ import {
   generateTripPdf,
   updatePost,
   fetchTripTable,
+  updateViewTripBillTable,
 } from '../../../services/postTripService';
 import {
   fetchVehicleNames,
@@ -51,6 +52,8 @@ import {
 import { parseTime } from '../../../utils/parseTimeUtil';
 import { parseDate } from '../../../utils/parseDate';
 import { Feather } from '@expo/vector-icons';
+import CustomModal from '../../../components/ui/CustomModal';
+import TripBillEditModal from '../../../components/tripModals/TripBillEditModal';
 
 const { width } = Dimensions.get('window');
 
@@ -92,7 +95,7 @@ const TripCard = React.memo(({ tripData, index, onEdit }) => {
             style={styles.dateText}
           />
           <TouchableOpacity
-            onPress={() => onEdit && onEdit(tripData)}
+            onPress={() => setShowTripBillEditModal(true)}
             style={styles.editButton}
           >
             <Feather name="edit-2" size={16} color="#008B8B" />
@@ -192,7 +195,17 @@ const PostATripScreen = ({ route }) => {
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
   const [slabRate, setSlabRate] = useState('');
+  const [startTripKms, setStartTripKms] = useState('');
+  const [endTripKms, setEndTripKms] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTripTime, setEndTripTime] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endTripDate, setEndTripDate] = useState('');
   const [tripTableData, setTripTableData] = useState(null);
+  const [showTripBillEditModal, setShowTripBillEditModal] = useState();
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
 
   console.log({ tripTableData });
 
@@ -226,6 +239,33 @@ const PostATripScreen = ({ route }) => {
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const [pdfUri, setPdfUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const resetFields = () => {
+    setCustomerPhone('');
+    setCustomerName('');
+    setPickupLocation('');
+    setDropLocation('');
+    setVisitingPlace('');
+    setNotes('');
+    setSelectedPaymentType('');
+    setSelectedFromDate('');
+    setSelectedToDate('');
+    setSelectedTime('');
+    setSelectedTripType(null);
+    setSelectedPackage(null);
+    setSelectedVehicleType(null);
+    setSelectedVehicleName(null);
+    setSelectedShareType(1);
+    setIsRecording(false);
+    setIsPdfGenerating(false);
+    setIsLoading(false);
+    setRate('');
+    setDayBatta('');
+    setMessage('');
+    setRecordedAudioUri('');
+
+
+  }
 
   // Effects
   useEffect(() => {
@@ -368,6 +408,30 @@ const PostATripScreen = ({ route }) => {
       setTripTableData(response?.data?.tripSheetRide);
     }
   };
+
+
+
+  const handleTripBillEdit = async () => {
+    const finalData = {
+      id: postId,
+      start_trip_kms: startTripKms,
+      start_date: startDate,
+      start_time: startTime,
+      end_trip_date: endTripDate,
+      end_trip_time: endTripTime,
+      end_trip_kms: endTripKms,
+    }
+    const response = await updateViewTripBillTable(finalData, userToken)
+
+    if (response?.error === false) {
+      console.log("Trip Sheet Ride Data updated successfully");
+      setShowTripBillEditModal(false)
+
+    } else {
+      console.log("Some error occurred or data was not updated");
+    }
+  }
+
 
   // Handlers
   const handleStartRecording = useCallback(() => {
@@ -537,6 +601,7 @@ const PostATripScreen = ({ route }) => {
           response.error === false &&
           response.message === 'Post Booking Data created successfully'
         ) {
+          resetFields();
           navigation.navigate('Home');
         } else {
           alert(response.message);
@@ -618,6 +683,8 @@ const PostATripScreen = ({ route }) => {
       alert('Failed to update trip sheet. Please try again.');
     }
   };
+
+
 
   const handleGeneratePDF = async () => {
     setIsPdfGenerating(true);
@@ -1148,6 +1215,32 @@ const PostATripScreen = ({ route }) => {
           </View>
         )}
 
+        <CustomModal
+          visible={showTripBillEditModal}
+          onPrimaryAction={handleTripBillEdit}
+          onSecondaryAction={() => setShowTripBillEditModal(false)}
+        >
+          <TripBillEditModal
+            startTripKms={startTripKms}
+            setStartTripKms={setStartTripKms}
+            endTripKms={endTripKms}
+            setEndTripKms={setEndTripKms}
+            startTime={startTime}
+            setStartTime={setStartTime}
+            endTripTime={endTripTime}
+            setEndTripTime={setEndTripTime}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endTripDate={endTripDate}
+            setEndTripDate={setEndTripDate}
+            showTimePicker={showTimePicker}
+            setShowTimePicker={setShowTimePicker}
+            showDatePicker={showDatePicker}
+            setShowDatePicker={setShowDatePicker}
+            onClose={() => setShowTripBillEditModal(false)}
+          />
+        </CustomModal>
+
         <View style={styles.buttonContainer}>
           {from === 'bills' && (
             <CustomButton
@@ -1485,5 +1578,6 @@ const styles = StyleSheet.create({
     padding: 4,
   },
 });
+
 
 export default PostATripScreen;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -20,6 +20,7 @@ const TripSummaryModal = ({
   setShowAdditionalCharges,
   onPressNext,
   onClose,
+  setIsGstSummaryValue,
 }) => {
   // Opening details states
   const [openingKms, setOpeningKms] = useState(
@@ -42,11 +43,17 @@ const TripSummaryModal = ({
   const [closingDate, setClosingDate] = useState(
     tripSummaryData?.closingDate || '',
   );
-  const [isGst, SetIsGst] = useState(tripSummaryData?.isGst || false);
+  const [isGst, setIsGst] = useState(false);
+
+  useEffect(() => {
+    setIsGstSummaryValue(isGst)
+  }, [isGst])
 
   // Date & Time picker states
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
+
+
 
   const onClosingTimeChange = (event, selectedDate) => {
     const currentDate = selectedDate || new Date();
@@ -194,7 +201,7 @@ const TripSummaryModal = ({
         </View>
         <View style={{ display: 'flex', justifyContent: 'space-between', }}>
           <Text >GST</Text>
-          <TouchableOpacity onPress={() => SetIsGst(!isGst)}>
+          <TouchableOpacity onPress={() => setIsGst(!isGst)}>
             {isGst ? (<CheckBoxActive width={24} height={24} />
             ) : (
               <CheckBoxInactive width={24} height={24} />

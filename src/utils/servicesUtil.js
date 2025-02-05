@@ -125,6 +125,7 @@ export const postFormDataAPI = async (endUrl, formData, token) => {
   try {
     const response = await api(apiConfig);
     return response?.data || {};
+
   } catch (error) {
     console.error('Error occurred while posting FormData', error);
     throw error;

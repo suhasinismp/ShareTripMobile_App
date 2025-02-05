@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   ActivityIndicator,
+  FlatList,
 } from 'react-native';
 import { generateBillPdf } from '../../../services/postTripService';
 import * as Print from 'expo-print';
@@ -19,13 +20,81 @@ import AppHeader from '../../../components/AppHeader';
 import { cleanHTML } from '../../../utils/cleanHTML';
 import { fetchTripBill } from '../../../services/tripBillService';
 import { useNavigation } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { themes } from '../../../styles/theme';
+import CustomText from '../../../components/ui/CustomText';
+import StartTripModal from '../../../components/tripModals/StartTripModal';
+import TripBillEditModal from '../../../components/tripModals/TripBillEditModal';
+import CustomModal from '../../../components/ui/CustomModal';
+
+// const TripCard = React.memo(({ tripData, index, onEdit }) => {
+//   return (
+//     <View style={styles.cardContainer}>
+//       {/* Header with Day number, Date and Edit icon */}
+//       <View style={styles.cardHeader}>
+//         <CustomText text={`Day ${index + 1}`} style={styles.dayText} />
+//         <View style={styles.headerRight}>
+//           <CustomText
+//             text={tripData.start_date || '-'}
+//             style={styles.dateText}
+//           />
+//           <TouchableOpacity
+//             onPress={() => {
+//               onEdit && onEdit(tripData);  // Call onEdit if it exists
+//               setShowTripBillEditModal(true);  // Open the modal
+//             }}
+//             style={styles.editButton}
+//           >
+//             <Feather name="edit-2" size={16} color="#008B8B" />
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+
+//       {/* Trip Time Section */}
+//       <View style={styles.infoRow}>
+//         <View style={styles.timeSection}>
+//           <CustomText text="Total Time:" style={styles.labelText} />
+//           <CustomText
+//             text={`${tripData.start_time || '-'} to ${tripData.end_time || '-'}`}
+//             style={styles.valueText}
+//           />
+//         </View>
+//         <View style={styles.totalSection}>
+//           <CustomText text="Total hrs:" style={styles.labelText} />
+//           <CustomText text={tripData.total_hours} style={styles.valueText} />
+//         </View>
+//       </View>
+
+//       {/* Trip KMs Section */}
+//       <View style={styles.infoRow}>
+//         <View style={styles.timeSection}>
+//           <CustomText text="Total KMs:" style={styles.labelText} />
+//           <CustomText
+//             text={`${tripData.start_kms || '-'} - ${tripData.end_kms || '-'}`}
+//             style={styles.valueText}
+//           />
+//         </View>
+//         <View style={styles.totalSection}>
+//           <CustomText text="Total:" style={styles.labelText} />
+//           <CustomText
+//             text={
+//               tripData.total_kms === 'NaN' ? '-' : `${tripData.total_kms} KMs`
+//             }
+//             style={styles.valueText}
+//           />
+//         </View>
+//       </View>
+//     </View>
+//   );
+// });
+
+// TripCard.displayName = 'TripCard';
 
 function formatTripData(responseData) {
 
 
   const data = responseData;
-
-  const extraKmsCharge = `${data?.extra_kms}kms*${data?.bookingTypeTariff_extra_km_rate} = ${data?.extra_km_amount}rs`;
 
   return [
     {
@@ -33,24 +102,31 @@ function formatTripData(responseData) {
       data: [
         {
           type: 'header',
-          totalPayable: data?.total_amount,
-          advance: data?.total_amount - data?.balance_amount,
-          totalAmount: data?.balance_amount,
+          totalPayable: data?.sub_totl,
+          advance: data?.advance,
+          totalAmount: data?.due_amount,
         },
       ],
     },
+
     {
       title: 'Fare Breakdown',
       data: [
         { label: 'Booking Type', value: data?.bookingType_name },
-        {
-          label: 'Slab rate',
-          value: data?.bookingTypeTariff_base_fare_rate != null
-            ? data?.bookingTypeTariff_base_fare_rate.toString()
-            : 'N/A',
-        },
-        { label: 'Slab kms', value: `${data?.packageKms}kms` },
-        { label: 'Extra Kms Charges', value: extraKmsCharge },
+        // {
+        //   label: 'Slab rate',
+        //   value: data?.bookingTypeTariff_base_fare_rate != null
+        //     ? data?.bookingTypeTariff_base_fare_rate.toString()
+        //     : 'N/A',
+        // },
+        // { label: 'Slab kms', value: `${data?.packageKms}kms` },
+        // { label: 'Extra Kms Charges', value: extraKmsCharge },
+        { label: 'Amount', value: data?.tripSheetRide?.amount },
+        { label: 'Gst', value: data?.tripSheetRide?.gst_amt },
+        { label: 'Toll Parking', value: data?.tripSheetRide?.tot_toll_park },
+
+        { label: 'Other Charges', value: data?.tripSheetRide?.other_charges },
+
         {
           label: 'Day Batta',
           value: data?.day_batta_count || 0,
@@ -62,16 +138,16 @@ function formatTripData(responseData) {
       ],
     },
     {
-      title: 'Others Charges',
+      // title: 'Others Charges',
       data: [
-        { label: 'Parking', value: data?.parking || 0 },
-        { label: 'Tolls', value: data?.tolls || 0 },
+        // { label: 'Parking', value: data?.parking || 0 },
+        // { label: 'Tolls', value: data?.tolls || 0 },
         { label: 'Other State Taxes', value: data?.state_tax || 0 },
-        {
-          label: 'Advance',
-          value: data?.total_amount - data?.balance_amount || 0,
-        },
-        { label: 'Cleaning Charges', value: data?.cleaning || 0 },
+        // {
+        //   label: 'Advance',
+        //   value: data?.total_amount - data?.balance_amount || 0,
+        // },
+        // { label: 'Cleaning Charges', value: data?.cleaning || 0 },
       ],
     },
     {
@@ -83,38 +159,41 @@ function formatTripData(responseData) {
         },
       ],
     },
-    {
-      title: 'Driver & Vehicle Details',
-      data: [
-        {
-          type: 'driver',
-          name: data?.driver_name,
-          phone: data?.driver_phone,
-          vehicle: data?.Vehicle_type_name,
-          number: data?.vehicle_registration_number,
-        },
-      ],
-    },
-    {
-      title: 'Total Usage',
-      data: [
-        {
-          label: 'Total Usage',
-          // value: data?.tripSheetRide?.[0]?.total_kms?.toString(),
-          value: data?.tripSheetRide?.reduce((total, trip) => total + parseInt(trip.total_kms), 0).toString(),
-        },
-        {
-          label: 'Pickup Place',
-          value: data?.pick_up_location,
-        },
-        {
-          label: 'Visiting Places',
-          value: data?.visiting_place,
-        },
-      ],
-    },
+    // {
+    //   title: 'Driver & Vehicle Details',
+    //   data: [
+    //     {
+    //       type: 'driver',
+    //       name: data?.driver_name,
+    //       phone: data?.driver_phone,
+    //       vehicle: data?.Vehicle_type_name,
+    //       number: data?.vehicle_registration_number,
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: 'Total Usage',
+    //   data: [
+    //     {
+    //       label: 'Total Usage',
+    //       // value: data?.tripSheetRide?.[0]?.total_kms?.toString(),
+    //       value: data?.tripSheetRide?.reduce((total, trip) => total + parseInt(trip.total_kms), 0).toString(),
+    //     },
+    //     {
+    //       label: 'Pickup Place',
+    //       value: data?.pick_up_location,
+    //     },
+    //     {
+    //       label: 'Visiting Places',
+    //       value: data?.visiting_place,
+    //     },
+    //   ],
+    // },
   ];
 }
+
+
+
 
 const TripBillScreen = ({ route }) => {
   const dispatch = useDispatch();
@@ -124,9 +203,20 @@ const TripBillScreen = ({ route }) => {
 
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const [tripData, setTripData] = useState([]);
+  console.log({ tripData })
+  const [bill, setBill] = useState([]);
+  const [showTripBillEditModal, setShowTripBillEditModal] = useState(false)
+  const [totalTime, setTotalTime] = useState('')
+  const [totalKms, setTotalKms] = useState('')
+  const [totalHrs, setTotalHrs] = useState('')
+  const [total, setTotal] = useState('')
+
+
+  console.log({ bill })
+
   const userData = useSelector(getUserDataSelector);
   const tripDataFromStore = useSelector(getTripBillSelector);
-  // console.log('eee', tripData)
+
   const userToken = userData?.userToken;
   const postId = route.params?.postId;
 
@@ -148,8 +238,10 @@ const TripBillScreen = ({ route }) => {
 
 
     try {
-      const response = await fetchTripBill(postId, userToken);
+      console.log("postId", postId)
+      const { data } = await fetchTripBill(postId, userToken);
 
+      setBill(data)
 
     } catch (error) {
       console.error('Error loading trip data:', error);
@@ -164,6 +256,10 @@ const TripBillScreen = ({ route }) => {
       setIsLoading(false);
     }
   };
+
+  const handleEditBill = async () => {
+
+  }
 
   const handleDownloadPDF = async () => {
     setIsPdfGenerating(true);
@@ -280,36 +376,36 @@ const TripBillScreen = ({ route }) => {
   const renderHeader = ({ item }) => (
     <View style={styles.headerContainer}>
       <Text style={styles.headerTitle}>Total Amount Payable</Text>
-      <Text style={styles.headerAmount}>Rs {item.totalAmount}</Text>
+      <Text style={styles.headerAmount}>Rs {bill?.due_amount}</Text>
       <View style={styles.headerDetailsRow}>
         <View>
           <Text style={styles.headerLabel}>Advance</Text>
-          <Text style={styles.headerValue}>Rs {item.advance}</Text>
+          <Text style={styles.headerValue}>{bill?.advance}</Text>
         </View>
         <View>
           <Text style={styles.headerLabel}>Total Amount</Text>
-          <Text style={styles.headerValue}>Rs {item.totalPayable}</Text>
+          <Text style={styles.headerValue}>{bill?.sub_totl}</Text>
         </View>
       </View>
     </View>
   );
 
-  const renderDriverDetail = ({ item }) => (
-    <View style={styles.driverContainer}>
-      <View style={styles.driverDetail}>
-        <Text style={styles.driverName}>{item.name}</Text>
-        <Text style={styles.driverPhone}>{item.phone}</Text>
-      </View>
-      <View style={styles.vehicleDetail}>
-        <Text style={styles.vehicleType}>{item.vehicle}</Text>
-        <Text style={styles.vehicleNumber}>{item.number}</Text>
-      </View>
-    </View>
-  );
+  // const renderDriverDetail = ({ item }) => (
+  //   <View style={styles.driverContainer}>
+  //     <View style={styles.driverDetail}>
+  //       <Text style={styles.driverName}>{item.name}</Text>
+  //       <Text style={styles.driverPhone}>{item.phone}</Text>
+  //     </View>
+  //     <View style={styles.vehicleDetail}>
+  //       <Text style={styles.vehicleType}>{item.vehicle}</Text>
+  //       <Text style={styles.vehicleNumber}>{item.number}</Text>
+  //     </View>
+  //   </View>
+  // );
 
   const renderItem = ({ item, section }) => {
     if (item.type === 'header') return renderHeader({ item });
-    if (item.type === 'driver') return renderDriverDetail({ item });
+    // if (item.type === 'driver') return renderDriverDetail({ item });
 
     return (
       <View style={styles.itemContainer}>
@@ -341,7 +437,42 @@ const TripBillScreen = ({ route }) => {
           }
           stickySectionHeadersEnabled={false}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.sectionList}
         />
+
+        {/* <View style={styles.cardsContainer}> */}
+        {/* <FlatList
+            data={bill?.tripSheetRide}
+            renderItem={({ item, index }) => (
+              <TripCard tripData={item} index={index} />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+
+          /> */}
+        {/* </View> */}
+
+        <CustomModal
+          visible={showTripBillEditModal}
+          onPrimaryAction={handleEditBill}
+          onSecondaryAction={() => setShowTripBillEditModal(false)}
+        >
+          <TripBillEditModal
+            totalTime={totalTime}
+            setTotalTime={setTotalTime}
+            totalKms={totalKms}
+            setTotalKms={setTotalKms}
+            totalHrs={totalHrs}
+            setTotalHrs={setTotalHrs}
+            total={total}
+            setTotal={setTotal}
+          // showTimePicker={showTimePicker}
+          // setShowTimePicker={setShowTimePicker}
+          // onClose={() => setShowTripBillEditModal(false)}
+          />
+        </CustomModal>
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.button, isPdfGenerating && styles.buttonDisabled]}
@@ -377,7 +508,84 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     paddingHorizontal: 20,
+
   },
+  cardContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+  },
+
+  dateText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  sectionList: {
+    flexGrow: 0, // Prevents SectionList from taking extra space
+    marginBottom: 0,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+
+  },
+  listContainer: {
+    paddingBottom: 16,
+    flexGrow: 1,
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  editButton: {
+    padding: 4,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  timeSection: {
+    flex: 3,
+  },
+  labelText: {
+    fontSize: 12,
+    color: '#666666',
+    marginBottom: 2,
+  },
+  valueText: {
+    fontSize: 13,
+    color: '#333333',
+    fontWeight: '500',
+  },
+  totalSection: {
+    flex: 2,
+    alignItems: 'flex-end',
+  },
+
+
+  cardsContainer: {
+    marginTop: 0,
+    flex: 1,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -395,6 +603,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 10,
     borderRadius: 10,
+
   },
   headerTitle: {
     fontSize: 18,
