@@ -31,6 +31,7 @@ import {
   generateTripPdf,
   updatePost,
   fetchTripTable,
+  updateViewTripBillTable,
 } from '../../../services/postTripService';
 import {
   fetchVehicleNames,
@@ -194,16 +195,18 @@ const PostATripScreen = ({ route }) => {
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
   const [slabRate, setSlabRate] = useState('');
+  const [startTripKms, setStartTripKms] = useState('');
+  const [endTripKms, setEndTripKms] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTripTime, setEndTripTime] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endTripDate, setEndTripDate] = useState('');
   const [tripTableData, setTripTableData] = useState(null);
   const [showTripBillEditModal, setShowTripBillEditModal] = useState();
-  const [totalTime, setTotalTime] = useState('');
-  const [totalHrs, setTotalHrs] = useState('');
-  const [totalKms, setTotalKms] = useState('');
-  const [total, setTotal] = useState('');
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  console.log({ tripTableData });
+
 
   // Selection States
   const [selectedTripType, setSelectedTripType] = useState(null);
@@ -404,6 +407,30 @@ const PostATripScreen = ({ route }) => {
       setTripTableData(response?.data?.tripSheetRide);
     }
   };
+
+
+
+  const handleTripBillEdit = async () => {
+    const finalData = {
+      id: postId,
+      start_trip_kms: startTripKms,
+      start_date: startDate,
+      start_time: startTime,
+      end_trip_date: endTripDate,
+      end_trip_time: endTripTime,
+      end_trip_kms: endTripKms,
+    }
+    const response = await updateViewTripBillTable(finalData, userToken)
+
+    if (response?.error === false) {
+      console.log("Trip Sheet Ride Data updated successfully");
+      setShowTripBillEditModal(false)
+
+    } else {
+      console.log("Some error occurred or data was not updated");
+    }
+  }
+
 
   // Handlers
   const handleStartRecording = useCallback(() => {
@@ -656,9 +683,7 @@ const PostATripScreen = ({ route }) => {
     }
   };
 
-  const handleTripBillEdit = () => {
 
-  }
 
   const handleGeneratePDF = async () => {
     setIsPdfGenerating(true);
@@ -1192,22 +1217,26 @@ const PostATripScreen = ({ route }) => {
         <CustomModal
           visible={showTripBillEditModal}
           onPrimaryAction={handleTripBillEdit}
-          onSecondaryAction={() => showTripBillEditModal(false)}
+          onSecondaryAction={() => setShowTripBillEditModal(false)}
         >
           <TripBillEditModal
-            totalTime={totalTime}
-            setTotalTime={setTotalTime}
-            totalKms={totalKms}
-            setTotalKms={setTotalKms}
-            totalHrs={totalHrs}
-            setTotalHrs={setTotalHrs}
-            total={total}
-            setTotal={setTotal}
+            startTripKms={startTripKms}
+            setStartTripKms={setStartTripKms}
+            endTripKms={endTripKms}
+            setEndTripKms={setEndTripKms}
+            startTime={startTime}
+            setStartTime={setStartTime}
+            endTripTime={endTripTime}
+            setEndTripTime={setEndTripTime}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endTripDate={endTripDate}
+            setEndTripDate={setEndTripDate}
             showTimePicker={showTimePicker}
             setShowTimePicker={setShowTimePicker}
             showDatePicker={showDatePicker}
             setShowDatePicker={setShowDatePicker}
-            onClose={() => showTripBillEditModal(false)}
+            onClose={() => setShowTripBillEditModal(false)}
           />
         </CustomModal>
 
@@ -1548,5 +1577,6 @@ const styles = StyleSheet.create({
     padding: 4,
   },
 });
+
 
 export default PostATripScreen;

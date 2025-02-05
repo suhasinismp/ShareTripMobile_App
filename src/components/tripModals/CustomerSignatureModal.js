@@ -47,7 +47,7 @@ const CustomerSignatureModal = ({
       }
 
       const finalData = {
-        post_bookings_id: selectedTripData?.post_booking_id,
+        post_booking_id: selectedTripData?.post_booking_id,
         accepted_user_id: userId,
         posted_user_id: selectedTripData?.posted_user_id,
 
@@ -55,7 +55,7 @@ const CustomerSignatureModal = ({
 
       let formData = new FormData();
       formData.append('json', JSON.stringify(finalData));
-      formData.append('signature', {
+      formData.append('customer_signature', {
         uri: signatureFileInfo.uri,
         type: 'image/png',
         name: 'customer_signature.png',

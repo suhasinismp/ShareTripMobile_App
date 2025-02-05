@@ -23,9 +23,10 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
     stateTax: '',
     cleaning: '',
     nightBatta: '',
-
-
+    // endDate: ''
   });
+
+
 
   const fieldToFileNumber = {
     advance: 'advance_image[]',
@@ -86,6 +87,8 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
 
 
 
+
+
   return (
     <View style={styles.modalContainer}>
       <TouchableOpacity
@@ -139,10 +142,24 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
           ))}
 
 
-
-
-
-
+          {/* <TouchableOpacity
+            style={styles.timePickerContainer}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <FontAwesome
+              name="calendar"
+              size={20}
+              color="#666"
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={styles.pickerInput}
+              value={endDate}
+              placeholder="YYYY/MM/DD"
+              editable={false}
+              placeholderTextColor="#999"
+            />
+          </TouchableOpacity> */}
 
           {documents.length > 0 && (
             <View style={styles.documentsContainer}>

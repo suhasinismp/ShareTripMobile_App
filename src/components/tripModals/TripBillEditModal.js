@@ -12,112 +12,133 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 
 const TripBillEditModal = ({
-    totalTime,
-    setTotalTime,
-    totalHrs,
-    setTotalHrs,
-    totalKms,
-    setTotalKms,
-    total,
-    setTotal,
+    startTripKms,
+    setStartTripKms,
+    startTime,
+    setStartTime,
+    startDate,
+    setStartDate,
+    endTripKms,
+    setEndTripKms,
+    endTripTime,
+    setEndTripTime,
+    endTripDate,
+    setEndTripDate,
     showTimePicker,
     setShowTimePicker,
     showDatePicker,
     setShowDatePicker,
+    handleTripBillEdit,
+    setShowTripBillEditModal,
     onClose,
 }) => {
 
-    const handleViewTripUpdate = async () => {
-        const response = await ViewTripBillEdit
 
-    };
 
     return (
         <View style={styles.modalContent}>
-            {/* Time Input */}
-            {/* <View style={styles.inputGroup}> */}
-            {/* <CustomInput
-                placeholder="Total time"
-                value={totalTime}
-                onChangeText={setTotalTime}
-                keyboardType="numeric"
-            /> */}
-            <TouchableOpacity
-                style={styles.timePickerContainer}
-                onPress={() => setShowTimePicker(true)}
-            >
-                <FontAwesome name="clock-o" size={20} color="#666" style={styles.inputIcon} />
-                <TextInput
-                    style={styles.pickerInput}
-                    value={totalTime}
-                    placeholder="HH:MM AM/PM"
-                    editable={false}
-                    placeholderTextColor="#999"
-                />
+            <Text style={styles.modalTitle}>Trip Table details </Text>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                <FontAwesome name="times" size={24} color="#333" />
             </TouchableOpacity>
-            {/* </View> */}
-
-            {/* Date Picker */}
-            <TouchableOpacity style={styles.timePickerContainer} onPress={() => setShowDatePicker(true)}>
-                <FontAwesome name="calendar" size={20} color="#666" style={styles.inputIcon} />
-                <TextInput
-                    style={styles.pickerInput}
-                    value={totalHrs}
-                    placeholder="YYYY/MM/DD"
-                    editable={false}
-                    placeholderTextColor="#999"
+            <View style={styles.inputGroup}>
+                <CustomInput
+                    placeholder="Start Kms"
+                    value={startTripKms}
+                    onChangeText={setStartTripKms}
+                    keyboardType="numeric"
                 />
-            </TouchableOpacity>
+            </View>
+            <View style={styles.inputGroup}>
+                <CustomInput
+                    placeholder="End Kms"
+                    value={endTripKms}
+                    onChangeText={setEndTripKms}
+                    keyboardType="numeric"
+                />
+            </View>
+            <View style={styles.inputGroup}>
+                <CustomInput
+                    placeholder="startTime"
+                    value={startTime}
+                    onChangeText={setStartTime}
+                    keyboardType="numeric"
+                />
+            </View>
+            <View style={styles.inputGroup}>
+                <CustomInput
+                    placeholder="End Time"
+                    value={endTripTime}
+                    onChangeText={setEndTripTime}
+                    keyboardType="numeric"
+                />
+            </View>
+            <View style={styles.inputGroup}>
+                <CustomInput
+                    placeholder="startDate"
+                    value={startDate}
+                    onChangeText={setStartDate}
+                    keyboardType="numeric"
+                />
+            </View>
+            <View style={styles.inputGroup}>
+                <CustomInput
+                    placeholder="End Date"
+                    value={endTripDate}
+                    onChangeText={setEndTripDate}
+                    keyboardType="numeric"
+                />
+            </View>
 
-            {/* Time Picker Modal */}
-            {
-                showTimePicker && (
-                    <DateTimePicker
-                        value={new Date()}
-                        mode="time"
-                        is24Hour={false}
-                        display="default"
-                        onChange={(event, selectedDate) => {
-                            setShowTimePicker(false);
-                            if (selectedDate) {
-                                const formattedTime = selectedDate.toLocaleTimeString("en-US", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    hour12: true,
-                                });
-                                setTotalHrs(formattedTime);
-                            }
-                        }}
+
+
+
+            {/* <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Opening Time</Text>
+                <TouchableOpacity
+                    style={styles.timePickerContainer}
+                    onPress={() => setShowTimePicker(true)}
+                >
+                    <FontAwesome
+                        name="clock-o"
+                        size={20}
+                        color="#666"
+                        style={styles.inputIcon}
                     />
-                )
-            }
-
-            {/* Date Picker Modal */}
-            {
-                showDatePicker && (
-                    <DateTimePicker
-                        value={totalTime ? new Date(totalTime.replace(/\//g, "-")) : new Date()}
-                        mode="date"
-                        display="default"
-                        onChange={(event, selectedDate) => {
-                            setShowDatePicker(false);
-                            if (selectedDate) {
-                                const formattedDate = `${selectedDate.getFullYear()}/${String(
-                                    selectedDate.getMonth() + 1
-                                ).padStart(2, "0")}/${String(selectedDate.getDate()).padStart(2, "0")}`;
-                                setTotalTime(formattedDate);
-                            }
-                        }}
+                    <TextInput
+                        style={styles.pickerInput}
+                        value={openingTime}
+                        placeholder="HH:MM AM/PM"
+                        editable={false}
+                        placeholderTextColor="#999"
                     />
-                )
-            }
+                </TouchableOpacity>
+            </View>
 
-            {/* Other Inputs */}
-            <CustomInput placeholder="Total Kms" value={totalKms} onChangeText={setTotalKms} keyboardType="numeric" />
-            <CustomInput placeholder="Total" value={total} onChangeText={setTotal} keyboardType="numeric" />
+            <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Opening Date</Text>
+                <TouchableOpacity
+                    style={styles.timePickerContainer}
+                    onPress={() => setShowDatePicker(true)}
+                >
+                    <FontAwesome
+                        name="calendar"
+                        size={20}
+                        color="#666"
+                        style={styles.inputIcon}
+                    />
+                    <TextInput
+                        style={styles.pickerInput}
+                        value={openingDate}
+                        placeholder="YYYY/MM/DD"
+                        editable={false}
+                        placeholderTextColor="#999"
+                    />
+                </TouchableOpacity>
+            </View> */}
 
-            {/* Update Button */}
-            <TouchableOpacity style={styles.updateButton} onPress={handleViewTripUpdate}>
+
+            <TouchableOpacity style={styles.updateButton} onPress={handleTripBillEdit}>
                 <Text style={styles.updateButtonText}>Update</Text>
             </TouchableOpacity>
         </View >
@@ -136,10 +157,16 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     inputGroup: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 15,
+        // flexDirection: "column",
+        // justifyContent: "space-between",
+        // alignItems: "center",
+        marginBottom: 16,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 8,
     },
     timePickerContainer: {
         flexDirection: "row",

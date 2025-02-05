@@ -57,7 +57,7 @@ export const rejectDriverRequest = async (data, token) => {
 
 export const startTrip = async (data, token) => {
   const response = await postAPI('share-trip/trip-ride/start/', data, token);
-
+  console.log({ response })
   return response;
 };
 
@@ -85,7 +85,7 @@ export const fetchTripDetails = async (tripId, token) => {
 export const postAdditionCharges = async (data, token) => {
 
   const response = await postFormDataAPI(
-    'share-trip/multiplrAdditionalCharges/',
+    'share-trip/multiplrAdditionalCharges',
     data,
     token,
   );
@@ -95,7 +95,7 @@ export const postAdditionCharges = async (data, token) => {
 
 export const uploadSignature = async (data, token) => {
   const response = await patchFormDataAPI({
-    endUrl: 'share-trip/trip-ride/signature-upload',
+    endUrl: 'share-trip/multiplrAdditionalCharges/add-signature',
     formData: data,
     token: token,
   });

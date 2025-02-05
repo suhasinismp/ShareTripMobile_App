@@ -159,9 +159,9 @@ const TripBillEditScreen = ({ navigation, route }) => {
         setSelectedTripType(data.bookingType_id || '');
         setSlabRate(data.bookingTypeTariff_base_fare_rate?.toString() || '');
         setSlabKms(data.packageKms?.toString() || '');
-        setExtraKmsCharges(data.extra_km_amount?.toString() || '');
+        // setExtraKmsCharges(data.extra_km_amount?.toString() || '');
         setDayBatta(data?.tripSheetRide?.day_batta?.toString() || '');
-        setNightBatta(data?.tripSheetRide?.night_batta?.toString() || '');
+        // setNightBatta(data?.tripSheetRide?.night_batta?.toString() || '');
 
         setAmount(data?.tripSheetRide?.amount?.toString() || '');
         setGst(data?.tripSheetRide?.gst_amt?.toString() || '');
@@ -176,8 +176,8 @@ const TripBillEditScreen = ({ navigation, route }) => {
         setVehicleType(data.Vehicle_type_name || '');
         setVehicleNumber(data.vehicle_registration_number || '');
         setTripUsage(data.tripSheetRide?.reduce((total, trip) => total + parseInt(trip.total_kms), 0).toString() || '');
-        setPickupDetail(data.pick_up_location || '');
-        setVisitingPlaces(data.visiting_place || '');
+        // setPickupDetail(data.pick_up_location || '');
+        // setVisitingPlaces(data.visiting_place || '');
       }
 
     } catch (error) {
@@ -325,14 +325,14 @@ const TripBillEditScreen = ({ navigation, route }) => {
                 placeholder={'Slab kms'}
               />
             </View>
-            <View style={styles.inputRow}>
+            {/* <View style={styles.inputRow}>
               <CustomInput
                 value={extraKmsCharges || ''}
                 onChangeText={disabled ? undefined : onChangeText}
                 placeholder={'Extra Kms Charges'}
                 editable={!disabled}
               />
-            </View>
+            </View> */}
             <View style={styles.inputRow}>
               <CustomInput
                 value={dayBatta || ''}
@@ -341,79 +341,79 @@ const TripBillEditScreen = ({ navigation, route }) => {
                 placeholder={'Day Batta'}
               />
             </View>
-            <View style={styles.inputRow}>
+            {/* <View style={styles.inputRow}>
               <CustomInput
                 value={nightBatta || ''}
                 onChangeText={setNightBatta}
                 keyboardType="numeric"
                 placeholder={'Night Batta'}
               />
-            </View>
-            <View style={styles.inputRow}>
+            </View>  */}
+            {/* <View style={styles.inputRow}>
               <CustomInput
                 value={discount || ''}
                 onChangeText={setDiscount}
                 keyboardType="numeric"
                 placeholder={'Discount'}
-              />
+              /> */}
 
-            </View>
-            <View style={styles.section}>
-              <CustomText
-                text="Others Charges"
-                variant="sectionTitleText"
-                style={styles.sectionTitle}
-              />
-              <View style={styles.inputGroup}>
-                <View style={styles.inputRow}>
-                  <CustomInput
-                    value={TollParking || ''}
-                    onChangeText={setTollParking}
-                    keyboardType="numeric"
-                    placeholder={'TollParking'}
-                  />
-                </View>
-                <View style={styles.inputRow}>
-                  <CustomInput
-                    value={gst || ''}
-                    onChangeText={setGst}
-                    keyboardType="numeric"
-                    placeholder={'Gst'}
-                  />
-                </View>
-                <View style={styles.inputRow}>
-                  <CustomInput
-                    value={amount || ''}
-                    onChangeText={setAmount}
-                    keyboardType="numeric"
-                    placeholder={'Amount'}
-                  />
-                </View>
-                <View style={styles.inputRow}>
-                  <CustomInput
-                    value={otherCharges || ''}
-                    onChangeText={setOtherCharges}
-                    keyboardType="numeric"
-                    placeholder={'Other Charges'}
-                  />
-                </View>
-                <View style={styles.inputRow}>
+            {/* </View> */}
+            {/* <View style={styles.section}>
+            <CustomText
+              text="Others Charges"
+              variant="sectionTitleText"
+              style={styles.sectionTitle}
+            /> */}
+            <View style={styles.inputGroup}>
+              <View style={styles.inputRow}>
+                <CustomInput
+                  value={TollParking || ''}
+                  onChangeText={setTollParking}
+                  keyboardType="numeric"
+                  placeholder={'TollParking'}
+                />
+              </View>
+              <View style={styles.inputRow}>
+                <CustomInput
+                  value={gst || ''}
+                  onChangeText={setGst}
+                  keyboardType="numeric"
+                  placeholder={'Gst'}
+                />
+              </View>
+              <View style={styles.inputRow}>
+                <CustomInput
+                  value={amount || ''}
+                  onChangeText={setAmount}
+                  keyboardType="numeric"
+                  placeholder={'Amount'}
+                />
+              </View>
+              <View style={styles.inputRow}>
+                <CustomInput
+                  value={otherCharges || ''}
+                  onChangeText={setOtherCharges}
+                  keyboardType="numeric"
+                  placeholder={'Other Charges'}
+                />
+              </View>
+              {/* <View style={styles.inputRow}>
                   <CustomInput
                     value={otherStateTaxes || ''}
                     onChangeText={setOtherStateTaxes}
                     keyboardType="numeric"
                     placeholder={'Other State Charges'}
                   />
-                </View>
-              </View>
+                </View> */}
             </View>
-
-
-
-
-
           </View>
+
+
+
+
+
         </View>
+
 
         {/* Customer Detail Section */}
         <View style={styles.section}>
@@ -541,7 +541,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
             style={styles.saveButton}
           />
         </View>
-      </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView >
     </>
   );
 };
