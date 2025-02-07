@@ -15,16 +15,21 @@ const CustomerSignatureModal = ({
 }) => {
   const navigation = useNavigation();
   const [signatureFileInfo, setSignatureFileInfo] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const signatureRef = useRef();
 
   const handleSignature = async (signature) => {
     try {
       if (!signature) return;
 
+      setIsProcessing(true);
       const path = FileSystem.cacheDirectory + 'sign.png';
       const base64Data = signature.split(',')[1];
 
-      if (!base64Data) return;
+      if (!base64Data) {
+        setIsProcessing(false);
+        return;
+      }
 
       await FileSystem.writeAsStringAsync(path, base64Data, {
         encoding: FileSystem.EncodingType.Base64,
@@ -34,15 +39,19 @@ const CustomerSignatureModal = ({
 
       if (fileInfo.exists) {
         setSignatureFileInfo(fileInfo);
+        // Once we have the file info, proceed with the upload
+        await handleEndTrip(fileInfo);
       }
     } catch (error) {
       console.error('Error saving signature:', error);
+      setIsProcessing(false);
     }
   };
 
-  const handleEndTrip = async () => {
+  const handleEndTrip = async (fileInfo) => {
     try {
-      if (!signatureFileInfo) {
+      if (!fileInfo) {
+        console.log('No signature file info available');
         return;
       }
 
@@ -50,13 +59,12 @@ const CustomerSignatureModal = ({
         post_booking_id: selectedTripData?.post_booking_id,
         accepted_user_id: userId,
         posted_user_id: selectedTripData?.posted_user_id,
-
       };
 
       let formData = new FormData();
       formData.append('json', JSON.stringify(finalData));
       formData.append('customer_signature', {
-        uri: signatureFileInfo.uri,
+        uri: fileInfo.uri,
         type: 'image/png',
         name: 'customer_signature.png',
       });
@@ -65,18 +73,13 @@ const CustomerSignatureModal = ({
 
       if (response?.error === false) {
         onClose();
-        // if (selectedTripData?.tripType === 'multiDay')
         await fetch();
-        // }
-        // else {
-        //   console.log('Single-day trip: Navigating to Bills');
-
         navigation.navigate('Bills');
-
-
       }
     } catch (error) {
       console.error('Error uploading signature:', error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -104,6 +107,7 @@ const CustomerSignatureModal = ({
       >
         <FontAwesome name="times" size={24} color="#333" />
       </TouchableOpacity>
+
       <View style={styles.signatureHeaderContainer}>
         <Text style={styles.signatureTitle}>Customer Signature</Text>
 
@@ -122,7 +126,10 @@ const CustomerSignatureModal = ({
           <View style={styles.signatureDetailRow}>
             <Text style={styles.signatureLabel}>Customer Name</Text>
             <Text style={styles.signatureValue}>
-              : {selectedTripData?.user_name || selectedTripData?.User_name || 'N/A'}
+              :{' '}
+              {selectedTripData?.user_name ||
+                selectedTripData?.User_name ||
+                'N/A'}
             </Text>
           </View>
         </View>
@@ -140,25 +147,36 @@ const CustomerSignatureModal = ({
           dotSize={1}
         />
       </View>
+
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
+          <TouchableOpacity
+            style={[styles.clearButton, isProcessing && styles.buttonDisabled]}
+            onPress={handleClear}
+            disabled={isProcessing}
+          >
             <Text style={styles.clearButtonText}>Clear</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={styles.actionButton}
+            style={[styles.actionButton, isProcessing && styles.buttonDisabled]}
+            disabled={isProcessing}
             onPress={() => {
               if (signatureRef.current && !signatureFileInfo) {
                 signatureRef.current.readSignature();
-              } else {
-                handleEndTrip();
               }
             }}
           >
-            <Text style={styles.actionButtonText}>End Trip</Text>
+            <Text
+              style={[
+                styles.actionButtonText,
+                isProcessing && styles.buttonTextDisabled,
+              ]}
+            >
+              {isProcessing ? 'Processing...' : 'End Trip'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -260,6 +278,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     textAlign: 'center',
+  },
+  buttonDisabled: {
+    backgroundColor: '#cccccc',
+    opacity: 0.7,
+  },
+  buttonTextDisabled: {
+    color: '#666666',
   },
 });
 

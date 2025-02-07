@@ -54,10 +54,8 @@ const SelfTripHome = () => {
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
   const [selectedTripData, setSelectedTripData] = useState(null);
-  const [isGstClosingForDay, setIsGstClosingForDay] = useState(false)
-  const [isGstSummaryValue, setIsGstSummaryValue] = useState(false)
-
-
+  const [isGstClosingForDay, setIsGstClosingForDay] = useState(false);
+  const [isGstSummaryValue, setIsGstSummaryValue] = useState(false);
 
   const [tripSummaryData, setTripSummaryData] = useState(null);
   const [tripType, setTripType] = useState('');
@@ -73,7 +71,6 @@ const SelfTripHome = () => {
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
-
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -92,7 +89,6 @@ const SelfTripHome = () => {
 
   const getSelfTripPosts = async () => {
     const response = await fetchUserSelfPosts(userId, userToken);
-
 
     if (response.error === false) {
       setUserSelfTripData(response.data);
@@ -116,7 +112,6 @@ const SelfTripHome = () => {
       userToken,
     );
 
-
     if (response?.error === false) {
       setShowStartTripModal(false);
       setOpeningKms('');
@@ -134,7 +129,6 @@ const SelfTripHome = () => {
       selectedTripData?.post_booking_id,
       userToken,
     );
-
 
     if (
       response?.error === false &&
@@ -178,7 +172,7 @@ const SelfTripHome = () => {
       setShowClosingDetailsModal(false);
       setClosingKms('');
       setClosingTime('');
-      setClosingDate('');
+      // setClosingDate('');
       // setIsGst(true);
       setShowAdditionalCharges(true);
     }
@@ -213,7 +207,6 @@ const SelfTripHome = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
-
     const response = await endSelfTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -253,7 +246,7 @@ const SelfTripHome = () => {
   };
 
   const handleAdditionalChargesNext = async (documents, charges) => {
-    const formData = new FormData()
+    const formData = new FormData();
     formData.append(
       'json',
       JSON.stringify({
@@ -264,9 +257,9 @@ const SelfTripHome = () => {
         state_tax: charges?.stateTax * 1,
         cleaning: charges?.cleaning * 1,
         night_batta: charges?.nightBatta * 1,
-        end_date: "2025/01/02"
-      })
-    )
+        end_date: closingDate,
+      }),
+    );
     // Group documents by fileNumber
     if (documents && documents.length > 0) {
       let groupedDocuments = {};
@@ -281,7 +274,7 @@ const SelfTripHome = () => {
           name: doc.name,
         });
       }
-      console.log("documents==>", documents)
+      console.log('documents==>', documents);
       // Append each file in correct format
       for (const key in groupedDocuments) {
         if (groupedDocuments[key].length > 0) {
@@ -299,7 +292,7 @@ const SelfTripHome = () => {
     }
 
     const response = await postAdditionCharges(formData, userToken);
-    console.log('selfTrip', response)
+    console.log('selfTrip', response);
     if (response?.error === false) {
       setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
@@ -329,7 +322,8 @@ const SelfTripHome = () => {
       postVoiceMessage={item?.post_voice_message}
       // Amount Props
       baseFareRate={item?.bookingTypeTariff_base_fare_rate}
-      Action Props
+      Action
+      Props
       onRequestPress={() => handleButtonPress(item)}
       onTripSheetPress={() => {
         navigation.navigate('ViewTripSheet', {
@@ -337,8 +331,6 @@ const SelfTripHome = () => {
           postId: item?.post_booking_id,
         });
       }}
-
-
       isRequested={item?.request_status}
       packageName={item?.bookingTypePackage_name}
     />
@@ -432,21 +424,16 @@ const SelfTripHome = () => {
 
         <CustomModal visible={showTripSummaryModal}>
           <TripSummaryModal
-
             tripSummaryData={tripSummaryData}
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
             setIsGstSummaryValue={setIsGstSummaryValue}
-
             onPressNext={(closingDetails) => {
-
               handleCloseTrip({
                 closingKms: closingDetails.closingKms,
                 closingTime: closingDetails.closingTime,
-                closingDate: closingDetails.closingDate
-              }
-
-              );
+                closingDate: closingDetails.closingDate,
+              });
             }}
             onClose={() => setShowTripSummaryModal(false)}
           />
@@ -468,7 +455,6 @@ const SelfTripHome = () => {
             userToken={userToken}
             userId={userId}
             onClose={() => setShowCustomerSignatureModal(false)}
-
             fetch={getSelfTripPosts}
           />
         </CustomModal>
@@ -485,7 +471,6 @@ const styles = StyleSheet.create({
   list: {
     flexGrow: 1,
   },
-
 
   // paddingBottom: 16,
 

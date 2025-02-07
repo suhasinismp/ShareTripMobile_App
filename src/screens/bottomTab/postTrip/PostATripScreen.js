@@ -74,16 +74,11 @@ const POST_TYPES = {
   TRIP_SHEET: 'Trip Sheet',
 };
 
-const headers = [
-  'Date',
-  'Start Time',
-  'Start KMs',
-  'End Time',
-  'End KMs',
-  'Total KMs',
-];
-
 const TripCard = React.memo(({ tripData, index, onEdit }) => {
+  const handleEdit = () => {
+    onEdit(tripData);
+  };
+
   return (
     <View style={styles.cardContainer}>
       {/* Header with Day number, Date and Edit icon */}
@@ -94,10 +89,7 @@ const TripCard = React.memo(({ tripData, index, onEdit }) => {
             text={tripData.start_date || '-'}
             style={styles.dateText}
           />
-          <TouchableOpacity
-            onPress={() => setShowTripBillEditModal(true)}
-            style={styles.editButton}
-          >
+          <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
             <Feather name="edit-2" size={16} color="#008B8B" />
           </TouchableOpacity>
         </View>
@@ -169,7 +161,6 @@ VehicleButton.displayName = 'VehicleButton';
 
 const PostATripScreen = ({ route }) => {
   const { from, postId } = route.params || {};
-  console.log({ from, postId });
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
   const tripDetails = useSelector(getTripDetailsSelector);
@@ -181,14 +172,11 @@ const PostATripScreen = ({ route }) => {
   const [postType, setPostType] = useState(POST_TYPES.QUICK_SHARE);
   const [message, setMessage] = useState('');
   const [customerName, setCustomerName] = useState('');
-  console.log({ customerName });
   const [customerPhone, setCustomerPhone] = useState('');
-  console.log({ customerPhone });
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropLocation, setDropLocation] = useState('');
   const [visitingPlace, setVisitingPlace] = useState('');
   const [notes, setNotes] = useState('');
-  // const [notes1, setNotes1] = useState('');
   const [rate, setRate] = useState('');
   const [extraKms, setExtraKms] = useState('');
   const [extraHours, setExtraHours] = useState('');
@@ -202,12 +190,9 @@ const PostATripScreen = ({ route }) => {
   const [startDate, setStartDate] = useState('');
   const [endTripDate, setEndTripDate] = useState('');
   const [tripTableData, setTripTableData] = useState(null);
-  const [showTripBillEditModal, setShowTripBillEditModal] = useState();
+  const [showTripBillEditModal, setShowTripBillEditModal] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
-
-
-  console.log({ tripTableData });
 
   // Selection States
   const [selectedTripType, setSelectedTripType] = useState(null);
@@ -221,7 +206,6 @@ const PostATripScreen = ({ route }) => {
 
   // Date and Time States
   const [selectedFromDate, setSelectedFromDate] = useState(new Date());
-
   const [selectedToDate, setSelectedToDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
 
@@ -231,7 +215,6 @@ const PostATripScreen = ({ route }) => {
   const [allVehicleNames, setAllVehicleNames] = useState([]);
   const [filteredVehicleNames, setFilteredVehicleNames] = useState([]);
   const [initialData, setInitialData] = useState(null);
-  console.log({ initialData });
 
   // UI States
   const [isRecording, setIsRecording] = useState(false);
@@ -240,32 +223,8 @@ const PostATripScreen = ({ route }) => {
   const [pdfUri, setPdfUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const resetFields = () => {
-    setCustomerPhone('');
-    setCustomerName('');
-    setPickupLocation('');
-    setDropLocation('');
-    setVisitingPlace('');
-    setNotes('');
-    setSelectedPaymentType('');
-    setSelectedFromDate('');
-    setSelectedToDate('');
-    setSelectedTime('');
-    setSelectedTripType(null);
-    setSelectedPackage(null);
-    setSelectedVehicleType(null);
-    setSelectedVehicleName(null);
-    setSelectedShareType(1);
-    setIsRecording(false);
-    setIsPdfGenerating(false);
-    setIsLoading(false);
-    setRate('');
-    setDayBatta('');
-    setMessage('');
-    setRecordedAudioUri('');
-
-
-  }
+  // Add this with other state declarations
+  const [selectedTripCardId, setSelectedTripCardId] = useState(null);
 
   // Effects
   useEffect(() => {
@@ -273,9 +232,7 @@ const PostATripScreen = ({ route }) => {
       const filtered = allVehicleNames.filter(
         (vehicle) => vehicle.vehicle_types_id === selectedVehicleType,
       );
-
       setFilteredVehicleNames(filtered);
-
       setSelectedVehicleName(filtered[0]?.id);
     } else {
       setFilteredVehicleNames([]);
@@ -298,22 +255,11 @@ const PostATripScreen = ({ route }) => {
     initializeScreen();
   }, [from, postId]);
 
-  // useEffect(() => {
-  //   const unsubscribe = navigation.addListener('focus', () => {
-  //     if (from !== undefined) {
-  //       getTripSheetDetails();
-  //     }
-  //   });
-
-  //   return unsubscribe;
-  // }, [navigation, from]);
-
   useEffect(() => {
     if (tripTypes.length > 0) {
       const localTripType = tripTypes.find(
         (trip) => trip.booking_type_name === 'Local',
       );
-
       if (localTripType) {
         setSelectedTripType(localTripType.id);
         const packages = localTripType.bookingTypePackageAsBookingType;
@@ -327,20 +273,14 @@ const PostATripScreen = ({ route }) => {
   useEffect(() => {
     if (initialData) {
       const data = initialData;
-      // Access the first item in the array
-      console.log({ data });
       setSelectedTripType(data?.postBooking?.booking_type_id);
       setSelectedPackage(data?.bookingTypePackage_id);
       setSelectedVehicleType(data?.postBooking?.vehicle_type_id);
       setSelectedVehicleName(data?.postBooking?.vehicle_name_id);
       setSelectedShareType(data?.postBooking?.post_type_id);
-
-      // Handle date and time
       setSelectedFromDate(parseDate(data?.start_date || data?.from_date));
       setSelectedToDate(parseDate(data?.end_trip_date || data?.to_date));
       setSelectedTime(parseTime(data?.postBooking?.pick_up_time));
-
-      // Set other form fields
       setRate(data?.bookingTypeTariff_base_fare_rate?.toString() || '');
       setCustomerName(data?.postBooking?.customer_name || '');
       setCustomerPhone(data?.postBooking?.customer_phone_no || '');
@@ -351,15 +291,13 @@ const PostATripScreen = ({ route }) => {
         data?.postBooking?.payment_type || PAYMENT_TYPES.CASH,
       );
       setNotes(data?.postBooking?.note_1 || '');
-
-      // Set message if it exists
       if (data?.post_comments) {
         setMessage(data?.post_comments);
       }
     }
   }, [initialData]);
 
-  // API Calls
+  // API Functions
   const fetchConstants = async () => {
     setIsLoading(true);
     try {
@@ -404,36 +342,35 @@ const PostATripScreen = ({ route }) => {
 
   const getTripTable = async () => {
     const response = await fetchTripTable(postId, userToken);
+    console.log('ABC', response?.data?.tripSheetRide);
     if (response?.error === false) {
       setTripTableData(response?.data?.tripSheetRide);
     }
   };
 
-
-
   const handleTripBillEdit = async () => {
     const finalData = {
-      id: postId,
+      id: selectedTripCardId,
       start_trip_kms: startTripKms,
       start_date: startDate,
       start_time: startTime,
-      end_trip_date: endTripDate,
+      end_trip_date: endTripDate || startDate,
       end_trip_time: endTripTime,
       end_trip_kms: endTripKms,
-    }
-    const response = await updateViewTripBillTable(finalData, userToken)
+    };
+
+    const response = await updateViewTripBillTable(finalData, userToken);
 
     if (response?.error === false) {
-      console.log("Trip Sheet Ride Data updated successfully");
-      setShowTripBillEditModal(false)
-
+      console.log('Trip Sheet Ride Data updated successfully');
+      setShowTripBillEditModal(false);
+      getTripTable();
     } else {
-      console.log("Some error occurred or data was not updated");
+      console.log('Some error occurred or data was not updated');
     }
-  }
+  };
 
-
-  // Handlers
+  // Event Handlers
   const handleStartRecording = useCallback(() => {
     setIsRecording(true);
   }, []);
@@ -596,12 +533,10 @@ const PostATripScreen = ({ route }) => {
 
       try {
         const response = await createPost(formData, userToken);
-        console.log({ response });
         if (
           response.error === false &&
           response.message === 'Post Booking Data created successfully'
         ) {
-          resetFields();
           navigation.navigate('Home');
         } else {
           alert(response.message);
@@ -684,8 +619,6 @@ const PostATripScreen = ({ route }) => {
     }
   };
 
-
-
   const handleGeneratePDF = async () => {
     setIsPdfGenerating(true);
     try {
@@ -699,7 +632,11 @@ const PostATripScreen = ({ route }) => {
       });
 
       const filename = `tripsheet_${Date.now()}.pdf`;
-      const destinationUri = `${Platform.OS === 'android' ? FileSystem.cacheDirectory : FileSystem.documentDirectory}${filename}`;
+      const destinationUri = `${
+        Platform.OS === 'android'
+          ? FileSystem.cacheDirectory
+          : FileSystem.documentDirectory
+      }${filename}`;
 
       await FileSystem.copyAsync({
         from: uri,
@@ -726,431 +663,359 @@ const PostATripScreen = ({ route }) => {
     }
   };
 
-  // Memoized Selectors
-  const getSelectedTripTypePackages = useMemo(() => {
-    const selectedTrip = tripTypes.find((trip) => trip.id === selectedTripType);
-    return selectedTrip ? selectedTrip.bookingTypePackageAsBookingType : [];
-  }, [tripTypes, selectedTripType]);
-
   // Render Functions
-  const renderCommonContent = useCallback(
-    () => (
-      <>
-        <View style={styles.sectionContainer}>
-          <CustomText
-            text={'Select Trip Type :'}
-            variant={'sectionTitleText'}
+  const renderQuickShareContent = () => (
+    <>
+      <View style={styles.sectionContainer}>
+        <CustomInput
+          placeholder={'Type your message'}
+          value={message}
+          onChangeText={setMessage}
+          multiline={true}
+          rightItem={
+            !recordedAudioUri && (
+              <TouchableOpacity onPress={handleStartRecording}>
+                <MicIcon fill={isRecording ? 'red' : 'black'} />
+              </TouchableOpacity>
+            )
+          }
+        />
+        {(isRecording || recordedAudioUri) && (
+          <AudioContainer
+            isRecording={isRecording}
+            recordedAudioUri={recordedAudioUri}
+            onRecordingComplete={handleStopRecording}
+            onDelete={handleDeleteRecording}
           />
+        )}
+      </View>
+      {renderCommonContent()}
+      {!from && (
+        <View style={styles.shareTypeContainer}>
+          <CustomText text={'Share To :'} variant={'sectionTitleText'} />
           <FlatList
-            data={tripTypes}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
+            data={SHARE_TYPE_DATA}
             renderItem={({ item }) => (
               <CustomSelect
-                text={item.booking_type_name}
+                text={item.label_value}
                 containerStyle={styles.selectItem}
                 selectedTextStyle={styles.selectedText}
                 selectedStyle={styles.selectedBackground}
-                isSelected={selectedTripType === item.id}
-                onPress={() => {
-                  setSelectedTripType(item.id);
-                  const packages = item.bookingTypePackageAsBookingType;
-                  if (packages.length > 0) {
-                    setSelectedPackage(packages[0].id);
-                  } else {
-                    setSelectedPackage(null);
-                  }
-                }}
+                isSelected={selectedShareType === item.label_id}
+                onPress={() => setSelectedShareType(item.label_id)}
                 unselectedStyle={styles.unselectedBorder}
               />
             )}
-            contentContainerStyle={styles.listContentContainer}
+            keyExtractor={(item) => item.label_id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.shareTypeList}
           />
         </View>
+      )}
+    </>
+  );
 
-        <View style={styles.sectionContainer}>
-          <CustomText
-            text={'Select Vehicle Type :'}
-            variant={'sectionTitleText'}
-          />
+  const renderCommonContent = () => (
+    <>
+      <View style={styles.sectionContainer}>
+        <CustomText text={'Select Trip Type :'} variant={'sectionTitleText'} />
+        <FlatList
+          data={tripTypes}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <CustomSelect
+              text={item.booking_type_name}
+              containerStyle={styles.selectItem}
+              selectedTextStyle={styles.selectedText}
+              selectedStyle={styles.selectedBackground}
+              isSelected={selectedTripType === item.id}
+              onPress={() => {
+                setSelectedTripType(item.id);
+                const packages = item.bookingTypePackageAsBookingType;
+                if (packages.length > 0) {
+                  setSelectedPackage(packages[0].id);
+                } else {
+                  setSelectedPackage(null);
+                }
+              }}
+              unselectedStyle={styles.unselectedBorder}
+            />
+          )}
+          contentContainerStyle={styles.listContentContainer}
+        />
+      </View>
+
+      <View style={styles.sectionContainer}>
+        <CustomText
+          text={'Select Vehicle Type :'}
+          variant={'sectionTitleText'}
+        />
+        <FlatList
+          data={vehicleTypes}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <VehicleButton
+              item={item}
+              isSelected={selectedVehicleType === item.id}
+              onPress={() => setSelectedVehicleType(item.id)}
+              imageKey="v_type_pic"
+              nameKey="v_type"
+            />
+          )}
+          contentContainerStyle={styles.vehicleListContainer}
+        />
+      </View>
+
+      <View style={styles.sectionContainer}>
+        <CustomText
+          text={'Select Vehicle Name :'}
+          variant={'sectionTitleText'}
+        />
+        {filteredVehicleNames.length > 0 ? (
           <FlatList
-            data={vehicleTypes}
+            data={filteredVehicleNames}
             horizontal
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <VehicleButton
                 item={item}
-                isSelected={selectedVehicleType === item.id}
-                onPress={() => {
-                  setSelectedVehicleType(item.id);
-                }}
-                imageKey="v_type_pic"
-                nameKey="v_type"
+                isSelected={selectedVehicleName === item.id}
+                onPress={() => setSelectedVehicleName(item.id)}
+                imageKey="v_pic"
+                nameKey="v_name"
               />
             )}
             contentContainerStyle={styles.vehicleListContainer}
           />
-        </View>
-
-        <View style={styles.sectionContainer}>
+        ) : (
           <CustomText
-            text={'Select Vehicle Name :'}
-            variant={'sectionTitleText'}
+            text={'Please select a vehicle type first'}
+            style={styles.noVehicleText}
           />
-          {filteredVehicleNames.length > 0 ? (
-            <FlatList
-              data={filteredVehicleNames}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <VehicleButton
-                  item={item}
-                  isSelected={selectedVehicleName === item.id}
-                  onPress={() => {
-                    setSelectedVehicleName(item.id);
-                  }}
-                  imageKey="v_pic"
-                  nameKey="v_name"
-                />
-              )}
-              contentContainerStyle={styles.vehicleListContainer}
-            />
-          ) : (
-            <CustomText
-              text={'Please select a vehicle type first'}
-              style={styles.noVehicleText}
-            />
-          )}
-        </View>
-
-        <View style={styles.sectionContainer}>
-          <CustomText text={'Select Package :'} variant={'sectionTitleText'} />
-          <FlatList
-            data={getSelectedTripTypePackages}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <CustomSelect
-                text={item.package_name}
-                containerStyle={styles.selectItem}
-                selectedTextStyle={styles.selectedText}
-                selectedStyle={styles.selectedBackground}
-                isSelected={selectedPackage === item.id}
-                onPress={() => setSelectedPackage(item.id)}
-                unselectedStyle={styles.unselectedBorder}
-              />
-            )}
-            contentContainerStyle={styles.listContentContainer}
-          />
-        </View>
-      </>
-    ),
-    [
-      tripTypes,
-      vehicleTypes,
-      filteredVehicleNames,
-      selectedTripType,
-      selectedVehicleType,
-      selectedVehicleName,
-      selectedPackage,
-      getSelectedTripTypePackages,
-    ],
-  );
-
-  const renderQuickShareContent = useCallback(
-    () => (
-      <>
-        <View style={styles.sectionContainer}>
-          <CustomInput
-            placeholder={'Type your message'}
-            value={message}
-            onChangeText={setMessage}
-            multiline={true}
-            rightItem={
-              !recordedAudioUri && (
-                <TouchableOpacity onPress={handleStartRecording}>
-                  <MicIcon fill={isRecording ? 'red' : 'black'} />
-                </TouchableOpacity>
-              )
-            }
-          />
-          {(isRecording || recordedAudioUri) && (
-            <AudioContainer
-              isRecording={isRecording}
-              recordedAudioUri={recordedAudioUri}
-              onRecordingComplete={handleStopRecording}
-              onDelete={handleDeleteRecording}
-            />
-          )}
-        </View>
-        {renderCommonContent()}
-        {!from && (
-          <View style={styles.shareTypeContainer}>
-            <CustomText text={'Share To :'} variant={'sectionTitleText'} />
-            <FlatList
-              data={SHARE_TYPE_DATA}
-              renderItem={({ item }) => (
-                <CustomSelect
-                  text={item.label_value}
-                  containerStyle={styles.selectItem}
-                  selectedTextStyle={styles.selectedText}
-                  selectedStyle={styles.selectedBackground}
-                  isSelected={selectedShareType === item.label_id}
-                  onPress={() => setSelectedShareType(item.label_id)}
-                  unselectedStyle={styles.unselectedBorder}
-                />
-              )}
-              keyExtractor={(item) => item.label_id.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.shareTypeList}
-            />
-          </View>
         )}
-      </>
-    ),
-    [
-      message,
-      recordedAudioUri,
-      isRecording,
-      from,
-      selectedShareType,
-      handleStartRecording,
-      handleStopRecording,
-      handleDeleteRecording,
-      renderCommonContent,
-    ],
+      </View>
+
+      <View style={styles.sectionContainer}>
+        <CustomText text={'Select Package :'} variant={'sectionTitleText'} />
+        <FlatList
+          data={
+            tripTypes.find((trip) => trip.id === selectedTripType)
+              ?.bookingTypePackageAsBookingType || []
+          }
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <CustomSelect
+              text={item.package_name}
+              containerStyle={styles.selectItem}
+              selectedTextStyle={styles.selectedText}
+              selectedStyle={styles.selectedBackground}
+              isSelected={selectedPackage === item.id}
+              onPress={() => setSelectedPackage(item.id)}
+              unselectedStyle={styles.unselectedBorder}
+            />
+          )}
+          contentContainerStyle={styles.listContentContainer}
+        />
+      </View>
+    </>
   );
-  const renderTripSheetContent = useCallback(
-    () => (
-      <>
-        <View style={[styles.sectionContainer, styles.gap10]}>
-          <CustomText
-            text={'Customer Details :'}
-            variant={'sectionTitleText'}
-          />
-          <CustomInput
-            placeholder="Customer Name"
-            value={customerName}
-            onChangeText={setCustomerName}
-          />
-          <CustomInput
-            placeholder="Customer Phone"
-            value={customerPhone}
-            onChangeText={setCustomerPhone}
-            keyboardType="phone-pad"
-          />
-        </View>
-        {renderCommonContent()}
-        <View style={styles.sectionContainer}>
-          <CustomText text={'Tariff :'} variant={'sectionTitleText'} />
-          <View style={styles.tariffContainer}>
-            <View style={styles.tariffRow}>
+
+  const renderTripSheetContent = () => (
+    <>
+      <View style={[styles.sectionContainer, styles.gap10]}>
+        <CustomText text={'Customer Details :'} variant={'sectionTitleText'} />
+        <CustomInput
+          placeholder="Customer Name"
+          value={customerName}
+          onChangeText={setCustomerName}
+        />
+        <CustomInput
+          placeholder="Customer Phone"
+          value={customerPhone}
+          onChangeText={setCustomerPhone}
+          keyboardType="phone-pad"
+        />
+      </View>
+
+      {renderCommonContent()}
+
+      <View style={styles.sectionContainer}>
+        <CustomText text={'Tariff :'} variant={'sectionTitleText'} />
+        <View style={styles.tariffContainer}>
+          <View style={styles.tariffRow}>
+            <CustomInput
+              placeholder="Rate"
+              value={rate}
+              onChangeText={setRate}
+              style={styles.tariffInput}
+              keyboardType="numeric"
+            />
+            {selectedTripType !== 2 && (
               <CustomInput
-                placeholder="Rate"
-                value={rate}
-                onChangeText={setRate}
+                placeholder="Extra Kms"
+                value={extraKms}
+                onChangeText={setExtraKms}
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
-              {selectedTripType !== 2 && (
-                <CustomInput
-                  placeholder="Extra Kms"
-                  value={extraKms}
-                  onChangeText={setExtraKms}
-                  style={styles.tariffInput}
-                  keyboardType="numeric"
-                />
-              )}
-            </View>
-            <View style={styles.tariffRow}>
-              {selectedTripType !== 2 && selectedTripType !== 3 && (
-                <CustomInput
-                  placeholder="Extra Hours"
-                  value={extraHours}
-                  onChangeText={setExtraHours}
-                  style={styles.tariffInput}
-                  keyboardType="numeric"
-                />
-              )}
-              {selectedTripType !== 1 && selectedTripType !== 3 && (
-                <CustomInput
-                  placeholder="Day Batta"
-                  value={dayBatta}
-                  onChangeText={setDayBatta}
-                  style={styles.tariffInput}
-                  keyboardType="numeric"
-                />
-              )}
-            </View>
-            <View style={styles.tariffRow}>
-              {selectedTripType != 1 &&
-                selectedTripType != 2 &&
-                selectedTripType != 3 && (
-                  <CustomInput
-                    placeholder="Night Batta"
-                    value={nightBatta}
-                    onChangeText={setNightBatta}
-                    style={styles.tariffInput}
-                    keyboardType="numeric"
-                  />
-                )}
-            </View>
-            {selectedTripType === 3 && (
-              <View style={styles.tariffRow}>
-                <CustomInput
-                  placeholder="Slab Rate"
-                  value={slabRate}
-                  onChangeText={setSlabRate}
-                  style={styles.tariffInput}
-                  keyboardType="numeric"
-                />
-              </View>
             )}
           </View>
-        </View>
-
-        <View style={styles.sectionContainer}>
-          <CustomText
-            text={'Payment / Duty Type :'}
-            variant={'sectionTitleText'}
-          />
-          <View style={styles.paymentTypeContainer}>
-            {Object.values(PAYMENT_TYPES).map((type) => (
-              <CustomSelect
-                key={type}
-                text={type}
-                containerStyle={styles.paymentType}
-                selectedTextStyle={styles.selectedText}
-                selectedStyle={styles.selectedBackground}
-                isSelected={selectedPaymentType === type}
-                onPress={() => setSelectedPaymentType(type)}
-                unselectedStyle={styles.unselectedBorder}
+          <View style={styles.tariffRow}>
+            {selectedTripType !== 2 && selectedTripType !== 3 && (
+              <CustomInput
+                placeholder="Extra Hours"
+                value={extraHours}
+                onChangeText={setExtraHours}
+                style={styles.tariffInput}
+                keyboardType="numeric"
               />
-            ))}
+            )}
+            {selectedTripType !== 1 && selectedTripType !== 3 && (
+              <CustomInput
+                placeholder="Day Batta"
+                value={dayBatta}
+                onChangeText={setDayBatta}
+                style={styles.tariffInput}
+                keyboardType="numeric"
+              />
+            )}
           </View>
-        </View>
-
-        <View style={[styles.sectionContainer, styles.gap10]}>
-          <CustomText text={'Notes :'} variant={'sectionTitleText'} />
-          <CustomInput
-            placeholder="Type your message"
-            value={notes}
-            onChangeText={setNotes}
-            multiline={true}
-          />
-          {/* <CustomInput
-            placeholder="Type your message"
-            value={notes1}
-            onChangeText={setNotes1}
-            multiline={true} */}
-          {/* /> */}
-        </View>
-
-        <View style={styles.sectionContainer}>
-          <CustomText text={'Date & Time :'} variant={'sectionTitleText'} />
-          <View style={styles.dateTimeContainer}>
-            <TimeDatePicker
-              fromDate={selectedFromDate}
-              toDate={selectedToDate}
-              time={selectedTime}
-              onFromDateChange={handleFromDateChange}
-              onToDateChange={handleToDateChange}
-              onTimeChange={handleTimeChange}
-            />
-          </View>
-        </View>
-
-        <View style={styles.sectionContainer}>
-          <CustomText
-            text={'Pick Up / Drop Location Detail :'}
-            variant={'sectionTitleText'}
-          />
-          <View style={styles.locationContainer}>
-            <CustomInput
-              placeholder="Enter Pickup Location"
-              value={pickupLocation}
-              onChangeText={setPickupLocation}
-              style={styles.fullWidthInput}
-            />
-            <CustomInput
-              placeholder="Enter Drop off Location"
-              value={dropLocation}
-              onChangeText={setDropLocation}
-              style={styles.fullWidthInput}
-            />
-          </View>
-        </View>
-
-        <View style={styles.sectionContainer}>
-          <CustomText text={'Visiting Place'} variant={'sectionTitleText'} />
-          <View style={styles.visitingPlaceContainer}>
-            <CustomInput
-              placeholder="Enter Visiting Place"
-              value={visitingPlace}
-              onChangeText={setVisitingPlace}
-              style={styles.fullWidthInput}
-            />
-          </View>
-        </View>
-
-        {!from && (
-          <View style={styles.shareTypeContainer}>
-            <CustomText
-              text={'Select to Post :'}
-              variant={'sectionTitleText'}
-            />
-            <FlatList
-              data={SHARE_TYPE_DATA}
-              renderItem={({ item }) => (
-                <CustomSelect
-                  text={item.label_value}
-                  containerStyle={styles.selectItem}
-                  selectedTextStyle={styles.selectedText}
-                  selectedStyle={styles.selectedBackground}
-                  isSelected={selectedShareType === item.label_id}
-                  onPress={() => setSelectedShareType(item.label_id)}
-                  unselectedStyle={styles.unselectedBorder}
+          <View style={styles.tariffRow}>
+            {selectedTripType !== 1 &&
+              selectedTripType !== 2 &&
+              selectedTripType !== 3 && (
+                <CustomInput
+                  placeholder="Night Batta"
+                  value={nightBatta}
+                  onChangeText={setNightBatta}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
                 />
               )}
-              keyExtractor={(item) => item.label_id.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.shareTypeList}
-            />
           </View>
-        )}
-      </>
-    ),
-    [
-      customerName,
-      customerPhone,
-      rate,
-      extraKms,
-      extraHours,
-      dayBatta,
-      nightBatta,
-      slabRate,
-      selectedPaymentType,
-      notes,
-      // notes1,
-      selectedFromDate,
-      selectedToDate,
-      selectedTime,
-      pickupLocation,
-      dropLocation,
-      visitingPlace,
-      from,
-      selectedShareType,
-      handleFromDateChange,
-      handleToDateChange,
-      handleTimeChange,
-      renderCommonContent,
-    ],
+          {selectedTripType === 3 && (
+            <View style={styles.tariffRow}>
+              <CustomInput
+                placeholder="Slab Rate"
+                value={slabRate}
+                onChangeText={setSlabRate}
+                style={styles.tariffInput}
+                keyboardType="numeric"
+              />
+            </View>
+          )}
+        </View>
+      </View>
+
+      <View style={styles.sectionContainer}>
+        <CustomText
+          text={'Payment / Duty Type :'}
+          variant={'sectionTitleText'}
+        />
+        <View style={styles.paymentTypeContainer}>
+          {Object.values(PAYMENT_TYPES).map((type) => (
+            <CustomSelect
+              key={type}
+              text={type}
+              containerStyle={styles.paymentType}
+              selectedTextStyle={styles.selectedText}
+              selectedStyle={styles.selectedBackground}
+              isSelected={selectedPaymentType === type}
+              onPress={() => setSelectedPaymentType(type)}
+              unselectedStyle={styles.unselectedBorder}
+            />
+          ))}
+        </View>
+      </View>
+
+      <View style={[styles.sectionContainer, styles.gap10]}>
+        <CustomText text={'Notes :'} variant={'sectionTitleText'} />
+        <CustomInput
+          placeholder="Type your message"
+          value={notes}
+          onChangeText={setNotes}
+          multiline={true}
+        />
+      </View>
+
+      <View style={styles.sectionContainer}>
+        <CustomText text={'Date & Time :'} variant={'sectionTitleText'} />
+        <View style={styles.dateTimeContainer}>
+          <TimeDatePicker
+            fromDate={selectedFromDate}
+            toDate={selectedToDate}
+            time={selectedTime}
+            onFromDateChange={handleFromDateChange}
+            onToDateChange={handleToDateChange}
+            onTimeChange={handleTimeChange}
+          />
+        </View>
+      </View>
+
+      <View style={styles.sectionContainer}>
+        <CustomText
+          text={'Pick Up / Drop Location Detail :'}
+          variant={'sectionTitleText'}
+        />
+        <View style={styles.locationContainer}>
+          <CustomInput
+            placeholder="Enter Pickup Location"
+            value={pickupLocation}
+            onChangeText={setPickupLocation}
+            style={styles.fullWidthInput}
+          />
+          <CustomInput
+            placeholder="Enter Drop off Location"
+            value={dropLocation}
+            onChangeText={setDropLocation}
+            style={styles.fullWidthInput}
+          />
+        </View>
+      </View>
+
+      <View style={styles.sectionContainer}>
+        <CustomText text={'Visiting Place'} variant={'sectionTitleText'} />
+        <View style={styles.visitingPlaceContainer}>
+          <CustomInput
+            placeholder="Enter Visiting Place"
+            value={visitingPlace}
+            onChangeText={setVisitingPlace}
+            style={styles.fullWidthInput}
+          />
+        </View>
+      </View>
+
+      {!from && (
+        <View style={styles.shareTypeContainer}>
+          <CustomText text={'Select to Post :'} variant={'sectionTitleText'} />
+          <FlatList
+            data={SHARE_TYPE_DATA}
+            renderItem={({ item }) => (
+              <CustomSelect
+                text={item.label_value}
+                containerStyle={styles.selectItem}
+                selectedTextStyle={styles.selectedText}
+                selectedStyle={styles.selectedBackground}
+                isSelected={selectedShareType === item.label_id}
+                onPress={() => setSelectedShareType(item.label_id)}
+                unselectedStyle={styles.unselectedBorder}
+              />
+            )}
+            keyExtractor={(item) => item.label_id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.shareTypeList}
+          />
+        </View>
+      )}
+    </>
   );
 
   if (isLoading) {
@@ -1167,7 +1032,7 @@ const PostATripScreen = ({ route }) => {
         backIcon={true}
         onlineIcon={true}
         muteIcon={true}
-        title={from != undefined ? 'Trip Sheet' : 'Post A Trip'}
+        title={from !== undefined ? 'Trip Sheet' : 'Post A Trip'}
       />
       <KeyboardAwareScrollView
         style={styles.container}
@@ -1206,7 +1071,20 @@ const PostATripScreen = ({ route }) => {
             <FlatList
               data={tripTableData}
               renderItem={({ item, index }) => (
-                <TripCard tripData={item} index={index} />
+                <TripCard
+                  tripData={item}
+                  index={index}
+                  onEdit={(data) => {
+                    setSelectedTripCardId(data.id); // Add this line
+                    setStartTripKms(data.start_kms?.toString() || '');
+                    setEndTripKms(data.end_kms?.toString() || '');
+                    setStartTime(data.start_time || '');
+                    setEndTripTime(data.end_time || '');
+                    setStartDate(data.start_date || '');
+                    setEndTripDate(data.end_trip_date || '');
+                    setShowTripBillEditModal(true);
+                  }}
+                />
               )}
               keyExtractor={(item) => item.id.toString()}
               showsVerticalScrollIndicator={false}
@@ -1217,7 +1095,6 @@ const PostATripScreen = ({ route }) => {
 
         <CustomModal
           visible={showTripBillEditModal}
-          onPrimaryAction={handleTripBillEdit}
           onSecondaryAction={() => setShowTripBillEditModal(false)}
         >
           <TripBillEditModal
@@ -1231,12 +1108,13 @@ const PostATripScreen = ({ route }) => {
             setEndTripTime={setEndTripTime}
             startDate={startDate}
             setStartDate={setStartDate}
-            endTripDate={endTripDate}
+            endTripDate={endTripDate || startDate}
             setEndTripDate={setEndTripDate}
             showTimePicker={showTimePicker}
             setShowTimePicker={setShowTimePicker}
             showDatePicker={showDatePicker}
             setShowDatePicker={setShowDatePicker}
+            handleTripBillEdit={handleTripBillEdit}
             onClose={() => setShowTripBillEditModal(false)}
           />
         </CustomModal>
@@ -1264,6 +1142,7 @@ const PostATripScreen = ({ route }) => {
     </>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1368,9 +1247,6 @@ const styles = StyleSheet.create({
   shareTypeContainer: {
     marginVertical: 20,
   },
-  shareTypeTitle: {
-    marginBottom: 12,
-  },
   shareTypeList: {
     justifyContent: 'flex-start',
     padding: 4,
@@ -1438,77 +1314,13 @@ const styles = StyleSheet.create({
   bottomSpacing: {
     marginBottom: 40,
   },
-  audioContainer: {
-    marginTop: 12,
-    padding: 12,
-    backgroundColor: 'white',
-    borderRadius: 8,
-  },
-  messageInput: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
   noVehicleText: {
     marginTop: 12,
     color: '#666666',
     fontStyle: 'italic',
     fontSize: 13,
   },
-  headerRow: {
-    flexDirection: 'row',
-    backgroundColor: '#f2f2f2',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  row: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  headerCell: {
-    flex: 1,
-    padding: 10,
-    borderRightWidth: 1,
-    borderRightColor: '#ddd',
-  },
-  cell: {
-    flex: 1,
-    padding: 10,
-    borderRightWidth: 1,
-    borderRightColor: '#ddd',
-  },
-  lastCell: {
-    borderRightWidth: 0,
-  },
-  headerText: {
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  cellText: {
-    textAlign: 'center',
-  },
-  cardRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  cardField: {
-    flex: 1,
-  },
-  cardLabel: {
-    fontSize: 12,
-    color: '#666666',
-    marginBottom: 4,
-  },
-  cardValue: {
-    fontSize: 14,
-    color: '#333333',
-    fontWeight: '500',
-  },
-
+  // Card Styles
   cardsContainer: {
     marginTop: 16,
   },
@@ -1547,6 +1359,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666666',
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  editButton: {
+    padding: 4,
+  },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1569,15 +1389,6 @@ const styles = StyleSheet.create({
     color: '#333333',
     fontWeight: '500',
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  editButton: {
-    padding: 4,
-  },
 });
-
 
 export default PostATripScreen;
