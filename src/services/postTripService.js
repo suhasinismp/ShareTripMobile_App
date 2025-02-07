@@ -24,7 +24,6 @@ export const createPost = async (data, token) => {
 };
 
 export const updatePost = async (data, token) => {
-
   const response = await patchFormDataAPI({
     endUrl: 'share-trip/post-booking',
     formData: data,
@@ -35,7 +34,7 @@ export const updatePost = async (data, token) => {
 };
 
 export const fetchTripByPostId = async (postId, token) => {
-  console.log('hi')
+  console.log('hi');
   const response = await getAPI(
     `share-trip/trip-ride/based-post-booking/${postId}`,
     token,
@@ -62,7 +61,6 @@ export const generateSelfTripPdf = async (body, token) => {
   return response;
 };
 
-
 export const generateBillPdf = async (body, token) => {
   const response = await postAPI(
     '/share-trip/trip-sheet-final/trip_bill_report',
@@ -75,12 +73,11 @@ export const generateBillPdf = async (body, token) => {
 export const fetchTripSheetByPostId = async (postId, token) => {
   const response = await getAPI(`/share-trip/post-booking/${postId}`, token);
 
-  store.dispatch(setTripDetailsToStore({ tripDetailsInBill: response.data }))
+  store.dispatch(setTripDetailsToStore({ tripDetailsInBill: response.data }));
   return response;
 };
 
 export const fetchTripTable = async (postId, token) => {
-
   const response = await getAPI(
     `/share-trip/trip-sheet-ride/based-post-booking/${postId}`,
     token,
@@ -88,11 +85,15 @@ export const fetchTripTable = async (postId, token) => {
   return response;
 };
 
-
 export const updateViewTripBillTable = async (data, token) => {
-  const response = await patchAPI(
-    'share-trip/trip-sheet-ride/', token,
-  );
+  console.log({ data });
+  const response = await patchAPI({
+    endUrl: 'share-trip/trip-sheet-ride/',
+    body: data,
+    token: token,
+  });
+
+  console.log({ response });
 
   return response;
-}
+};
