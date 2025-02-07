@@ -207,6 +207,7 @@ const PostATripScreen = ({ route }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
 
+  console.log({ tripTableData });
 
   // Selection States
   const [selectedTripType, setSelectedTripType] = useState(null);
