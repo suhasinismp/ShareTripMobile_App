@@ -632,11 +632,10 @@ const PostATripScreen = ({ route }) => {
       });
 
       const filename = `tripsheet_${Date.now()}.pdf`;
-      const destinationUri = `${
-        Platform.OS === 'android'
+      const destinationUri = `${Platform.OS === 'android'
           ? FileSystem.cacheDirectory
           : FileSystem.documentDirectory
-      }${filename}`;
+        }${filename}`;
 
       await FileSystem.copyAsync({
         from: uri,

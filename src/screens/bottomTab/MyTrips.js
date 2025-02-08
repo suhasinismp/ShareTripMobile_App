@@ -52,6 +52,7 @@ const MyTrips = () => {
   const [selectedFilterOne, setSelectedFilterOne] = useState('Confirmed');
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('MyDuties');
   const [selectedFilterThree, setSelectedFilterThree] = useState('Local');
+  const [navigateToBills, setNavigateToBills] = useState(false);
 
   // Trip data states
   const [inProgressDriverData, setInProgressDriverData] = useState([]);
@@ -218,7 +219,9 @@ const MyTrips = () => {
   };
 
   const handleEndTrip = async () => {
+
     setShowTripProgressModal(false);
+    setNavigateToBills(true)
     const tripDetails = await fetchTripDetails(
       selectedTripData?.post_booking_id,
       userToken,
@@ -282,7 +285,7 @@ const MyTrips = () => {
       setShowClosingDetailsModal(false);
       setClosingKms('');
       setClosingTime('');
-      setClosingDate('');
+
       // setIsGst(true);
       setShowAdditionalCharges(true);
     }
@@ -428,6 +431,7 @@ const MyTrips = () => {
     if (response?.error === false) {
       setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
+      setClosingDate('');
     }
   };
 
@@ -724,6 +728,7 @@ const MyTrips = () => {
           userId={userId}
           onClose={() => setShowCustomerSignatureModal(false)}
           fetch={fetchUiData}
+          goTo={navigateToBills}
         />
       </CustomModal>
     </>
