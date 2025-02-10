@@ -52,6 +52,7 @@ const MyTrips = () => {
   const [selectedFilterOne, setSelectedFilterOne] = useState('Confirmed');
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('MyDuties');
   const [selectedFilterThree, setSelectedFilterThree] = useState('Local');
+  const [navigateToBills, setNavigateToBills] = useState(false);
 
   // Trip data states
   const [inProgressDriverData, setInProgressDriverData] = useState([]);
@@ -62,7 +63,6 @@ const MyTrips = () => {
 
   // Modal states
   const [showStartTripModal, setShowStartTripModal] = useState(false);
-
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
@@ -218,7 +218,9 @@ const MyTrips = () => {
   };
 
   const handleEndTrip = async () => {
+
     setShowTripProgressModal(false);
+    setNavigateToBills(true)
     const tripDetails = await fetchTripDetails(
       selectedTripData?.post_booking_id,
       userToken,
@@ -282,7 +284,7 @@ const MyTrips = () => {
       setShowClosingDetailsModal(false);
       setClosingKms('');
       setClosingTime('');
-      setClosingDate('');
+
       // setIsGst(true);
       setShowAdditionalCharges(true);
     }
@@ -389,9 +391,11 @@ const MyTrips = () => {
         state_tax: charges?.stateTax * 1,
         cleaning: charges?.cleaning * 1,
         night_batta: charges?.nightBatta * 1,
-        end_date: "2025/01/02"
+        end_date: closingDate
       })
+
     );
+
     // Group documents by fileNumber
     if (documents && documents.length > 0) {
       let groupedDocuments = {};
@@ -428,6 +432,7 @@ const MyTrips = () => {
     if (response?.error === false) {
       setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
+      setClosingDate('');
     }
   };
 
@@ -724,6 +729,7 @@ const MyTrips = () => {
           userId={userId}
           onClose={() => setShowCustomerSignatureModal(false)}
           fetch={fetchUiData}
+          goTo={navigateToBills}
         />
       </CustomModal>
     </>

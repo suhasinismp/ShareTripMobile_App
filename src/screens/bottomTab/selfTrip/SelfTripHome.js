@@ -50,6 +50,7 @@ const SelfTripHome = () => {
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
   const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
+  const [navigateToBills, setNavigateToBills] = useState(false);
 
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
@@ -260,6 +261,8 @@ const SelfTripHome = () => {
         end_date: closingDate,
       }),
     );
+
+    console.log(documents, charges)
     // Group documents by fileNumber
     if (documents && documents.length > 0) {
       let groupedDocuments = {};
@@ -294,7 +297,8 @@ const SelfTripHome = () => {
     const response = await postAdditionCharges(formData, userToken);
     console.log('selfTrip', response);
     if (response?.error === false) {
-      setShowAdditionalCharges(false);
+      setClosingDate(''),
+        setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
     }
   };
@@ -456,6 +460,7 @@ const SelfTripHome = () => {
             userId={userId}
             onClose={() => setShowCustomerSignatureModal(false)}
             fetch={getSelfTripPosts}
+            goTo={navigateToBills}
           />
         </CustomModal>
       </View>

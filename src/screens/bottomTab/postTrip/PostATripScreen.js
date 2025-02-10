@@ -632,11 +632,10 @@ const PostATripScreen = ({ route }) => {
       });
 
       const filename = `tripsheet_${Date.now()}.pdf`;
-      const destinationUri = `${
-        Platform.OS === 'android'
-          ? FileSystem.cacheDirectory
-          : FileSystem.documentDirectory
-      }${filename}`;
+      const destinationUri = `${Platform.OS === 'android'
+        ? FileSystem.cacheDirectory
+        : FileSystem.documentDirectory
+        }${filename}`;
 
       await FileSystem.copyAsync({
         from: uri,
@@ -808,8 +807,11 @@ const PostATripScreen = ({ route }) => {
             tripTypes.find((trip) => trip.id === selectedTripType)
               ?.bookingTypePackageAsBookingType || []
           }
-          showsHorizontalScrollIndicator={false}
+
+
           keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => (
             <CustomSelect
               text={item.package_name}
@@ -1192,13 +1194,15 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     marginTop: 16,
+    flexDirection: 'column',
+
   },
   gap10: {
     gap: 10,
   },
   listContentContainer: {
-    marginTop: 12,
-    padding: 4,
+    marginTop: 8,
+    // padding: 4,
   },
   selectItem: {
     marginRight: 10,

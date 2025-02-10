@@ -12,7 +12,9 @@ const CustomerSignatureModal = ({
   userId,
   onClose,
   fetch,
+  goTo,
 }) => {
+  console.log({ goTo })
   const navigation = useNavigation();
   const [signatureFileInfo, setSignatureFileInfo] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -74,7 +76,9 @@ const CustomerSignatureModal = ({
       if (response?.error === false) {
         onClose();
         await fetch();
-        navigation.navigate('Bills');
+        if (goTo === true) {
+          navigation.navigate('Bills');
+        }
       }
     } catch (error) {
       console.error('Error uploading signature:', error);

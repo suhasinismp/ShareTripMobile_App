@@ -28,73 +28,70 @@ import StartTripModal from '../../../components/tripModals/StartTripModal';
 import TripBillEditModal from '../../../components/tripModals/TripBillEditModal';
 import CustomModal from '../../../components/ui/CustomModal';
 
-// const TripCard = React.memo(({ tripData, index, onEdit }) => {
-//   return (
-//     <View style={styles.cardContainer}>
-//       {/* Header with Day number, Date and Edit icon */}
-//       <View style={styles.cardHeader}>
-//         <CustomText text={`Day ${index + 1}`} style={styles.dayText} />
-//         <View style={styles.headerRight}>
-//           <CustomText
-//             text={tripData.start_date || '-'}
-//             style={styles.dateText}
-//           />
-//           <TouchableOpacity
-//             onPress={() => {
-//               onEdit && onEdit(tripData);  // Call onEdit if it exists
-//               setShowTripBillEditModal(true);  // Open the modal
-//             }}
-//             style={styles.editButton}
-//           >
-//             <Feather name="edit-2" size={16} color="#008B8B" />
-//           </TouchableOpacity>
-//         </View>
-//       </View>
+const TripCard = React.memo(({ navigation, tripData, index, onEdit }) => {
+  return (
+    <View style={styles.cardContainer}>
+      {/* Header with Day number, Date and Edit icon */}
+      <View style={styles.cardHeader}>
+        <CustomText text={`Day ${index + 1}`} style={styles.dayText} />
+        <View style={styles.headerRight}>
+          <CustomText
+            text={tripData.start_date || '-'}
+            style={styles.dateText}
+          />
+          <TouchableOpacity
+            onPress={() => navigation.navigate(`TripBillEdit`, { tripRideId: tripData?.id })}
+            style={styles.editButton}
+          >
+            <Feather name="edit-2" size={16} color="#008B8B" />
+          </TouchableOpacity>
+        </View>
+      </View>
 
-//       {/* Trip Time Section */}
-//       <View style={styles.infoRow}>
-//         <View style={styles.timeSection}>
-//           <CustomText text="Total Time:" style={styles.labelText} />
-//           <CustomText
-//             text={`${tripData.start_time || '-'} to ${tripData.end_time || '-'}`}
-//             style={styles.valueText}
-//           />
-//         </View>
-//         <View style={styles.totalSection}>
-//           <CustomText text="Total hrs:" style={styles.labelText} />
-//           <CustomText text={tripData.total_hours} style={styles.valueText} />
-//         </View>
-//       </View>
+      {/* Trip Time Section */}
+      <View style={styles.infoRow}>
+        <View style={styles.timeSection}>
+          <CustomText text="Total Time:" style={styles.labelText} />
+          <CustomText
+            text={`${tripData.start_time || '-'} to ${tripData.end_time || '-'}`}
+            style={styles.valueText}
+          />
+        </View>
+        <View style={styles.totalSection}>
+          <CustomText text="Total hrs:" style={styles.labelText} />
+          <CustomText text={tripData.total_hours} style={styles.valueText} />
+        </View>
+      </View>
 
-//       {/* Trip KMs Section */}
-//       <View style={styles.infoRow}>
-//         <View style={styles.timeSection}>
-//           <CustomText text="Total KMs:" style={styles.labelText} />
-//           <CustomText
-//             text={`${tripData.start_kms || '-'} - ${tripData.end_kms || '-'}`}
-//             style={styles.valueText}
-//           />
-//         </View>
-//         <View style={styles.totalSection}>
-//           <CustomText text="Total:" style={styles.labelText} />
-//           <CustomText
-//             text={
-//               tripData.total_kms === 'NaN' ? '-' : `${tripData.total_kms} KMs`
-//             }
-//             style={styles.valueText}
-//           />
-//         </View>
-//       </View>
-//     </View>
-//   );
-// });
+      {/* Trip KMs Section */}
+      <View style={styles.infoRow}>
+        <View style={styles.timeSection}>
+          <CustomText text="Total KMs:" style={styles.labelText} />
+          <CustomText
+            text={`${tripData.start_kms || '-'} - ${tripData.end_kms || '-'}`}
+            style={styles.valueText}
+          />
+        </View>
+        <View style={styles.totalSection}>
+          <CustomText text="Total:" style={styles.labelText} />
+          <CustomText
+            text={
+              tripData.total_kms === 'NaN' ? '-' : `${tripData.total_kms} KMs`
+            }
+            style={styles.valueText}
+          />
+        </View>
+      </View>
+    </View>
+  );
+});
 
-// TripCard.displayName = 'TripCard';
+TripCard.displayName = 'TripCard';
 
 function formatTripData(responseData) {
 
 
-  const data = responseData;
+  const data = responseData
 
   return [
     {
@@ -109,47 +106,47 @@ function formatTripData(responseData) {
       ],
     },
 
-    {
-      title: 'Fare Breakdown',
-      data: [
-        { label: 'Booking Type', value: data?.bookingType_name },
-        // {
-        //   label: 'Slab rate',
-        //   value: data?.bookingTypeTariff_base_fare_rate != null
-        //     ? data?.bookingTypeTariff_base_fare_rate.toString()
-        //     : 'N/A',
-        // },
-        // { label: 'Slab kms', value: `${data?.packageKms}kms` },
-        // { label: 'Extra Kms Charges', value: extraKmsCharge },
-        { label: 'Amount', value: data?.tripSheetRide?.amount },
-        { label: 'Gst', value: data?.tripSheetRide?.gst_amt },
-        { label: 'Toll Parking', value: data?.tripSheetRide?.tot_toll_park },
+    // {
+    //   title: 'Fare Breakdown',
+    //   data: [
+    //     { label: 'Booking Type', value: data?.bookingType_name },
+    //     // {
+    //     //   label: 'Slab rate',
+    //     //   value: data?.bookingTypeTariff_base_fare_rate != null
+    //     //     ? data?.bookingTypeTariff_base_fare_rate.toString()
+    //     //     : 'N/A',
+    //     // },
+    //     // { label: 'Slab kms', value: `${data?.packageKms}kms` },
+    //     // { label: 'Extra Kms Charges', value: extraKmsCharge },
+    //     { label: 'Amount', value: data?.tripSheetRide[0]?.amount },
+    //     { label: 'Gst', value: data?.tripSheetRide[0]?.gst_amt },
+    //     { label: 'Toll Parking', value: data?.tripSheetRide[0]?.tot_toll_park },
 
-        { label: 'Other Charges', value: data?.tripSheetRide?.other_charges },
+    //     { label: 'Other Charges', value: data?.tripSheetRide[0]?.other_charges },
 
-        {
-          label: 'Day Batta',
-          value: data?.day_batta_count || 0,
-        },
-        {
-          label: 'Night Batta',
-          value: data?.night_batta_count || 0,
-        },
-      ],
-    },
-    {
-      // title: 'Others Charges',
-      data: [
-        // { label: 'Parking', value: data?.parking || 0 },
-        // { label: 'Tolls', value: data?.tolls || 0 },
-        { label: 'Other State Taxes', value: data?.state_tax || 0 },
-        // {
-        //   label: 'Advance',
-        //   value: data?.total_amount - data?.balance_amount || 0,
-        // },
-        // { label: 'Cleaning Charges', value: data?.cleaning || 0 },
-      ],
-    },
+    //     {
+    //       label: 'Day Batta',
+    //       value: data?.tripSheetRide[0]?.day_batta || 0,
+    //     },
+    //     {
+    //       label: 'Night Batta',
+    //       value: data?.tripSheetRide[0]?.night_batta || 0,
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: 'Others Charges',
+    //   data: [
+    //     // { label: 'Parking', value: data?.parking || 0 },
+    //     // { label: 'Tolls', value: data?.tolls || 0 },
+    //     { label: 'Other State Taxes', value: data?.state_tax || 0 },
+    //     // {
+    //     //   label: 'Advance',
+    //     //   value: data?.total_amount - data?.balance_amount || 0,
+    //     // },
+    //     // { label: 'Cleaning Charges', value: data?.cleaning || 0 },
+    //   ],
+    // },
     {
       title: 'Customer Details',
       data: [
@@ -212,13 +209,13 @@ const TripBillScreen = ({ route }) => {
   const [total, setTotal] = useState('')
 
 
-  console.log({ bill })
-
   const userData = useSelector(getUserDataSelector);
   const tripDataFromStore = useSelector(getTripBillSelector);
 
   const userToken = userData?.userToken;
   const postId = route.params?.postId;
+
+
 
 
   useEffect(() => {
@@ -257,9 +254,7 @@ const TripBillScreen = ({ route }) => {
     }
   };
 
-  const handleEditBill = async () => {
 
-  }
 
   const handleDownloadPDF = async () => {
     setIsPdfGenerating(true);
@@ -440,20 +435,20 @@ const TripBillScreen = ({ route }) => {
           contentContainerStyle={styles.sectionList}
         />
 
-        {/* <View style={styles.cardsContainer}> */}
-        {/* <FlatList
+        <View style={styles.cardsContainer}>
+          <FlatList
             data={bill?.tripSheetRide}
             renderItem={({ item, index }) => (
-              <TripCard tripData={item} index={index} />
+              <TripCard navigation={navigation} tripData={item} index={index} />
             )}
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={styles.listContainer}
             showsVerticalScrollIndicator={false}
 
-          /> */}
-        {/* </View> */}
+          />
+        </View>
 
-        <CustomModal
+        {/* <CustomModal
           visible={showTripBillEditModal}
           onPrimaryAction={handleEditBill}
           onSecondaryAction={() => setShowTripBillEditModal(false)}
@@ -471,7 +466,7 @@ const TripBillScreen = ({ route }) => {
           // setShowTimePicker={setShowTimePicker}
           // onClose={() => setShowTripBillEditModal(false)}
           />
-        </CustomModal>
+        </CustomModal> */}
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -490,13 +485,13 @@ const TripBillScreen = ({ route }) => {
               <Text style={styles.buttonText}>Share PDF</Text>
             )}
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.button, isPdfGenerating && styles.buttonDisabled]}
             onPress={() => navigation.navigate('TripBillEdit', { postId })}
             disabled={isPdfGenerating}
           >
             <Text style={styles.buttonText}>Edit</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </>
@@ -508,6 +503,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     paddingHorizontal: 20,
+    marginBottom: 20,
 
   },
   cardContainer: {
@@ -601,7 +597,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e6f3ff',
     padding: 20,
     alignItems: 'center',
-    margin: 10,
+    marginTop: 10,
     borderRadius: 10,
 
   },
@@ -680,7 +676,6 @@ const styles = StyleSheet.create({
     color: '#7f8c8d',
   },
   buttonContainer: {
-    padding: 15,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
