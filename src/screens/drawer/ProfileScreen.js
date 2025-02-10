@@ -25,8 +25,6 @@ import { useNavigation } from '@react-navigation/native';
 import RightArrow from '../../../assets/svgs/rightArrow.svg';
 import RingtoneScreen from './RingtoneScreen';
 
-
-
 const { width } = Dimensions.get('window');
 
 const ProfileScreen = () => {
@@ -39,7 +37,6 @@ const ProfileScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const userId = userData?.userId;
   const userToken = userData?.userToken;
-
 
   const { control, handleSubmit, reset } = useForm({
     resolver: yupResolver(UserDetailsScheme),
@@ -63,7 +60,7 @@ const ProfileScreen = () => {
 
       if (response.error === false && response.data) {
         const data = response?.data;
-        setUserSingleData(data)
+        setUserSingleData(data);
         // Populate form fields using `reset` from react-hook-form
         reset({
           [fieldNames.USER_NAME]: data.u_name || '',
@@ -88,7 +85,7 @@ const ProfileScreen = () => {
         u_mob_num: data[fieldNames.PHONE_NUMBER],
         u_email_id: data[fieldNames.EMAIL],
       };
-      console.log({ finalData })
+
       const formData = new FormData();
       formData.append('json', JSON.stringify(finalData, userId));
 
@@ -110,14 +107,17 @@ const ProfileScreen = () => {
       const response = await axios.patch(
         'http://ec2-43-204-97-126.ap-south-1.compute.amazonaws.com:7000/share-trip/auth/users',
         formData,
-        config
+        config,
       );
 
       if (response.data.error === false) {
         Alert.alert('Success', 'Profile updated successfully');
         getUserDetails(); // Fetch updated profile
       } else {
-        Alert.alert('Error', response.data.message || 'Failed to update profile.');
+        Alert.alert(
+          'Error',
+          response.data.message || 'Failed to update profile.',
+        );
       }
     } catch (error) {
       console.error('Error occurred while updating profile:', error.message);
@@ -130,7 +130,9 @@ const ProfileScreen = () => {
       <AppHeader backIcon={true} title="Profile" />
       <View style={styles.userProfileContainer}>
         <Image
-          source={{ uri: userProfile ? userProfile.uri : userSingleData?.u_profile_pic }}
+          source={{
+            uri: userProfile ? userProfile.uri : userSingleData?.u_profile_pic,
+          }}
           style={styles.userProfile}
         />
         <TouchableOpacity
@@ -182,7 +184,6 @@ const ProfileScreen = () => {
         )}
       />
       <View style={styles.buttonContainer}>
-
         <CustomButton
           title="Ringtons"
           style={styles.ringButton}
@@ -234,7 +235,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 250,
-
   },
   saveButton: {
     width: width * 0.3,
@@ -250,7 +250,6 @@ const styles = StyleSheet.create({
     marginTop: 50,
     alignItems: 'flex-start',
     backgroundColor: 'gray',
-
   },
 });
 

@@ -1,9 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, FlatList, Platform, Dimensions } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  Platform,
+  Dimensions,
+} from 'react-native';
 import AppHeader from '../../../components/AppHeader';
-import { fetchTripSheetByPostId, generateSelfTripPdf, generateTripPdf } from '../../../services/postTripService';
+import {
+  fetchTripSheetByPostId,
+  generateSelfTripPdf,
+  generateTripPdf,
+} from '../../../services/postTripService';
 import { useSelector } from 'react-redux';
-import { getTripDetailsSelector, getUserDataSelector } from '../../../store/selectors';
+import {
+  getTripDetailsSelector,
+  getUserDataSelector,
+} from '../../../store/selectors';
 import CustomButton from '../../../components/ui/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import { cleanHTML } from '../../../utils/cleanHTML';
@@ -16,18 +30,17 @@ function formatTime(isoString) {
   const date = new Date(isoString); // Convert the ISO string to a Date object
   let hours = date.getHours();
   const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? "PM" : "AM";
+  const ampm = hours >= 12 ? 'PM' : 'AM';
 
   // Convert to 12-hour format
   hours = hours % 12 || 12; // Converts 0 hours to 12
-  const formattedMinutes = minutes.toString().padStart(2, "0");
+  const formattedMinutes = minutes.toString().padStart(2, '0');
 
   return `${hours}:${formattedMinutes} ${ampm}`;
 }
 
 const ViewTripSheet = ({ route }) => {
   const { postId, from, isSelfTrip } = route.params;
-  console.log({ isSelfTrip })
 
   const navigation = useNavigation();
 
@@ -35,27 +48,20 @@ const ViewTripSheet = ({ route }) => {
   const userToken = userData.userToken;
   const tripDetails = useSelector(getTripDetailsSelector);
 
-
-
   const [pdfUri, setPdfUri] = useState(null);
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
 
-
   useEffect(() => {
-    fetchTripSheetByPostId(postId, userToken)
-
-
+    fetchTripSheetByPostId(postId, userToken);
   }, [postId, userToken]);
 
   const getTripData = () => {
-
     if (!tripDetails) {
       return [];
     }
 
-    const tripData = tripDetails[0].tripSheetFinal[0].tripSheetRide
-    console.log({ tripData })
-    const lengthOfData = tripData.length
+    const tripData = tripDetails[0].tripSheetFinal[0].tripSheetRide;
+    const lengthOfData = tripData.length;
     let totalHours = 0;
     let totalMinutes = 0;
     let totalKms = 0;
@@ -79,11 +85,6 @@ const ViewTripSheet = ({ route }) => {
     const totalTripHrs = `${totalHours}h:${totalMinutes}m`;
     const totalTripKms = `${totalKms} kms`;
 
-
-
-
-
-
     const data = [
       { label: 'Booking Type', value: tripDetails[0].bookingType_name },
       { label: 'Package', value: tripDetails[0].bookingTypePackage_name },
@@ -99,33 +100,45 @@ const ViewTripSheet = ({ route }) => {
       { label: 'Visiting Places', value: tripDetails[0].visiting_place || '-' },
       { label: 'From Date', value: tripDetails[0].from_date || '-' },
       { label: 'To Date', value: tripDetails[0].to_date || '-' },
-      { label: 'Pick Up Time', value: formatTime(tripDetails[0].pick_up_time) || '-' },
+      {
+        label: 'Pick Up Time',
+        value: formatTime(tripDetails[0].pick_up_time) || '-',
+      },
       { label: 'Payment Type', value: tripDetails[0].payment_type || '-' },
       { label: 'Note', value: tripDetails[0].note_1 || '-' },
     ];
 
     if (from === 'bills') {
       data.push(
-        { label: 'Start kms', value: tripDetails[0].tripSheetFinal?.[0].tripSheetRide?.[0].start_kms || '-' },
-        { label: 'End Kms', value: tripDetails[0].tripSheetFinal?.[0].tripSheetRide?.[lengthOfData - 1].end_kms || '-' },
+        {
+          label: 'Start kms',
+          value:
+            tripDetails[0].tripSheetFinal?.[0].tripSheetRide?.[0].start_kms ||
+            '-',
+        },
+        {
+          label: 'End Kms',
+          value:
+            tripDetails[0].tripSheetFinal?.[0].tripSheetRide?.[lengthOfData - 1]
+              .end_kms || '-',
+        },
         { label: 'Total kms', value: totalTripKms || '-' },
-        { label: 'Total Hrs', value: totalTripHrs || '-' }
-      )
+        { label: 'Total Hrs', value: totalTripHrs || '-' },
+      );
     }
 
     if (from != 'home') {
       data.unshift(
         { label: 'Customer Name', value: tripDetails[0].customer_name || '-' },
         {
-          label: 'Customer Phone', value: tripDetails[0]?.customer_phone_no || '-',
+          label: 'Customer Phone',
+          value: tripDetails[0]?.customer_phone_no || '-',
         },
       );
     }
 
     return data;
   };
-
-
 
   const handleGeneratePDF = async (selfTrip) => {
     setIsPdfGenerating(true);
@@ -176,7 +189,6 @@ const ViewTripSheet = ({ route }) => {
     }
   };
 
-
   const renderItem = ({ item }) => (
     <View style={styles.row}>
       <Text style={styles.label}>{item.label}</Text>
@@ -200,7 +212,13 @@ const ViewTripSheet = ({ route }) => {
             </View>
           }
         />
-        <View style={{ justifyContent: 'space-between', flexDirection: 'row', padding: 16 }}>
+        <View
+          style={{
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            padding: 16,
+          }}
+        >
           {from == 'bills' && (
             <CustomButton
               title={isPdfGenerating ? 'Generating PDF...' : 'Share PDF'}
@@ -216,7 +234,7 @@ const ViewTripSheet = ({ route }) => {
           {from !== 'home' && (
             <CustomButton
               title={'Edit'}
-              style={{ width: 150, alignSelf: 'flex-end', }}
+              style={{ width: 150, alignSelf: 'flex-end' }}
               onPress={() => {
                 navigation.navigate('PostTrip', {
                   from: from,
@@ -225,7 +243,6 @@ const ViewTripSheet = ({ route }) => {
               }}
             />
           )}
-
         </View>
       </View>
     </>

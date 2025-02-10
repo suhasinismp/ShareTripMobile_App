@@ -2,7 +2,10 @@ import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import SignatureScreen from 'react-native-signature-canvas';
 import * as FileSystem from 'expo-file-system';
-import { uploadSignature } from '../../services/MyTripsService';
+import {
+  postAdditionCharges,
+  uploadSignature,
+} from '../../services/MyTripsService';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -13,8 +16,8 @@ const CustomerSignatureModal = ({
   onClose,
   fetch,
   goTo,
+  additionalCharges,
 }) => {
-  console.log({ goTo })
   const navigation = useNavigation();
   const [signatureFileInfo, setSignatureFileInfo] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -56,28 +59,79 @@ const CustomerSignatureModal = ({
         console.log('No signature file info available');
         return;
       }
+      if (additionalCharges?.additionalChargesData) {
+        const finalData = additionalCharges?.additionalChargesData;
 
-      const finalData = {
-        post_booking_id: selectedTripData?.post_booking_id,
-        accepted_user_id: userId,
-        posted_user_id: selectedTripData?.posted_user_id,
-      };
+        let formData = new FormData();
+        formData.append('json', JSON.stringify(finalData));
+        const documents = additionalCharges?.additionalChargesDocs;
+        if (documents && documents.length > 0) {
+          let groupedDocuments = {};
 
-      let formData = new FormData();
-      formData.append('json', JSON.stringify(finalData));
-      formData.append('customer_signature', {
-        uri: fileInfo.uri,
-        type: 'image/png',
-        name: 'customer_signature.png',
-      });
+          for (const doc of documents) {
+            if (!groupedDocuments[doc.fileNumber]) {
+              groupedDocuments[doc.fileNumber] = [];
+            }
+            groupedDocuments[doc.fileNumber].push({
+              uri: doc.uri,
+              type: doc.type,
+              name: doc.name,
+            });
+          }
 
-      const response = await uploadSignature(formData, userToken);
+          // Append each file in correct format
+          for (const key in groupedDocuments) {
+            if (groupedDocuments[key].length > 0) {
+              for (const file of groupedDocuments[key]) {
+                if (file.uri) {
+                  formData.append(key, {
+                    uri: file.uri,
+                    type: file.type,
+                    name: file.name,
+                  });
+                }
+              }
+            }
+          }
+        }
+        formData.append('customer_signature', {
+          uri: fileInfo.uri,
+          type: 'image/png',
+          name: 'customer_signature.png',
+        });
+        const response = await postAdditionCharges(formData, userToken);
 
-      if (response?.error === false) {
-        onClose();
-        await fetch();
-        if (goTo === true) {
-          navigation.navigate('Bills');
+        if (response?.error === false) {
+          onClose();
+          await fetch();
+          if (goTo === true) {
+            navigation.navigate('Bills');
+          }
+        }
+      }
+      if (additionalCharges == null) {
+        const finalData = {
+          post_booking_id: selectedTripData?.post_booking_id,
+          accepted_user_id: userId,
+          posted_user_id: selectedTripData?.posted_user_id,
+        };
+
+        let formData = new FormData();
+        formData.append('json', JSON.stringify(finalData));
+        formData.append('customer_signature', {
+          uri: fileInfo.uri,
+          type: 'image/png',
+          name: 'customer_signature.png',
+        });
+
+        const response = await uploadSignature(formData, userToken);
+
+        if (response?.error === false) {
+          onClose();
+          await fetch();
+          if (goTo === true) {
+            navigation.navigate('Bills');
+          }
         }
       }
     } catch (error) {

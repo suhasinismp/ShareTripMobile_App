@@ -14,24 +14,21 @@ import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useDispatch, useSelector } from 'react-redux';
-import { getTripBillSelector, getUserDataSelector } from '../../../store/selectors';
+import {
+  getTripBillSelector,
+  getUserDataSelector,
+} from '../../../store/selectors';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
 import AppHeader from '../../../components/AppHeader';
 import { cleanHTML } from '../../../utils/cleanHTML';
 import { fetchTripBill } from '../../../services/tripBillService';
 import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { themes } from '../../../styles/theme';
 import CustomText from '../../../components/ui/CustomText';
-import StartTripModal from '../../../components/tripModals/StartTripModal';
-import TripBillEditModal from '../../../components/tripModals/TripBillEditModal';
-import CustomModal from '../../../components/ui/CustomModal';
 
-const TripCard = React.memo(({ navigation, tripData, index, onEdit }) => {
+const TripCard = React.memo(({ navigation, tripData, index }) => {
   return (
     <View style={styles.cardContainer}>
-      {/* Header with Day number, Date and Edit icon */}
       <View style={styles.cardHeader}>
         <CustomText text={`Day ${index + 1}`} style={styles.dayText} />
         <View style={styles.headerRight}>
@@ -40,7 +37,9 @@ const TripCard = React.memo(({ navigation, tripData, index, onEdit }) => {
             style={styles.dateText}
           />
           <TouchableOpacity
-            onPress={() => navigation.navigate(`TripBillEdit`, { tripRideId: tripData?.id })}
+            onPress={() =>
+              navigation.navigate(`TripBillEdit`, { tripRideId: tripData?.id })
+            }
             style={styles.editButton}
           >
             <Feather name="edit-2" size={16} color="#008B8B" />
@@ -48,7 +47,6 @@ const TripCard = React.memo(({ navigation, tripData, index, onEdit }) => {
         </View>
       </View>
 
-      {/* Trip Time Section */}
       <View style={styles.infoRow}>
         <View style={styles.timeSection}>
           <CustomText text="Total Time:" style={styles.labelText} />
@@ -63,7 +61,6 @@ const TripCard = React.memo(({ navigation, tripData, index, onEdit }) => {
         </View>
       </View>
 
-      {/* Trip KMs Section */}
       <View style={styles.infoRow}>
         <View style={styles.timeSection}>
           <CustomText text="Total KMs:" style={styles.labelText} />
@@ -89,9 +86,7 @@ const TripCard = React.memo(({ navigation, tripData, index, onEdit }) => {
 TripCard.displayName = 'TripCard';
 
 function formatTripData(responseData) {
-
-
-  const data = responseData
+  const data = responseData;
 
   return [
     {
@@ -105,48 +100,6 @@ function formatTripData(responseData) {
         },
       ],
     },
-
-    // {
-    //   title: 'Fare Breakdown',
-    //   data: [
-    //     { label: 'Booking Type', value: data?.bookingType_name },
-    //     // {
-    //     //   label: 'Slab rate',
-    //     //   value: data?.bookingTypeTariff_base_fare_rate != null
-    //     //     ? data?.bookingTypeTariff_base_fare_rate.toString()
-    //     //     : 'N/A',
-    //     // },
-    //     // { label: 'Slab kms', value: `${data?.packageKms}kms` },
-    //     // { label: 'Extra Kms Charges', value: extraKmsCharge },
-    //     { label: 'Amount', value: data?.tripSheetRide[0]?.amount },
-    //     { label: 'Gst', value: data?.tripSheetRide[0]?.gst_amt },
-    //     { label: 'Toll Parking', value: data?.tripSheetRide[0]?.tot_toll_park },
-
-    //     { label: 'Other Charges', value: data?.tripSheetRide[0]?.other_charges },
-
-    //     {
-    //       label: 'Day Batta',
-    //       value: data?.tripSheetRide[0]?.day_batta || 0,
-    //     },
-    //     {
-    //       label: 'Night Batta',
-    //       value: data?.tripSheetRide[0]?.night_batta || 0,
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: 'Others Charges',
-    //   data: [
-    //     // { label: 'Parking', value: data?.parking || 0 },
-    //     // { label: 'Tolls', value: data?.tolls || 0 },
-    //     { label: 'Other State Taxes', value: data?.state_tax || 0 },
-    //     // {
-    //     //   label: 'Advance',
-    //     //   value: data?.total_amount - data?.balance_amount || 0,
-    //     // },
-    //     // { label: 'Cleaning Charges', value: data?.cleaning || 0 },
-    //   ],
-    // },
     {
       title: 'Customer Details',
       data: [
@@ -156,67 +109,23 @@ function formatTripData(responseData) {
         },
       ],
     },
-    // {
-    //   title: 'Driver & Vehicle Details',
-    //   data: [
-    //     {
-    //       type: 'driver',
-    //       name: data?.driver_name,
-    //       phone: data?.driver_phone,
-    //       vehicle: data?.Vehicle_type_name,
-    //       number: data?.vehicle_registration_number,
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: 'Total Usage',
-    //   data: [
-    //     {
-    //       label: 'Total Usage',
-    //       // value: data?.tripSheetRide?.[0]?.total_kms?.toString(),
-    //       value: data?.tripSheetRide?.reduce((total, trip) => total + parseInt(trip.total_kms), 0).toString(),
-    //     },
-    //     {
-    //       label: 'Pickup Place',
-    //       value: data?.pick_up_location,
-    //     },
-    //     {
-    //       label: 'Visiting Places',
-    //       value: data?.visiting_place,
-    //     },
-    //   ],
-    // },
   ];
 }
-
-
-
 
 const TripBillScreen = ({ route }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [pdfUri, setPdfUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const [tripData, setTripData] = useState([]);
-  console.log({ tripData })
   const [bill, setBill] = useState([]);
-  const [showTripBillEditModal, setShowTripBillEditModal] = useState(false)
-  const [totalTime, setTotalTime] = useState('')
-  const [totalKms, setTotalKms] = useState('')
-  const [totalHrs, setTotalHrs] = useState('')
-  const [total, setTotal] = useState('')
-
 
   const userData = useSelector(getUserDataSelector);
   const tripDataFromStore = useSelector(getTripBillSelector);
 
   const userToken = userData?.userToken;
   const postId = route.params?.postId;
-
-
-
 
   useEffect(() => {
     if (postId) {
@@ -226,20 +135,14 @@ const TripBillScreen = ({ route }) => {
 
   useEffect(() => {
     const formattedData = formatTripData(tripDataFromStore);
-
     setTripData(formattedData);
   }, [tripDataFromStore]);
 
   const loadTripData = async () => {
     setIsLoading(true);
-
-
     try {
-      console.log("postId", postId)
       const { data } = await fetchTripBill(postId, userToken);
-
-      setBill(data)
-
+      setBill(data);
     } catch (error) {
       console.error('Error loading trip data:', error);
       dispatch(
@@ -253,8 +156,6 @@ const TripBillScreen = ({ route }) => {
       setIsLoading(false);
     }
   };
-
-
 
   const handleDownloadPDF = async () => {
     setIsPdfGenerating(true);
@@ -350,7 +251,6 @@ const TripBillScreen = ({ route }) => {
         setPdfUri(destinationUri);
       }
 
-      // Cleanup: Delete the temporary file
       try {
         await FileSystem.deleteAsync(uri, { idempotent: true });
       } catch (deleteError) {
@@ -385,23 +285,8 @@ const TripBillScreen = ({ route }) => {
     </View>
   );
 
-  // const renderDriverDetail = ({ item }) => (
-  //   <View style={styles.driverContainer}>
-  //     <View style={styles.driverDetail}>
-  //       <Text style={styles.driverName}>{item.name}</Text>
-  //       <Text style={styles.driverPhone}>{item.phone}</Text>
-  //     </View>
-  //     <View style={styles.vehicleDetail}>
-  //       <Text style={styles.vehicleType}>{item.vehicle}</Text>
-  //       <Text style={styles.vehicleNumber}>{item.number}</Text>
-  //     </View>
-  //   </View>
-  // );
-
   const renderItem = ({ item, section }) => {
     if (item.type === 'header') return renderHeader({ item });
-    // if (item.type === 'driver') return renderDriverDetail({ item });
-
     return (
       <View style={styles.itemContainer}>
         <Text style={styles.itemLabel}>{item.label}</Text>
@@ -423,17 +308,18 @@ const TripBillScreen = ({ route }) => {
     <>
       <AppHeader title={'Trip Bill'} backIcon={true} />
       <View style={styles.container}>
-        <SectionList
-          sections={tripData}
-          keyExtractor={(item, index) => item.label + index}
-          renderItem={renderItem}
-          renderSectionHeader={({ section: { title } }) =>
-            title ? <Text style={styles.sectionHeader}>{title}</Text> : null
-          }
-          stickySectionHeadersEnabled={false}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.sectionList}
-        />
+        <View style={styles.topSection}>
+          <SectionList
+            sections={tripData}
+            keyExtractor={(item, index) => item.label + index}
+            renderItem={renderItem}
+            renderSectionHeader={({ section: { title } }) =>
+              title ? <Text style={styles.sectionHeader}>{title}</Text> : null
+            }
+            stickySectionHeadersEnabled={false}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
 
         <View style={styles.cardsContainer}>
           <FlatList
@@ -444,29 +330,8 @@ const TripBillScreen = ({ route }) => {
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={styles.listContainer}
             showsVerticalScrollIndicator={false}
-
           />
         </View>
-
-        {/* <CustomModal
-          visible={showTripBillEditModal}
-          onPrimaryAction={handleEditBill}
-          onSecondaryAction={() => setShowTripBillEditModal(false)}
-        >
-          <TripBillEditModal
-            totalTime={totalTime}
-            setTotalTime={setTotalTime}
-            totalKms={totalKms}
-            setTotalKms={setTotalKms}
-            totalHrs={totalHrs}
-            setTotalHrs={setTotalHrs}
-            total={total}
-            setTotal={setTotal}
-          // showTimePicker={showTimePicker}
-          // setShowTimePicker={setShowTimePicker}
-          // onClose={() => setShowTripBillEditModal(false)}
-          />
-        </CustomModal> */}
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -485,13 +350,6 @@ const TripBillScreen = ({ route }) => {
               <Text style={styles.buttonText}>Share PDF</Text>
             )}
           </TouchableOpacity>
-          {/* <TouchableOpacity
-            style={[styles.button, isPdfGenerating && styles.buttonDisabled]}
-            onPress={() => navigation.navigate('TripBillEdit', { postId })}
-            disabled={isPdfGenerating}
-          >
-            <Text style={styles.buttonText}>Edit</Text>
-          </TouchableOpacity> */}
         </View>
       </View>
     </>
@@ -502,9 +360,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-
   },
   cardContainer: {
     backgroundColor: 'white',
@@ -513,33 +368,24 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
   },
-
   dateText: {
     fontSize: 14,
     color: '#666666',
   },
   sectionList: {
-    flexGrow: 0, // Prevents SectionList from taking extra space
-    marginBottom: 0,
+    flex: 0,
   },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8
-
+    gap: 8,
   },
   listContainer: {
     paddingBottom: 16,
-    flexGrow: 1,
-  },
-  dateText: {
-    fontSize: 14,
-    color: '#666666',
   },
   editButton: {
     padding: 4,
@@ -566,10 +412,7 @@ const styles = StyleSheet.create({
     flex: 2,
     alignItems: 'flex-end',
   },
-
-
   cardsContainer: {
-    marginTop: 0,
     flex: 1,
   },
   cardHeader: {
@@ -581,7 +424,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -597,9 +439,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e6f3ff',
     padding: 20,
     alignItems: 'center',
-    marginTop: 10,
     borderRadius: 10,
-
   },
   headerTitle: {
     fontSize: 18,
@@ -647,46 +487,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#7f8c8d',
   },
-  driverContainer: {
-    padding: 15,
-  },
-  driverDetail: {
-    marginBottom: 10,
-  },
-  driverName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#2c3e50',
-  },
-  driverPhone: {
-    fontSize: 16,
-    color: '#7f8c8d',
-  },
-  vehicleDetail: {
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    paddingTop: 10,
-  },
-  vehicleType: {
-    fontSize: 16,
-    color: '#2c3e50',
-  },
-  vehicleNumber: {
-    fontSize: 16,
-    color: '#7f8c8d',
-  },
   buttonContainer: {
-    backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    padding: 20,
   },
   button: {
     backgroundColor: '#2980b9',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
+    flex: 1,
   },
   buttonDisabled: {
     backgroundColor: '#bdc3c7',
@@ -703,6 +516,11 @@ const styles = StyleSheet.create({
   },
   buttonTextMargin: {
     marginLeft: 10,
+  },
+  dayText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
   },
 });
 

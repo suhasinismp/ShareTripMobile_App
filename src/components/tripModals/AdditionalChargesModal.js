@@ -11,7 +11,6 @@ import { FontAwesome } from '@expo/vector-icons';
 import CustomInput from '../../components/ui/CustomInput';
 import UploadOptionsModal from '../../components/UploadOptionsModal';
 
-
 const AdditionalChargesModal = ({ onNext, onClose }) => {
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [activeField, setActiveField] = useState('');
@@ -23,10 +22,7 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
     stateTax: '',
     cleaning: '',
     nightBatta: '',
-    // endDate: ''
   });
-
-
 
   const fieldToFileNumber = {
     advance: 'advance_image[]',
@@ -37,7 +33,6 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
   };
 
   const handleUpload = (field) => {
-
     setActiveField(field);
     setUploadModalVisible(true);
   };
@@ -72,9 +67,6 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
     return documents.some((doc) => doc.fileNumber === fieldToFileNumber[field]);
   };
 
-
-
-
   const chargeFields = [
     { id: 'advance', label: 'Advance', hasUpload: true },
     { id: 'parking', label: 'Parking', hasUpload: true },
@@ -82,19 +74,19 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
     { id: 'stateTax', label: 'State Tax', hasUpload: true },
     { id: 'cleaning', label: 'Cleaning', hasUpload: true },
     { id: 'nightBatta', label: 'Night Batta', hasUpload: false },
-
   ];
-
-
-
-
 
   return (
     <View style={styles.modalContainer}>
       <TouchableOpacity
-        style={{ position: 'absolute', top: 10, right: 10 }}
-        hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-        onPress={onClose}
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          padding: 15,
+        }}
+        hitSlop={{ top: 30, bottom: 30, left: 30, right: 30 }}
+        onPress={() => onClose()}
       >
         <FontAwesome name="times" size={24} color="#333" />
       </TouchableOpacity>
@@ -126,7 +118,7 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
                     style={[
                       styles.uploadButton,
                       isFieldHasDocument(field.id) &&
-                      styles.uploadButtonWithDoc,
+                        styles.uploadButtonWithDoc,
                     ]}
                     onPress={() => handleUpload(field.id)}
                   >
@@ -140,26 +132,6 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
               </View>
             </View>
           ))}
-
-
-          {/* <TouchableOpacity
-            style={styles.timePickerContainer}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <FontAwesome
-              name="calendar"
-              size={20}
-              color="#666"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.pickerInput}
-              value={endDate}
-              placeholder="YYYY/MM/DD"
-              editable={false}
-              placeholderTextColor="#999"
-            />
-          </TouchableOpacity> */}
 
           {documents.length > 0 && (
             <View style={styles.documentsContainer}>
@@ -199,8 +171,6 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
         gallery={true}
         pdf={false}
       />
-
-
     </View>
   );
 };
@@ -258,11 +228,6 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 8,
   },
-
-  fieldContainer: {
-    marginBottom: 16,
-  },
-
   scrollContentContainer: {
     padding: 20,
   },

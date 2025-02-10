@@ -69,12 +69,8 @@ const MyTrips = () => {
   const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
-  const [isGstClosingForDay, setIsGstClosingForDay] = useState(false)
-  const [isGstSummaryValue, setIsGstSummaryValue] = useState(false)
-
-
-
-
+  const [isGstClosingForDay, setIsGstClosingForDay] = useState(false);
+  const [isGstSummaryValue, setIsGstSummaryValue] = useState(false);
 
   // Trip data states
   const [selectedTripData, setSelectedTripData] = useState(null);
@@ -96,6 +92,9 @@ const MyTrips = () => {
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
   const [showBillMeBillDriverModal, setShowBillMeBillDriverModal] = useState();
+  const [finalDay, setFinalDay] = useState(false);
+  const [additionalChargesData, setAdditionalChargesData] = useState(null);
+  const [additionalChargesDocs, setAdditionalChargesDocs] = useState(null);
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -179,7 +178,6 @@ const MyTrips = () => {
       if (response?.error === false) {
         setConfirmedDriverData(response?.data);
       }
-
     } catch (error) {
       console.error('Error fetching confirmed driver data:', error);
     }
@@ -207,8 +205,13 @@ const MyTrips = () => {
       response?.error === false &&
       response?.message === 'You need to close last day trip details'
     ) {
-      setShowTripProgressModal(false);
-      setShowClosingDetailsModal(true);
+      if (response?.data?.end_trip_kms == null) {
+        setShowTripProgressModal(false);
+        setShowClosingDetailsModal(true);
+      } else if (response?.data?.is_additional === null) {
+        setShowTripProgressModal(false);
+        setShowAdditionalCharges(true);
+      }
     } else {
       if (response?.message === 'You have closed last day Trip ride data') {
         setShowTripProgressModal(false);
@@ -218,13 +221,12 @@ const MyTrips = () => {
   };
 
   const handleEndTrip = async () => {
-
     setShowTripProgressModal(false);
-    setNavigateToBills(true)
     const tripDetails = await fetchTripDetails(
       selectedTripData?.post_booking_id,
       userToken,
     );
+    console.log({ tripDetails });
 
     if (tripDetails?.error === false) {
       setTripSummaryData({
@@ -233,37 +235,30 @@ const MyTrips = () => {
         openingDate: tripDetails?.data?.start_date || '',
         closingKms: tripDetails?.data?.end_trip_kms || '',
         closingTime: tripDetails?.data?.end_trip_time || '',
-        closingDate: tripDetails?.data?.end_trip_date || '',
-        isGst: tripDetails?.data?.is_gst || false,
+        closingDate: tripDetails?.data?.end_trip_date || closingDate,
       });
+      if (
+        tripDetails?.data?.end_trip_kms?.length > 0 &&
+        tripDetails?.data?.customer_signature === null
+      ) {
+        setShowTripProgressModal(false);
+        setShowAdditionalCharges(true);
+        setFinalDay(true);
+      } else {
+        setShowTripProgressModal(false);
+        setShowTripSummaryModal(true);
+      }
 
-      setShowTripSummaryModal(true);
-      setClosingKms('');
-      setClosingTime('');
-      setClosingDate('');
+      // setClosingKms('');
+      // setClosingTime('');
+      // setClosingDate('');
     }
   };
-
-  const handleContinue = () => {
-    setShowBillMeBillDriverModal(false)
-  }
-
-  const handleCancel = () => {
-    setShowBillMeBillDriverModal(false)
-  }
 
   const handleBackToTripProgress = () => {
     setShowClosingDetailsModal(false);
     setShowTripProgressModal(true);
   };
-
-  // const handleBillMe = () => {
-  //   setShowBillMeBillDriverModal(true)
-  // }
-
-  // const handleBillDriver = () => {
-  //   setShowBillMeBillDriverModal(true)
-  // }
 
   const handleCloseForDay = async () => {
     const response = await closeForDay(
@@ -275,7 +270,6 @@ const MyTrips = () => {
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
         is_gst: isGstClosingForDay,
-
       },
       userToken,
     );
@@ -291,7 +285,6 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
-
     const response = await closeTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -374,65 +367,69 @@ const MyTrips = () => {
     }
   };
 
-  // const handleAdditionalChargesNext = async (documents, charges) => {
-
-  //   console.log('hi')
-  // };
-
   const handleAdditionalChargesNext = async (documents, charges) => {
-    const formData = new FormData();
-    formData.append(
-      'json',
-      JSON.stringify({
-        post_booking_id: selectedTripData?.post_booking_id,
-        advance: charges?.advance * 1,
-        parking: charges?.parking * 1,
-        tolls: charges?.tolls * 1,
-        state_tax: charges?.stateTax * 1,
-        cleaning: charges?.cleaning * 1,
-        night_batta: charges?.nightBatta * 1,
-        end_date: closingDate
-      })
+    let finalData = {
+      post_booking_id: selectedTripData?.post_booking_id,
+      advance: charges?.advance * 1,
+      parking: charges?.parking * 1,
+      tolls: charges?.tolls * 1,
+      state_tax: charges?.stateTax * 1,
+      cleaning: charges?.cleaning * 1,
+      night_batta: charges?.nightBatta * 1,
+      end_date: closingDate || tripSummaryData?.closingDate,
+    };
 
-    );
+    if (finalDay) {
+      finalData.end_trip = 'trip completing';
+    }
 
-    // Group documents by fileNumber
-    if (documents && documents.length > 0) {
-      let groupedDocuments = {};
+    if (!finalDay) {
+      console.log('hi');
+      console.log({ finalData });
+      const formData = new FormData();
+      formData.append('json', JSON.stringify(finalData));
 
-      for (const doc of documents) {
-        if (!groupedDocuments[doc.fileNumber]) {
-          groupedDocuments[doc.fileNumber] = [];
+      // Group documents by fileNumber
+      if (documents && documents.length > 0) {
+        let groupedDocuments = {};
+
+        for (const doc of documents) {
+          if (!groupedDocuments[doc.fileNumber]) {
+            groupedDocuments[doc.fileNumber] = [];
+          }
+          groupedDocuments[doc.fileNumber].push({
+            uri: doc.uri,
+            type: doc.type,
+            name: doc.name,
+          });
         }
-        groupedDocuments[doc.fileNumber].push({
-          uri: doc.uri,
-          type: doc.type,
-          name: doc.name,
-        });
-      }
-      console.log("documents", documents)
-      // Append each file in correct format
-      for (const key in groupedDocuments) {
-        if (groupedDocuments[key].length > 0) {
-          for (const file of groupedDocuments[key]) {
-            if (file.uri) {
-              formData.append(key, {
-                uri: file.uri,
-                type: file.type,
-                name: file.name,
-              });
+
+        // Append each file in correct format
+        for (const key in groupedDocuments) {
+          if (groupedDocuments[key].length > 0) {
+            for (const file of groupedDocuments[key]) {
+              if (file.uri) {
+                formData.append(key, {
+                  uri: file.uri,
+                  type: file.type,
+                  name: file.name,
+                });
+              }
             }
           }
         }
       }
-    }
+      const response = await postAdditionCharges(formData, userToken);
 
-    const response = await postAdditionCharges(formData, userToken);
-
-    if (response?.error === false) {
+      if (response?.error === false) {
+        setClosingDate(''), setShowAdditionalCharges(false);
+        setShowCustomerSignatureModal(true);
+      }
+    } else {
       setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
-      setClosingDate('');
+      setAdditionalChargesData(finalData);
+      setAdditionalChargesDocs(documents);
     }
   };
 
@@ -483,8 +480,8 @@ const MyTrips = () => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-          onCallPress={() => { }}
-          onMessagePress={() => { }}
+          onCallPress={() => {}}
+          onMessagePress={() => {}}
           onRefreshData={fetchUiData}
           userToken={userToken}
         />
@@ -509,7 +506,7 @@ const MyTrips = () => {
         baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => handleButtonPress(item)}
         onCallPress={() => handleCall(item?.user_phone)}
-        onPlayPress={() => { }}
+        onPlayPress={() => {}}
         onTripSheetPress={() => {
           navigation.navigate('ViewTripSheet', {
             from: 'myTrips',
@@ -562,7 +559,6 @@ const MyTrips = () => {
         {showFilters && (
           <>
             <View style={styles.filterRow2}>
-
               <CustomSelect
                 text="Confirmed"
                 isSelected={selectedFilterOne === 'Confirmed'}
@@ -576,7 +572,6 @@ const MyTrips = () => {
               <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
                 <FilterIcon />
               </TouchableOpacity>
-
             </View>
             <View style={styles.filterRow}>
               <CustomSelect
@@ -657,8 +652,6 @@ const MyTrips = () => {
         />
       </CustomModal>
 
-
-
       <CustomModal
         visible={showClosingDetailsModal}
         onSecondaryAction={handleBackToTripProgress}
@@ -678,7 +671,6 @@ const MyTrips = () => {
           closingActionType={closingActionType}
           handleCloseTrip={handleCloseForDay}
           onClose={() => setShowClosingDetailsModal(false)}
-
           setIsGstClosingForDay={setIsGstClosingForDay}
         />
       </CustomModal>
@@ -697,10 +689,8 @@ const MyTrips = () => {
             handleCloseTrip({
               closingKms: closingDetails.closingKms,
               closingTime: closingDetails.closingTime,
-              closingDate: closingDetails.closingDate
-            }
-
-            );
+              closingDate: closingDetails.closingDate,
+            });
           }}
           onClose={() => setShowTripSummaryModal(false)}
         />
@@ -712,11 +702,8 @@ const MyTrips = () => {
       >
         <AdditionalChargesModal
           onNext={handleAdditionalChargesNext}
-          onClose={() =>
-            setShowAdditionalCharges(false)}
+          onClose={() => setShowAdditionalCharges(false)}
         />
-
-
       </CustomModal>
 
       <CustomModal
@@ -753,7 +740,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     margin: 10,
-
   },
   filterRow2: {
     flexDirection: 'row',
@@ -761,8 +747,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     margin: 5,
     gap: 10,
-
-
   },
   center: {
     flex: 1,
