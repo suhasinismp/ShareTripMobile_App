@@ -1,6 +1,11 @@
-
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
 import AppHeader from '../../components/AppHeader';
 import PlayRing from '../../../assets/svgs/playRing.svg';
 import PauseRing from '../../../assets/svgs/pauseRing.svg';
@@ -30,25 +35,79 @@ const RingtoneScreen = () => {
   const userData = useSelector(getUserDataSelector);
   const [offlineOnlineStatus, setOfflineOnlineStatus] = useState();
   const [muteUnmuteStatus, setMuteUnmuteStatus] = useState();
-  const [buzzerSoundAccepted, setBuzzerSoundAccepted] = useState()
-  const [buzzerSoundConfirmed, setBuzzerSoundConfirmed] = useState()
+  const [buzzerSoundAccepted, setBuzzerSoundAccepted] = useState();
+  const [buzzerSoundConfirmed, setBuzzerSoundConfirmed] = useState();
 
   const userId = userData?.userId;
   const userToken = userData?.userToken;
 
-
   const ringtones = [
-    { id: '1', title: 'ShareTripAudio1', duration: '1 Sec', audio: ShareTripAudio1 },
-    { id: '2', title: 'ShareTripAudio2', duration: '1 Sec', audio: ShareTripAudio2 },
-    { id: '3', title: 'ShareTripAudio3', duration: '1 Sec', audio: ShareTripAudio3 },
-    { id: '4', title: 'ShareTripAudio4', duration: '1 Sec', audio: ShareTripAudio4 },
-    { id: '5', title: 'ShareTripAudio5', duration: '1 Sec', audio: ShareTripAudio5 },
-    { id: '6', title: 'ShareTripAudio6', duration: '1 Sec', audio: ShareTripAudio6 },
-    { id: '7', title: 'ShareTripAudio7', duration: '1 Sec', audio: ShareTripAudio7 },
-    { id: '8', title: 'ShareTripAudio8', duration: '1 Sec', audio: ShareTripAudio8 },
-    { id: '9', title: 'ShareTripAudio9', duration: '1 Sec', audio: ShareTripAudio9 },
-    { id: '10', title: 'ShareTripAudio10', duration: '1 Sec', audio: ShareTripAudio10 },
-    { id: '11', title: 'ShareTripAudio11', duration: '1 Sec', audio: ShareTripAudio11 },
+    {
+      id: '1',
+      title: 'ShareTripAudio1',
+      duration: '1 Sec',
+      audio: ShareTripAudio1,
+    },
+    {
+      id: '2',
+      title: 'ShareTripAudio2',
+      duration: '1 Sec',
+      audio: ShareTripAudio2,
+    },
+    {
+      id: '3',
+      title: 'ShareTripAudio3',
+      duration: '1 Sec',
+      audio: ShareTripAudio3,
+    },
+    {
+      id: '4',
+      title: 'ShareTripAudio4',
+      duration: '1 Sec',
+      audio: ShareTripAudio4,
+    },
+    {
+      id: '5',
+      title: 'ShareTripAudio5',
+      duration: '1 Sec',
+      audio: ShareTripAudio5,
+    },
+    {
+      id: '6',
+      title: 'ShareTripAudio6',
+      duration: '1 Sec',
+      audio: ShareTripAudio6,
+    },
+    {
+      id: '7',
+      title: 'ShareTripAudio7',
+      duration: '1 Sec',
+      audio: ShareTripAudio7,
+    },
+    {
+      id: '8',
+      title: 'ShareTripAudio8',
+      duration: '1 Sec',
+      audio: ShareTripAudio8,
+    },
+    {
+      id: '9',
+      title: 'ShareTripAudio9',
+      duration: '1 Sec',
+      audio: ShareTripAudio9,
+    },
+    {
+      id: '10',
+      title: 'ShareTripAudio10',
+      duration: '1 Sec',
+      audio: ShareTripAudio10,
+    },
+    {
+      id: '11',
+      title: 'ShareTripAudio11',
+      duration: '1 Sec',
+      audio: ShareTripAudio11,
+    },
   ];
 
   const handlePlayPause = async (id, audioUri) => {
@@ -71,7 +130,6 @@ const RingtoneScreen = () => {
   const handleSelectAndPlay = async (id, audioUri) => {
     setSelectedId(id);
 
-
     if (playingId === id) return;
 
     if (sound) {
@@ -90,29 +148,39 @@ const RingtoneScreen = () => {
       mute_unmute_status: userData?.muteUnmuteStatus,
       buzzer_sound_new_post: selectedId,
       buzzer_sound_accepted: userData?.buzzerSoundAccepted,
-      buzzer_sound_confirmed: userData?.buzzerSoundConfirmed
-    }
-    console.log('ooo', finalData)
-    const response = await ringtoneScreenPost(finalData)
+      buzzer_sound_confirmed: userData?.buzzerSoundConfirmed,
+    };
+
+    const response = await ringtoneScreenPost(finalData);
 
     if (response && response.error === false) {
-      console.error("Error saving preferences:", response.message);
+      console.error('Error saving preferences:', response.message);
     } else {
-      console.log("User preferences saved successfully:", response.data);
+      console.log('User preferences saved successfully:', response.data);
     }
   };
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      <TouchableOpacity onPress={() => handlePlayPause(item.id, item.audio)} style={styles.icon}>
+      <TouchableOpacity
+        onPress={() => handlePlayPause(item.id, item.audio)}
+        style={styles.icon}
+      >
         {playingId === item.id ? <PauseRing /> : <PlayRing />}
       </TouchableOpacity>
       <View style={styles.textContainer}>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.duration}>{item.duration}</Text>
       </View>
-      <TouchableOpacity onPress={() => handleSelectAndPlay(item.id, item.audio)} style={styles.icon}>
-        {selectedId === item.id ? <SelectedRing /> : <View style={styles.unselectedCircle} />}
+      <TouchableOpacity
+        onPress={() => handleSelectAndPlay(item.id, item.audio)}
+        style={styles.icon}
+      >
+        {selectedId === item.id ? (
+          <SelectedRing />
+        ) : (
+          <View style={styles.unselectedCircle} />
+        )}
       </TouchableOpacity>
     </View>
   );

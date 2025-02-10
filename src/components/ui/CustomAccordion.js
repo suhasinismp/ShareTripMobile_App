@@ -40,13 +40,13 @@ const CustomAccordion = ({
   const userData = useSelector(getUserDataSelector);
   const loggedInUserId = userData.userId;
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showBillMeBillDriverModal, setShowBillMeBillDriverModal] = useState(false)
-  const [billToDriver, setBillToDriver] = useState(true)
-  const [billToMe, setBillToMe] = useState(false)
-  const [driverDetails, setDriverDetails] = useState({})
+  const [showBillMeBillDriverModal, setShowBillMeBillDriverModal] =
+    useState(false);
+  const [billToDriver, setBillToDriver] = useState(true);
+  const [billToMe, setBillToMe] = useState(false);
+  const [driverDetails, setDriverDetails] = useState({});
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotate = useRef(new Animated.Value(0)).current;
-
 
   const toggleAccordion = () => {
     const toValue = isExpanded ? 0 : 1;
@@ -78,16 +78,14 @@ const CustomAccordion = ({
   });
 
   const handleCancel = () => {
-    setShowBillMeBillDriverModal(false)
-  }
+    setShowBillMeBillDriverModal(false);
+  };
 
   const handleAcceptDriver = async (driver) => {
-    setDriverDetails(driver)
-    setShowBillMeBillDriverModal(true)
+    setDriverDetails(driver);
+    setShowBillMeBillDriverModal(true);
   };
   const handleContinue = async (driver) => {
-    console.log('hi')
-
     try {
       let finalData = {
         post_bookings_id: driverDetails?.post_id,
@@ -96,13 +94,13 @@ const CustomAccordion = ({
         post_chat: 'SOME CHATS HERE',
         final_bill_by_poster: true,
         posted_user_id: loggedInUserId,
-        bill_access: billToMe ? false : true
+        bill_access: billToMe ? false : true,
       };
       // console.log("finalData", finalData)
       const response = await acceptDriverRequest(finalData, userToken);
-      console.log('ooo', response)
+      console.log('ooo', response);
       if (response?.status === 'Start Trip') {
-        setShowBillMeBillDriverModal(false)
+        setShowBillMeBillDriverModal(false);
         dispatch(
           showSnackbar({
             visible: true,
@@ -124,10 +122,9 @@ const CustomAccordion = ({
         }),
       );
     }
-  }
+  };
 
   const handleRejectDriver = async (driver) => {
-
     try {
       let finalData = {
         post_bookings_id: driver?.post_id,
@@ -241,7 +238,7 @@ const CustomAccordion = ({
               amount={driver.booking_tarif_base_fare_rate}
               onAccept={() => handleAcceptDriver(driver)}
               onReject={() => handleRejectDriver(driver)}
-              onCall={() => { }}
+              onCall={() => {}}
             />
           </View>
         ))}
@@ -258,7 +255,6 @@ const CustomAccordion = ({
           handleContinue={handleContinue}
           handleCancel={handleCancel}
           onClose={() => setShowBillMeBillDriverModal(false)}
-
         />
       </CustomModal>
     </View>
