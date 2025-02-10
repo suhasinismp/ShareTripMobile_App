@@ -63,7 +63,6 @@ const MyTrips = () => {
 
   // Modal states
   const [showStartTripModal, setShowStartTripModal] = useState(false);
-
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
@@ -392,9 +391,11 @@ const MyTrips = () => {
         state_tax: charges?.stateTax * 1,
         cleaning: charges?.cleaning * 1,
         night_batta: charges?.nightBatta * 1,
-        end_date: "2025/01/02"
+        end_date: closingDate
       })
+
     );
+
     // Group documents by fileNumber
     if (documents && documents.length > 0) {
       let groupedDocuments = {};

@@ -254,9 +254,7 @@ const TripBillScreen = ({ route }) => {
     }
   };
 
-  const handleEditBill = async () => {
 
-  }
 
   const handleDownloadPDF = async () => {
     setIsPdfGenerating(true);
@@ -505,6 +503,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     paddingHorizontal: 20,
+    marginBottom: 20,
 
   },
   cardContainer: {

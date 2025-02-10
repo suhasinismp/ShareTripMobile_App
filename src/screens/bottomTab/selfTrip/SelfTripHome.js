@@ -261,6 +261,8 @@ const SelfTripHome = () => {
         end_date: closingDate,
       }),
     );
+
+    console.log(documents, charges)
     // Group documents by fileNumber
     if (documents && documents.length > 0) {
       let groupedDocuments = {};

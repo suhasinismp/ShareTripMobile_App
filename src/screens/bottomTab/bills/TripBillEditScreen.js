@@ -83,7 +83,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
     <>
       <AppHeader title="Edit Trip Bill" backIcon={true} />
       <KeyboardAwareScrollView
-        style={styles.container}
+        style={styles.container} s
         enableOnAndroid
         enableAutomaticScroll
         keyboardShouldPersistTaps="handled"

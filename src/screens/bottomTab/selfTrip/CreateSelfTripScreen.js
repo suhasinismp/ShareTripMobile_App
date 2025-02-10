@@ -670,6 +670,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         height: 40,
         justifyContent: 'center',
+        borderRadius: 8,
+        minWidth: 120,
     },
     vehicleListContainer: {
         paddingVertical: 10,
