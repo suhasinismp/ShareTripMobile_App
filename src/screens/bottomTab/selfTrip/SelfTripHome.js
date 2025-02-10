@@ -72,9 +72,6 @@ const SelfTripHome = () => {
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
-  const [finalDay, setFinalDay] = useState(false);
-  const [additionalChargesData, setAdditionalChargesData] = useState(null);
-  const [additionalChargesDocs, setAdditionalChargesDocs] = useState(null);
 
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
@@ -138,13 +135,8 @@ const SelfTripHome = () => {
       response?.error === false &&
       response?.message === 'You need to close last day trip details'
     ) {
-      if (response?.data?.end_trip_kms == null) {
-        setShowTripProgressModal(false);
-        setShowClosingDetailsModal(true);
-      } else if (response?.data?.is_additional === null) {
-        setShowTripProgressModal(false);
-        setShowAdditionalCharges(true);
-      }
+      setShowTripProgressModal(false);
+      setShowClosingDetailsModal(true);
     } else {
       if (response?.message === 'You have closed last day Trip ride data') {
         setShowTripProgressModal(false);
@@ -193,8 +185,6 @@ const SelfTripHome = () => {
       selectedTripData?.post_booking_id,
       userToken,
     );
-    console.log({ tripDetails });
-
     if (tripDetails?.error === false) {
       setTripSummaryData({
         openingKms: tripDetails?.data?.start_trip_kms || '',
@@ -202,23 +192,13 @@ const SelfTripHome = () => {
         openingDate: tripDetails?.data?.start_date || '',
         closingKms: tripDetails?.data?.end_trip_kms || '',
         closingTime: tripDetails?.data?.end_trip_time || '',
-        closingDate: tripDetails?.data?.end_trip_date || closingDate,
+        closingDate: tripDetails?.data?.end_trip_date || '',
       });
-      if (
-        tripDetails?.data?.end_trip_kms?.length > 0 &&
-        tripDetails?.data?.customer_signature === null
-      ) {
-        setShowTripProgressModal(false);
-        setShowAdditionalCharges(true);
-        setFinalDay(true);
-      } else {
-        setShowTripProgressModal(false);
-        setShowTripSummaryModal(true);
-      }
 
-      // setClosingKms('');
-      // setClosingTime('');
-      // setClosingDate('');
+      setShowTripSummaryModal(true);
+      setClosingKms('');
+      setClosingTime('');
+      setClosingDate('');
     }
   };
 
@@ -267,68 +247,59 @@ const SelfTripHome = () => {
   };
 
   const handleAdditionalChargesNext = async (documents, charges) => {
-    let finalData = {
-      post_booking_id: selectedTripData?.post_booking_id,
-      advance: charges?.advance * 1,
-      parking: charges?.parking * 1,
-      tolls: charges?.tolls * 1,
-      state_tax: charges?.stateTax * 1,
-      cleaning: charges?.cleaning * 1,
-      night_batta: charges?.nightBatta * 1,
-      end_date: closingDate || tripSummaryData?.closingDate,
-    };
+    const formData = new FormData();
+    formData.append(
+      'json',
+      JSON.stringify({
+        post_booking_id: selectedTripData?.post_booking_id,
+        advance: charges?.advance * 1,
+        parking: charges?.parking * 1,
+        tolls: charges?.tolls * 1,
+        state_tax: charges?.stateTax * 1,
+        cleaning: charges?.cleaning * 1,
+        night_batta: charges?.nightBatta * 1,
+        end_date: closingDate,
+      }),
+    );
 
-    if (finalDay) {
-      finalData.end_trip = 'trip completing';
-    }
+    console.log(documents, charges)
+    // Group documents by fileNumber
+    if (documents && documents.length > 0) {
+      let groupedDocuments = {};
 
-    if (!finalDay) {
-      console.log('hi');
-      console.log({ finalData });
-      const formData = new FormData();
-      formData.append('json', JSON.stringify(finalData));
-
-      // Group documents by fileNumber
-      if (documents && documents.length > 0) {
-        let groupedDocuments = {};
-
-        for (const doc of documents) {
-          if (!groupedDocuments[doc.fileNumber]) {
-            groupedDocuments[doc.fileNumber] = [];
-          }
-          groupedDocuments[doc.fileNumber].push({
-            uri: doc.uri,
-            type: doc.type,
-            name: doc.name,
-          });
+      for (const doc of documents) {
+        if (!groupedDocuments[doc.fileNumber]) {
+          groupedDocuments[doc.fileNumber] = [];
         }
-
-        // Append each file in correct format
-        for (const key in groupedDocuments) {
-          if (groupedDocuments[key].length > 0) {
-            for (const file of groupedDocuments[key]) {
-              if (file.uri) {
-                formData.append(key, {
-                  uri: file.uri,
-                  type: file.type,
-                  name: file.name,
-                });
-              }
+        groupedDocuments[doc.fileNumber].push({
+          uri: doc.uri,
+          type: doc.type,
+          name: doc.name,
+        });
+      }
+      console.log('documents==>', documents);
+      // Append each file in correct format
+      for (const key in groupedDocuments) {
+        if (groupedDocuments[key].length > 0) {
+          for (const file of groupedDocuments[key]) {
+            if (file.uri) {
+              formData.append(key, {
+                uri: file.uri,
+                type: file.type,
+                name: file.name,
+              });
             }
           }
         }
       }
-      const response = await postAdditionCharges(formData, userToken);
+    }
 
-      if (response?.error === false) {
-        setClosingDate(''), setShowAdditionalCharges(false);
-        setShowCustomerSignatureModal(true);
-      }
-    } else {
-      setShowAdditionalCharges(false);
+    const response = await postAdditionCharges(formData, userToken);
+    console.log('selfTrip', response);
+    if (response?.error === false) {
+      setClosingDate(''),
+        setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
-      setAdditionalChargesData(finalData);
-      setAdditionalChargesDocs(documents);
     }
   };
 
@@ -490,9 +461,6 @@ const SelfTripHome = () => {
             onClose={() => setShowCustomerSignatureModal(false)}
             fetch={getSelfTripPosts}
             goTo={navigateToBills}
-            additionalCharges={
-              finalDay ? { additionalChargesData, additionalChargesDocs } : null
-            }
           />
         </CustomModal>
       </View>

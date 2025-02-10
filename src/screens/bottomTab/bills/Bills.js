@@ -1,3 +1,6 @@
+
+
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -8,12 +11,7 @@ import {
   getMyPostedTripBills,
   getMySelfTripBills,
 } from '../../../services/billService';
-import {
-  getMyDutiesBillsSelector,
-  getPostedBillsSelector,
-  getSelfTripBillsSelector,
-  getUserDataSelector,
-} from '../../../store/selectors';
+import { getMyDutiesBillsSelector, getPostedBillsSelector, getSelfTripBillsSelector, getUserDataSelector } from '../../../store/selectors';
 import AppHeader from '../../../components/AppHeader';
 import CustomSelect from '../../../components/ui/CustomSelect';
 import PostCard from '../../../components/PostCard';
@@ -25,37 +23,43 @@ const Bills = () => {
   const MyDutiesBill = useSelector(getMyDutiesBillsSelector);
 
   const postedTripBills = useSelector(getPostedBillsSelector);
-  const selfTripBills = useSelector(getSelfTripBillsSelector);
+  const selfTripBills = useSelector(getSelfTripBillsSelector)
   const userId = userData.userId;
   const userToken = userData.userToken;
 
+
   const [selectedFilterOne, setSelectedFilterOne] = useState('myDuties');
-  const [isSelfTrip, setIsSelfTrip] = useState(false);
+  const [isSelfTrip, setIsSelfTrip] = useState(false)
+  console.log({ isSelfTrip });
 
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('PostedTrips');
   const [dataSource, setDataSource] = useState([]);
 
+
   useEffect(() => {
     if (selectedFilterOne === 'myDuties') {
-      setDataSource(MyDutiesBill);
+      setDataSource(MyDutiesBill)
     } else if (selectedFilterOne === 'PostedTrips') {
-      setDataSource(postedTripBills);
+      setDataSource(postedTripBills)
     } else {
-      setDataSource(selfTripBills);
+      setDataSource(selfTripBills)
+
     }
-  }, [selectedFilterOne]);
+  }, [selectedFilterOne,])
 
   useEffect(() => {
     if (selectedFilterOne === 'SelfTrips') {
-      setIsSelfTrip(true);
-    } else {
-      setIsSelfTrip(false);
-    }
-  }, [selectedFilterOne]);
+      setIsSelfTrip(true)
+    } else { setIsSelfTrip(false) }
+
+  }, [selectedFilterOne])
+
+
 
   const fetchMyDutiesBill = async () => {
     try {
       const response = await getMyDutiesBill(userId, userToken);
+
     } catch (error) {
       console.error('Error fetching My Duties bills:', error);
     }
@@ -64,6 +68,7 @@ const Bills = () => {
   const fetchPostedTripsBills = async () => {
     try {
       const response = await getMyPostedTripBills(userId, userToken);
+
     } catch (error) {
       console.error('Error fetching Posted Trips bills:', error);
     }
@@ -72,72 +77,65 @@ const Bills = () => {
   const fetchSelfTripBills = async () => {
     try {
       const response = await getMySelfTripBills(userId, userToken);
+
+
     } catch (error) {
       console.error('Error fetching Self Trip bills:', error);
     }
-  };
+  }
   useFocusEffect(
     useCallback(() => {
       fetchMyDutiesBill();
       fetchPostedTripsBills();
       fetchSelfTripBills();
+
+
     }, []),
   );
 
   const renderItem = ({ item }) => {
+
     return (
       <PostCard
-        bookingType={
-          item?.booking_type_name ||
-          item?.postBooking?.bookingType?.booking_type_name
-        }
+        bookingType={item?.booking_type_name || item?.postBooking?.bookingType?.booking_type_name}
         userProfilePic={
           item?.user_profile_pic || item?.postBooking?.User?.u_profile_pic
         }
         userName={item?.user_name || item?.postBooking?.User?.u_name}
         pickUpTime={item?.pick_up_time}
         fromDate={item?.from_date}
-        vehicleType={
-          item?.vehicle_type || item?.postBooking?.VehicleTypes?.v_type
-        }
-        vehicleName={
-          item?.vehicle_name || item?.postBooking?.VehicleNames?.v_name
-        }
+        vehicleType={item?.vehicle_type || item?.postBooking?.VehicleTypes?.v_type}
+        vehicleName={item?.vehicle_name || item?.postBooking?.VehicleNames?.v_name}
         pickUpLocation={item?.pick_up_location}
         destination={item?.destination}
         postComments={item?.post_comments || item?.postBooking?.post_comments}
-        postVoiceMessage={
-          item?.post_voice_message || item?.postBooking?.post_voice_message
-        }
-        packageName={
-          item?.booking_package_name ||
-          item?.postBooking?.bookingTypeTariff?.[0]?.bookingTypePackage
-            ?.package_name
-        }
+        postVoiceMessage={item?.post_voice_message || item?.postBooking?.post_voice_message}
+        packageName={item?.booking_package_name || item?.postBooking?.bookingTypeTariff?.[0]?.bookingTypePackage?.package_name}
         viewTripSheet={true}
         viewTripSheetOnPress={() => {
           navigation.navigate('ViewTripSheet', {
             from: 'bills',
             isSelfTrip: isSelfTrip,
-            postId: item?.post_booking_id || item?.post_bookings_id,
+            postId: item?.post_booking_id || item?.post_bookings_id
           });
         }}
         driverTripBill={true}
         driverTripBillOnPress={() => {
-          navigation.navigate('TripBill', {
-            postId: item?.post_booking_id || item?.post_bookings_id,
-          });
+
+          navigation.navigate('TripBill', { postId: item?.post_booking_id || item?.post_bookings_id, });
         }}
         customerBill={true}
         customerBillOnPress={() => {
-          navigation.navigate('TripBill', {
-            postId: item?.post_booking_id || item?.post_bookings_id,
-          });
+          navigation.navigate('TripBill', { postId: item?.post_booking_id || item?.post_bookings_id, });
         }}
         billsScreen={true}
+
       />
     );
   };
+
+
+
 
   return (
     <>

@@ -74,7 +74,7 @@ export const patchAPI = async ({ endUrl, body, token }) => {
 
   try {
     const response = await api(apiConfig);
-
+    console.log("response==>", response)
     return response?.data || {};
   } catch (error) {
     // console.log('Error occurred while posting data');
@@ -126,12 +126,14 @@ export const postFormDataAPI = async (endUrl, formData, token) => {
   try {
     const response = await api(apiConfig);
     return response?.data || {};
+
   } catch (error) {
     console.error('Error occurred while posting FormData', error);
     throw error;
   }
 };
 export const patchFormDataAPI = async ({ endUrl, formData, token }) => {
+
   const headers = {
     'Content-Type': 'multipart/form-data',
   };

@@ -5,12 +5,7 @@ import CustomButton from '../../../components/ui/CustomButton';
 import AppHeader from '../../../components/AppHeader';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
-import {
-  fetchTripBill,
-  fetchTripSingleEditBill,
-  updateTripBill,
-  updateTripBillScreen,
-} from '../../../services/tripBillService';
+import { fetchTripBill, fetchTripSingleEditBill, updateTripBill, updateTripBillScreen } from '../../../services/tripBillService';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
 import CustomInput from '../../../components/ui/CustomInput';
 
@@ -33,19 +28,22 @@ const TripBillEditScreen = ({ navigation, route }) => {
     let func = async () => {
       const { data } = await fetchTripSingleEditBill(postId, userToken);
       // console.log("fetchTripSingleEditBill==>", responseData)
-      setBill(data);
-    };
-    func();
+      setBill(data)
+    }
+    func()
   }, [postId]);
   useEffect(() => {
-    setOtherCharges(bill?.other_charges);
-    setAmount(bill?.amount);
-    setTollParking(bill?.tot_toll_park);
-    setGst(bill?.gst_amt);
-    setDayBatta(bill?.day_batta);
-  }, [bill]);
+    setOtherCharges(bill?.other_charges)
+    setAmount(bill?.amount)
+    setTollParking(bill?.tot_toll_park)
+    setGst(bill?.gst_amt)
+    setDayBatta(bill?.day_batta)
+  }, [bill])
 
   const handleSave = async () => {
+
+    console.log('hi')
+
     try {
       const updatedData = {
         id: postId,
@@ -54,14 +52,16 @@ const TripBillEditScreen = ({ navigation, route }) => {
         amount: amount,
         tot_toll_park: TollParking,
         gst_amt: gst,
-      };
 
+      };
+      console.log("update", updatedData)
       // let formData = new FormData();
       // formData.append('json', JSON.stringify(updatedData));
 
       const response = await updateTripBillScreen(updatedData, userToken);
-
+      console.log('Response:', response);
       navigation.goBack();
+
     } catch (error) {
       console.error('Error updating trip details:', error);
 
@@ -78,13 +78,12 @@ const TripBillEditScreen = ({ navigation, route }) => {
   const handleCancel = () => {
     navigation.goBack();
   };
-
+  console.log("bill", bill)
   return (
     <>
       <AppHeader title="Edit Trip Bill" backIcon={true} />
       <KeyboardAwareScrollView
-        style={styles.container}
-        s
+        style={styles.container} s
         enableOnAndroid
         enableAutomaticScroll
         keyboardShouldPersistTaps="handled"
@@ -98,6 +97,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
                 onChangeText={setDayBatta}
                 keyboardType="numeric"
                 placeholder={'Day Batta'}
+
               />
             </View>
             <View style={styles.inputGroup}>
@@ -150,7 +150,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
             style={styles.saveButton}
           />
         </View>
-      </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView >
     </>
   );
 };
@@ -184,7 +184,8 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 8
+
   },
   cardsContainer: {
     marginTop: 0,
