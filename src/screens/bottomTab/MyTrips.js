@@ -64,6 +64,7 @@ const MyTrips = () => {
   // Modal states
   const [showStartTripModal, setShowStartTripModal] = useState(false);
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
+
   const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
   const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
@@ -194,31 +195,7 @@ const MyTrips = () => {
     }
   };
 
-  // const handleContinueForNextDay = async () => {
-  //   setTripType('multiDay');
-  //   const response = await fetchMultiDayTripDetails(
-  //     selectedTripData?.post_booking_id,
-  //     userToken,
-  //   );
 
-  //   if (
-  //     response?.error === false &&
-  //     response?.message === 'You need to close last day trip details'
-  //   ) {
-  //     if (response?.data?.end_trip_kms == null) {
-  //       setShowTripProgressModal(false);
-  //       setShowClosingDetailsModal(true);
-  //     } else if (response?.data?.is_additional === null) {
-  //       setShowTripProgressModal(false);
-  //       setShowAdditionalCharges(true);
-  //     }
-  //   } else {
-  //     if (response?.message === 'You have closed last day Trip ride data') {
-  //       setShowTripProgressModal(false);
-  //       setShowStartTripModal(true);
-  //     }
-  //   }
-  // };
   const handleContinueForNextDay = async () => {
     setTripType('multiDay');
     const response = await fetchMultiDayTripDetails(
@@ -245,6 +222,7 @@ const MyTrips = () => {
     }
   };
   const handleEndTrip = async () => {
+    setFinalDay(true);
     setShowTripProgressModal(false);
     const tripDetails = await fetchTripDetails(
       selectedTripData?.post_booking_id,
@@ -261,21 +239,22 @@ const MyTrips = () => {
         closingTime: tripDetails?.data?.end_trip_time || '',
         closingDate: tripDetails?.data?.end_trip_date || closingDate,
       });
+      console.log('fff', tripDetails?.data?.end_trip_kms?.length)
+      console.log('hhh', tripDetails?.data?.customer_signature)
       if (
         tripDetails?.data?.end_trip_kms?.length > 0 &&
         tripDetails?.data?.customer_signature === null
+
       ) {
         setShowTripProgressModal(false);
         setShowAdditionalCharges(true);
-        setFinalDay(true);
+
       } else {
         setShowTripProgressModal(false);
         setShowTripSummaryModal(true);
       }
 
-      // setClosingKms('');
-      // setClosingTime('');
-      // setClosingDate('');
+
     }
   };
 
@@ -309,6 +288,7 @@ const MyTrips = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
+    setClosingDate(closingDate)
     const response = await closeTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -383,6 +363,7 @@ const MyTrips = () => {
       if (tripStatus === 'Start Trip') {
         setShowStartTripModal(true);
       } else if (tripStatus === 'On Duty') {
+        console.log('uuu', tripStatus)
         setShowTripProgressModal(true);
       }
     } catch (error) {
@@ -406,6 +387,8 @@ const MyTrips = () => {
     if (finalDay) {
       finalData.end_trip = 'trip completing';
     }
+    setAdditionalChargesData(finalData);
+    setAdditionalChargesDocs(documents);
 
     if (!finalDay) {
       console.log('hi');
@@ -450,10 +433,10 @@ const MyTrips = () => {
         setShowCustomerSignatureModal(true);
       }
     } else {
+      console.log('else')
       setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
-      setAdditionalChargesData(finalData);
-      setAdditionalChargesDocs(documents);
+
     }
   };
 

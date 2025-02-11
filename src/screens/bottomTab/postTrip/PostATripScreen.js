@@ -342,7 +342,7 @@ const PostATripScreen = ({ route }) => {
 
   const getTripTable = async () => {
     const response = await fetchTripTable(postId, userToken);
-    
+
     if (response?.error === false) {
       setTripTableData(response?.data?.tripSheetRide);
     }
@@ -358,11 +358,11 @@ const PostATripScreen = ({ route }) => {
       end_trip_time: endTripTime,
       end_trip_kms: endTripKms,
     };
-
+    console.log({ finalData })
     const response = await updateViewTripBillTable(finalData, userToken);
 
     if (response?.error === false) {
-      
+
       setShowTripBillEditModal(false);
       getTripTable();
     } else {

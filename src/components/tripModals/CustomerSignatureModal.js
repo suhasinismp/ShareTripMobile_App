@@ -101,7 +101,7 @@ const CustomerSignatureModal = ({
       if (additionalCharges?.additionalChargesData) {
         console.log('hi')
         const finalData = additionalCharges?.additionalChargesData;
-
+        console.log({ finalData })
         let formData = new FormData();
         formData.append('json', JSON.stringify(finalData));
         const documents = additionalCharges?.additionalChargesDocs;

@@ -73,9 +73,10 @@ const SelfTripHome = () => {
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
   const [finalDay, setFinalDay] = useState(false);
+  console.log({ finalDay })
   const [additionalChargesData, setAdditionalChargesData] = useState(null);
   const [additionalChargesDocs, setAdditionalChargesDocs] = useState(null);
-
+  console.log({ additionalChargesData, additionalChargesDocs })
   useEffect(() => {
     if (showStartTripModal || showClosingDetailsModal) {
       const today = new Date();
@@ -188,6 +189,7 @@ const SelfTripHome = () => {
   };
 
   const handleEndTrip = async () => {
+    setFinalDay(true);
     setShowTripProgressModal(false);
     const tripDetails = await fetchTripDetails(
       selectedTripData?.post_booking_id,
@@ -204,21 +206,24 @@ const SelfTripHome = () => {
         closingTime: tripDetails?.data?.end_trip_time || '',
         closingDate: tripDetails?.data?.end_trip_date || closingDate,
       });
+      console.log('000', tripDetails?.data?.end_trip_kms?.length)
+      console.log('ddd', tripDetails?.data?.customer_signature)
       if (
         tripDetails?.data?.end_trip_kms?.length > 0 &&
         tripDetails?.data?.customer_signature === null
+
       ) {
+
+
         setShowTripProgressModal(false);
         setShowAdditionalCharges(true);
-        setFinalDay(true);
+
       } else {
         setShowTripProgressModal(false);
         setShowTripSummaryModal(true);
       }
 
-      // setClosingKms('');
-      // setClosingTime('');
-      // setClosingDate('');
+
     }
   };
 
@@ -228,6 +233,7 @@ const SelfTripHome = () => {
   };
 
   const handleCloseTrip = async ({ closingKms, closingTime, closingDate }) => {
+    setClosingDate(closingDate)
     const response = await endSelfTrip(
       {
         post_bookings_id: selectedTripData?.post_booking_id,
@@ -281,6 +287,8 @@ const SelfTripHome = () => {
     if (finalDay) {
       finalData.end_trip = 'trip completing';
     }
+    setAdditionalChargesData(finalData);
+    setAdditionalChargesDocs(documents);
 
     if (!finalDay) {
       console.log('hi');
@@ -325,10 +333,10 @@ const SelfTripHome = () => {
         setShowCustomerSignatureModal(true);
       }
     } else {
+      console.log('else')
       setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
-      setAdditionalChargesData(finalData);
-      setAdditionalChargesDocs(documents);
+
     }
   };
 

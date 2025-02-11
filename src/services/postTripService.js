@@ -85,11 +85,12 @@ export const fetchTripTable = async (postId, token) => {
 };
 
 export const updateViewTripBillTable = async (data, token) => {
+  console.log(data, token)
   const response = await patchAPI({
     endUrl: 'share-trip/trip-sheet-ride/',
     body: data,
     token: token,
   });
-
+  console.log('ppp', response)
   return response;
 };
