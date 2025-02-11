@@ -194,6 +194,31 @@ const MyTrips = () => {
     }
   };
 
+  // const handleContinueForNextDay = async () => {
+  //   setTripType('multiDay');
+  //   const response = await fetchMultiDayTripDetails(
+  //     selectedTripData?.post_booking_id,
+  //     userToken,
+  //   );
+
+  //   if (
+  //     response?.error === false &&
+  //     response?.message === 'You need to close last day trip details'
+  //   ) {
+  //     if (response?.data?.end_trip_kms == null) {
+  //       setShowTripProgressModal(false);
+  //       setShowClosingDetailsModal(true);
+  //     } else if (response?.data?.is_additional === null) {
+  //       setShowTripProgressModal(false);
+  //       setShowAdditionalCharges(true);
+  //     }
+  //   } else {
+  //     if (response?.message === 'You have closed last day Trip ride data') {
+  //       setShowTripProgressModal(false);
+  //       setShowStartTripModal(true);
+  //     }
+  //   }
+  // };
   const handleContinueForNextDay = async () => {
     setTripType('multiDay');
     const response = await fetchMultiDayTripDetails(
@@ -219,7 +244,6 @@ const MyTrips = () => {
       }
     }
   };
-
   const handleEndTrip = async () => {
     setShowTripProgressModal(false);
     const tripDetails = await fetchTripDetails(
@@ -480,8 +504,8 @@ const MyTrips = () => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-          onCallPress={() => {}}
-          onMessagePress={() => {}}
+          onCallPress={() => { }}
+          onMessagePress={() => { }}
           onRefreshData={fetchUiData}
           userToken={userToken}
         />
@@ -506,7 +530,7 @@ const MyTrips = () => {
         baseFareRate={item?.booking_tarif_base_fare_rate}
         onRequestPress={() => handleButtonPress(item)}
         onCallPress={() => handleCall(item?.user_phone)}
-        onPlayPress={() => {}}
+        onPlayPress={() => { }}
         onTripSheetPress={() => {
           navigation.navigate('ViewTripSheet', {
             from: 'myTrips',
@@ -717,6 +741,9 @@ const MyTrips = () => {
           onClose={() => setShowCustomerSignatureModal(false)}
           fetch={fetchUiData}
           goTo={navigateToBills}
+          additionalCharges={
+            finalDay ? { additionalChargesData, additionalChargesDocs } : null
+          }
         />
       </CustomModal>
     </>

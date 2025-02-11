@@ -18,21 +18,57 @@ const CustomerSignatureModal = ({
   goTo,
   additionalCharges,
 }) => {
+  console.log({ additionalCharges })
   const navigation = useNavigation();
   const [signatureFileInfo, setSignatureFileInfo] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const signatureRef = useRef();
+
+  // const handleSignature = async (signature) => {
+  //   try {
+  //     if (!signature) return;
+
+  //     setIsProcessing(true);
+
+  //     const path = FileSystem.cacheDirectory + 'sign.png';
+  //     const base64Data = signature.split(',')[1];
+
+  //     if (!base64Data) {
+  //       setIsProcessing(false);
+  //       return;
+  //     }
+
+  //     await FileSystem.writeAsStringAsync(path, base64Data, {
+  //       encoding: FileSystem.EncodingType.Base64,
+  //     });
+
+  //     const fileInfo = await FileSystem.getInfoAsync(path);
+
+  //     if (fileInfo.exists) {
+  //       setSignatureFileInfo(fileInfo);
+  //       // Once we have the file info, proceed with the upload
+  //       await handleEndTrip(fileInfo);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error saving signature:', error);
+  //     setIsProcessing(false);
+  //   }
+  // };
+
 
   const handleSignature = async (signature) => {
     try {
       if (!signature) return;
 
       setIsProcessing(true);
-      const path = FileSystem.cacheDirectory + 'sign.png';
-      const base64Data = signature.split(',')[1];
+
+      const path = FileSystem.cacheDirectory + "sign.png";
+      const base64Data = signature.split(",")[1];
 
       if (!base64Data) {
-        setIsProcessing(false);
+        setTimeout(() => {
+          setIsProcessing(false);
+        }, 3000);
         return;
       }
 
@@ -48,18 +84,22 @@ const CustomerSignatureModal = ({
         await handleEndTrip(fileInfo);
       }
     } catch (error) {
-      console.error('Error saving signature:', error);
-      setIsProcessing(false);
+      console.error("Error saving signature:", error);
+      setTimeout(() => {
+        setIsProcessing(false);
+      }, 3000);
     }
   };
 
   const handleEndTrip = async (fileInfo) => {
+    console.log('entered')
     try {
       if (!fileInfo) {
         console.log('No signature file info available');
         return;
       }
       if (additionalCharges?.additionalChargesData) {
+        console.log('hi')
         const finalData = additionalCharges?.additionalChargesData;
 
         let formData = new FormData();
@@ -100,7 +140,7 @@ const CustomerSignatureModal = ({
           name: 'customer_signature.png',
         });
         const response = await postAdditionCharges(formData, userToken);
-
+        console.log({ response })
         if (response?.error === false) {
           onClose();
           await fetch();
@@ -110,6 +150,7 @@ const CustomerSignatureModal = ({
         }
       }
       if (additionalCharges == null) {
+        console.log('other')
         const finalData = {
           post_booking_id: selectedTripData?.post_booking_id,
           accepted_user_id: userId,
@@ -125,7 +166,7 @@ const CustomerSignatureModal = ({
         });
 
         const response = await uploadSignature(formData, userToken);
-
+        console.log('abc', response)
         if (response?.error === false) {
           onClose();
           await fetch();
