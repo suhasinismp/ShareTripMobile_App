@@ -47,7 +47,7 @@ const SelfTripHome = () => {
   const [showStartTripModal, setShowStartTripModal] = useState(false);
 
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
-  const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
+
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
   const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
   const [navigateToBills, setNavigateToBills] = useState(false);
@@ -76,15 +76,15 @@ const SelfTripHome = () => {
   console.log({ finalDay })
   const [additionalChargesData, setAdditionalChargesData] = useState(null);
   const [additionalChargesDocs, setAdditionalChargesDocs] = useState(null);
-  console.log({ additionalChargesData, additionalChargesDocs })
+
   useEffect(() => {
-    if (showStartTripModal || showClosingDetailsModal) {
+    if (showStartTripModal) {
       const today = new Date();
       const formattedDate = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
       if (showStartTripModal) setOpeningDate(formattedDate);
-      if (showClosingDetailsModal) setClosingDate(formattedDate);
+
     }
-  }, [showStartTripModal, showClosingDetailsModal]);
+  }, [showStartTripModal]);
 
   useFocusEffect(
     useCallback(() => {
@@ -135,13 +135,26 @@ const SelfTripHome = () => {
       userToken,
     );
 
+    if (response.error === false) {
+      setTripSummaryData({
+        openingKms: response?.data?.start_trip_kms || '',
+        openingTime: response?.data?.start_time || '',
+        openingDate: response?.data?.start_date || '',
+        closingKms: response?.data?.end_trip_kms || '',
+        closingTime: response?.data?.end_trip_time || '',
+        closingDate: response?.data?.end_trip_date || closingDate,
+      });
+
+    }
+
     if (
       response?.error === false &&
       response?.message === 'You need to close last day trip details'
     ) {
       if (response?.data?.end_trip_kms == null) {
         setShowTripProgressModal(false);
-        setShowClosingDetailsModal(true);
+        setShowTripSummaryModal(true)
+        // setShowClosingDetailsModal(true);
       } else if (response?.data?.is_additional === null) {
         setShowTripProgressModal(false);
         setShowAdditionalCharges(true);
@@ -179,7 +192,8 @@ const SelfTripHome = () => {
     );
 
     if (response?.error === false) {
-      setShowClosingDetailsModal(false);
+      // setShowClosingDetailsModal(false);
+      setShowTripSummaryModal(false)
       setClosingKms('');
       setClosingTime('');
       // setClosingDate('');
@@ -191,7 +205,12 @@ const SelfTripHome = () => {
   const handleEndTrip = async () => {
     setFinalDay(true);
     setShowTripProgressModal(false);
-    const tripDetails = await fetchTripDetails(
+    // const tripDetails = await fetchTripDetails(
+    //   selectedTripData?.post_booking_id,
+    //   userToken,
+    // );
+
+    const tripDetails = await fetchMultiDayTripDetails(
       selectedTripData?.post_booking_id,
       userToken,
     );
@@ -228,7 +247,8 @@ const SelfTripHome = () => {
   };
 
   const handleBackToTripProgress = () => {
-    setShowClosingDetailsModal(false);
+    // setShowClosingDetailsModal(false);
+    setShowTripSummaryModal(false)
     setShowTripProgressModal(true);
   };
 
@@ -443,25 +463,7 @@ const SelfTripHome = () => {
           />
         </CustomModal>
 
-        <CustomModal visible={showClosingDetailsModal}>
-          <ClosingDetailsModal
-            handleBackToTripProgress={handleBackToTripProgress}
-            closingKms={closingKms}
-            setClosingKms={setClosingKms}
-            closingTime={closingTime}
-            setClosingTime={setClosingTime}
-            closingDate={closingDate}
-            setClosingDate={setClosingDate}
-            showClosingTimePicker={showClosingTimePicker}
-            setShowClosingTimePicker={setShowClosingTimePicker}
-            showClosingDatePicker={showClosingDatePicker}
-            setShowClosingDatePicker={setShowClosingDatePicker}
-            closingActionType={closingActionType}
-            handleCloseTrip={handleCloseForDay}
-            onClose={() => setShowClosingDetailsModal(false)}
-            setIsGstClosingForDay={setIsGstClosingForDay}
-          />
-        </CustomModal>
+
 
         <CustomModal visible={showTripSummaryModal}>
           <TripSummaryModal

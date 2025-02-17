@@ -182,7 +182,7 @@ const PostATripScreen = ({ route }) => {
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
-  const [slabRate, setSlabRate] = useState('');
+  const [slabKms, setSlabKms] = useState('');
   const [startTripKms, setStartTripKms] = useState('');
   const [endTripKms, setEndTripKms] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -508,7 +508,7 @@ const PostATripScreen = ({ route }) => {
       if (extraHours) finalData.extra_hr_rate = extraHours;
       if (dayBatta) finalData.day_batta_rate = dayBatta;
       if (nightBatta) finalData.night_batta_rate = nightBatta;
-      if (slabRate) finalData.slab_rate = slabRate;
+      if (slabKms) finalData.slab_Kms = slabKms;
       if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
       if (notes) finalData.note_1 = notes;
       if (visitingPlace) finalData.visiting_place = visitingPlace;
@@ -590,7 +590,7 @@ const PostATripScreen = ({ route }) => {
     if (extraHours) finalData.extra_hr_rate = extraHours;
     if (dayBatta) finalData.day_batta_rate = dayBatta;
     if (nightBatta) finalData.night_batta_rate = nightBatta;
-    if (slabRate) finalData.slab_rate = slabRate;
+    if (slabKms) finalData.slab_Kms = slabKms;
     if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
     if (notes) finalData.note_1 = notes;
     if (visitingPlace) finalData.visiting_place = visitingPlace;
@@ -905,9 +905,9 @@ const PostATripScreen = ({ route }) => {
           {selectedTripType === 3 && (
             <View style={styles.tariffRow}>
               <CustomInput
-                placeholder="Slab Rate"
-                value={slabRate}
-                onChangeText={setSlabRate}
+                placeholder="Slab Kms"
+                value={slabKms}
+                onChangeText={setSlabKms}
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />

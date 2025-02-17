@@ -28,6 +28,10 @@ const TripBillEditScreen = ({ navigation, route }) => {
   const [TollParking, setTollParking] = useState('');
   const [amount, setAmount] = useState('');
   const [otherCharges, setOtherCharges] = useState('');
+  const [slabRate, setSlabRate] = useState('');
+  const [extraKms, setExtraKms] = useState('');
+  const [extraHrs, setExtraHrs] = useState('');
+  const [totalUsuage, setTotalUsuage] = useState('');
 
   useEffect(() => {
     let func = async () => {
@@ -84,14 +88,16 @@ const TripBillEditScreen = ({ navigation, route }) => {
       <AppHeader title="Edit Trip Bill" backIcon={true} />
       <KeyboardAwareScrollView
         style={styles.container}
-        s
+
         enableOnAndroid
         enableAutomaticScroll
         keyboardShouldPersistTaps="handled"
       >
         {/* Fare Breakdown Section */}
         <View style={styles.section}>
-          <View style={styles.inputGroup}>
+          <View style={styles.inputRow}>
+
+
             <View style={styles.inputRow}>
               <CustomInput
                 value={dayBatta || ''}
@@ -133,9 +139,43 @@ const TripBillEditScreen = ({ navigation, route }) => {
                   placeholder={'Other Charges'}
                 />
               </View>
+              <View style={styles.inputRow}>
+                <CustomInput
+                  value={slabRate || ''}
+                  onChangeText={setSlabRate}
+                  keyboardType="numeric"
+                  placeholder={'Slab Rate'}
+                />
+              </View>
+              <View style={styles.inputRow}>
+                <CustomInput
+                  value={extraKms || ''}
+                  onChangeText={setExtraKms}
+                  keyboardType="numeric"
+                  placeholder={'Extra Kms'}
+                />
+              </View>
+              <View style={styles.inputRow}>
+                <CustomInput
+                  value={extraHrs || ''}
+                  onChangeText={setExtraHrs}
+                  keyboardType="numeric"
+                  placeholder={"Extra Hrs"}
+                />
+              </View>
+              <View style={styles.inputRow}>
+                <CustomInput
+                  value={totalUsuage || ''}
+                  onChangeText={setTotalUsuage}
+                  keyboardType="numeric"
+                  placeholder={"Total Usuage"}
+                />
+              </View>
+
             </View>
           </View>
         </View>
+
 
         <View style={styles.buttonContainer}>
           <CustomButton
@@ -150,7 +190,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
             style={styles.saveButton}
           />
         </View>
-      </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView >
     </>
   );
 };

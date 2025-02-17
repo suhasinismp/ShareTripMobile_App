@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
@@ -17,6 +17,7 @@ import {
 import AppHeader from '../../../components/AppHeader';
 import CustomSelect from '../../../components/ui/CustomSelect';
 import PostCard from '../../../components/PostCard';
+import FilterIcon from '../../../../assets/svgs/filter.svg';
 import { useNavigation } from '@react-navigation/native';
 
 const Bills = () => {
@@ -31,6 +32,7 @@ const Bills = () => {
 
   const [selectedFilterOne, setSelectedFilterOne] = useState('myDuties');
   const [isSelfTrip, setIsSelfTrip] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('PostedTrips');
   const [dataSource, setDataSource] = useState([]);
@@ -95,8 +97,8 @@ const Bills = () => {
           item?.user_profile_pic || item?.postBooking?.User?.u_profile_pic
         }
         userName={item?.user_name || item?.postBooking?.User?.u_name}
-        pickUpTime={item?.pick_up_time}
-        fromDate={item?.from_date}
+        pickUpTime={item?.pick_up_time || item?.pick_up_time}
+        fromDate={item?.from_date || item?.from_date}
         vehicleType={
           item?.vehicle_type || item?.postBooking?.VehicleTypes?.v_type
         }
@@ -176,7 +178,11 @@ const Bills = () => {
             isSelected={selectedFilterOne === 'SelfTrips'}
             onPress={() => setSelectedFilterOne('SelfTrips')}
           />
+          <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
+            <FilterIcon />
+          </TouchableOpacity>
         </View>
+
         <View style={styles.filterRow}>
           <CustomSelect
             text="Local"
@@ -214,7 +220,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    margin: 20,
+    margin: 10,
   },
   container: {
     flex: 1,

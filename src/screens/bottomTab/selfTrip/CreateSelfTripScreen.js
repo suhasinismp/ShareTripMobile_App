@@ -59,12 +59,13 @@ const CreateSelfTrip = () => {
   const [dropLocation, setDropLocation] = useState('');
   const [visitingPlace, setVisitingPlace] = useState('');
   const [selfTripTypes, setSelfTripTypes] = useState([]);
+
   const [baseRate, setBaseRate] = useState('');
   const [extraKms, setExtraKms] = useState('');
   const [extraHrs, setExtraHrs] = useState('');
   const [dayBata, setDayBata] = useState('');
   const [nightBata, setNightBata] = useState('');
-  const [slabRate, setSlabRate] = useState('');
+  const [slabKms, setSlabKms] = useState('');
   // const [showTariffModal, setShowTariffModal] = useState('');
   const [packages, setPackages] = useState([]);
 
@@ -91,7 +92,7 @@ const CreateSelfTrip = () => {
     setExtraHrs('');
     setDayBata('');
     setNightBata('');
-    setSlabRate('');
+    setSlabKms('');
     setPackages('');
   };
 
@@ -172,7 +173,7 @@ const CreateSelfTrip = () => {
 
   const fetchSelfTrips = async () => {
     const response = await getTripTypes(userToken);
-
+    // console.log('uuu', response)
     if (response.error === false) {
       setSelfTripTypes(response.data);
     }
@@ -235,7 +236,7 @@ const CreateSelfTrip = () => {
     if (extraKms) finalData.extra_km_rate = extraKms;
     if (extraHrs) finalData.extra_hr_rate = extraHrs;
     if (nightBata) finalData.night_batta_rate = nightBata;
-    if (slabRate) finalData.slab_rate = slabRate;
+    if (slabKms) finalData.slab_Kms = slabKms;
     if (dayBata) finalData.day_batta_rate = dayBata;
 
     // Debugging: Check finalData before sending
@@ -372,6 +373,7 @@ const CreateSelfTrip = () => {
                 item,
                 isSelected: selectedTripType === item.id,
                 onPress: () => {
+                  console.log('Trip Type Selected:', item);
                   setSelectedTripType(item.id);
                   const packages = item.bookingTypePackageAsBookingType;
                   if (packages.length > 0) {
@@ -398,7 +400,8 @@ const CreateSelfTrip = () => {
               renderSelectItem({
                 item,
                 isSelected: selectedPackage === item.id,
-                onPress: () => setSelectedPackage(item.id),
+                onPress: () =>
+                  setSelectedPackage(item.id),
                 textKey: 'package_name',
               })
             }
@@ -467,9 +470,9 @@ const CreateSelfTrip = () => {
             {selectedTripType === 3 && (
               <View style={styles.tariffRow}>
                 <CustomInput
-                  placeholder="Slab Rate"
-                  value={slabRate}
-                  onChangeText={setSlabRate}
+                  placeholder="Slab Kms"
+                  value={slabKms}
+                  onChangeText={setSlabKms}
                   style={styles.tariffInput}
                   keyboardType="numeric"
                 />
