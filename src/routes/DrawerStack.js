@@ -2,6 +2,7 @@ import {
   createDrawerNavigator,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
+
 import { useNavigationState } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
@@ -57,6 +58,7 @@ import { getProfileByUserId } from '../services/profileScreenService';
 import TripBillEditScreen from '../screens/bottomTab/bills/TripBillEditScreen';
 import ViewTripSheet from '../screens/bottomTab/postTrip/ViewTripSheet';
 import MyTrips from '../screens/bottomTab/MyTrips';
+import NewHomeScreen from '../screens/bottomTab/NewHomeScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -170,11 +172,17 @@ const CustomDrawerContent = (props) => {
       {/* Menu Items */}
       <View style={styles.menuSection}>
         <Text style={styles.menuTitle}>MENU</Text>
+        {/* <CustomDrawerItem
+          label="NewHome"
+          icon={isRouteActive('NewHomeScreen')}
+          onPress={() => navigation.navigate('NewHomeScreen')}
+          isFocused={isRouteActive('NewHomeScreen')}
+        /> */}
         <CustomDrawerItem
           label="Dashboard"
-          icon={isRouteActive('Home') ? DashboardInactive : DashboardIcon}
-          onPress={() => navigation.navigate('Home')}
-          isFocused={isRouteActive('Home')}
+          icon={isRouteActive('NewHomeScreen') ? DashboardInactive : DashboardIcon}
+          onPress={() => navigation.navigate('NewHomeScreen')}
+          isFocused={isRouteActive('NewHomeScreen')}
         />
         <CustomDrawerItem
           label="Profile"
@@ -288,6 +296,7 @@ const CustomDrawerContent = (props) => {
 const DrawerStack = () => {
   return (
     <Drawer.Navigator
+      // initialRouteName="NewHomeScreen" // Set the initial screen here
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         headerShown: false,
@@ -297,6 +306,7 @@ const DrawerStack = () => {
         },
       }}
     >
+      <Drawer.Screen name="NewHomeScreen" component={NewHomeScreen} />
       <Drawer.Screen name="Home" component={Tabs} />
       <Drawer.Screen name="Profile" component={ProfileStack} />
       <Drawer.Screen name="ManageVehicle" component={VehicleStack} />

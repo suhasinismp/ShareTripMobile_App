@@ -20,10 +20,11 @@ function formatTime(isoString) {
 
   // Convert to 12-hour format
   hours = hours % 12 || 12; // Converts 0 hours to 12
-  const formattedMinutes = minutes.toString().padStart(2, "0");
-
+  const formattedMinutes = minutes.toString().padStart(2, "00");
+  // console.log('ppp', formattedMinutes)
   return `${hours}:${formattedMinutes} ${ampm}`;
 }
+
 
 const ViewTripSheet = ({ route }) => {
   const { postId, from, isSelfTrip } = route.params;
@@ -42,8 +43,8 @@ const ViewTripSheet = ({ route }) => {
 
 
   useEffect(() => {
-    fetchTripSheetByPostId(postId, userToken)
 
+    fetchTripSheetByPostId(postId, userToken)
 
   }, [postId, userToken]);
 
@@ -79,10 +80,8 @@ const ViewTripSheet = ({ route }) => {
     const totalTripHrs = `${totalHours}h:${totalMinutes}m`;
     const totalTripKms = `${totalKms} kms`;
 
-
-
-
-
+    const timeString = formatTime("2025-02-20T07:05:00Z");
+    console.log(timeString);
 
     const data = [
       { label: 'Booking Type', value: tripDetails[0].bookingType_name },
@@ -103,6 +102,7 @@ const ViewTripSheet = ({ route }) => {
       { label: 'Payment Type', value: tripDetails[0].payment_type || '-' },
       { label: 'Note', value: tripDetails[0].note_1 || '-' },
     ];
+
 
     if (from === 'bills') {
       data.push(

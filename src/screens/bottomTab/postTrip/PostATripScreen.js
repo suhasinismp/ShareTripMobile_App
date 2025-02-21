@@ -226,6 +226,32 @@ const PostATripScreen = ({ route }) => {
   // Add this with other state declarations
   const [selectedTripCardId, setSelectedTripCardId] = useState(null);
 
+  const resetFields = () => {
+    setCustomerName('');
+    setCustomerPhone('');
+    setIsRecording(false);
+    setRecordedAudioUri(null);
+    setMessage('');
+    setNotes('');
+    setSelectedPaymentType('Cash');
+    setSelectedFromDate(new Date());
+    setSelectedToDate(new Date());
+    setSelectedTime(new Date());
+    setSelectedTripType(null);
+    setSelectedPackage(null);
+    // setModalVisible(false);
+    setPickupLocation('');
+    setDropLocation('');
+    setVisitingPlace('');
+    // setSelfTripTypes('');
+    setRate('');
+    setExtraKms('');
+    setExtraHours('');
+    setDayBatta('');
+    setNightBatta('');
+    setSlabKms('');
+  }
+
   // Effects
   useEffect(() => {
     if (selectedVehicleType) {
@@ -272,6 +298,7 @@ const PostATripScreen = ({ route }) => {
 
   useEffect(() => {
     if (initialData) {
+      console.log('qqq', initialData)
       const data = initialData;
       setSelectedTripType(data?.postBooking?.booking_type_id);
       setSelectedPackage(data?.bookingTypePackage_id);
@@ -537,6 +564,7 @@ const PostATripScreen = ({ route }) => {
           response.error === false &&
           response.message === 'Post Booking Data created successfully'
         ) {
+          resetFields();
           navigation.navigate('Home');
         } else {
           alert(response.message);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Dimensions } from 'react-native';
+import { StyleSheet, View, Dimensions, Text } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../../../components/ui/CustomButton';
 import AppHeader from '../../../components/AppHeader';
@@ -13,6 +13,7 @@ import {
 } from '../../../services/tripBillService';
 import { showSnackbar } from '../../../store/slices/snackBarSlice';
 import CustomInput from '../../../components/ui/CustomInput';
+import CustomText from '../../../components/ui/CustomText';
 
 const { width } = Dimensions.get('window');
 
@@ -32,12 +33,39 @@ const TripBillEditScreen = ({ navigation, route }) => {
   const [extraKms, setExtraKms] = useState('');
   const [extraHrs, setExtraHrs] = useState('');
   const [totalUsuage, setTotalUsuage] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [tripData, setTripData] = useState(null);
+
+  const [startKms, setStartKms] = useState('');
+
+  const [endKms, setEndKms] = useState('');
+  const [totalHrs, setTotalHrs] = useState('');
+  const [totalKms, setTotalKms] = useState('');
+
+
+
+
+
 
   useEffect(() => {
     let func = async () => {
-      const { data } = await fetchTripSingleEditBill(postId, userToken);
-      // console.log("fetchTripSingleEditBill==>", responseData)
-      setBill(data);
+      try {
+        const { data } = await fetchTripSingleEditBill(postId, userToken);
+        setBill(data);
+
+        if (data) {
+          // Set the start and end values from the first ride
+          setStartTime(data.start_time);
+          setEndTime(data.end_time);
+          setStartKms(data.start_kms);
+          setEndKms(data.end_kms);
+          setTotalHrs(data.total_hours);
+          setTotalKms(data.total_kms);
+        }
+      } catch (error) {
+        console.error("Error fetching trip bill details:", error);
+      }
     };
     func();
   }, [postId]);
@@ -47,6 +75,13 @@ const TripBillEditScreen = ({ navigation, route }) => {
     setTollParking(bill?.tot_toll_park);
     setGst(bill?.gst_amt);
     setDayBatta(bill?.day_batta);
+    setSlabRate(bill?.slab_rate);
+    setExtraKms(bill?.extra_kms);
+    setExtraHrs(bill?.extra_hrs);
+    setStartTime(bill?.start_time);
+    setEndTime(bill?.end_time);
+
+
   }, [bill]);
 
   const handleSave = async () => {
@@ -94,87 +129,121 @@ const TripBillEditScreen = ({ navigation, route }) => {
         keyboardShouldPersistTaps="handled"
       >
         {/* Fare Breakdown Section */}
-        <View style={styles.section}>
-          <View style={styles.inputRow}>
 
-
-            <View style={styles.inputRow}>
-              <CustomInput
-                value={dayBatta || ''}
-                onChangeText={setDayBatta}
-                keyboardType="numeric"
-                placeholder={'Day Batta'}
-              />
+        <View style={styles.inputRow}>
+          <View style={styles.headerColor}>
+            <View style={styles.headerDetailsRow}>
+              <View>
+                <Text style={styles.headerLabel}>Start Time</Text>
+                <Text style={styles.headerValue}>{startTime}</Text>
+              </View>
+              <View>
+                <Text style={styles.headerLabel}>End Time</Text>
+                <Text style={styles.headerValue}>{endTime}</Text>
+              </View>
             </View>
-            <View style={styles.inputGroup}>
-              <View style={styles.inputRow}>
-                <CustomInput
-                  value={TollParking || ''}
-                  onChangeText={setTollParking}
-                  keyboardType="numeric"
-                  placeholder={'TollParking'}
-                />
+
+            <View style={styles.headerDetailsRow}>
+              <View>
+                <Text style={styles.headerLabel}>Start Kms</Text>
+                <Text style={styles.headerValue}>{startKms}</Text>
               </View>
-              <View style={styles.inputRow}>
-                <CustomInput
-                  value={gst || ''}
-                  onChangeText={setGst}
-                  keyboardType="numeric"
-                  placeholder={'Gst'}
-                />
+              <View>
+                <Text style={styles.headerLabel}>End Kms</Text>
+                <Text style={styles.headerValue}>{endKms}</Text>
               </View>
-              <View style={styles.inputRow}>
-                <CustomInput
-                  value={amount || ''}
-                  onChangeText={setAmount}
-                  keyboardType="numeric"
-                  placeholder={'Amount'}
-                />
+            </View>
+            <View style={styles.headerDetailsRow}>
+              <View>
+                <Text style={styles.headerLabel}>Total kms</Text>
+                <Text style={styles.headerValue}>{totalKms}</Text>
               </View>
-              <View style={styles.inputRow}>
-                <CustomInput
-                  value={otherCharges || ''}
-                  onChangeText={setOtherCharges}
-                  keyboardType="numeric"
-                  placeholder={'Other Charges'}
-                />
+
+              <View>
+                <Text style={styles.headerLabel}>Total Hrs</Text>
+                <Text style={styles.headerValue}>{totalHrs}</Text>
               </View>
-              <View style={styles.inputRow}>
-                <CustomInput
-                  value={slabRate || ''}
-                  onChangeText={setSlabRate}
-                  keyboardType="numeric"
-                  placeholder={'Slab Rate'}
-                />
-              </View>
-              <View style={styles.inputRow}>
-                <CustomInput
-                  value={extraKms || ''}
-                  onChangeText={setExtraKms}
-                  keyboardType="numeric"
-                  placeholder={'Extra Kms'}
-                />
-              </View>
-              <View style={styles.inputRow}>
-                <CustomInput
-                  value={extraHrs || ''}
-                  onChangeText={setExtraHrs}
-                  keyboardType="numeric"
-                  placeholder={"Extra Hrs"}
-                />
-              </View>
-              <View style={styles.inputRow}>
+            </View>
+          </View>
+
+
+          <View style={styles.inputRow}>
+            <CustomInput
+              value={dayBatta || ''}
+              onChangeText={setDayBatta}
+              keyboardType="numeric"
+              placeholder={'Day Batta'}
+            />
+          </View>
+          {/* <View style={styles.inputGroup}> */}
+          <View style={styles.inputRow}>
+            <CustomInput
+              value={TollParking || ''}
+              onChangeText={setTollParking}
+              keyboardType="numeric"
+              placeholder={'TollParking'}
+            />
+          </View>
+          <View style={styles.inputRow}>
+            <CustomInput
+              value={gst || ''}
+              onChangeText={setGst}
+              keyboardType="numeric"
+              placeholder={'Gst'}
+            />
+          </View>
+          <View style={styles.inputRow}>
+            <CustomInput
+              value={amount || ''}
+              onChangeText={setAmount}
+              keyboardType="numeric"
+              placeholder={'Amount'}
+            />
+          </View>
+          <View style={styles.inputRow}>
+            <CustomInput
+              value={otherCharges || ''}
+              onChangeText={setOtherCharges}
+              keyboardType="numeric"
+              placeholder={'Other Charges'}
+            />
+          </View>
+          <View style={styles.inputRow}>
+            <CustomInput
+              value={slabRate || ''}
+              onChangeText={setSlabRate}
+              keyboardType="numeric"
+              placeholder={'Slab Rate'}
+            />
+          </View>
+          <View style={styles.inputRow}>
+            <CustomInput
+              value={extraKms || ''}
+              onChangeText={setExtraKms}
+              keyboardType="numeric"
+              placeholder={'Extra Kms'}
+            />
+          </View>
+          <View style={styles.inputRow}>
+            <CustomInput
+              value={extraHrs || ''}
+              onChangeText={setExtraHrs}
+              keyboardType="numeric"
+              placeholder={"Extra Hrs"}
+            />
+          </View>
+          {/* <View style={styles.inputRow}>
                 <CustomInput
                   value={totalUsuage || ''}
                   onChangeText={setTotalUsuage}
                   keyboardType="numeric"
                   placeholder={"Total Usuage"}
                 />
-              </View>
+              </View> */}
 
-            </View>
-          </View>
+          {/* </View> */}
         </View>
+        {/* </View> */}
 
 
         <View style={styles.buttonContainer}>
@@ -190,6 +259,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
             style={styles.saveButton}
           />
         </View>
+        {/* </View> */}
       </KeyboardAwareScrollView >
     </>
   );
@@ -217,6 +287,37 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666666',
   },
+  inputContainer: {
+    flex: 1,
+    marginHorizontal: 5,
+
+  },
+  headerLabel: {
+    fontSize: 16,
+    color: '#2c3e50',
+  },
+  headerTitle: {
+    fontSize: 16,
+  },
+  headerColor: {
+    backgroundColor: '#e6f3ff',
+    padding: 10,
+    alignItems: 'center',
+    // borderRadius: 10,
+  },
+  headerValue: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    marginBottom: 15,
+  },
+  headerDetailsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '95%',
+    padding: 5,
+  },
+
   sectionList: {
     flexGrow: 0, // Prevents SectionList from taking extra space
     marginBottom: 0,
@@ -229,6 +330,11 @@ const styles = StyleSheet.create({
   cardsContainer: {
     marginTop: 0,
     flex: 1,
+  },
+  labelText: {
+    fontSize: 12,
+    color: '#666666',
+    marginBottom: 2,
   },
   listContainer: {
     paddingBottom: 16,
@@ -247,7 +353,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   timeSection: {
-    flex: 3,
+    flexDirection: 'row',        // Ensures the children are displayed in a row
+    justifyContent: 'space-between', // Adds spacing between the two inputs
+    alignItems: 'center',        // Aligns both inputs vertically
+    paddingHorizontal: 0,
+
   },
   labelText: {
     fontSize: 12,
@@ -264,7 +374,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 20,
     borderRadius: 8,
     padding: 16,
   },
@@ -279,6 +389,7 @@ const styles = StyleSheet.create({
   },
   inputRow: {
     justifyContent: 'space-between',
+    marginTop: 14,
   },
   label: {
     flex: 1,

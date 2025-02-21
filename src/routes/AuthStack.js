@@ -5,6 +5,7 @@ import SignUpScreen from '../screens/auth/SignUpScreen';
 import UserTypeScreen from '../screens/auth/UserTypeScreen';
 import OTPVerifyScreen from '../screens/auth/OTPVerifyScreen';
 
+
 const Stack = createStackNavigator();
 
 const AuthStackNavigator = () => {
@@ -14,6 +15,7 @@ const AuthStackNavigator = () => {
       <Stack.Screen name="UserType" component={UserTypeScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="OTPVerify" component={OTPVerifyScreen} />
+      {/* <Stack.Screen name="NewHome" component={NewHomeScreen} /> */}
     </Stack.Navigator>
   );
 };

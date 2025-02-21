@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
+  Pressable,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import CustomInput from '../../components/ui/CustomInput';
@@ -78,18 +79,19 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
 
   return (
     <View style={styles.modalContainer}>
-      <TouchableOpacity
+      <Pressable
         style={{
           position: 'absolute',
           top: 0,
           right: 0,
           padding: 15,
         }}
-        hitSlop={{ top: 30, bottom: 30, left: 30, right: 30 }}
-        onPress={() => onClose()}
+        // hitSlop={{ top: 30, bottom: 30, left: 30, right: 30 }}
+        onPress={onClose}
       >
         <FontAwesome name="times" size={24} color="#333" />
-      </TouchableOpacity>
+      </Pressable>
+
       <View style={styles.header}>
         <Text style={styles.title}>Additional Charges</Text>
       </View>
@@ -118,7 +120,7 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
                     style={[
                       styles.uploadButton,
                       isFieldHasDocument(field.id) &&
-                        styles.uploadButtonWithDoc,
+                      styles.uploadButtonWithDoc,
                     ]}
                     onPress={() => handleUpload(field.id)}
                   >
@@ -181,6 +183,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     height: 600,
+    zIndex: 10,
   },
   dateContainer: {
     flexDirection: 'row',
@@ -208,7 +211,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
+    // alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',

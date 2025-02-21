@@ -91,6 +91,6 @@ export const updateViewTripBillTable = async (data, token) => {
     body: data,
     token: token,
   });
-  console.log('ppp', response)
+  // console.log('ppp', response)
   return response;
 };

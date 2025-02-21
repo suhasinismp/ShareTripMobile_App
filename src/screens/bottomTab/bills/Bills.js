@@ -74,6 +74,8 @@ const Bills = () => {
   const fetchSelfTripBills = async () => {
     try {
       const response = await getMySelfTripBills(userId, userToken);
+      console.log("Fetching data for Self Trip", response);
+
     } catch (error) {
       console.error('Error fetching Self Trip bills:', error);
     }
@@ -87,6 +89,7 @@ const Bills = () => {
   );
 
   const renderItem = ({ item }) => {
+
     return (
       <PostCard
         bookingType={
@@ -182,24 +185,35 @@ const Bills = () => {
             <FilterIcon />
           </TouchableOpacity>
         </View>
+        {showFilters && (
+          <View style={styles.filterRow}>
+            <CustomSelect
+              text="Local"
+              isSelected={selectedFilterTwo === 'Local'}
+              onPress={() => {
+                setSelectedFilterTwo('Local');
+                setShowFilters(false);
+              }}
 
-        <View style={styles.filterRow}>
-          <CustomSelect
-            text="Local"
-            isSelected={selectedFilterOne === 'myDuties' || 'PostedTrips'}
-            onPress={() => setSelectedFilterTwo('Local')}
-          />
-          <CustomSelect
-            text="Out Station"
-            isSelected={selectedFilterOne === 'myDuties' || 'PostedTrips'}
-            onPress={() => setSelectedFilterTwo('OutStation')}
-          />
-          <CustomSelect
-            text="Transfer"
-            isSelected={selectedFilterOne === 'myDuties' || 'PostedTrips'}
-            onPress={() => setSelectedFilterTwo('Transfer')}
-          />
-        </View>
+            />
+            <CustomSelect
+              text="Out Station"
+              isSelected={selectedFilterTwo === 'OutStation'}
+              onPress={() => {
+                setSelectedFilterTwo('OutStation');
+                setShowFilters(false);
+              }}
+            />
+            <CustomSelect
+              text="Transfer"
+              isSelected={selectedFilterTwo === 'Transfer'}
+              onPress={() => {
+                setSelectedFilterTwo('Transfer');
+                setShowFilters(false);
+              }}
+            />
+          </View>
+        )}
         <FlatList
           data={dataSource}
           renderItem={renderItem}
@@ -225,7 +239,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F0F0F0',
-    padding: 10,
+    // padding: 10,
   },
   list: {
     flexGrow: 1,
