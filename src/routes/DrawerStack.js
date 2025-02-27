@@ -315,8 +315,9 @@ const DrawerStack = () => {
       <Drawer.Screen name="ManageDriverDocuments"
         component={DriverDocumentScreen}
       />
-      <Drawer.Screen name="MyTrip" component={MyTrips} />
+      <Drawer.Screen name="MyTrips" component={MyTrips} />
       <Drawer.Screen name="Group" component={GroupStack} />
+      {/* <Drawer.Screen name="PostedTrips" component={PostedTrips} /> */}
       <Drawer.Screen name="PostTrip" component={PostATripScreen} />
       <Drawer.Screen name="SelectGroups" component={SelectGroupScreen} />
       <Drawer.Screen name="SelectContacts" component={SelectContactScreen} />

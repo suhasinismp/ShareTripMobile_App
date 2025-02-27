@@ -7,6 +7,10 @@ import { setUserDataToStore } from '../store/slices/loginSlice';
 import AuthStackNavigator from './AuthStack';
 import DrawerStack from './DrawerStack';
 import RegistrationNavigator from './RegistrationStack';
+import SelfTripHome from '../screens/bottomTab/selfTrip/SelfTripHome';
+import HomeScreen from '../screens/bottomTab/HomeScreen';
+import VacantTrip from '../screens/bottomTab/VacantTrip';
+import Bills from '../screens/bottomTab/bills/Bills';
 
 const Stack = createStackNavigator();
 
@@ -69,11 +73,33 @@ const AppStack = () => {
           />
         </>
       ) : (
-        <Stack.Screen
-          name="Drawer"
-          component={DrawerStack}
-          options={{ headerShown: false }}
-        />
+        <>
+          <Stack.Screen
+            name="Drawer"
+            component={DrawerStack}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SelfTripHome"
+            component={SelfTripHome}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="VacantTrip"
+            component={VacantTrip}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Bills"
+            component={Bills}
+            options={{ headerShown: false }}
+          />
+        </>
       )}
     </Stack.Navigator>
   );

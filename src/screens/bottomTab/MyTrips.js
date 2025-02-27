@@ -37,14 +37,17 @@ import CustomSelect from '../../components/ui/CustomSelect';
 import CustomModal from '../../components/ui/CustomModal';
 import { fetchTripSheetByPostId } from '../../services/postTripService';
 import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import BillMeBillDriverModal from '../../components/tripModals/BillMeBillDriverModal';
+import ArrowDown from '../../../assets/svgs/arrowDown.svg';
 
-const MyTrips = () => {
+const MyTrips = ({ route }) => {
   const navigation = useNavigation();
   // User data from Redux
   const userData = useSelector(getUserDataSelector);
   const userId = userData.userId;
   const userToken = userData.userToken;
+  const [hideFilters, setHideFilters] = useState(false);
 
   // Filter states
   const [isLoading, setIsLoading] = useState(false);
@@ -60,18 +63,18 @@ const MyTrips = () => {
   const [confirmedDriverData, setConfirmedDriverData] = useState([]);
   const [confirmedPostedData, setConfirmedPostedData] = useState([]);
   const [uiData, setUiData] = useState([]);
-
+  const [showBookingTypeFilters, setShowBookingTypeFilters] = useState(false);
   // Modal states
   const [showStartTripModal, setShowStartTripModal] = useState(false);
   const [showTripProgressModal, setShowTripProgressModal] = useState(false);
 
-  // const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
+  const [showClosingDetailsModal, setShowClosingDetailsModal] = useState(false);
   const [showTripSummaryModal, setShowTripSummaryModal] = useState(false);
   const [showAdditionalCharges, setShowAdditionalCharges] = useState(false);
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
-  const [isGstClosingForDay, setIsGstClosingForDay] = useState(false);
-  const [isGstSummaryValue, setIsGstSummaryValue] = useState(false);
+  // const [isGstClosingForDay, setIsGstClosingForDay] = useState(false);
+  // const [isGstSummaryValue, setIsGstSummaryValue] = useState(false);
 
   // Trip data states
   const [selectedTripData, setSelectedTripData] = useState(null);
@@ -96,6 +99,19 @@ const MyTrips = () => {
   const [finalDay, setFinalDay] = useState(false);
   const [additionalChargesData, setAdditionalChargesData] = useState(null);
   const [additionalChargesDocs, setAdditionalChargesDocs] = useState(null);
+
+
+  useEffect(() => {
+    // Handle initial view based on navigation params
+    if (route?.params?.view) {
+      setHideFilters(true);
+      setSelectedFilterOne(route.params.filterOne);
+      setSelectedFilterTwo(route.params.filterTwo);
+
+      // Reset filters when coming from specific views
+      setShowFilters(false);
+    }
+  }, [route?.params]);
 
   useEffect(() => {
     if (showStartTripModal) {
@@ -290,7 +306,7 @@ const MyTrips = () => {
         end_trip_time: closingTime,
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
-        is_gst: isGstClosingForDay,
+        // is_gst: isGstClosingForDay,
       },
       userToken,
     );
@@ -316,7 +332,7 @@ const MyTrips = () => {
         end_trip_time: closingTime,
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
-        is_gst: isGstSummaryValue,
+        // is_gst: isGstSummaryValue,
       },
       userToken,
     );
@@ -402,15 +418,16 @@ const MyTrips = () => {
       night_batta: charges?.nightBatta * 1,
       end_date: closingDate || tripSummaryData?.closingDate,
     };
-
+    console.log({ finalData })
     if (finalDay) {
       finalData.end_trip = 'trip completing';
     }
     setAdditionalChargesData(finalData);
     setAdditionalChargesDocs(documents);
 
+
     if (!finalDay) {
-      console.log('hi');
+      // console.log('hi');
       console.log({ finalData });
       const formData = new FormData();
       formData.append('json', JSON.stringify(finalData));
@@ -455,7 +472,8 @@ const MyTrips = () => {
       console.log('else')
       setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
-
+      setAdditionalChargesData(finalData);
+      setAdditionalChargesDocs(documents);
     }
   };
 
@@ -543,11 +561,128 @@ const MyTrips = () => {
         packageName={item?.booking_package_name}
         postStatus={'Available'}
       />
+
+    );
+  };
+
+
+  const renderFilters = () => {
+    const { view } = route?.params || {};
+
+
+    return (
+      <>
+        {/* Status Filters for Received and Posted Trips */}
+        {(view === 'receivedTrips' || view === 'postedTrips') && (
+          <View style={styles.filterRow}>
+            <View>
+              <CustomSelect
+                text="Confirmed"
+                isSelected={selectedFilterOne === 'Confirmed'}
+                onPress={() => setSelectedFilterOne('Confirmed')}
+              />
+            </View>
+            <View style={styles.inprogessfilter}>
+              <CustomSelect
+                text="Pending"
+                isSelected={selectedFilterOne === 'InProgress'}
+                onPress={() => setSelectedFilterOne('InProgress')}
+              />
+            </View>
+            <View style={styles.Bookingtypes}>
+              <CustomSelect
+                text="BookingType"
+                isSelected={selectedFilterOne === 'BookingType'}
+                onPress={() => {
+                  setSelectedFilterOne('BookingType');
+                  setShowBookingTypeFilters(!showBookingTypeFilters);
+                }}
+              />
+
+
+
+            </View>
+            <View style={styles.bookingarrow}>
+              <TouchableOpacity onPress={() => setShowBookingTypeFilters(!showBookingTypeFilters)}>
+                <ArrowDown />
+              </TouchableOpacity>
+            </View>
+
+
+
+          </View >
+        )}
+
+        {/* Type Filters for all views */}
+        {/* <View style={styles.filterRow}>
+          <CustomSelect
+            text="Local"
+            isSelected={selectedFilterThree === 'Local'}
+            onPress={() => setSelectedFilterThree('Local')}
+          />
+          <CustomSelect
+            text="Outstation"
+            isSelected={selectedFilterThree === 'Outstation'}
+            onPress={() => setSelectedFilterThree('Outstation')}
+          />
+          <CustomSelect
+            text="Transfer"
+            isSelected={selectedFilterThree === 'Transfer'}
+            onPress={() => setSelectedFilterThree('Transfer')}
+          />
+        </View> */}
+
+        {showBookingTypeFilters && (
+          <View style={styles.filterRow}>
+            <CustomSelect
+              text="Local"
+              isSelected={selectedFilterThree === 'Local'}
+              onPress={() => setSelectedFilterThree('Local')}
+            />
+            <CustomSelect
+              text="Outstation"
+              isSelected={selectedFilterThree === 'Outstation'}
+              onPress={() => setSelectedFilterThree('Outstation')}
+            />
+            <CustomSelect
+              text="Transfer"
+              isSelected={selectedFilterThree === 'Transfer'}
+              onPress={() => setSelectedFilterThree('Transfer')}
+            />
+          </View>
+        )}
+
+        {/* Default filters when not in specific view */}
+        {
+          !view && (
+            <View style={styles.filterRow}>
+              <CustomSelect
+                text="My Duties"
+                isSelected={selectedFilterTwo === 'MyDuties'}
+                onPress={() => setSelectedFilterTwo('MyDuties')}
+              />
+              <CustomSelect
+                text="Posted Trips"
+                isSelected={selectedFilterTwo === 'PostedTrips'}
+                onPress={() => setSelectedFilterTwo('PostedTrips')}
+              />
+              <CustomSelect
+                text="Enquiry"
+                isSelected={selectedFilterTwo === 'Enquiry'}
+                onPress={() => setSelectedFilterTwo('Enquiry')}
+              />
+              <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
+                <FilterIcon />
+              </TouchableOpacity>
+            </View>
+          )
+        }
+      </>
     );
   };
 
   return (
-    <>
+    <View style={styles.container}>
       <AppHeader
         drawerIcon={true}
         groupIcon={true}
@@ -555,11 +690,16 @@ const MyTrips = () => {
         muteIcon={true}
         search={true}
       />
-      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>
-        My Trips
-      </Text>
 
-      <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>
+          {route?.params?.view === 'receivedTrips' ? 'Received Trips' :
+            route?.params?.view === 'postedTrips' ? 'Posted Trips' :
+              route?.params?.view === 'enquiry' ? 'TripDairy' : 'My Trips'}
+        </Text>
+      </View>
+
+      {!hideFilters && (
         <View style={styles.filterRow}>
           <CustomSelect
             text="My Duties"
@@ -571,7 +711,6 @@ const MyTrips = () => {
             isSelected={selectedFilterTwo === 'PostedTrips'}
             onPress={() => setSelectedFilterTwo('PostedTrips')}
           />
-
           <CustomSelect
             text="Enquiry"
             isSelected={selectedFilterTwo === 'Enquiry'}
@@ -581,68 +720,30 @@ const MyTrips = () => {
             <FilterIcon />
           </TouchableOpacity>
         </View>
-
-        {showFilters && (
-          <>
-            <View style={styles.filterRow2}>
-              <CustomSelect
-                text="Confirmed"
-                isSelected={selectedFilterOne === 'Confirmed'}
-                onPress={() => setSelectedFilterOne('Confirmed')}
-              />
-              <CustomSelect
-                text="In Progress"
-                isSelected={selectedFilterOne === 'InProgress'}
-                onPress={() => setSelectedFilterOne('InProgress')}
-              />
-              <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
-                <FilterIcon />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.filterRow}>
-              <CustomSelect
-                text="Local"
-                isSelected={selectedFilterThree === 'Local'}
-                onPress={() => setSelectedFilterThree('Local')}
-              />
-              <CustomSelect
-                text="Out Station"
-                isSelected={selectedFilterThree === 'OutStation'}
-                onPress={() => setSelectedFilterThree('OutStation')}
-              />
-              <CustomSelect
-                text="Transfer"
-                isSelected={selectedFilterThree === 'Transfer'}
-                onPress={() => setSelectedFilterThree('Transfer')}
-              />
-            </View>
-          </>
+      )}
+      {renderFilters()}
+      <View style={styles.listContainer}>
+        {isLoading ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color="#005680" />
+          </View>
+        ) : !uiData?.length ? (
+          <View style={styles.center}>
+            <Text style={styles.emptyText}>{getEmptyStateMessage()}</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={uiData}
+            renderItem={renderItem}
+            keyExtractor={(item) =>
+              item?.post_booking_id?.toString() ||
+              item?.post_bookings_id?.toString()
+            }
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+          />
         )}
-
-        <View style={styles.listContainer}>
-          {isLoading ? (
-            <View style={styles.center}>
-              <ActivityIndicator size="large" color="#005680" />
-            </View>
-          ) : !uiData?.length ? (
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>{getEmptyStateMessage()}</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={uiData}
-              renderItem={renderItem}
-              keyExtractor={(item) =>
-                item?.post_booking_id?.toString() ||
-                item?.post_bookings_id?.toString()
-              }
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContent}
-            />
-          )}
-        </View>
       </View>
-
       <CustomModal
         visible={showStartTripModal}
         onPrimaryAction={handleStartTrip}
@@ -678,7 +779,28 @@ const MyTrips = () => {
         />
       </CustomModal>
 
-
+      <CustomModal
+        visible={showClosingDetailsModal}
+        onSecondaryAction={handleBackToTripProgress}
+      >
+        <ClosingDetailsModal
+          handleBackToTripProgress={handleBackToTripProgress}
+          closingKms={closingKms}
+          setClosingKms={setClosingKms}
+          closingTime={closingTime}
+          setClosingTime={setClosingTime}
+          closingDate={closingDate}
+          setClosingDate={setClosingDate}
+          showClosingTimePicker={showClosingTimePicker}
+          setShowClosingTimePicker={setShowClosingTimePicker}
+          showClosingDatePicker={showClosingDatePicker}
+          setShowClosingDatePicker={setShowClosingDatePicker}
+          closingActionType={closingActionType}
+          handleCloseTrip={handleCloseForDay}
+          onClose={() => setShowClosingDetailsModal(false)}
+        // setIsGstClosingForDay={setIsGstClosingForDay}
+        />
+      </CustomModal>
 
       <CustomModal
         visible={showTripSummaryModal}
@@ -688,7 +810,7 @@ const MyTrips = () => {
           tripSummaryData={tripSummaryData}
           setShowTripSummaryModal={setShowTripSummaryModal}
           setShowAdditionalCharges={setShowAdditionalCharges}
-          setIsGstSummaryValue={setIsGstSummaryValue}
+          // setIsGstSummaryValue={setIsGstSummaryValue}
           onPressNext={(closingDetails) => {
             // Check if values are received
             handleCloseTrip({
@@ -727,11 +849,24 @@ const MyTrips = () => {
           }
         />
       </CustomModal>
-    </>
-  );
-};
+      {/* ... rest of your modals ... */}
+    </View>
 
+
+  );
+}
 const styles = StyleSheet.create({
+  // ... existing styles ...
+
+  headerContainer: {
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F0F0F0',
@@ -749,13 +884,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 10,
   },
-  filterRow2: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    margin: 5,
-    gap: 10,
-  },
+
+
   center: {
     flex: 1,
     justifyContent: 'center',
@@ -766,6 +896,13 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
   },
+  bookingTypeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+  },
+
+
 });
 
 export default MyTrips;

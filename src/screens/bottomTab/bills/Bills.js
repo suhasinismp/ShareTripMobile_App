@@ -19,6 +19,8 @@ import CustomSelect from '../../../components/ui/CustomSelect';
 import PostCard from '../../../components/PostCard';
 import FilterIcon from '../../../../assets/svgs/filter.svg';
 import { useNavigation } from '@react-navigation/native';
+import { handleCall } from '../HomeScreen';
+
 
 const Bills = () => {
   const navigation = useNavigation();
@@ -37,23 +39,57 @@ const Bills = () => {
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('PostedTrips');
   const [dataSource, setDataSource] = useState([]);
 
-  useEffect(() => {
-    if (selectedFilterOne === 'myDuties') {
-      setDataSource(MyDutiesBill);
-    } else if (selectedFilterOne === 'PostedTrips') {
-      setDataSource(postedTripBills);
-    } else {
-      setDataSource(selfTripBills);
-    }
-  }, [selectedFilterOne]);
+  // useEffect(() => {
+  //   if (selectedFilterOne === 'myDuties') {
+  //     setDataSource(MyDutiesBill);
+  //   } else if (selectedFilterOne === 'PostedTrips') {
+  //     setDataSource(postedTripBills);
+  //   } else {
+  //     setDataSource(selfTripBills);
+  //   }
+  // }, [selectedFilterOne]);
 
+  // useEffect(() => {
+  //   if (selectedFilterOne === 'SelfTrips') {
+  //     setIsSelfTrip(true);
+  //   } else {
+  //     setIsSelfTrip(false);
+  //   }
+  // }, [selectedFilterOne]);
+
+  // Add this useEffect to filter data based on booking type
   useEffect(() => {
-    if (selectedFilterOne === 'SelfTrips') {
-      setIsSelfTrip(true);
+    let filteredData = [];
+
+    if (selectedFilterOne === 'myDuties') {
+      filteredData = MyDutiesBill;
+    } else if (selectedFilterOne === 'PostedTrips') {
+      filteredData = postedTripBills;
     } else {
-      setIsSelfTrip(false);
+      filteredData = selfTripBills;
     }
-  }, [selectedFilterOne]);
+
+    // Filter based on booking type
+    if (selectedFilterTwo === 'Local' || selectedFilterTwo === 'OutStation' || selectedFilterTwo === 'Transfer') {
+      filteredData = filteredData.filter(item =>
+        (item?.booking_type_name || item?.postBooking?.bookingType?.booking_type_name) === selectedFilterTwo
+      );
+    }
+
+    setDataSource(filteredData);
+  }, [selectedFilterOne, selectedFilterTwo, MyDutiesBill, postedTripBills, selfTripBills]);
+
+  // Remove or comment out the old useEffect for selectedFilterOne
+  // useEffect(() => {
+  //   if (selectedFilterOne === 'myDuties') {
+  //     setDataSource(MyDutiesBill);
+  //   } else if (selectedFilterOne === 'PostedTrips') {
+  //     setDataSource(postedTripBills);
+  //   } else {
+  //     setDataSource(selfTripBills);
+  //   }
+  // }, [selectedFilterOne]);
+
 
   const fetchMyDutiesBill = async () => {
     try {
@@ -119,6 +155,8 @@ const Bills = () => {
           item?.postBooking?.bookingTypeTariff?.[0]?.bookingTypePackage
             ?.package_name
         }
+        onCallPress={() => handleCall(item?.user_phone || item?.postBooking?.User?.u_phone)}
+
         viewTripSheet={true}
         viewTripSheetOnPress={() => {
           navigation.navigate('ViewTripSheet', {
@@ -127,12 +165,23 @@ const Bills = () => {
             postId: item?.post_booking_id || item?.post_bookings_id,
           });
         }}
+
+        isAvailable={true}
+        postStatus={'Available'}  // Changed to 'Available'
+        requestStatus={'Request'}  // Add this
+        onRequestPress={() => { }}  // Add this
+        isRequested={false}  // Add this
+        vacantTripPostedByLoggedInUser={undefined}
+        showActionButtons={true}
+
+
         driverTripBill={true}
         driverTripBillOnPress={() => {
           navigation.navigate('TripBill', {
             postId: item?.post_booking_id || item?.post_bookings_id,
           });
         }}
+
         customerBill={true}
         customerBillOnPress={() => {
           navigation.navigate('TripBill', {
@@ -161,7 +210,7 @@ const Bills = () => {
           marginBottom: 10,
         }}
       >
-        Bills
+        TripSheet/Bills
       </Text>
       <View style={styles.container}>
         <View style={styles.filterRow}>

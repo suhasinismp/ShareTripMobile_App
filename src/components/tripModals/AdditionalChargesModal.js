@@ -79,21 +79,24 @@ const AdditionalChargesModal = ({ onNext, onClose }) => {
 
   return (
     <View style={styles.modalContainer}>
-      <Pressable
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          padding: 15,
-        }}
-        // hitSlop={{ top: 30, bottom: 30, left: 30, right: 30 }}
-        onPress={onClose}
-      >
-        <FontAwesome name="times" size={24} color="#333" />
-      </Pressable>
+
 
       <View style={styles.header}>
         <Text style={styles.title}>Additional Charges</Text>
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            padding: 15,
+
+          }}
+
+          onPress={onClose}
+
+        >
+          <FontAwesome name="times" size={24} color="#333" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.contentContainer}>

@@ -98,7 +98,7 @@ const ViewTripSheet = ({ route }) => {
       { label: 'Visiting Places', value: tripDetails[0].visiting_place || '-' },
       { label: 'From Date', value: tripDetails[0].from_date || '-' },
       { label: 'To Date', value: tripDetails[0].to_date || '-' },
-      { label: 'Pick Up Time', value: formatTime(tripDetails[0].pick_up_time) || '-' },
+      { label: 'Pick Up Time', value: tripDetails[0].pick_up_time || '-' },
       { label: 'Payment Type', value: tripDetails[0].payment_type || '-' },
       { label: 'Note', value: tripDetails[0].note_1 || '-' },
     ];

@@ -20,7 +20,7 @@ const PostCard = ({
   bookingType,
   createdAt,
   postStatus,
-
+  showActionButtons,
   // User Info Props
   userProfilePic,
   userName,
@@ -57,7 +57,7 @@ const PostCard = ({
   billsScreen,
 }) => {
   const requestStatus = isRequested ? isRequested : 'Accept';
-  const isAvailable = postStatus === 'Available';
+  const isAvailable = postStatus === 'Available' || postStatus === 'available';
 
   const hasCommentOrVoice = postComments || postVoiceMessage;
 
@@ -72,7 +72,7 @@ const PostCard = ({
   const getIconColor = () => {
     return isAvailable ? '#005680' : '#666';
   };
-
+  console.log({ baseFareRate })
   return (
     <View style={styles.card}>
       {/* Card Header */}
@@ -91,6 +91,7 @@ const PostCard = ({
           )}
         </View>
       )}
+
 
       {/* User Info Section */}
       <View style={styles.cardContent}>
@@ -269,22 +270,11 @@ const PostCard = ({
                   {!hasCommentOrVoice && (
                     <View style={styles.amountSection}>
                       <Text style={styles.amountLabel}>Amount:</Text>
-                      <Text style={styles.amountText}>Rs {baseFareRate}/-</Text>
+                      <Text style={styles.amountText}>{`Rs ${baseFareRate}/-`}</Text>
                     </View>
                   )}
 
-                  {/* <TouchableOpacity
-                    style={styles.acceptButton}
-                    onPress={onRequestPress}
-                    disabled={isRequested === 'Quoted' ? true : false}
-                  >
-                    <Text style={styles.acceptButtonText}>{requestStatus}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity>
-                    {isRequested === 'Accepted' && !postStatus && (
-                      <Text style={styles.cancelText}>Cancel</Text>
-                    )}
-                  </TouchableOpacity> */}
+
                 </View>
               )}
               {!billsScreen && vacantTripPostedByLoggedInUser === undefined && (
@@ -311,18 +301,17 @@ const PostCard = ({
         </View>
 
         {/* Action Buttons - Only show for available cards */}
-        {(isAvailable || vacantTripPostedByLoggedInUser !== undefined) && (
+        {(showActionButtons || isAvailable || vacantTripPostedByLoggedInUser !== undefined) && (
           (onRequestPress || onTripSheetPress) && (
             <View style={styles.actionButtonsContainer}>
-              <TouchableOpacity onPress={onCallPress}>
+              {onCallPress && (<TouchableOpacity onPress={onCallPress}>
                 <CallIcon />
               </TouchableOpacity>
-              {/* <TouchableOpacity onPress={onPlayPress}>
-        <PlayIcon />
-      </TouchableOpacity> */}
-              <TouchableOpacity onPress={onTripSheetPress}>
+              )}
+              {onTripSheetPress && (<TouchableOpacity onPress={onTripSheetPress}>
                 <TripSheetIcon />
               </TouchableOpacity>
+              )}
             </View>
           )
         )}

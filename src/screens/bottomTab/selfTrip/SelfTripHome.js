@@ -55,8 +55,8 @@ const SelfTripHome = () => {
   const [showCustomerSignatureModal, setShowCustomerSignatureModal] =
     useState(false);
   const [selectedTripData, setSelectedTripData] = useState(null);
-  const [isGstClosingForDay, setIsGstClosingForDay] = useState(false);
-  const [isGstSummaryValue, setIsGstSummaryValue] = useState(false);
+  // const [isGstClosingForDay, setIsGstClosingForDay] = useState(false);
+  // const [isGstSummaryValue, setIsGstSummaryValue] = useState(false);
 
   const [tripSummaryData, setTripSummaryData] = useState(null);
   const [tripType, setTripType] = useState('');
@@ -186,7 +186,7 @@ const SelfTripHome = () => {
         end_trip_time: closingTime,
         posted_user_id: selectedTripData?.posted_user_id,
         accepted_user_id: userId,
-        is_gst: isGstClosingForDay,
+        // is_gst: isGstClosingForDay,
       },
       userToken,
     );
@@ -262,7 +262,7 @@ const SelfTripHome = () => {
         end_trip_time: closingTime,
         posted_user_id: userId,
         accepted_user_id: userId,
-        is_gst: isGstSummaryValue,
+        // is_gst: isGstSummaryValue,
       },
       userToken,
     );
@@ -415,7 +415,7 @@ const SelfTripHome = () => {
             marginBottom: 10,
           }}
         >
-          Self Trips
+          Own Booking
         </Text>
 
         <FlatList
@@ -470,7 +470,7 @@ const SelfTripHome = () => {
             tripSummaryData={tripSummaryData}
             setShowTripSummaryModal={setShowTripSummaryModal}
             setShowAdditionalCharges={setShowAdditionalCharges}
-            setIsGstSummaryValue={setIsGstSummaryValue}
+            // setIsGstSummaryValue={setIsGstSummaryValue}
             onPressNext={(closingDetails) => {
               handleCloseTrip({
                 closingKms: closingDetails.closingKms,

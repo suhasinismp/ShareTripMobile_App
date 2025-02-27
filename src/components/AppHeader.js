@@ -43,12 +43,26 @@ const AppHeader = ({
     setIsMute((prevState) => !prevState);
   };
 
+
+  const handleDrawerOpen = () => {
+    try {
+      if (navigation.openDrawer) {
+        navigation.openDrawer();
+      }
+    } catch (error) {
+      console.log('Drawer navigation error:', error);
+    }
+  };
+
+
+
+
   const renderLeftSection = () => (
     <View style={styles.leftSection}>
       {drawerIcon && (
         <TouchableOpacity
           style={styles.iconButton}
-          onPress={() => navigation.toggleDrawer()}
+          onPress={handleDrawerOpen}
         >
           <HamburgerMenu width={24} height={24} />
         </TouchableOpacity>

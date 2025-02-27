@@ -232,8 +232,8 @@ const HomeScreen = () => {
           postId: item?.post_booking_id,
         });
       }}
-      isRequested={item?.request_status}
-      packageName={item?.bookingTypePackage_name}
+      isRequested={item?.request_status || false}
+      packageName={item?.bookingTypePackage_name || ''}
     />
   );
 
@@ -254,7 +254,7 @@ const HomeScreen = () => {
         muteIcon={true}
         search={true}
       />
-      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>Home</Text>
+      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>New Booking</Text>
 
       <FlatList
         data={userPostsData}
@@ -272,9 +272,9 @@ const HomeScreen = () => {
         }
       />
 
-      <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
+      {/* <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
         <AddPostIcon />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <CustomModal
         visible={isModalVisible}

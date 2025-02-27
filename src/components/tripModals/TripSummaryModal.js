@@ -20,7 +20,7 @@ const TripSummaryModal = ({
   setShowAdditionalCharges,
   onPressNext,
   onClose,
-  setIsGstSummaryValue,
+  // setIsGstSummaryValue,
 }) => {
   // Opening details states
   const [openingKms, setOpeningKms] = useState(
@@ -43,11 +43,11 @@ const TripSummaryModal = ({
   const [closingDate, setClosingDate] = useState(
     tripSummaryData?.closingDate || '',
   );
-  const [isGst, setIsGst] = useState(false);
+  // const [isGst, setIsGst] = useState(false);
 
-  useEffect(() => {
-    setIsGstSummaryValue(isGst)
-  }, [isGst])
+  // useEffect(() => {
+  //   setIsGstSummaryValue(isGst)
+  // }, [isGst])
 
   // Date & Time picker states
   const [showClosingTimePicker, setShowClosingTimePicker] = useState(false);
@@ -105,7 +105,7 @@ const TripSummaryModal = ({
       closingKms,
       closingTime,
       closingDate,
-      isGst,
+      // isGst,
     });
   };
 
@@ -199,7 +199,7 @@ const TripSummaryModal = ({
 
           </View>
         </View>
-        <View style={{ display: 'flex', justifyContent: 'space-between', }}>
+        {/* <View style={{ display: 'flex', justifyContent: 'space-between', }}>
           <Text >GST</Text>
           <TouchableOpacity onPress={() => setIsGst(!isGst)}>
             {isGst ? (<CheckBoxActive width={24} height={24} />
@@ -208,7 +208,7 @@ const TripSummaryModal = ({
             )}
 
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
