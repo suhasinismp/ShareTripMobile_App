@@ -208,14 +208,14 @@ const TripBillEditScreen = ({ navigation, route }) => {
               placeholder={'Other Charges'}
             />
           </View>
-          <View style={styles.inputRow}>
+          {/* <View style={styles.inputRow}>
             <CustomInput
               value={slabRate || ''}
               onChangeText={setSlabRate}
               keyboardType="numeric"
               placeholder={'Slab Rate'}
-            />
-          </View>
+            /> */}
+          {/* </View>
           <View style={styles.inputRow}>
             <CustomInput
               value={extraKms || ''}
@@ -231,7 +231,7 @@ const TripBillEditScreen = ({ navigation, route }) => {
               keyboardType="numeric"
               placeholder={"Extra Hrs"}
             />
-          </View>
+          </View> */}
           {/* <View style={styles.inputRow}>
                 <CustomInput
                   value={totalUsuage || ''}

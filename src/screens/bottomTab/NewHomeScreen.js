@@ -21,7 +21,7 @@ import { getProfileByUserId } from '../../services/profileScreenService';
 
 const NewHomeScreen = () => {
     const [userSingleData, setUserSingleData] = useState(null);
-    console.log({ userSingleData })
+
     const [isLoading, setIsLoading] = useState(true);
 
     const navigation = useNavigation();
@@ -29,10 +29,10 @@ const NewHomeScreen = () => {
     const userToken = userData?.userToken;
     const userId = userData?.userId;
     const [userProfile, setUserProfile] = useState(null);
-    console.log({ userProfile })
 
 
-    console.log({ userData })
+
+
 
     // const menuItems = [
     //     { id: 1, title: 'New Booking', icon: NewBookingIcon, route: 'NewBooking' },
@@ -84,7 +84,7 @@ const NewHomeScreen = () => {
             id: 8, title: 'Trip Dairy', icon: EnquiryIcon, route: 'MyTrips',
             params: {
                 view: 'enquiry',
-                filterOne: 'Enquiry',
+                // filterOne: 'Enquiry',
                 filterTwo: 'Enquiry'
             }
         },
@@ -116,13 +116,21 @@ const NewHomeScreen = () => {
         }
     }, [userToken, userId]);
 
-
     const renderMenuItems = (items) => {
         return items.map((item) => (
             <TouchableOpacity
                 key={item.id}
                 style={styles.menuItem}
-                onPress={() => navigation.navigate(item.route, item.params)}
+                onPress={() => {
+                    if (item.route === 'MyTrips') {
+                        navigation.navigate('MyTrips', {
+                            screen: 'MyTrips',
+                            params: item.params
+                        });
+                    } else {
+                        navigation.navigate(item.route, item.params);
+                    }
+                }}
             >
                 <item.icon width={40} height={40} />
                 <Text style={styles.menuItemText}>

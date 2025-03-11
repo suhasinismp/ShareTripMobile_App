@@ -4,6 +4,7 @@ import loginReducer from './slices/loginSlice';
 import billReducer from './slices/billSlice';
 import viewReducer from './slices/viewTripSlice';
 import tripBillReducer from './slices/tripBillSlice';
+import selfTripReducer from './slices/selfTripSlice';
 
 export const resetStore = () => {
   return {
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   bill: billReducer,
   viewTrip: viewReducer,
   tripBill: tripBillReducer,
+  selfTrip: selfTripReducer,
 });
 
 const rootReducerWithReset = (state, action) => {

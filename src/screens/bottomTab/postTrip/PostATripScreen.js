@@ -1,3 +1,6 @@
+
+
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Dimensions,
@@ -40,6 +43,7 @@ import {
 import {
   getTripDetailsSelector,
   getUserDataSelector,
+  getSelfTripDetailsSelector,
 } from '../../../store/selectors';
 import AudioContainer from '../../../components/AudioContainer';
 import TimeDatePicker from '../../../components/TimeDatePicker';
@@ -160,11 +164,11 @@ const VehicleButton = React.memo(
 VehicleButton.displayName = 'VehicleButton';
 
 const PostATripScreen = ({ route }) => {
-  const { from, postId } = route.params || {};
+  const { from, postId, isSelfTrip, tripData } = route.params || {};
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
   const tripDetails = useSelector(getTripDetailsSelector);
-
+  const selfTripDetails = useSelector(getSelfTripDetailsSelector);
   const { userToken, userId } = userData;
   const { theme } = useTheme();
 
@@ -178,6 +182,7 @@ const PostATripScreen = ({ route }) => {
   const [visitingPlace, setVisitingPlace] = useState('');
   const [notes, setNotes] = useState('');
   const [rate, setRate] = useState('');
+
   const [extraKms, setExtraKms] = useState('');
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
@@ -266,20 +271,44 @@ const PostATripScreen = ({ route }) => {
     }
   }, [selectedVehicleType, allVehicleNames]);
 
+  // useEffect(() => {
+  //   const initializeScreen = async () => {
+  //     if (from !== undefined) {
+  //       setPostType(POST_TYPES.TRIP_SHEET);
+  //       await getTripSheetDetails();
+  //     }
+  //     await fetchConstants();
+  //     if (from === 'bills') {
+  //       await getTripTable();
+  //     }
+  //   };
+
+  //   initializeScreen();
+  // }, [from, postId]);
+
+
   useEffect(() => {
     const initializeScreen = async () => {
       if (from !== undefined) {
         setPostType(POST_TYPES.TRIP_SHEET);
-        await getTripSheetDetails();
+
+        if (tripData) {
+          // Use the passed trip data
+          setInitialData(tripData);
+        } else if (isSelfTrip) {
+          // Use self trip data from Redux
+          if (selfTripDetails) {
+            setInitialData(selfTripDetails);
+          }
+        } else {
+          await getTripSheetDetails();
+        }
       }
       await fetchConstants();
-      if (from === 'bills') {
-        await getTripTable();
-      }
     };
 
     initializeScreen();
-  }, [from, postId]);
+  }, [from, postId, isSelfTrip, tripData, selfTripDetails]);
 
   useEffect(() => {
     if (tripTypes.length > 0) {
@@ -297,29 +326,51 @@ const PostATripScreen = ({ route }) => {
   }, [tripTypes]);
 
   useEffect(() => {
+
+
     if (initialData) {
-      console.log('qqq', initialData)
-      const data = initialData;
-      setSelectedTripType(data?.postBooking?.booking_type_id);
-      setSelectedPackage(data?.bookingTypePackage_id);
-      setSelectedVehicleType(data?.postBooking?.vehicle_type_id);
-      setSelectedVehicleName(data?.postBooking?.vehicle_name_id);
-      setSelectedShareType(data?.postBooking?.post_type_id);
-      setSelectedFromDate(parseDate(data?.start_date || data?.from_date));
-      setSelectedToDate(parseDate(data?.end_trip_date || data?.to_date));
-      setSelectedTime(parseTime(data?.postBooking?.pick_up_time));
-      setRate(data?.bookingTypeTariff_base_fare_rate?.toString() || '');
-      setCustomerName(data?.postBooking?.customer_name || '');
-      setCustomerPhone(data?.postBooking?.customer_phone_no || '');
-      setPickupLocation(data?.postBooking?.pick_up_location || '');
-      setDropLocation(data?.postBooking?.destination || '');
-      setVisitingPlace(data?.postBooking?.visiting_place || '');
-      setSelectedPaymentType(
-        data?.postBooking?.payment_type || PAYMENT_TYPES.CASH,
-      );
-      setNotes(data?.postBooking?.note_1 || '');
-      if (data?.post_comments) {
-        setMessage(data?.post_comments);
+      console.log('Initial Data:', initialData);
+      const data = initialData[0] || initialData;
+
+
+      // Set trip type and package
+      setSelectedTripType(data.booking_type_id || data.bookingType_id);
+      setSelectedPackage(data.booking_types_package_id || data.bookingTypePackage_id);
+
+      // Set vehicle details
+      setSelectedVehicleType(data.vehicle_type_id || data.VehicleTypes_id);
+      setSelectedVehicleName(data.vehicle_name_id || data.VehicleNames_id);
+
+      // Set customer details
+      setCustomerName(data.customer_name || '');
+      setCustomerPhone(data.customer_phone_no || '');
+
+      // Set locations
+      setPickupLocation(data.pick_up_location || '');
+      setDropLocation(data.destination || '');
+      setVisitingPlace(data.visiting_place || '');
+
+      // Set dates and time
+      setSelectedFromDate(parseDate(data.from_date));
+      setSelectedToDate(parseDate(data.to_date));
+      setSelectedTime(parseTime(data.pick_up_time));
+
+      // Set payment and notes
+      setSelectedPaymentType(data.payment_type || PAYMENT_TYPES.CASH);
+      setNotes(data.note_1 || '');
+
+      // Set rates
+      setRate(data.tripSheetFinal?.[0]?.base_fare_rate?.toString() || '');
+
+      setExtraKms(data.tripSheetFinal?.[0]?.extra_km_rate?.toString() || '');
+      setExtraHours(data.tripSheetFinal?.[0]?.extra_hr_rate?.toString() || '');
+
+      setDayBatta(data.day_batta_rate?.toString() || '');
+      setNightBatta(data.night_batta_rate?.toString() || '');
+
+      // Set message if exists
+      if (data.post_comments) {
+        setMessage(data.post_comments);
       }
     }
   }, [initialData]);
@@ -543,7 +594,7 @@ const PostATripScreen = ({ route }) => {
       if (selectedFromDate) finalData.from_date = selectedFromDate;
       if (selectedToDate) finalData.to_date = selectedToDate;
     }
-
+    console.log({ finalData })
     if (selectedShareType === 1) {
       finalData.post_type_value = null;
       let formData = new FormData();
@@ -632,15 +683,15 @@ const PostATripScreen = ({ route }) => {
     try {
       const response = await updatePost(formData, userToken);
 
-      if (from === 'bills') {
-        navigation.goBack();
-        await getMyDutiesBill(userId, userToken);
-        await getMyPostedTripBills(userId, userToken);
-        await getMySelfTripBills(userId, userToken);
-        await fetchTripSheetByPostId(postId, userToken);
-      } else {
-        navigation.goBack();
-      }
+      // if (from === 'bills') {
+      //   navigation.goBack();
+      await getMyDutiesBill(userId, userToken);
+      await getMyPostedTripBills(userId, userToken);
+      await getMySelfTripBills(userId, userToken);
+      await fetchTripSheetByPostId(postId, userToken);
+      // } else {
+      navigation.goBack();
+      // }
     } catch (error) {
       console.error('Error updating trip sheet:', error);
       alert('Failed to update trip sheet. Please try again.');
@@ -876,7 +927,7 @@ const PostATripScreen = ({ route }) => {
 
       {renderCommonContent()}
 
-      <View style={styles.sectionContainer}>
+      {/* <View style={styles.sectionContainer}>
         <CustomText text={'Tariff :'} variant={'sectionTitleText'} />
         <View style={styles.tariffContainer}>
           <View style={styles.tariffRow}>
@@ -887,7 +938,7 @@ const PostATripScreen = ({ route }) => {
               style={styles.tariffInput}
               keyboardType="numeric"
             />
-            {selectedTripType !== 2 && (
+            {selectedTripType !==  && (
               <CustomInput
                 placeholder="Extra Kms"
                 value={extraKms}
@@ -907,15 +958,7 @@ const PostATripScreen = ({ route }) => {
                 keyboardType="numeric"
               />
             )}
-            {selectedTripType !== 1 && selectedTripType !== 3 && (
-              <CustomInput
-                placeholder="Day Batta"
-                value={dayBatta}
-                onChangeText={setDayBatta}
-                style={styles.tariffInput}
-                keyboardType="numeric"
-              />
-            )}
+           
           </View>
           <View style={styles.tariffRow}>
             {selectedTripType !== 1 &&
@@ -930,12 +973,37 @@ const PostATripScreen = ({ route }) => {
                 />
               )}
           </View>
-          {selectedTripType === 3 && (
+         
+        </View>
+      </View> */}
+
+      <View style={styles.sectionContainer}>
+        <CustomText text={'Tariff :'} variant={'sectionTitleText'} />
+        <View style={styles.tariffContainer}>
+          <View style={styles.tariffRow}>
+            <CustomInput
+              placeholder="Rate"
+              value={rate}
+              onChangeText={setRate}
+              style={[styles.tariffInput, { width: selectedTripType === 1 ? '48%' : '100%' }]}
+              keyboardType="numeric"
+            />
+            {selectedTripType === 1 && ( // Show Extra Kms only for Local trips
+              <CustomInput
+                placeholder="Extra Kms"
+                value={extraKms}
+                onChangeText={setExtraKms}
+                style={styles.tariffInput}
+                keyboardType="numeric"
+              />
+            )}
+          </View>
+          {selectedTripType === 1 && ( // Show Extra Hours only for Local trips
             <View style={styles.tariffRow}>
               <CustomInput
-                placeholder="Slab Kms"
-                value={slabKms}
-                onChangeText={setSlabKms}
+                placeholder="Extra Hours"
+                value={extraHours}
+                onChangeText={setExtraHours}
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
@@ -1059,10 +1127,15 @@ const PostATripScreen = ({ route }) => {
   return (
     <>
       <AppHeader
+        title="Post A Trip"
         backIcon={true}
-        onlineIcon={true}
-        muteIcon={true}
-        title={from !== undefined ? 'Trip Sheet' : 'Post A Trip'}
+        onBackPress={() => {
+          if (from === 'selfTrip') {
+            navigation.navigate('SelfTripHome');
+          } else {
+            navigation.goBack();
+          }
+        }}
       />
       <KeyboardAwareScrollView
         style={styles.container}
@@ -1424,3 +1497,4 @@ const styles = StyleSheet.create({
 });
 
 export default PostATripScreen;
+

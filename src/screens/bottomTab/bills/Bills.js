@@ -39,56 +39,73 @@ const Bills = () => {
   const [selectedFilterTwo, setSelectedFilterTwo] = useState('PostedTrips');
   const [dataSource, setDataSource] = useState([]);
 
-  // useEffect(() => {
-  //   if (selectedFilterOne === 'myDuties') {
-  //     setDataSource(MyDutiesBill);
-  //   } else if (selectedFilterOne === 'PostedTrips') {
-  //     setDataSource(postedTripBills);
-  //   } else {
-  //     setDataSource(selfTripBills);
-  //   }
-  // }, [selectedFilterOne]);
 
-  // useEffect(() => {
-  //   if (selectedFilterOne === 'SelfTrips') {
-  //     setIsSelfTrip(true);
-  //   } else {
-  //     setIsSelfTrip(false);
-  //   }
-  // }, [selectedFilterOne]);
 
   // Add this useEffect to filter data based on booking type
+  // useEffect(() => {
+  //   let filteredData = [];
+
+  //   if (selectedFilterOne === 'myDuties') {
+  //     filteredData = MyDutiesBill;
+  //   } else if (selectedFilterOne === 'PostedTrips') {
+  //     filteredData = postedTripBills;
+  //   } else {
+  //     filteredData = selfTripBills;
+  //   }
+
+  //   // Filter based on booking type
+  //   if (selectedFilterTwo === 'Local' || selectedFilterTwo === 'OutStation' || selectedFilterTwo === 'Transfer') {
+  //     filteredData = filteredData.filter(item =>
+  //       (item?.booking_type_name || item?.postBooking?.bookingType?.booking_type_name) === selectedFilterTwo
+  //     );
+  //   }
+
+  //   setDataSource(filteredData);
+  // }, [selectedFilterOne, selectedFilterTwo, MyDutiesBill, postedTripBills, selfTripBills]);
+
   useEffect(() => {
     let filteredData = [];
 
+    // Add null checks and ensure arrays
     if (selectedFilterOne === 'myDuties') {
-      filteredData = MyDutiesBill;
+      filteredData = MyDutiesBill || [];
     } else if (selectedFilterOne === 'PostedTrips') {
-      filteredData = postedTripBills;
+      filteredData = postedTripBills || [];
     } else {
-      filteredData = selfTripBills;
+      filteredData = selfTripBills || [];
     }
 
-    // Filter based on booking type
-    if (selectedFilterTwo === 'Local' || selectedFilterTwo === 'OutStation' || selectedFilterTwo === 'Transfer') {
-      filteredData = filteredData.filter(item =>
-        (item?.booking_type_name || item?.postBooking?.bookingType?.booking_type_name) === selectedFilterTwo
-      );
+    // Filter based on booking type with improved outstation handling
+    if (selectedFilterTwo && filteredData.length > 0) {
+      filteredData = filteredData.filter(item => {
+        if (!item) return false;  // Skip null/undefined items
+
+        const bookingType = (
+          item?.booking_type_name ||
+          item?.postBooking?.bookingType?.booking_type_name ||
+          ''
+        ).toLowerCase();
+
+        const selectedType = selectedFilterTwo.toLowerCase();
+
+        // Special handling for OutStation
+        if (selectedType === 'outstation') {
+          return (
+            bookingType === 'outstation' ||
+            bookingType === 'out station' ||
+            bookingType === 'outstation trip' ||
+            bookingType.includes('out') ||
+            bookingType.includes('station')
+          );
+        }
+
+        // For Local and Transfer
+        return bookingType === selectedType.toLowerCase();
+      });
     }
 
     setDataSource(filteredData);
   }, [selectedFilterOne, selectedFilterTwo, MyDutiesBill, postedTripBills, selfTripBills]);
-
-  // Remove or comment out the old useEffect for selectedFilterOne
-  // useEffect(() => {
-  //   if (selectedFilterOne === 'myDuties') {
-  //     setDataSource(MyDutiesBill);
-  //   } else if (selectedFilterOne === 'PostedTrips') {
-  //     setDataSource(postedTripBills);
-  //   } else {
-  //     setDataSource(selfTripBills);
-  //   }
-  // }, [selectedFilterOne]);
 
 
   const fetchMyDutiesBill = async () => {
@@ -136,15 +153,15 @@ const Bills = () => {
           item?.user_profile_pic || item?.postBooking?.User?.u_profile_pic
         }
         userName={item?.user_name || item?.postBooking?.User?.u_name}
-        pickUpTime={item?.pick_up_time || item?.pick_up_time}
-        fromDate={item?.from_date || item?.from_date}
+        pickUpTime={item?.pick_up_time || item?.postBooking?.pick_up_time}
+        fromDate={item?.from_date || item?.postBooking?.from_date}
         vehicleType={
           item?.vehicle_type || item?.postBooking?.VehicleTypes?.v_type
         }
         vehicleName={
           item?.vehicle_name || item?.postBooking?.VehicleNames?.v_name
         }
-        pickUpLocation={item?.pick_up_location}
+        pickUpLocation={item?.pick_up_location || item?.postBooking?.pick_up_location}
         destination={item?.destination}
         postComments={item?.post_comments || item?.postBooking?.post_comments}
         postVoiceMessage={
@@ -159,9 +176,9 @@ const Bills = () => {
 
         viewTripSheet={true}
         viewTripSheetOnPress={() => {
-          navigation.navigate('ViewTripSheet', {
+          navigation.navigate('ViewBillsTripSheet', {
             from: 'bills',
-            isSelfTrip: isSelfTrip,
+            isSelfTrip: selectedFilterOne === 'SelfTrips',
             postId: item?.post_booking_id || item?.post_bookings_id,
           });
         }}
@@ -179,6 +196,8 @@ const Bills = () => {
         driverTripBillOnPress={() => {
           navigation.navigate('TripBill', {
             postId: item?.post_booking_id || item?.post_bookings_id,
+            from: 'bills',
+            type: selectedFilterOne
           });
         }}
 
@@ -186,6 +205,8 @@ const Bills = () => {
         customerBillOnPress={() => {
           navigation.navigate('TripBill', {
             postId: item?.post_booking_id || item?.post_bookings_id,
+            from: 'bills',
+            type: selectedFilterOne
           });
         }}
         billsScreen={true}
@@ -196,13 +217,12 @@ const Bills = () => {
   return (
     <>
       <AppHeader
-        drawerIcon={true}
-        groupIcon={true}
-        onlineIcon={true}
-        muteIcon={true}
-        search={true}
+        title="TripSheet/Bills"
+        backIcon={true}
+        onBackPress={() => navigation.goBack()}
+      // // Optional: if you want to add right menu like Groups
       />
-      <Text
+      {/* <Text
         style={{
           textAlign: 'center',
           fontWeight: 'bold',
@@ -211,7 +231,7 @@ const Bills = () => {
         }}
       >
         TripSheet/Bills
-      </Text>
+      </Text> */}
       <View style={styles.container}>
         <View style={styles.filterRow}>
           <CustomSelect
@@ -241,7 +261,7 @@ const Bills = () => {
               isSelected={selectedFilterTwo === 'Local'}
               onPress={() => {
                 setSelectedFilterTwo('Local');
-                setShowFilters(false);
+                // setShowFilters(false);
               }}
 
             />
@@ -250,7 +270,7 @@ const Bills = () => {
               isSelected={selectedFilterTwo === 'OutStation'}
               onPress={() => {
                 setSelectedFilterTwo('OutStation');
-                setShowFilters(false);
+                // setShowFilters(false);
               }}
             />
             <CustomSelect
@@ -258,7 +278,7 @@ const Bills = () => {
               isSelected={selectedFilterTwo === 'Transfer'}
               onPress={() => {
                 setSelectedFilterTwo('Transfer');
-                setShowFilters(false);
+                // setShowFilters(false);
               }}
             />
           </View>

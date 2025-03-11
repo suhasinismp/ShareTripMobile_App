@@ -65,14 +65,22 @@ const PostCard = ({
     return isAvailable ? '#CCE3F4' : '#FF9C7D';
   };
 
+  // const getStatusColor = () => {
+  //   return isAvailable ? '#21833F' : '#D33D0E';
+  // };
+
   const getStatusColor = () => {
     return isAvailable ? '#21833F' : '#D33D0E';
+  };
+
+  const getStatusBackgroundColor = () => {
+    return isAvailable ? '#E8F4FF' : '#FFE8E8';
   };
 
   const getIconColor = () => {
     return isAvailable ? '#005680' : '#666';
   };
-  console.log({ baseFareRate })
+
   return (
     <View style={styles.card}>
       {/* Card Header */}
@@ -84,10 +92,38 @@ const PostCard = ({
             <Text style={styles.cardType}>{capitalizeWords(bookingType)}</Text>
           )}
           {createdAt && <Text style={styles.cardDate}>{createdAt}</Text>}
+          {/* {postStatus && (
+
+            <View style={[styles.statusWrapper, { backgroundColor: isAvailable ? '#E8F4FF' : 'transparent' }]}>
+              <Text style={[
+                styles.cardStatus,
+                {
+                  color: getStatusColor(),
+                  backgroundColor: isAvailable ? '#FFFFFF' : 'transparent',
+                  paddingHorizontal: isAvailable ? 8 : 0,
+                  paddingVertical: isAvailable ? 4 : 0,
+                  borderRadius: isAvailable ? 4 : 0,
+                }
+              ]}>
+                {capitalizeWords(postStatus)}
+              </Text>
+            </View>
+          )} */}
           {postStatus && (
-            <Text style={[styles.cardStatus, { color: getStatusColor() }]}>
-              {capitalizeWords(postStatus)}
-            </Text>
+            <View style={[styles.statusWrapper, { backgroundColor: getStatusBackgroundColor() }]}>
+              <Text style={[
+                styles.cardStatus,
+                {
+                  color: getStatusColor(),
+                  backgroundColor: '#FFFFFF',
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  borderRadius: 4,
+                }
+              ]}>
+                {capitalizeWords(postStatus)}
+              </Text>
+            </View>
           )}
         </View>
       )}
@@ -387,6 +423,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: FONTS.SemiBold600,
     lineHeight: 23,
+    overflow: 'hidden',
+  },
+  statusWrapper: {
+    padding: 4,
+    borderRadius: 4,
+
   },
   cardContent: {
     flexDirection: 'row',

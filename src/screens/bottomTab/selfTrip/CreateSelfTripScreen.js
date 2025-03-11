@@ -434,7 +434,7 @@ const CreateSelfTrip = () => {
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
-              {selectedTripType !== 2 && (
+              {selectedTripType === 1 && ( // Changed condition to show Extra Kms only for Local (type 1)
                 <CustomInput
                   placeholder="Extra Kms"
                   value={extraKms}
@@ -444,8 +444,9 @@ const CreateSelfTrip = () => {
                 />
               )}
             </View>
-            <View style={styles.tariffRow}>
-              {selectedTripType !== 2 && selectedTripType !== 3 && (
+
+            {selectedTripType === 1 && (
+              <View style={styles.tariffRow}>
                 <CustomInput
                   placeholder="Extra Hours"
                   value={extraHrs}
@@ -453,8 +454,9 @@ const CreateSelfTrip = () => {
                   style={styles.tariffInput}
                   keyboardType="numeric"
                 />
-              )}
-              {selectedTripType !== 1 && selectedTripType !== 3 && (
+              </View>
+            )}
+            {/* {selectedTripType !== 1 && selectedTripType !== 3 && (
                 <CustomInput
                   placeholder="Day Batta"
                   value={dayBata}
@@ -462,10 +464,10 @@ const CreateSelfTrip = () => {
                   style={styles.tariffInput}
                   keyboardType="numeric"
                 />
-              )}
-            </View>
+              )} */}
+          </View>
 
-            <View style={styles.tariffRow}>
+          {/* <View style={styles.tariffRow}>
               {selectedTripType != 1 &&
                 selectedTripType != 2 &&
                 selectedTripType != 3 && (
@@ -477,9 +479,9 @@ const CreateSelfTrip = () => {
                     keyboardType="numeric"
                   />
                 )}
-            </View>
+            </View> */}
 
-            {selectedTripType === 3 && (
+          {/* {selectedTripType === 3 && (
               <View style={styles.tariffRow}>
                 <CustomInput
                   placeholder="Slab Kms"
@@ -489,9 +491,9 @@ const CreateSelfTrip = () => {
                   keyboardType="numeric"
                 />
               </View>
-            )}
-          </View>
+            )} */}
         </View>
+
 
         <View style={styles.sectionContainer}>
           <CustomText

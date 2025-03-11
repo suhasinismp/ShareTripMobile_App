@@ -70,6 +70,7 @@ export const generateBillPdf = async (body, token) => {
 };
 
 export const fetchTripSheetByPostId = async (postId, token) => {
+  console.log({ postId })
   const response = await getAPI(`/share-trip/post-booking/${postId}`, token);
 
   store.dispatch(setTripDetailsToStore({ tripDetailsInBill: response.data }));

@@ -150,12 +150,39 @@ const HomeScreen = () => {
     }
   }, [userId, userToken]);
 
-  const handleRequestClick = async (
-    postId,
-    userId,
-    postedUserId,
-    vehicleId,
-  ) => {
+  // const handleRequestClick = async (
+  //   postId,
+  //   userId,
+  //   postedUserId,
+  //   vehicleId,
+  // ) => {
+  //   const finalData = {
+  //     post_bookings_id: postId,
+  //     accepted_user_id: userId,
+  //     vehicle_id: vehicleId,
+  //     posted_user_id: postedUserId,
+  //   };
+
+  //   const response = await sendPostRequest(finalData, userToken);
+
+  //   if (response?.confirm_status === 'Quoted') {
+  //     dispatch(
+  //       showSnackbar({
+  //         message:
+  //           'Request sent successfully. You can track the status in MyTrips',
+  //         type: 'success',
+  //       }),
+  //     );
+  //     // await getUserPosts();
+
+  //     navigation.navigate('MyTrips', {
+  //       view: true,
+  //       filterOne: 'Confirmed',
+  //       filterTwo: 'MyDuties'
+  //     });
+  //   }
+  // };
+  const handleRequestClick = async (postId, userId, postedUserId, vehicleId, bookingType) => {
     const finalData = {
       post_bookings_id: postId,
       accepted_user_id: userId,
@@ -168,12 +195,17 @@ const HomeScreen = () => {
     if (response?.confirm_status === 'Quoted') {
       dispatch(
         showSnackbar({
-          message:
-            'Request sent successfully. You can track the status in MyTrips',
+          message: 'Request sent successfully. You can track the status in MyTrips',
           type: 'success',
         }),
       );
-      await getUserPosts();
+
+      navigation.navigate('MyTrips', {
+        filterOne: 'InProgress',
+        filterTwo: 'PostedTrips',
+        bookingType: bookingType, // Pass the booking type
+        fromBooking: true // Add this flag
+      });
     }
   };
 

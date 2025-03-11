@@ -23,6 +23,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import PostCard from '../../components/PostCard';
 import { formatDate } from '../../utils/formatdateUtil';
 import AudioContainer from '../../components/AudioContainer';
+import { handleCall } from './HomeScreen';
 
 const { width } = Dimensions.get('window');
 
@@ -168,6 +169,9 @@ const VacantTrip = () => {
       alert(errorMessage);
       return;
     }
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const formattedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
     let finalData = {
       posted_user_id: userId,
@@ -211,15 +215,13 @@ const VacantTrip = () => {
       userProfilePic={item?.user_profile || 'https://via.placeholder.com/150'}
       userName={item?.user_name}
       // Trip Details Props
-      // pickUpTime={item?.pick_up_time}
-      // fromDate={item?.from_date}
+      pickUpTime={item?.vacant_post_pick_up_time || item?.pick_up_time}
+      fromDate={item?.vacant_post_from_date || item?.from_date}
       vehicleType={item?.vehicle_type}
       vehicleName={item?.vehicle_name}
       // pickUpLocation={item?.pick_up_location}
       // destination={item?.destination}
-      vacantTripPostedByLoggedInUser={
-        item?.posted_user_id === userId ? true : false
-      }
+      vacantTripPostedByLoggedInUser={item?.posted_user_id === userId}
       // Comment/Voice Props
       postComments={item?.vacant_post_comments}
       postVoiceMessage={item?.vacant_post_voice_message}
@@ -237,6 +239,8 @@ const VacantTrip = () => {
           postId: item?.post_booking_id,
         });
       }}
+      // commented this if u need call and message icon uncomment above, client told to remove
+      onCallPress={() => handleCall(item?.user_phone || item?.postBooking?.User?.u_phone)}
       onMessagePress={() => {
         /* TODO: Implement messaging */
       }}
