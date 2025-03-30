@@ -51,6 +51,8 @@ const PostCard = ({
   vacantTripPostedByLoggedInUser,
   viewTripSheet,
   viewTripSheetOnPress,
+  chat,
+  onMessagePress,
   driverTripBill,
   driverTripBillOnPress,
   customerBill,
@@ -58,7 +60,7 @@ const PostCard = ({
   billsScreen,
 }) => {
 
-  console.log('Extra KMs:', extrakms);
+  
   const requestStatus = isRequested ? isRequested : 'Accept';
   const isAvailable = postStatus === 'Available' || postStatus === 'available';
 
@@ -359,6 +361,11 @@ const PostCard = ({
                 <TripSheetIcon />
               </TouchableOpacity>
               )}
+              {chat && (
+                <TouchableOpacity onPress={onMessagePress}>
+                  <Ionicons name="chatbox-outline" size={24} color="#000" />
+                </TouchableOpacity>
+              )}
             </View>
           )
         )}
@@ -380,6 +387,7 @@ const PostCard = ({
             <Text style={styles.buttonText}>View Trip Sheet</Text>
           </TouchableOpacity>
         )}
+        
         {driverTripBill && (
           <TouchableOpacity
             onPress={driverTripBillOnPress}

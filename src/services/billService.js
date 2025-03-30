@@ -43,7 +43,7 @@ export const getMyPostedTripBills = async (userId, token) => {
 export const getMySelfTripBills = async (userId, token) => {
   try {
     const response = await getAPI(`share-trip/trip-ride/self-trip/${userId}`, token);
-    console.log('yyy', response)
+    
 
     if (response?.error === false) {
       // Dispatch the data to store if response is successful

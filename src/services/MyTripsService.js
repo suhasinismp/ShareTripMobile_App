@@ -85,7 +85,7 @@ export const postAdditionCharges = async (data, token) => {
     data,
     token,
   );
-  console.log('rrr', response)
+  
   return response;
 };
 

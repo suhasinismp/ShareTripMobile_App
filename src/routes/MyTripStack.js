@@ -5,6 +5,8 @@ import ViewTripSheet from '../screens/bottomTab/postTrip/ViewTripSheet';
 import PostATripScreen from '../screens/bottomTab/postTrip/PostATripScreen';
 import TripBillScreen from '../screens/bottomTab/bills/TripBillScreen';
 import TripBillEditScreen from '../screens/bottomTab/bills/TripBillEditScreen';
+import ChatScreen from '../screens/chat/ChatScreen';
+
 const Stack = createStackNavigator();
 
 const MyTripsStack = () => {
@@ -18,6 +20,7 @@ const MyTripsStack = () => {
             <Stack.Screen name="PostATrip" component={PostATripScreen} />
             <Stack.Screen name="TripBill" component={TripBillScreen} />
             <Stack.Screen name="TripBillEdit" component={TripBillEditScreen} />
+            <Stack.Screen name="ChatScreen" component={ChatScreen} />
         </Stack.Navigator>
     );
 };

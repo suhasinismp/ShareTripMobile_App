@@ -244,7 +244,7 @@ const PostATripScreen = ({ route }) => {
   const [rate, setRate] = useState('');
 
   const [extraKms, setExtraKms] = useState('');
-  console.log({ extraKms })
+  
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
@@ -396,7 +396,7 @@ const PostATripScreen = ({ route }) => {
 
 
     if (initialData) {
-      console.log('Initial Data:', initialData);
+      
       const data = initialData[0] || initialData;
 
 
@@ -503,7 +503,7 @@ const PostATripScreen = ({ route }) => {
       end_trip_time: endTripTime,
       end_trip_kms: endTripKms,
     };
-    console.log('finalData', finalData)
+    
     const response = await updateViewTripBillTable(finalData, userToken);
 
     if (response?.error === false) {
@@ -511,7 +511,7 @@ const PostATripScreen = ({ route }) => {
       setShowTripBillEditModal(false);
       getTripTable();
     } else {
-      console.log('Some error occurred or data was not updated');
+      
     }
   };
 
@@ -661,7 +661,7 @@ const PostATripScreen = ({ route }) => {
       if (selectedFromDate) finalData.from_date = selectedFromDate;
       if (selectedToDate) finalData.to_date = selectedToDate;
     }
-    console.log({ finalData })
+    
     if (selectedShareType === 1) {
       finalData.post_type_value = null;
       let formData = new FormData();
@@ -678,7 +678,7 @@ const PostATripScreen = ({ route }) => {
 
       try {
         const response = await createPost(formData, userToken);
-        console.log({ response })
+        
         if (
           response.error === false &&
           response.message === 'Post Booking Data created successfully'

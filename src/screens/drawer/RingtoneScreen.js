@@ -156,7 +156,7 @@ const RingtoneScreen = () => {
     if (response && response.error === false) {
       console.error('Error saving preferences:', response.message);
     } else {
-      console.log('User preferences saved successfully:', response.data);
+      console.error('Error saving preferences:', response.message);
     }
   };
 
