@@ -957,10 +957,10 @@ const SelfTripHome = () => {
       <View style={styles.container}>
         <AppHeader
           drawerIcon={true}
-          groupIcon={true}
-          onlineIcon={true}
-          muteIcon={true}
-          search={true}
+        // groupIcon={true}
+        // onlineIcon={true}
+        // muteIcon={true}
+        // search={true}
         />
         <Text
           style={{

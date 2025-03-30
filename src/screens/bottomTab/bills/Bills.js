@@ -33,11 +33,15 @@ const Bills = () => {
   const userToken = userData.userToken;
 
   const [selectedFilterOne, setSelectedFilterOne] = useState('myDuties');
-  const [isSelfTrip, setIsSelfTrip] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-
-  const [selectedFilterTwo, setSelectedFilterTwo] = useState('PostedTrips');
+  const [selectedFilterTwo, setSelectedFilterTwo] = useState('Local');
+  const [showLocationFilters, setShowLocationFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [dataSource, setDataSource] = useState([]);
+  const [isSelfTrip, setIsSelfTrip] = useState(false);
+  // const [showFilters, setShowFilters] = useState(false);
+
+  // const [selectedFilterTwo, setSelectedFilterTwo] = useState('PostedTrips');
+  // const [dataSource, setDataSource] = useState([]);
 
 
 
@@ -76,9 +80,13 @@ const Bills = () => {
     }
 
     // Filter based on booking type with improved outstation handling
-    if (selectedFilterTwo && filteredData.length > 0) {
+    // if (selectedFilterTwo && filteredData.length > 0) {
+    //   filteredData = filteredData.filter(item => {
+    //     if (!item) return false;  // Skip null/undefined items
+
+    if (showLocationFilters && selectedFilterTwo && filteredData.length > 0) {
       filteredData = filteredData.filter(item => {
-        if (!item) return false;  // Skip null/undefined items
+        if (!item) return false;
 
         const bookingType = (
           item?.booking_type_name ||
@@ -90,22 +98,21 @@ const Bills = () => {
 
         // Special handling for OutStation
         if (selectedType === 'outstation') {
-          return (
-            bookingType === 'outstation' ||
-            bookingType === 'out station' ||
-            bookingType === 'outstation trip' ||
-            bookingType.includes('out') ||
-            bookingType.includes('station')
-          );
+          return ['outstation', 'out station', 'outstation trip'].includes(bookingType);
         }
-
         // For Local and Transfer
         return bookingType === selectedType.toLowerCase();
       });
     }
-
     setDataSource(filteredData);
-  }, [selectedFilterOne, selectedFilterTwo, MyDutiesBill, postedTripBills, selfTripBills]);
+  }, [
+    selectedFilterOne,
+    selectedFilterTwo,
+    showLocationFilters,
+    MyDutiesBill,
+    postedTripBills,
+    selfTripBills
+  ]);
 
 
   const fetchMyDutiesBill = async () => {
@@ -220,18 +227,7 @@ const Bills = () => {
         title="TripSheet/Bills"
         backIcon={true}
         onBackPress={() => navigation.goBack()}
-      // // Optional: if you want to add right menu like Groups
       />
-      {/* <Text
-        style={{
-          textAlign: 'center',
-          fontWeight: 'bold',
-          fontSize: 20,
-          marginBottom: 10,
-        }}
-      >
-        TripSheet/Bills
-      </Text> */}
       <View style={styles.container}>
         <View style={styles.filterRow}>
           <CustomSelect
@@ -239,7 +235,6 @@ const Bills = () => {
             isSelected={selectedFilterOne === 'myDuties'}
             onPress={() => setSelectedFilterOne('myDuties')}
           />
-
           <CustomSelect
             text="Posted Trips"
             isSelected={selectedFilterOne === 'PostedTrips'}
@@ -250,39 +245,34 @@ const Bills = () => {
             isSelected={selectedFilterOne === 'SelfTrips'}
             onPress={() => setSelectedFilterOne('SelfTrips')}
           />
-          <TouchableOpacity onPress={() => setShowFilters(!showFilters)}>
+          <TouchableOpacity
+            onPress={() => setShowLocationFilters(!showLocationFilters)}
+            style={styles.filterIconContainer}
+          >
             <FilterIcon />
           </TouchableOpacity>
         </View>
-        {showFilters && (
+
+        {showLocationFilters && (
           <View style={styles.filterRow}>
             <CustomSelect
               text="Local"
               isSelected={selectedFilterTwo === 'Local'}
-              onPress={() => {
-                setSelectedFilterTwo('Local');
-                // setShowFilters(false);
-              }}
-
+              onPress={() => setSelectedFilterTwo('Local')}
             />
             <CustomSelect
               text="Out Station"
               isSelected={selectedFilterTwo === 'OutStation'}
-              onPress={() => {
-                setSelectedFilterTwo('OutStation');
-                // setShowFilters(false);
-              }}
+              onPress={() => setSelectedFilterTwo('OutStation')}
             />
             <CustomSelect
               text="Transfer"
               isSelected={selectedFilterTwo === 'Transfer'}
-              onPress={() => {
-                setSelectedFilterTwo('Transfer');
-                // setShowFilters(false);
-              }}
+              onPress={() => setSelectedFilterTwo('Transfer')}
             />
           </View>
         )}
+
         <FlatList
           data={dataSource}
           renderItem={renderItem}
@@ -318,6 +308,9 @@ const styles = StyleSheet.create({
     color: 'gray',
     marginTop: 20,
   },
+  filterIconContainer: {
+    padding: 5,
+  }
 });
 
 export default Bills;

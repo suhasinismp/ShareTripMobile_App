@@ -278,7 +278,14 @@ const SignInScreen = () => {
               title={i18n.t('SIGN_IN_BUTTON')}
               onPress={handleSubmit(onSignin)}
             />
+            <CustomButton
+              title={i18n.t('SIGN_IN_FORGOT_PASSWORD')}
+              onPress={() => navigation.navigate('EnterNumberScreen')}
+              variant="text"
+              style={styles.forgotPassword}
+            />
           </View>
+
           <View style={styles.captionContainer}>
             <CustomText
               text={i18n.t('SIGNUP_DONT_HAVE_ACCOUNT')}
@@ -319,6 +326,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  buttonContainer: {
+    marginTop: 20,
+    gap: 10,
+  },
+  forgotPassword: {
+    alignSelf: 'center',
+    marginTop: 5,
   },
 });
 

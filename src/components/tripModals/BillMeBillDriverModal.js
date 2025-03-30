@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, styles, Text, TouchableOpacity, View } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
 
@@ -46,18 +46,37 @@ const BillMeBillDriverModal = ({ onClose, SetBillToDriver, handleContinue, SetBi
                 </TouchableOpacity>
             ))}
 
-            <TouchableOpacity style={{ backgroundColor: '#1e4976', padding: 16, borderRadius: 8, marginVertical: 8, }} onPress={handleContinue}>
-                <Text style={style.actionButtonText}>Continue</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{
-                backgroundColor: '#1e4976',
-                padding: 16,
-                borderRadius: 8,
-                marginVertical: 8,
-            }} onPress={handleCancel}>
-                <Text style={style.actionButtonText}>Cancel</Text>
-            </TouchableOpacity>
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                gap: 10,
+                marginVertical: 8
+            }}>
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: 'red',
+                        padding: 16,
+                        borderRadius: 8,
+                        flex: 1
+                    }}
+                    onPress={handleCancel}
+                >
+                    <Text style={style.actionButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: '#1e4976',
+                        padding: 16,
+                        borderRadius: 8,
+                        flex: 1
+                    }}
+                    onPress={handleContinue}
+                >
+                    <Text style={style.actionButtonText}>Continue</Text>
+                </TouchableOpacity>
+            </View>
         </View>
+
     )
 }
 
@@ -75,7 +94,7 @@ const style = StyleSheet.create({
         right: 10
     },
     modalTitle: {
-        fontSize: 18,
+        fontSize: 30,
         fontWeight: 'bold',
         marginBottom: 15,
         textAlign: 'center',
@@ -109,16 +128,29 @@ const style = StyleSheet.create({
         borderRadius: 5,
         marginTop: 10,
     },
-    buttonText: {
-        fontSize: 16,
-        color: 'white',
-        textAlign: 'center',
-    },
+    // buttonText: {
+    //     fontSize: 16,
+    //     color: 'white',
+    //     textAlign: 'center',
+    // },
     actionButtonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: '500',
         textAlign: 'center',
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 10,
+        marginVertical: 8,
+    },
+    button: {
+        backgroundColor: '#1e4976',
+        padding: 16,
+        borderRadius: 8,
+        flex: 1,
+        alignItems: 'center',
     }
 })
 export default BillMeBillDriverModal

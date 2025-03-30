@@ -458,6 +458,11 @@ import SelfTripInactive from '../../assets/svgs/selfTripInactive.svg';
 import VacantTripInactive from '../../assets/svgs/vacantTripInactive.svg';
 import BillsInactive from '../../assets/svgs/billsInactive.svg';
 import Group from '../../assets/svgs/group.svg';
+import NewBookingIcon from '../../assets/svgs/newBooking.svg';
+import EarningsIcon from '../../assets/svgs/earnings.svg';
+import CreateTripIcon from '../../assets/svgs/fabPlusButton.svg';
+import EnquiryIcon from '../../assets/svgs/enquiry.svg';
+
 
 import PostATripScreen from '../screens/bottomTab/postTrip/PostATripScreen';
 import SelectContactScreen from '../screens/bottomTab/postTrip/SelectContactScreen';
@@ -474,6 +479,7 @@ import MyTrips from '../screens/bottomTab/MyTrips';
 import NewHomeScreen from '../screens/bottomTab/NewHomeScreen';
 import MyTripsStack from './MyTripStack';
 import BillStack from './BillStack';
+import HomeScreen from '../screens/bottomTab/HomeScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -655,38 +661,104 @@ const CustomDrawerContent = (props) => {
         />
         <View style={{ marginTop: 24 }}>
           <CustomDrawerItem
-            label="My Trips"
+            label="New Booking"
+            icon={isRouteActive('HomeScreen') ? NewBookingIcon : NewBookingIcon}
+            onPress={() => navigation.navigate('HomeScreen', {
+              screen: 'HomeScreen',
+              params: {
+                view: 'newBooking',
+                filterOne: 'Available',
+                filterTwo: 'NewBooking'
+              }
+            })}
+            isFocused={isRouteActive('HomeScreen')}
+          />
+
+          <CustomDrawerItem
+            label="Posted Trips"
             icon={isRouteActive('My Trips') ? MyTripInactive : MyTripsActive}
-            onPress={() => navigation.navigate('Home', { screen: 'My Trips' })}
+            onPress={() => navigation.navigate('MyTrips', {
+              screen: 'MyTrips',
+              params: {
+                view: 'postedTrips',
+                filterOne: 'InProgress',
+                filterTwo: 'PostedTrips'
+              }
+            })}
             isFocused={isRouteActive('My Trips')}
           />
           <CustomDrawerItem
-            label="Self Trip"
+            label="Received Trips"
+            icon={isRouteActive('My Trips') ? MyTripInactive : MyTripsActive}
+            onPress={() => navigation.navigate('MyTrips', {
+              screen: 'MyTrips',
+              params: {
+                view: 'receivedTrips',
+                filterOne: 'Confirmed',
+                filterTwo: 'MyDuties',
+                tripType: 'Local'
+              }
+            })}
+            isFocused={isRouteActive('My Trips')}
+          />
+          <CustomDrawerItem
+            label="Create Trip"
+            icon={isRouteActive('CreateTripScreen') ? CreateTripIcon : CreateTripIcon}
+            onPress={() => navigation.navigate('PostTrip')}
+            isFocused={isRouteActive('PostTrip')}
+          />
+          <CustomDrawerItem
+            label="Own Booking"
             icon={isRouteActive('Self Trip') ? SelfTripInactive : SelfTrip}
-            onPress={() => navigation.navigate('Home', { screen: 'Self Trip' })}
+            onPress={() => navigation.navigate('SelfTripHome')}
             isFocused={isRouteActive('Self Trip')}
           />
           <CustomDrawerItem
-            label="Vacant Trip"
+            label="Vacant/Enquiry"
             icon={isRouteActive('Vacant Trip') ? VacantTripInactive : Vacant}
             onPress={() =>
-              navigation.navigate('Home', { screen: 'Vacant Trip' })
-            }
+              navigation.navigate('VacantTrip')}
+
             isFocused={isRouteActive('Vacant Trip')}
           />
+
           <CustomDrawerItem
-            label="Bills"
+            label="Trip Sheet/Bills"
             icon={isRouteActive('Bills') ? BillsInactive : Bill}
-            onPress={() => navigation.navigate('Home', { screen: 'Bills' })}
+            onPress={() => navigation.navigate('Bills')}
             isFocused={isRouteActive('Bills')}
           />
-          {/* <customDrawerItem
+          <CustomDrawerItem
             label="Groups"
-            icon={isRouteActive('GroupScreen')}
-            onPress={() => navigation.navigate('Home', { screen: 'GroupScreen' })}
+            icon={Group}
+            onPress={() => navigation.navigate('Groups')}
             isFocused={isRouteActive('Groups')}
-          /> */}
-
+          />
+          <CustomDrawerItem
+            label="Enquiry"
+            icon={isRouteActive('EnquiryScreen') ? EnquiryIcon : EnquiryIcon}
+            onPress={() => navigation.navigate('MyTrips', {
+              screen: 'MyTrips',
+              params: {
+                view: 'enquiry',
+                filterTwo: 'Enquiry'
+              }
+            })}
+            isFocused={isRouteActive('MyTrips')}
+          />
+          <CustomDrawerItem
+            label="Earnings"
+            icon={isRouteActive('EarningsScreen') ? EarningsIcon : EarningsIcon}
+            // onPress={() => navigation.navigate('HomeScreen', {
+            //   screen: 'HomeScreen',
+            //   params: {
+            //     view: 'earnings',
+            //     filterOne: 'Available',
+            //     filterTwo: 'Earnings'
+            //   }
+            // })}
+            isFocused={isRouteActive('EarningsScreen')}
+          />
 
 
         </View>
@@ -722,6 +794,7 @@ const DrawerStack = () => {
       }}
     >
       <Drawer.Screen name="NewHomeScreen" component={NewHomeScreen} />
+      <Drawer.Screen name="HomeScreen" component={HomeScreen} />
       {/* <Drawer.Screen name="Home" component={Tabs} /> */}
       <Drawer.Screen name="Profile" component={ProfileStack} />
       <Drawer.Screen name="ManageVehicle" component={VehicleStack} />

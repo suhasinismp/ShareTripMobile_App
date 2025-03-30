@@ -14,6 +14,7 @@ export default {
   SIGN_IN_PHONE: 'Enter Phone Number',
   SIGN_IN_PASSWORD: 'Enter Your Password',
   SIGN_IN_BUTTON: 'Sign In',
+  SIGN_IN_FORGOT_PASSWORD: 'Forgot Password?',
   SIGN_IN_ALREADY_HAVE_ACCOUNT: 'Already have an account?',
   USER_TYPE_TITLE: 'User Type',
   USER_TYPE_TEXT: 'Choose User Type',

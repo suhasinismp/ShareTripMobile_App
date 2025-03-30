@@ -24,7 +24,9 @@ const AppHeader = ({
   drawerIcon,
   search,
   groupIcon,
+  onlineIcon,
   muteIcon,
+  onOnlineStatusChange,
 }) => {
   const navigation = useNavigation();
   const [searchText, setSearchText] = useState('');
@@ -38,6 +40,13 @@ const AppHeader = ({
   const toggleOnlineStatus = () => {
     setIsOnline((prevState) => !prevState); // Toggle online/offline
   };
+  // const toggleOnlineStatus = () => {
+  //   const newStatus = !isOnline;
+  //   setIsOnline(newStatus);
+  //   if (onOnlineStatusChange) {
+  //     onOnlineStatusChange(newStatus);
+  //   }
+  // };
 
   const toggleMuteStatus = () => {
     setIsMute((prevState) => !prevState);
@@ -83,26 +92,44 @@ const AppHeader = ({
           <GroupIcon width={24} height={24} />
         </TouchableOpacity>
       )}
+      {onlineIcon && (
+        <TouchableOpacity style={styles.iconButton} onPress={toggleOnlineStatus}>
+          {isOnline ? (
+            <OnlineIcon width={24} height={24} />
+          ) : (
+            <OfflineIcon width={24} height={24} />
+          )}
+        </TouchableOpacity>
+      )}
       {/* Toggle between OnlineIcon and OfflineIcon */}
-      <TouchableOpacity style={styles.iconButton} onPress={toggleOnlineStatus}>
+      {/* <TouchableOpacity style={styles.iconButton} onPress={toggleOnlineStatus}>
         {isOnline ? (
           <OnlineIcon width={24} height={24} />
         ) : (
           <OfflineIcon width={24} height={24} />
         )}
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 
   const renderRightSection = () => (
     <View style={styles.rightSection}>
-      <TouchableOpacity style={styles.iconButton} onPress={toggleMuteStatus}>
+      {muteIcon && (
+        <TouchableOpacity style={styles.iconButton} onPress={toggleMuteStatus}>
+          {isMute ? (
+            <MuteIcon width={24} height={24} />
+          ) : (
+            <UnMuteIcon width={24} height={24} />
+          )}
+        </TouchableOpacity>
+      )}
+      {/* <TouchableOpacity style={styles.iconButton} onPress={toggleMuteStatus}>
         {isMute ? (
           <MuteIcon width={24} height={24} />
         ) : (
           <UnMuteIcon width={24} height={24} />
         )}
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {rightIconComponent}
     </View>

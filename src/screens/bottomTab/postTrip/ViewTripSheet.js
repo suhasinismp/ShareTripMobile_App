@@ -12,6 +12,9 @@ import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
+
+
+
 function formatTime(isoString) {
   const date = new Date(isoString); // Convert the ISO string to a Date object
   let hours = date.getHours();
@@ -27,8 +30,8 @@ function formatTime(isoString) {
 
 
 const ViewTripSheet = ({ route }) => {
-  const { postId, from, isSelfTrip } = route.params;
-  console.log({ from, postId })
+  const { postId, from, edit, isSelfTrip } = route.params;
+  console.log({ from, edit, postId })
 
   const navigation = useNavigation();
 
@@ -49,82 +52,7 @@ const ViewTripSheet = ({ route }) => {
 
   }, [postId, userToken]);
 
-  // const getTripData = () => {
 
-  //   if (!tripDetails) {
-  //     return [];
-  //   }
-
-  //   const tripData = tripDetails[0].tripSheetFinal[0].tripSheetRide
-  //   console.log({ tripData })
-  //   const lengthOfData = tripData.length
-  //   let totalHours = 0;
-  //   let totalMinutes = 0;
-  //   let totalKms = 0;
-
-  //   tripData.forEach((trip) => {
-  //     // Extract hours and minutes
-  //     const match = trip.total_hours.match(/(\d+)h:(\d+)m/);
-  //     if (match) {
-  //       totalHours += parseInt(match[1], 10);
-  //       totalMinutes += parseInt(match[2], 10);
-  //     }
-
-  //     // Add total kilometers
-  //     totalKms += parseInt(trip.total_kms, 10);
-  //   });
-
-  //   // Convert excess minutes to hours
-  //   totalHours += Math.floor(totalMinutes / 60);
-  //   totalMinutes = totalMinutes % 60;
-
-  //   const totalTripHrs = `${totalHours}h:${totalMinutes}m`;
-  //   const totalTripKms = `${totalKms} kms`;
-
-  //   const timeString = formatTime("2025-02-20T07:05:00Z");
-  //   console.log(timeString);
-
-  //   const data = [
-  //     { label: 'Booking Type', value: tripDetails[0].bookingType_name },
-  //     { label: 'Package', value: tripDetails[0].bookingTypePackage_name },
-  //     { label: 'Vehicle Type', value: tripDetails[0].Vehicle_type_name },
-  //     { label: 'Vehicle name', value: tripDetails[0].Vehicle_name },
-  //     { label: 'Trip Starts On', value: tripDetails[0].from_date },
-  //     { label: 'Trip Ends On', value: tripDetails[0].to_date },
-  //     {
-  //       label: 'Pick Up Location',
-  //       value: tripDetails[0].pick_up_location || '-',
-  //     },
-  //     { label: 'Destination', value: tripDetails[0].destination || '-' },
-  //     { label: 'Visiting Places', value: tripDetails[0].visiting_place || '-' },
-  //     { label: 'From Date', value: tripDetails[0].from_date || '-' },
-  //     { label: 'To Date', value: tripDetails[0].to_date || '-' },
-  //     { label: 'Pick Up Time', value: tripDetails[0].pick_up_time || '-' },
-  //     { label: 'Payment Type', value: tripDetails[0].payment_type || '-' },
-  //     { label: 'Note', value: tripDetails[0].note_1 || '-' },
-  //   ];
-
-
-  //   if (from === 'bills') {
-  //     data.push(
-  //       { label: 'Start kms', value: tripDetails[0].tripSheetFinal?.[0].tripSheetRide?.[0].start_kms || '-' },
-  //       { label: 'End Kms', value: tripDetails[0].tripSheetFinal?.[0].tripSheetRide?.[lengthOfData - 1].end_kms || '-' },
-  //       { label: 'Total kms', value: totalTripKms || '-' },
-  //       { label: 'Total Hrs', value: totalTripHrs || '-' }
-  //     )
-  //   }
-
-  //   if (from != 'home') {
-  //     data.unshift(
-  //       { label: 'Customer Name', value: tripDetails[0].customer_name || '-' },
-  //       {
-  //         label: 'Customer Phone', value: tripDetails[0]?.customer_phone_no || '-',
-  //       },
-  //     );
-  //   }
-
-  //   return data;
-  // };
 
 
   const getTripData = () => {
@@ -302,10 +230,10 @@ const ViewTripSheet = ({ route }) => {
               disabled={isPdfGenerating}
             />
           )}
-          {from !== 'home' && (
+          {from !== 'home' && edit != false && (
             <CustomButton
               title={'Edit'}
-              style={{ width: 150, alignSelf: 'flex-end', }}
+              style={{ width: 150, height: 50, alignSelf: 'flex-end', }}
               onPress={() => {
                 navigation.navigate('PostATrip', {
                   from: from,
@@ -362,7 +290,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   submitButton: {
-    width: width * 0.45,
+    width: width * 0.40,
     alignItems: 'center',
     backgroundColor: '#008B8B',
     borderRadius: 8,

@@ -14,7 +14,7 @@ import {
   Text,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
@@ -58,7 +58,8 @@ import { parseDate } from '../../../utils/parseDate';
 import { Feather } from '@expo/vector-icons';
 import CustomModal from '../../../components/ui/CustomModal';
 import TripBillEditModal from '../../../components/tripModals/TripBillEditModal';
-
+import { showSnackbar } from '../../../store/slices/snackBarSlice';
+// import { Feather } from '@expo/vector-icons';
 const { width } = Dimensions.get('window');
 
 // Constants
@@ -78,14 +79,11 @@ const POST_TYPES = {
   TRIP_SHEET: 'Trip Sheet',
 };
 
-const TripCard = React.memo(({ tripData, index, onEdit }) => {
-  const handleEdit = () => {
-    onEdit(tripData);
-  };
 
+// Replace the existing TripCard component with this one
+const TripCard = React.memo(({ tripData, index, onEdit }) => {
   return (
     <View style={styles.cardContainer}>
-      {/* Header with Day number, Date and Edit icon */}
       <View style={styles.cardHeader}>
         <CustomText text={`Day ${index + 1}`} style={styles.dayText} />
         <View style={styles.headerRight}>
@@ -93,31 +91,32 @@ const TripCard = React.memo(({ tripData, index, onEdit }) => {
             text={tripData.start_date || '-'}
             style={styles.dateText}
           />
-          <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
+          <TouchableOpacity
+            onPress={() => onEdit(tripData)}
+            style={styles.editButton}
+          >
             <Feather name="edit-2" size={16} color="#008B8B" />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Trip Time Section */}
       <View style={styles.infoRow}>
         <View style={styles.timeSection}>
-          <CustomText text="Trip Time:" style={styles.labelText} />
+          <CustomText text="Total Time:" style={styles.labelText} />
           <CustomText
             text={`${tripData.start_time || '-'} to ${tripData.end_time || '-'}`}
             style={styles.valueText}
           />
         </View>
         <View style={styles.totalSection}>
-          <CustomText text="Duration:" style={styles.labelText} />
+          <CustomText text="Total hrs:" style={styles.labelText} />
           <CustomText text={tripData.total_hours} style={styles.valueText} />
         </View>
       </View>
 
-      {/* Trip KMs Section */}
       <View style={styles.infoRow}>
         <View style={styles.timeSection}>
-          <CustomText text="Trip KMs:" style={styles.labelText} />
+          <CustomText text="Total KMs:" style={styles.labelText} />
           <CustomText
             text={`${tripData.start_kms || '-'} - ${tripData.end_kms || '-'}`}
             style={styles.valueText}
@@ -138,6 +137,66 @@ const TripCard = React.memo(({ tripData, index, onEdit }) => {
 });
 
 TripCard.displayName = 'TripCard';
+// const TripCard = React.memo(({ tripData, index, onEdit }) => {
+//   const handleEdit = () => {
+//     onEdit(tripData);
+//   };
+
+//   return (
+//     <View style={styles.cardContainer}>
+//       {/* Header with Day number, Date and Edit icon */}
+//       <View style={styles.cardHeader}>
+//         <CustomText text={`Day ${index + 1}`} style={styles.dayText} />
+//         <View style={styles.headerRight}>
+//           <CustomText
+//             text={tripData.start_date || '-'}
+//             style={styles.dateText}
+//           />
+//           <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
+//             <Feather name="edit-2" size={16} color="#008B8B" />
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+
+//       {/* Trip Time Section */}
+//       <View style={styles.infoRow}>
+//         <View style={styles.timeSection}>
+//           <CustomText text="Trip Time:" style={styles.labelText} />
+//           <CustomText
+//             text={`${tripData.start_time || '-'} to ${tripData.end_time || '-'}`}
+//             style={styles.valueText}
+//           />
+//         </View>
+//         <View style={styles.totalSection}>
+//           <CustomText text="Duration:" style={styles.labelText} />
+//           <CustomText text={tripData.total_hours} style={styles.valueText} />
+//         </View>
+//       </View>
+
+//       {/* Trip KMs Section */}
+//       <View style={styles.infoRow}>
+//         <View style={styles.timeSection}>
+//           <CustomText text="Trip KMs:" style={styles.labelText} />
+//           <CustomText
+//             text={`${tripData.start_kms || '-'} - ${tripData.end_kms || '-'}`}
+//             style={styles.valueText}
+//           />
+//         </View>
+//         <View style={styles.totalSection}>
+//           <CustomText text="Total:" style={styles.labelText} />
+//           <CustomText
+//             text={
+//               tripData.total_kms === 'NaN' ? '-' : `${tripData.total_kms} KMs`
+//             }
+//             style={styles.valueText}
+//           />
+//         </View>
+//       </View>
+//     </View>
+//   );
+// });
+
+// TripCard.displayName = 'TripCard';
 
 // Memoized Vehicle Button Component
 const VehicleButton = React.memo(
@@ -166,6 +225,7 @@ VehicleButton.displayName = 'VehicleButton';
 const PostATripScreen = ({ route }) => {
   const { from, postId, isSelfTrip, tripData } = route.params || {};
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const userData = useSelector(getUserDataSelector);
   const tripDetails = useSelector(getTripDetailsSelector);
   const selfTripDetails = useSelector(getSelfTripDetailsSelector);
@@ -184,6 +244,7 @@ const PostATripScreen = ({ route }) => {
   const [rate, setRate] = useState('');
 
   const [extraKms, setExtraKms] = useState('');
+  console.log({ extraKms })
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
@@ -311,6 +372,12 @@ const PostATripScreen = ({ route }) => {
   }, [from, postId, isSelfTrip, tripData, selfTripDetails]);
 
   useEffect(() => {
+    if (from === 'bills' && postId) {
+      getTripTable();
+    }
+  }, [from, postId]);
+
+  useEffect(() => {
     if (tripTypes.length > 0) {
       const localTripType = tripTypes.find(
         (trip) => trip.booking_type_name === 'Local',
@@ -436,7 +503,7 @@ const PostATripScreen = ({ route }) => {
       end_trip_time: endTripTime,
       end_trip_kms: endTripKms,
     };
-    console.log({ finalData })
+    console.log('finalData', finalData)
     const response = await updateViewTripBillTable(finalData, userToken);
 
     if (response?.error === false) {
@@ -611,12 +678,18 @@ const PostATripScreen = ({ route }) => {
 
       try {
         const response = await createPost(formData, userToken);
+        console.log({ response })
         if (
           response.error === false &&
           response.message === 'Post Booking Data created successfully'
         ) {
-          resetFields();
+          dispatch(showSnackbar({
+            message: 'Post Booking Data created successfully',
+            type: 'success',
+          }));
+
           navigation.navigate('Home');
+          resetFields();
         } else {
           alert(response.message);
         }
@@ -827,6 +900,34 @@ const PostATripScreen = ({ route }) => {
       </View>
 
       <View style={styles.sectionContainer}>
+        <CustomText text={'Select Package :'} variant={'sectionTitleText'} />
+        <FlatList
+          data={
+            tripTypes.find((trip) => trip.id === selectedTripType)
+              ?.bookingTypePackageAsBookingType || []
+          }
+
+
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <CustomSelect
+              text={item.package_name}
+              containerStyle={styles.selectItem}
+              selectedTextStyle={styles.selectedText}
+              selectedStyle={styles.selectedBackground}
+              isSelected={selectedPackage === item.id}
+              onPress={() => setSelectedPackage(item.id)}
+              unselectedStyle={styles.unselectedBorder}
+            />
+          )}
+          contentContainerStyle={styles.listContentContainer}
+        />
+      </View>
+
+
+      <View style={styles.sectionContainer}>
         <CustomText
           text={'Select Vehicle Type :'}
           variant={'sectionTitleText'}
@@ -879,32 +980,7 @@ const PostATripScreen = ({ route }) => {
         )}
       </View>
 
-      <View style={styles.sectionContainer}>
-        <CustomText text={'Select Package :'} variant={'sectionTitleText'} />
-        <FlatList
-          data={
-            tripTypes.find((trip) => trip.id === selectedTripType)
-              ?.bookingTypePackageAsBookingType || []
-          }
 
-
-          keyExtractor={(item) => item.id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <CustomSelect
-              text={item.package_name}
-              containerStyle={styles.selectItem}
-              selectedTextStyle={styles.selectedText}
-              selectedStyle={styles.selectedBackground}
-              isSelected={selectedPackage === item.id}
-              onPress={() => setSelectedPackage(item.id)}
-              unselectedStyle={styles.unselectedBorder}
-            />
-          )}
-          contentContainerStyle={styles.listContentContainer}
-        />
-      </View>
     </>
   );
 
@@ -927,83 +1003,77 @@ const PostATripScreen = ({ route }) => {
 
       {renderCommonContent()}
 
-      {/* <View style={styles.sectionContainer}>
-        <CustomText text={'Tariff :'} variant={'sectionTitleText'} />
-        <View style={styles.tariffContainer}>
-          <View style={styles.tariffRow}>
-            <CustomInput
-              placeholder="Rate"
-              value={rate}
-              onChangeText={setRate}
-              style={styles.tariffInput}
-              keyboardType="numeric"
-            />
-            {selectedTripType !==  && (
-              <CustomInput
-                placeholder="Extra Kms"
-                value={extraKms}
-                onChangeText={setExtraKms}
-                style={styles.tariffInput}
-                keyboardType="numeric"
-              />
-            )}
-          </View>
-          <View style={styles.tariffRow}>
-            {selectedTripType !== 2 && selectedTripType !== 3 && (
-              <CustomInput
-                placeholder="Extra Hours"
-                value={extraHours}
-                onChangeText={setExtraHours}
-                style={styles.tariffInput}
-                keyboardType="numeric"
-              />
-            )}
-           
-          </View>
-          <View style={styles.tariffRow}>
-            {selectedTripType !== 1 &&
-              selectedTripType !== 2 &&
-              selectedTripType !== 3 && (
-                <CustomInput
-                  placeholder="Night Batta"
-                  value={nightBatta}
-                  onChangeText={setNightBatta}
-                  style={styles.tariffInput}
-                  keyboardType="numeric"
-                />
-              )}
-          </View>
-         
-        </View>
-      </View> */}
+
+
 
       <View style={styles.sectionContainer}>
         <CustomText text={'Tariff :'} variant={'sectionTitleText'} />
         <View style={styles.tariffContainer}>
-          <View style={styles.tariffRow}>
-            <CustomInput
-              placeholder="Rate"
-              value={rate}
-              onChangeText={setRate}
-              style={[styles.tariffInput, { width: selectedTripType === 1 ? '48%' : '100%' }]}
-              keyboardType="numeric"
-            />
-            {selectedTripType === 1 && ( // Show Extra Kms only for Local trips
+          {/* Local Trip (Type 1) */}
+          {selectedTripType === 1 && (
+            <>
+              <View style={styles.tariffRow}>
+                <CustomInput
+                  placeholder="Rate"
+                  value={rate}
+                  onChangeText={setRate}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+                <CustomInput
+                  placeholder="Extra Kms"
+                  value={extraKms}
+                  onChangeText={setExtraKms}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              </View>
+              <View style={styles.tariffRow}>
+                <CustomInput
+                  placeholder="Extra Hours"
+                  value={extraHours}
+                  onChangeText={setExtraHours}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              </View>
+            </>
+          )}
+
+          {/* Outstation Trip (Type 2) */}
+          {selectedTripType === 2 && (
+            <View style={styles.tariffRow}>
               <CustomInput
-                placeholder="Extra Kms"
-                value={extraKms}
-                onChangeText={setExtraKms}
+                placeholder="Rate"
+                value={rate}
+                onChangeText={setRate}
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
-            )}
-          </View>
-          {selectedTripType === 1 && ( // Show Extra Hours only for Local trips
+              <CustomInput
+                placeholder="Day Batta"
+                value={dayBatta}
+                onChangeText={setDayBatta}
+                style={styles.tariffInput}
+                keyboardType="numeric"
+              />
+            </View>
+          )}
+
+          {/* Transfer Trip (Type 3) */}
+          {selectedTripType === 3 && (
             <View style={styles.tariffRow}>
               <CustomInput
-                placeholder="Extra Hours"
-                value={extraHours}
-                onChangeText={setExtraHours}
+                placeholder="Rate"
+                value={rate}
+                onChangeText={setRate}
+                style={styles.tariffInput}
+                keyboardType="numeric"
+              />
+              <CustomInput
+                placeholder="Slab Kms"
+                value={slabKms}
+                onChangeText={setSlabKms}
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
@@ -1222,6 +1292,8 @@ const PostATripScreen = ({ route }) => {
           />
         </CustomModal>
 
+
+
         <View style={styles.buttonContainer}>
           {from === 'bills' && (
             <CustomButton
@@ -1235,7 +1307,7 @@ const PostATripScreen = ({ route }) => {
             />
           )}
           <CustomButton
-            title={from === undefined ? 'Save' : 'Update'}
+            title={from === undefined ? 'Send' : 'Update'}
             style={styles.submitButton}
             onPress={from === undefined ? handleSend : handleUpdate}
           />
@@ -1251,6 +1323,16 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#F3F5FD',
+  },
+  cardsContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+  },
+  cardListContainer: {
+    paddingTop: 12,
+    gap: 8,
   },
   contentContainer: {
     paddingBottom: 20,
@@ -1407,7 +1489,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   submitButton: {
-    width: width * 0.45,
+    width: width * 0.40,
     alignItems: 'center',
     backgroundColor: '#008B8B',
     borderRadius: 8,

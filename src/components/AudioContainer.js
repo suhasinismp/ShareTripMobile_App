@@ -157,8 +157,42 @@ const AudioContainer = ({
     );
   }
 
+  //   return recordedAudioUri ? (
+  //     <AudioPlayer url={recordedAudioUri} onDelete={onDelete} />
+  //   ) : null;
+  // };  
+
   return recordedAudioUri ? (
-    <AudioPlayer url={recordedAudioUri} onDelete={onDelete} />
+    <View style={styles.mainContainer}>
+      <View style={styles.audioControlContainer}>
+        <View style={styles.playerContainer}>
+          <AudioPlayer
+            url={recordedAudioUri}
+            onDelete={() => {
+              if (onDelete) {
+                onDelete();
+              }
+              if (onRecordingComplete) {
+                onRecordingComplete(null);
+              }
+            }}
+          />
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            if (onDelete) {
+              onDelete();
+            }
+            if (onRecordingComplete) {
+              onRecordingComplete(null);
+            }
+          }}
+          style={styles.deleteButton}
+        >
+          <Ionicons name="trash-outline" size={24} color="red" />
+        </TouchableOpacity>
+      </View>
+    </View>
   ) : null;
 };
 
@@ -166,6 +200,12 @@ const styles = StyleSheet.create({
   mainContainer: {
     width: '100%',
     paddingVertical: 10,
+  },
+  audioControlContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 5,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -198,6 +238,15 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: 'red',
     paddingRight: 10,
+  },
+  playerContainer: {
+    flex: 1,
+    marginRight: 10,
+    paddingHorizontal: 0,
+  },
+  deleteButton: {
+    padding: 10,
+    marginLeft: 10,
   },
 });
 

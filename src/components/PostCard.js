@@ -40,7 +40,8 @@ const PostCard = ({
 
   // Amount Props
   baseFareRate,
-
+  extrakms,
+  booking_type_name,
   // Action Props
   onRequestPress,
   onCallPress,
@@ -56,6 +57,8 @@ const PostCard = ({
   customerBillOnPress,
   billsScreen,
 }) => {
+
+  console.log('Extra KMs:', extrakms);
   const requestStatus = isRequested ? isRequested : 'Accept';
   const isAvailable = postStatus === 'Available' || postStatus === 'available';
 
@@ -71,6 +74,13 @@ const PostCard = ({
 
   const getStatusColor = () => {
     return isAvailable ? '#21833F' : '#D33D0E';
+  };
+
+  const getBookingTypeColor = () => {
+    return '#21833F'; // Or any color you want for the text
+  };
+  const getBookingTypeBackgroundColor = () => {
+    return '#E8F4FF'; // Or any color you want for the background
   };
 
   const getStatusBackgroundColor = () => {
@@ -89,26 +99,24 @@ const PostCard = ({
           style={[styles.cardHeader, { backgroundColor: getHeaderColor() }]}
         >
           {bookingType && (
-            <Text style={styles.cardType}>{capitalizeWords(bookingType)}</Text>
-          )}
-          {createdAt && <Text style={styles.cardDate}>{createdAt}</Text>}
-          {/* {postStatus && (
-
-            <View style={[styles.statusWrapper, { backgroundColor: isAvailable ? '#E8F4FF' : 'transparent' }]}>
+            <View style={[styles.bookingTypeWrapper, { backgroundColor: getBookingTypeBackgroundColor() }]}>
+              {/* <Text style={styles.cardType}>{capitalizeWords(bookingType)}</Text> */}
               <Text style={[
-                styles.cardStatus,
+                styles.cardType,
                 {
-                  color: getStatusColor(),
-                  backgroundColor: isAvailable ? '#FFFFFF' : 'transparent',
-                  paddingHorizontal: isAvailable ? 8 : 0,
-                  paddingVertical: isAvailable ? 4 : 0,
-                  borderRadius: isAvailable ? 4 : 0,
+                  color: getBookingTypeColor(),
+                  backgroundColor: '#FFFFFF',
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  borderRadius: 4,
                 }
               ]}>
-                {capitalizeWords(postStatus)}
+                {capitalizeWords(bookingType)}
               </Text>
             </View>
-          )} */}
+          )}
+          {createdAt && <Text style={styles.cardDate}>{createdAt}</Text>}
+
           {postStatus && (
             <View style={[styles.statusWrapper, { backgroundColor: getStatusBackgroundColor() }]}>
               <Text style={[
@@ -203,7 +211,7 @@ const PostCard = ({
                         <Text
                           style={[
                             styles.distanceText,
-                            { color: isAvailable ? '#171661' : '#666' },
+                            { color: isAvailable ? '#123F67' : '#666' },
                           ]}
                         >
                           {packageName}
@@ -241,7 +249,7 @@ const PostCard = ({
                       <Text
                         style={[
                           styles.distanceText,
-                          { color: isAvailable ? '#171661' : '#666' },
+                          { color: isAvailable ? '#123F67' : '#666', },
                         ]}
                       >
                         {packageName}
@@ -300,19 +308,22 @@ const PostCard = ({
 
           {/* Footer Section - Only show for available cards */}
           {isAvailable || !postStatus ? (
+
             <View style={styles.cardFooter}>
               {baseFareRate && (
                 <View style={styles.footerLeft}>
                   {!hasCommentOrVoice && (
                     <View style={styles.amountSection}>
                       <Text style={styles.amountLabel}>Amount:</Text>
-                      <Text style={styles.amountText}>{`Rs ${baseFareRate}/-`}</Text>
+                      <Text style={styles.amountText}>
+                        {`Rs ${baseFareRate}${extrakms ? `/extrakm ${extrakms}` : ''}/-`}
+                      </Text>
                     </View>
                   )}
-
-
                 </View>
               )}
+
+
               {!billsScreen && vacantTripPostedByLoggedInUser === undefined && (
                 <View style={styles.footerRight}>
                   <TouchableOpacity
@@ -406,8 +417,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
   },
   cardType: {
     fontSize: 17,
@@ -473,6 +484,15 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 10,
   },
+  bookingTypeWrapper: {
+    padding: 4,
+    borderRadius: 4,
+  },
+  cardType: {
+    fontSize: 17,
+    fontFamily: FONTS.SemiBold600,
+    lineHeight: 22,
+  },
   tripInfo: {
     marginBottom: 12,
   },
@@ -503,8 +523,9 @@ const styles = StyleSheet.create({
   },
   distanceText: {
     marginLeft: 8,
-    fontSize: 12,
-    fontFamily: FONTS.Regular400,
+    fontSize: 14,
+    fontFamily: FONTS.Bold700,
+    color: '#123F67',
     lineHeight: 22,
   },
   vehicleInfo: {
@@ -539,6 +560,12 @@ const styles = StyleSheet.create({
   commentText: {
     color: '#666',
   },
+  amountText: {
+    fontSize: 16,
+    fontFamily: FONTS.Bold700,
+    color: '#123F67',
+    marginLeft: 8,
+  },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -553,8 +580,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   amountLabel: {
-    fontSize: 14,
-    fontFamily: FONTS.Regular400,
+    fontSize: 16,
+    fontFamily: FONTS.Bold700,
     lineHeight: 23,
     color: '#0F0F0F',
   },

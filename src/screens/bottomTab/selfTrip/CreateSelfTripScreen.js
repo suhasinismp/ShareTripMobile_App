@@ -19,7 +19,7 @@ import TimeDatePicker from '../../../components/TimeDatePicker';
 import AudioContainer from '../../../components/AudioContainer';
 import MicIcon from '../../../../assets/svgs/mic.svg';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getUserDataSelector } from '../../../store/selectors';
 import { getTripTypes } from '../../../services/postTripService';
 // import { getUserProfileByUserId, getAllVehiclesByUserId, selfCreatePost } from '../../../services/selfTripService';
@@ -27,6 +27,7 @@ import { getAllVehiclesByUserId } from '../../../services/vehicleDetailsService'
 import { getProfileByUserId } from '../../../services/profileScreenService';
 import { selfCreatePost } from '../../../services/selfTripService';
 import CustomModal from '../../../components/ui/CustomModal';
+import { showSnackbar } from '../../../store/slices/snackBarSlice';
 
 const { width } = Dimensions.get('window');
 
@@ -35,6 +36,7 @@ const CreateSelfTrip = () => {
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const userId = userData.userId;
+  const dispatch = useDispatch();
   const { theme } = useTheme();
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -50,6 +52,7 @@ const CreateSelfTrip = () => {
   const [selectedToDate, setSelectedToDate] = useState(new Date());
 
   const [userVehicles, setUserVehicles] = useState([]);
+  const [dayBatta, setDayBatta] = useState('');
 
   const [selectedTime, setSelectedTime] = useState(new Date());
   console.log('www', selectedTime)
@@ -262,6 +265,10 @@ const CreateSelfTrip = () => {
     const response = await selfCreatePost(formData, userToken);
 
     if (!response.error) {
+      dispatch(showSnackbar({
+        message: 'Post Booking Data created successfully',
+        type: 'success',
+      }));
       resetFields();
       navigation.goBack();
     } else {
@@ -423,7 +430,7 @@ const CreateSelfTrip = () => {
             contentContainerStyle={styles.listContentContainer}
           />
         </View>
-        <View style={styles.sectionContainer}>
+        {/* <View style={styles.sectionContainer}>
           <CustomText text={'Tariff :'} variant={'sectionTitleText'} />
           <View style={styles.tariffContainer}>
             <View style={styles.tariffRow}>
@@ -456,33 +463,77 @@ const CreateSelfTrip = () => {
                 />
               </View>
             )}
-            {/* {selectedTripType !== 1 && selectedTripType !== 3 && (
-                <CustomInput
-                  placeholder="Day Batta"
-                  value={dayBata}
-                  onChangeText={setDayBata}
-                  style={styles.tariffInput}
-                  keyboardType="numeric"
-                />
-              )} */}
+           
           </View>
 
-          {/* <View style={styles.tariffRow}>
-              {selectedTripType != 1 &&
-                selectedTripType != 2 &&
-                selectedTripType != 3 && (
+         
+
+         
+        </View> */}
+        <View style={styles.sectionContainer}>
+          <CustomText text={'Tariff :'} variant={'sectionTitleText'} />
+          <View style={styles.tariffContainer}>
+            {/* Local Trip (Type 1) */}
+            {selectedTripType === 1 && (
+              <>
+                <View style={styles.tariffRow}>
                   <CustomInput
-                    placeholder="Night Batta"
-                    value={nightBata}
-                    onChangeText={setNightBata}
+                    placeholder="Rate"
+                    value={baseRate}
+                    onChangeText={setBaseRate}
                     style={styles.tariffInput}
                     keyboardType="numeric"
                   />
-                )}
-            </View> */}
+                  <CustomInput
+                    placeholder="Extra Kms"
+                    value={extraKms}
+                    onChangeText={setExtraKms}
+                    style={styles.tariffInput}
+                    keyboardType="numeric"
+                  />
+                </View>
+                <View style={styles.tariffRow}>
+                  <CustomInput
+                    placeholder="Extra Hours"
+                    value={extraHrs}
+                    onChangeText={setExtraHrs}
+                    style={styles.tariffInput}
+                    keyboardType="numeric"
+                  />
+                </View>
+              </>
+            )}
 
-          {/* {selectedTripType === 3 && (
+            {/* Outstation Trip (Type 2) */}
+            {selectedTripType === 2 && (
               <View style={styles.tariffRow}>
+                <CustomInput
+                  placeholder="Rate"
+                  value={baseRate}
+                  onChangeText={setBaseRate}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+                <CustomInput
+                  placeholder="Day Batta"
+                  value={dayBatta}
+                  onChangeText={setDayBatta}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              </View>
+            )}
+
+            {/* Transfer Trip (Type 3) */}
+            {selectedTripType === 3 && (
+              <View style={styles.tariffRow}>
+                <CustomInput
+                  placeholder="Rate"
+                  value={baseRate}
+                  onChangeText={setBaseRate}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
                 <CustomInput
                   placeholder="Slab Kms"
                   value={slabKms}
@@ -491,9 +542,9 @@ const CreateSelfTrip = () => {
                   keyboardType="numeric"
                 />
               </View>
-            )} */}
+            )}
+          </View>
         </View>
-
 
         <View style={styles.sectionContainer}>
           <CustomText
@@ -522,7 +573,7 @@ const CreateSelfTrip = () => {
           </View>
         </View>
 
-        <View style={{ ...styles.sectionContainer, gap: 10 }}>
+        {/* <View style={{ ...styles.sectionContainer, gap: 10 }}>
           <CustomText text={'Notes :'} variant={'sectionTitleText'} />
           <CustomInput
             placeholder="Type your message"
@@ -530,13 +581,8 @@ const CreateSelfTrip = () => {
             onChangeText={setNotes}
             multiline={true}
           />
-          {/* <CustomInput
-                        placeholder="Type your message"
-                        value={notes1}
-                        onChangeText={setNotes1}
-                        multiline={true}
-                    /> */}
-        </View>
+
+        </View> */}
         <View style={styles.sectionContainer}>
           <CustomText text={'Date & Time :'} variant={'sectionTitleText'} />
           <View style={styles.dateTimeContainer}>
@@ -551,7 +597,7 @@ const CreateSelfTrip = () => {
           </View>
         </View>
 
-        <View style={styles.sectionContainer}>
+        {/* <View style={styles.sectionContainer}>
           <CustomText
             text={'Pick Up / Drop Location Detail :'}
             variant={'sectionTitleText'}
@@ -564,40 +610,35 @@ const CreateSelfTrip = () => {
               color="#4CAF50"
               style={styles.inputIcon}
             /> */}
-              <CustomInput
+        {/* <CustomInput
                 placeholder="Enter Pickup Location"
                 value={pickupLocation}
                 onChangeText={setPickupLocation}
                 style={styles.fullWidthInput}
               />
-            </View>
-            <View style={styles.inputRow}>
+            </View> */}
+        {/* <View style={styles.inputRow}>
               {/* <Ionicons
               name="location"
               size={24}
               color="#FF5722"
               style={styles.inputIcon}
             /> */}
-              <CustomInput
-                placeholder="Enter Drop off Location"
-                value={dropLocation}
-                onChangeText={setDropLocation}
-                style={styles.fullWidthInput}
-              />
-            </View>
-          </View>
-        </View>
+        {/* <CustomInput
+          placeholder="Enter Drop off Location"
+          value={dropLocation}
+          onChangeText={setDropLocation}
+          style={styles.fullWidthInput}
+        /> */}
+        {/* </View> */}
+        {/* </View> */}
+        {/* </View> */}
 
         <View style={styles.sectionContainer}>
           <CustomText text={'Visiting Place'} variant={'sectionTitleText'} />
           <View style={{ marginTop: 4 }}>
             <View style={styles.inputRow}>
-              {/* <Ionicons
-              name="navigate-circle-outline"
-              size={24}
-              color="#2196F3"
-              style={styles.inputIcon}
-            /> */}
+
               <CustomInput
                 placeholder="Enter Visiting Place"
                 value={visitingPlace}

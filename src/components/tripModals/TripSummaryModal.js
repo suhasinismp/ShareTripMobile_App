@@ -91,21 +91,76 @@ const TripSummaryModal = ({
     }
   };
 
-  // const handleNext = () => {
-  //   const closingDetails = {
-  //     closingKms: closingKms,
-  //     closingTime: closingTime,
-  //     closingDate: closingDate,
-  //   }
-  //   onPressNext(closingDetails)
-  // };
+
+
+
+
 
   const handleNext = () => {
+    // --- KMs Validation ---
+    if (!closingKms || isNaN(closingKms) || parseInt(closingKms) < 0) {
+      alert('Please enter a valid Closing KMs');
+      return;
+    }
+
+    if (parseInt(closingKms) <= parseInt(openingKms)) {
+      alert('Closing KMs must be greater than Opening KMs');
+      return;
+    }
+
+    // --- Date Validation ---
+    if (!closingDate) {
+      alert('Please select a Closing Date');
+      return;
+    }
+
+    const parsedOpeningDate = new Date(openingDate.replace(/\//g, '-'));
+    const parsedClosingDate = new Date(closingDate.replace(/\//g, '-'));
+    const today = new Date();
+
+    if (parsedClosingDate < parsedOpeningDate) {
+      alert('Closing Date must be after Opening Date');
+      return;
+    }
+
+    if (parsedClosingDate > today) {
+      alert('Closing Date cannot be in the future');
+      return;
+    }
+
+    // --- Time Validation ---
+    if (!closingTime || !/^\d{1,2}:\d{2}\s?(AM|PM)$/i.test(closingTime)) {
+      alert('Please select a valid Closing Time');
+      return;
+    }
+
+    if (openingTime && openingDate && closingDate && parsedOpeningDate.toDateString() === parsedClosingDate.toDateString()) {
+      const opening = new Date(parsedOpeningDate);
+      const closing = new Date(parsedClosingDate);
+
+      const [openHour, openMinute] = openingTime.replace(/(AM|PM)/i, '').trim().split(':');
+      const [closeHour, closeMinute] = closingTime.replace(/(AM|PM)/i, '').trim().split(':');
+
+      const isOpeningPM = /PM$/i.test(openingTime);
+      const isClosingPM = /PM$/i.test(closingTime);
+
+      opening.setHours(isOpeningPM ? (+openHour % 12) + 12 : +openHour % 12);
+      opening.setMinutes(+openMinute);
+
+      closing.setHours(isClosingPM ? (+closeHour % 12) + 12 : +closeHour % 12);
+      closing.setMinutes(+closeMinute);
+
+      if (closing <= opening) {
+        alert('Closing Time must be after Opening Time');
+        return;
+      }
+    }
+
+    // ✅ All validations passed
     onPressNext({
       closingKms,
       closingTime,
       closingDate,
-      // isGst,
     });
   };
 
