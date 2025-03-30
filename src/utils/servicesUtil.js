@@ -53,6 +53,7 @@ export const postAPI = async (endUrl, body, token) => {
 };
 
 export const patchAPI = async ({ endUrl, body, token }) => {
+
   let prepareHeader = {
     'Content-Type': 'application/json',
   };
@@ -81,6 +82,8 @@ export const patchAPI = async ({ endUrl, body, token }) => {
     return null;
   }
 };
+
+
 export const deleteAPI = async ({ endUrl, token }) => {
   let prepareHeader = {
     'Content-Type': 'application/json',

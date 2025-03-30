@@ -96,9 +96,9 @@ const CustomAccordion = ({
         posted_user_id: loggedInUserId,
         bill_access: billToMe ? false : true,
       };
-      // console.log("finalData", finalData)
+
       const response = await acceptDriverRequest(finalData, userToken);
-      console.log('ooo', response);
+
       if (response?.status === 'Start Trip') {
         setShowBillMeBillDriverModal(false);
         dispatch(
@@ -238,7 +238,7 @@ const CustomAccordion = ({
               amount={driver.booking_tarif_base_fare_rate}
               onAccept={() => handleAcceptDriver(driver)}
               onReject={() => handleRejectDriver(driver)}
-              onCall={() => {}}
+              onCall={() => { }}
             />
           </View>
         ))}

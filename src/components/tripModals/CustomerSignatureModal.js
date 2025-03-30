@@ -18,7 +18,7 @@ const CustomerSignatureModal = ({
   goTo,
   additionalCharges,
 }) => {
-  console.log({ additionalCharges })
+
   const navigation = useNavigation();
   const [signatureFileInfo, setSignatureFileInfo] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -92,14 +92,14 @@ const CustomerSignatureModal = ({
   };
 
   const handleEndTrip = async (fileInfo) => {
-    console.log('entered')
+
     try {
       if (!fileInfo) {
         console.log('No signature file info available');
         return;
       }
       if (additionalCharges?.additionalChargesData) {
-        console.log('hi')
+
         const finalData = additionalCharges?.additionalChargesData;
 
         let formData = new FormData();
@@ -140,7 +140,7 @@ const CustomerSignatureModal = ({
           name: 'customer_signature.png',
         });
         const response = await postAdditionCharges(formData, userToken);
-        console.log({ response })
+        console.log('qqq', response)
         if (response?.error === false) {
           onClose();
           await fetch();
@@ -150,7 +150,7 @@ const CustomerSignatureModal = ({
         }
       }
       if (additionalCharges == null) {
-        console.log('other')
+
         const finalData = {
           post_booking_id: selectedTripData?.post_booking_id,
           accepted_user_id: userId,

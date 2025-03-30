@@ -150,12 +150,9 @@ const HomeScreen = () => {
     }
   }, [userId, userToken]);
 
-  const handleRequestClick = async (
-    postId,
-    userId,
-    postedUserId,
-    vehicleId,
-  ) => {
+
+
+  const handleRequestClick = async (postId, userId, postedUserId, vehicleId, bookingType) => {
     const finalData = {
       post_bookings_id: postId,
       accepted_user_id: userId,
@@ -168,12 +165,17 @@ const HomeScreen = () => {
     if (response?.confirm_status === 'Quoted') {
       dispatch(
         showSnackbar({
-          message:
-            'Request sent successfully. You can track the status in MyTrips',
+          message: 'Request sent successfully. You can track the status in MyTrips',
           type: 'success',
         }),
       );
-      await getUserPosts();
+
+      navigation.navigate('MyTrips', {
+        filterOne: 'InProgress',
+        filterTwo: 'PostedTrips',
+        bookingType: bookingType, // Pass the booking type
+        fromBooking: true // Add this flag
+      });
     }
   };
 
@@ -188,55 +190,60 @@ const HomeScreen = () => {
 
 
 
-  const renderPostCard = ({ item }) => (
-    <PostCard
-      // Card Header Props
-      bookingType={item?.bookingType_name}
-      createdAt={formatDate(item?.created_at)}
-      postStatus={item?.post_status}
-      // User Info Props
-      userProfilePic={item?.User_profile || 'https://via.placeholder.com/150'}
-      userName={item?.User_name}
-      postSharedWith={
-        item?.post_type_id === 1
-          ? 'Public'
-          : item?.post_type_id === 2
-            ? item?.group_name
-            : 'You'
-      }
-      // Trip Details Props
-      pickUpTime={item?.pick_up_time}
-      fromDate={item?.from_date}
-      vehicleType={item?.Vehicle_type_name}
-      vehicleName={item?.Vehicle_name}
-      pickUpLocation={item?.pick_up_location}
-      destination={item?.destination}
-      // Comment/Voice Props
-      postComments={item?.post_comments}
-      postVoiceMessage={item?.post_voice_message}
-      // Amount Props
-      baseFareRate={item?.bookingTypeTariff_base_fare_rate}
-      // Action Props
-      onRequestPress={() =>
-        handleRequestClick(
-          item?.post_booking_id,
-          userId,
-          item?.posted_user_id,
-          userVehicles[0]?.st_vehicles_id,
-        )
-      }
-      onCallPress={() => handleCall(item?.User_phone)}
-      onTripSheetPress={() => {
-        navigation.navigate('ViewTripSheet', {
-          from: 'home',
-          postId: item?.post_booking_id,
-        });
-      }}
-      isRequested={item?.request_status}
-      packageName={item?.bookingTypePackage_name}
-    />
-  );
+  const renderPostCard = ({ item }) => {
+    console.log('PickUpTime:', item?.pick_up_time);
 
+    return (
+      <PostCard
+        // Card Header Props
+        bookingType={item?.bookingType_name}
+        createdAt={formatDate(item?.created_at)}
+        postStatus={item?.post_status}
+        // User Info Props
+        userProfilePic={item?.User_profile || 'https://via.placeholder.com/150'}
+        userName={item?.User_name}
+        postSharedWith={
+          item?.post_type_id === 1
+            ? 'Public'
+            : item?.post_type_id === 2
+              ? item?.group_name
+              : 'You'
+        }
+
+        pickUpTime={item?.pick_up_time || ''}
+        fromDate={item?.from_date || ''}
+        vehicleType={item?.Vehicle_type_name}
+
+        vehicleName={item?.Vehicle_name}
+        pickUpLocation={item?.pick_up_location}
+        destination={item?.destination}
+        // Comment/Voice Props
+        postComments={item?.post_comments}
+        postVoiceMessage={item?.post_voice_message}
+        // Amount Props
+        baseFareRate={item?.bookingTypeTariff_base_fare_rate}
+        extrakms={item?.bookingTypeTariff_extra_km_rate}
+        // Action Props
+        onRequestPress={() =>
+          handleRequestClick(
+            item?.post_booking_id,
+            userId,
+            item?.posted_user_id,
+            userVehicles[0]?.st_vehicles_id,
+          )
+        }
+        onCallPress={() => handleCall(item?.User_phone)}
+        onTripSheetPress={() => {
+          navigation.navigate('ViewTripSheet', {
+            from: 'home',
+            postId: item?.post_booking_id,
+          });
+        }}
+        isRequested={item?.request_status || false}
+        packageName={item?.bookingTypePackage_name || ''}
+      />
+    );
+  }
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -249,12 +256,12 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <AppHeader
         drawerIcon={true}
-        groupIcon={true}
+        // groupIcon={true}
         onlineIcon={true}
         muteIcon={true}
-        search={true}
+      // search={true}
       />
-      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>Home</Text>
+      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>New Booking</Text>
 
       <FlatList
         data={userPostsData}
@@ -272,9 +279,9 @@ const HomeScreen = () => {
         }
       />
 
-      <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
+      {/* <TouchableOpacity style={styles.floatingButton} onPress={handleAddPost}>
         <AddPostIcon />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <CustomModal
         visible={isModalVisible}

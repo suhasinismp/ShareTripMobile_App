@@ -1,3 +1,6 @@
+
+
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Dimensions,
@@ -11,7 +14,7 @@ import {
   Text,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
@@ -40,6 +43,7 @@ import {
 import {
   getTripDetailsSelector,
   getUserDataSelector,
+  getSelfTripDetailsSelector,
 } from '../../../store/selectors';
 import AudioContainer from '../../../components/AudioContainer';
 import TimeDatePicker from '../../../components/TimeDatePicker';
@@ -54,7 +58,8 @@ import { parseDate } from '../../../utils/parseDate';
 import { Feather } from '@expo/vector-icons';
 import CustomModal from '../../../components/ui/CustomModal';
 import TripBillEditModal from '../../../components/tripModals/TripBillEditModal';
-
+import { showSnackbar } from '../../../store/slices/snackBarSlice';
+// import { Feather } from '@expo/vector-icons';
 const { width } = Dimensions.get('window');
 
 // Constants
@@ -74,14 +79,11 @@ const POST_TYPES = {
   TRIP_SHEET: 'Trip Sheet',
 };
 
-const TripCard = React.memo(({ tripData, index, onEdit }) => {
-  const handleEdit = () => {
-    onEdit(tripData);
-  };
 
+// Replace the existing TripCard component with this one
+const TripCard = React.memo(({ tripData, index, onEdit }) => {
   return (
     <View style={styles.cardContainer}>
-      {/* Header with Day number, Date and Edit icon */}
       <View style={styles.cardHeader}>
         <CustomText text={`Day ${index + 1}`} style={styles.dayText} />
         <View style={styles.headerRight}>
@@ -89,31 +91,32 @@ const TripCard = React.memo(({ tripData, index, onEdit }) => {
             text={tripData.start_date || '-'}
             style={styles.dateText}
           />
-          <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
+          <TouchableOpacity
+            onPress={() => onEdit(tripData)}
+            style={styles.editButton}
+          >
             <Feather name="edit-2" size={16} color="#008B8B" />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Trip Time Section */}
       <View style={styles.infoRow}>
         <View style={styles.timeSection}>
-          <CustomText text="Trip Time:" style={styles.labelText} />
+          <CustomText text="Total Time:" style={styles.labelText} />
           <CustomText
             text={`${tripData.start_time || '-'} to ${tripData.end_time || '-'}`}
             style={styles.valueText}
           />
         </View>
         <View style={styles.totalSection}>
-          <CustomText text="Duration:" style={styles.labelText} />
+          <CustomText text="Total hrs:" style={styles.labelText} />
           <CustomText text={tripData.total_hours} style={styles.valueText} />
         </View>
       </View>
 
-      {/* Trip KMs Section */}
       <View style={styles.infoRow}>
         <View style={styles.timeSection}>
-          <CustomText text="Trip KMs:" style={styles.labelText} />
+          <CustomText text="Total KMs:" style={styles.labelText} />
           <CustomText
             text={`${tripData.start_kms || '-'} - ${tripData.end_kms || '-'}`}
             style={styles.valueText}
@@ -134,6 +137,66 @@ const TripCard = React.memo(({ tripData, index, onEdit }) => {
 });
 
 TripCard.displayName = 'TripCard';
+// const TripCard = React.memo(({ tripData, index, onEdit }) => {
+//   const handleEdit = () => {
+//     onEdit(tripData);
+//   };
+
+//   return (
+//     <View style={styles.cardContainer}>
+//       {/* Header with Day number, Date and Edit icon */}
+//       <View style={styles.cardHeader}>
+//         <CustomText text={`Day ${index + 1}`} style={styles.dayText} />
+//         <View style={styles.headerRight}>
+//           <CustomText
+//             text={tripData.start_date || '-'}
+//             style={styles.dateText}
+//           />
+//           <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
+//             <Feather name="edit-2" size={16} color="#008B8B" />
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+
+//       {/* Trip Time Section */}
+//       <View style={styles.infoRow}>
+//         <View style={styles.timeSection}>
+//           <CustomText text="Trip Time:" style={styles.labelText} />
+//           <CustomText
+//             text={`${tripData.start_time || '-'} to ${tripData.end_time || '-'}`}
+//             style={styles.valueText}
+//           />
+//         </View>
+//         <View style={styles.totalSection}>
+//           <CustomText text="Duration:" style={styles.labelText} />
+//           <CustomText text={tripData.total_hours} style={styles.valueText} />
+//         </View>
+//       </View>
+
+//       {/* Trip KMs Section */}
+//       <View style={styles.infoRow}>
+//         <View style={styles.timeSection}>
+//           <CustomText text="Trip KMs:" style={styles.labelText} />
+//           <CustomText
+//             text={`${tripData.start_kms || '-'} - ${tripData.end_kms || '-'}`}
+//             style={styles.valueText}
+//           />
+//         </View>
+//         <View style={styles.totalSection}>
+//           <CustomText text="Total:" style={styles.labelText} />
+//           <CustomText
+//             text={
+//               tripData.total_kms === 'NaN' ? '-' : `${tripData.total_kms} KMs`
+//             }
+//             style={styles.valueText}
+//           />
+//         </View>
+//       </View>
+//     </View>
+//   );
+// });
+
+// TripCard.displayName = 'TripCard';
 
 // Memoized Vehicle Button Component
 const VehicleButton = React.memo(
@@ -160,11 +223,12 @@ const VehicleButton = React.memo(
 VehicleButton.displayName = 'VehicleButton';
 
 const PostATripScreen = ({ route }) => {
-  const { from, postId } = route.params || {};
+  const { from, postId, isSelfTrip, tripData } = route.params || {};
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const userData = useSelector(getUserDataSelector);
   const tripDetails = useSelector(getTripDetailsSelector);
-
+  const selfTripDetails = useSelector(getSelfTripDetailsSelector);
   const { userToken, userId } = userData;
   const { theme } = useTheme();
 
@@ -178,11 +242,13 @@ const PostATripScreen = ({ route }) => {
   const [visitingPlace, setVisitingPlace] = useState('');
   const [notes, setNotes] = useState('');
   const [rate, setRate] = useState('');
+
   const [extraKms, setExtraKms] = useState('');
+  console.log({ extraKms })
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
-  const [slabRate, setSlabRate] = useState('');
+  const [slabKms, setSlabKms] = useState('');
   const [startTripKms, setStartTripKms] = useState('');
   const [endTripKms, setEndTripKms] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -226,6 +292,32 @@ const PostATripScreen = ({ route }) => {
   // Add this with other state declarations
   const [selectedTripCardId, setSelectedTripCardId] = useState(null);
 
+  const resetFields = () => {
+    setCustomerName('');
+    setCustomerPhone('');
+    setIsRecording(false);
+    setRecordedAudioUri(null);
+    setMessage('');
+    setNotes('');
+    setSelectedPaymentType('Cash');
+    setSelectedFromDate(new Date());
+    setSelectedToDate(new Date());
+    setSelectedTime(new Date());
+    setSelectedTripType(null);
+    setSelectedPackage(null);
+    // setModalVisible(false);
+    setPickupLocation('');
+    setDropLocation('');
+    setVisitingPlace('');
+    // setSelfTripTypes('');
+    setRate('');
+    setExtraKms('');
+    setExtraHours('');
+    setDayBatta('');
+    setNightBatta('');
+    setSlabKms('');
+  }
+
   // Effects
   useEffect(() => {
     if (selectedVehicleType) {
@@ -240,19 +332,49 @@ const PostATripScreen = ({ route }) => {
     }
   }, [selectedVehicleType, allVehicleNames]);
 
+  // useEffect(() => {
+  //   const initializeScreen = async () => {
+  //     if (from !== undefined) {
+  //       setPostType(POST_TYPES.TRIP_SHEET);
+  //       await getTripSheetDetails();
+  //     }
+  //     await fetchConstants();
+  //     if (from === 'bills') {
+  //       await getTripTable();
+  //     }
+  //   };
+
+  //   initializeScreen();
+  // }, [from, postId]);
+
+
   useEffect(() => {
     const initializeScreen = async () => {
       if (from !== undefined) {
         setPostType(POST_TYPES.TRIP_SHEET);
-        await getTripSheetDetails();
+
+        if (tripData) {
+          // Use the passed trip data
+          setInitialData(tripData);
+        } else if (isSelfTrip) {
+          // Use self trip data from Redux
+          if (selfTripDetails) {
+            setInitialData(selfTripDetails);
+          }
+        } else {
+          await getTripSheetDetails();
+        }
       }
       await fetchConstants();
-      if (from === 'bills') {
-        await getTripTable();
-      }
     };
 
     initializeScreen();
+  }, [from, postId, isSelfTrip, tripData, selfTripDetails]);
+
+  useEffect(() => {
+    if (from === 'bills' && postId) {
+      getTripTable();
+    }
   }, [from, postId]);
 
   useEffect(() => {
@@ -271,28 +393,51 @@ const PostATripScreen = ({ route }) => {
   }, [tripTypes]);
 
   useEffect(() => {
+
+
     if (initialData) {
-      const data = initialData;
-      setSelectedTripType(data?.postBooking?.booking_type_id);
-      setSelectedPackage(data?.bookingTypePackage_id);
-      setSelectedVehicleType(data?.postBooking?.vehicle_type_id);
-      setSelectedVehicleName(data?.postBooking?.vehicle_name_id);
-      setSelectedShareType(data?.postBooking?.post_type_id);
-      setSelectedFromDate(parseDate(data?.start_date || data?.from_date));
-      setSelectedToDate(parseDate(data?.end_trip_date || data?.to_date));
-      setSelectedTime(parseTime(data?.postBooking?.pick_up_time));
-      setRate(data?.bookingTypeTariff_base_fare_rate?.toString() || '');
-      setCustomerName(data?.postBooking?.customer_name || '');
-      setCustomerPhone(data?.postBooking?.customer_phone_no || '');
-      setPickupLocation(data?.postBooking?.pick_up_location || '');
-      setDropLocation(data?.postBooking?.destination || '');
-      setVisitingPlace(data?.postBooking?.visiting_place || '');
-      setSelectedPaymentType(
-        data?.postBooking?.payment_type || PAYMENT_TYPES.CASH,
-      );
-      setNotes(data?.postBooking?.note_1 || '');
-      if (data?.post_comments) {
-        setMessage(data?.post_comments);
+      console.log('Initial Data:', initialData);
+      const data = initialData[0] || initialData;
+
+
+      // Set trip type and package
+      setSelectedTripType(data.booking_type_id || data.bookingType_id);
+      setSelectedPackage(data.booking_types_package_id || data.bookingTypePackage_id);
+
+      // Set vehicle details
+      setSelectedVehicleType(data.vehicle_type_id || data.VehicleTypes_id);
+      setSelectedVehicleName(data.vehicle_name_id || data.VehicleNames_id);
+
+      // Set customer details
+      setCustomerName(data.customer_name || '');
+      setCustomerPhone(data.customer_phone_no || '');
+
+      // Set locations
+      setPickupLocation(data.pick_up_location || '');
+      setDropLocation(data.destination || '');
+      setVisitingPlace(data.visiting_place || '');
+
+      // Set dates and time
+      setSelectedFromDate(parseDate(data.from_date));
+      setSelectedToDate(parseDate(data.to_date));
+      setSelectedTime(parseTime(data.pick_up_time));
+
+      // Set payment and notes
+      setSelectedPaymentType(data.payment_type || PAYMENT_TYPES.CASH);
+      setNotes(data.note_1 || '');
+
+      // Set rates
+      setRate(data.tripSheetFinal?.[0]?.base_fare_rate?.toString() || '');
+
+      setExtraKms(data.tripSheetFinal?.[0]?.extra_km_rate?.toString() || '');
+      setExtraHours(data.tripSheetFinal?.[0]?.extra_hr_rate?.toString() || '');
+
+      setDayBatta(data.day_batta_rate?.toString() || '');
+      setNightBatta(data.night_batta_rate?.toString() || '');
+
+      // Set message if exists
+      if (data.post_comments) {
+        setMessage(data.post_comments);
       }
     }
   }, [initialData]);
@@ -342,7 +487,7 @@ const PostATripScreen = ({ route }) => {
 
   const getTripTable = async () => {
     const response = await fetchTripTable(postId, userToken);
-    
+
     if (response?.error === false) {
       setTripTableData(response?.data?.tripSheetRide);
     }
@@ -358,11 +503,11 @@ const PostATripScreen = ({ route }) => {
       end_trip_time: endTripTime,
       end_trip_kms: endTripKms,
     };
-
+    console.log('finalData', finalData)
     const response = await updateViewTripBillTable(finalData, userToken);
 
     if (response?.error === false) {
-      
+
       setShowTripBillEditModal(false);
       getTripTable();
     } else {
@@ -508,7 +653,7 @@ const PostATripScreen = ({ route }) => {
       if (extraHours) finalData.extra_hr_rate = extraHours;
       if (dayBatta) finalData.day_batta_rate = dayBatta;
       if (nightBatta) finalData.night_batta_rate = nightBatta;
-      if (slabRate) finalData.slab_rate = slabRate;
+      if (slabKms) finalData.slab_Kms = slabKms;
       if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
       if (notes) finalData.note_1 = notes;
       if (visitingPlace) finalData.visiting_place = visitingPlace;
@@ -516,7 +661,7 @@ const PostATripScreen = ({ route }) => {
       if (selectedFromDate) finalData.from_date = selectedFromDate;
       if (selectedToDate) finalData.to_date = selectedToDate;
     }
-
+    console.log({ finalData })
     if (selectedShareType === 1) {
       finalData.post_type_value = null;
       let formData = new FormData();
@@ -533,11 +678,18 @@ const PostATripScreen = ({ route }) => {
 
       try {
         const response = await createPost(formData, userToken);
+        console.log({ response })
         if (
           response.error === false &&
           response.message === 'Post Booking Data created successfully'
         ) {
+          dispatch(showSnackbar({
+            message: 'Post Booking Data created successfully',
+            type: 'success',
+          }));
+
           navigation.navigate('Home');
+          resetFields();
         } else {
           alert(response.message);
         }
@@ -590,7 +742,7 @@ const PostATripScreen = ({ route }) => {
     if (extraHours) finalData.extra_hr_rate = extraHours;
     if (dayBatta) finalData.day_batta_rate = dayBatta;
     if (nightBatta) finalData.night_batta_rate = nightBatta;
-    if (slabRate) finalData.slab_rate = slabRate;
+    if (slabKms) finalData.slab_Kms = slabKms;
     if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
     if (notes) finalData.note_1 = notes;
     if (visitingPlace) finalData.visiting_place = visitingPlace;
@@ -604,15 +756,15 @@ const PostATripScreen = ({ route }) => {
     try {
       const response = await updatePost(formData, userToken);
 
-      if (from === 'bills') {
-        navigation.goBack();
-        await getMyDutiesBill(userId, userToken);
-        await getMyPostedTripBills(userId, userToken);
-        await getMySelfTripBills(userId, userToken);
-        await fetchTripSheetByPostId(postId, userToken);
-      } else {
-        navigation.goBack();
-      }
+      // if (from === 'bills') {
+      //   navigation.goBack();
+      await getMyDutiesBill(userId, userToken);
+      await getMyPostedTripBills(userId, userToken);
+      await getMySelfTripBills(userId, userToken);
+      await fetchTripSheetByPostId(postId, userToken);
+      // } else {
+      navigation.goBack();
+      // }
     } catch (error) {
       console.error('Error updating trip sheet:', error);
       alert('Failed to update trip sheet. Please try again.');
@@ -748,6 +900,34 @@ const PostATripScreen = ({ route }) => {
       </View>
 
       <View style={styles.sectionContainer}>
+        <CustomText text={'Select Package :'} variant={'sectionTitleText'} />
+        <FlatList
+          data={
+            tripTypes.find((trip) => trip.id === selectedTripType)
+              ?.bookingTypePackageAsBookingType || []
+          }
+
+
+          keyExtractor={(item) => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <CustomSelect
+              text={item.package_name}
+              containerStyle={styles.selectItem}
+              selectedTextStyle={styles.selectedText}
+              selectedStyle={styles.selectedBackground}
+              isSelected={selectedPackage === item.id}
+              onPress={() => setSelectedPackage(item.id)}
+              unselectedStyle={styles.unselectedBorder}
+            />
+          )}
+          contentContainerStyle={styles.listContentContainer}
+        />
+      </View>
+
+
+      <View style={styles.sectionContainer}>
         <CustomText
           text={'Select Vehicle Type :'}
           variant={'sectionTitleText'}
@@ -800,32 +980,7 @@ const PostATripScreen = ({ route }) => {
         )}
       </View>
 
-      <View style={styles.sectionContainer}>
-        <CustomText text={'Select Package :'} variant={'sectionTitleText'} />
-        <FlatList
-          data={
-            tripTypes.find((trip) => trip.id === selectedTripType)
-              ?.bookingTypePackageAsBookingType || []
-          }
 
-
-          keyExtractor={(item) => item.id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <CustomSelect
-              text={item.package_name}
-              containerStyle={styles.selectItem}
-              selectedTextStyle={styles.selectedText}
-              selectedStyle={styles.selectedBackground}
-              isSelected={selectedPackage === item.id}
-              onPress={() => setSelectedPackage(item.id)}
-              unselectedStyle={styles.unselectedBorder}
-            />
-          )}
-          contentContainerStyle={styles.listContentContainer}
-        />
-      </View>
     </>
   );
 
@@ -848,38 +1003,53 @@ const PostATripScreen = ({ route }) => {
 
       {renderCommonContent()}
 
+
+
+
       <View style={styles.sectionContainer}>
         <CustomText text={'Tariff :'} variant={'sectionTitleText'} />
         <View style={styles.tariffContainer}>
-          <View style={styles.tariffRow}>
-            <CustomInput
-              placeholder="Rate"
-              value={rate}
-              onChangeText={setRate}
-              style={styles.tariffInput}
-              keyboardType="numeric"
-            />
-            {selectedTripType !== 2 && (
+          {/* Local Trip (Type 1) */}
+          {selectedTripType === 1 && (
+            <>
+              <View style={styles.tariffRow}>
+                <CustomInput
+                  placeholder="Rate"
+                  value={rate}
+                  onChangeText={setRate}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+                <CustomInput
+                  placeholder="Extra Kms"
+                  value={extraKms}
+                  onChangeText={setExtraKms}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              </View>
+              <View style={styles.tariffRow}>
+                <CustomInput
+                  placeholder="Extra Hours"
+                  value={extraHours}
+                  onChangeText={setExtraHours}
+                  style={styles.tariffInput}
+                  keyboardType="numeric"
+                />
+              </View>
+            </>
+          )}
+
+          {/* Outstation Trip (Type 2) */}
+          {selectedTripType === 2 && (
+            <View style={styles.tariffRow}>
               <CustomInput
-                placeholder="Extra Kms"
-                value={extraKms}
-                onChangeText={setExtraKms}
+                placeholder="Rate"
+                value={rate}
+                onChangeText={setRate}
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
-            )}
-          </View>
-          <View style={styles.tariffRow}>
-            {selectedTripType !== 2 && selectedTripType !== 3 && (
-              <CustomInput
-                placeholder="Extra Hours"
-                value={extraHours}
-                onChangeText={setExtraHours}
-                style={styles.tariffInput}
-                keyboardType="numeric"
-              />
-            )}
-            {selectedTripType !== 1 && selectedTripType !== 3 && (
               <CustomInput
                 placeholder="Day Batta"
                 value={dayBatta}
@@ -887,27 +1057,23 @@ const PostATripScreen = ({ route }) => {
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
-            )}
-          </View>
-          <View style={styles.tariffRow}>
-            {selectedTripType !== 1 &&
-              selectedTripType !== 2 &&
-              selectedTripType !== 3 && (
-                <CustomInput
-                  placeholder="Night Batta"
-                  value={nightBatta}
-                  onChangeText={setNightBatta}
-                  style={styles.tariffInput}
-                  keyboardType="numeric"
-                />
-              )}
-          </View>
+            </View>
+          )}
+
+          {/* Transfer Trip (Type 3) */}
           {selectedTripType === 3 && (
             <View style={styles.tariffRow}>
               <CustomInput
-                placeholder="Slab Rate"
-                value={slabRate}
-                onChangeText={setSlabRate}
+                placeholder="Rate"
+                value={rate}
+                onChangeText={setRate}
+                style={styles.tariffInput}
+                keyboardType="numeric"
+              />
+              <CustomInput
+                placeholder="Slab Kms"
+                value={slabKms}
+                onChangeText={setSlabKms}
                 style={styles.tariffInput}
                 keyboardType="numeric"
               />
@@ -1031,10 +1197,15 @@ const PostATripScreen = ({ route }) => {
   return (
     <>
       <AppHeader
+        title="Post A Trip"
         backIcon={true}
-        onlineIcon={true}
-        muteIcon={true}
-        title={from !== undefined ? 'Trip Sheet' : 'Post A Trip'}
+        onBackPress={() => {
+          if (from === 'selfTrip') {
+            navigation.navigate('SelfTripHome');
+          } else {
+            navigation.goBack();
+          }
+        }}
       />
       <KeyboardAwareScrollView
         style={styles.container}
@@ -1121,6 +1292,8 @@ const PostATripScreen = ({ route }) => {
           />
         </CustomModal>
 
+
+
         <View style={styles.buttonContainer}>
           {from === 'bills' && (
             <CustomButton
@@ -1134,7 +1307,7 @@ const PostATripScreen = ({ route }) => {
             />
           )}
           <CustomButton
-            title={from === undefined ? 'Save' : 'Update'}
+            title={from === undefined ? 'Send' : 'Update'}
             style={styles.submitButton}
             onPress={from === undefined ? handleSend : handleUpdate}
           />
@@ -1150,6 +1323,16 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#F3F5FD',
+  },
+  cardsContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+  },
+  cardListContainer: {
+    paddingTop: 12,
+    gap: 8,
   },
   contentContainer: {
     paddingBottom: 20,
@@ -1306,7 +1489,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   submitButton: {
-    width: width * 0.45,
+    width: width * 0.40,
     alignItems: 'center',
     backgroundColor: '#008B8B',
     borderRadius: 8,
@@ -1396,3 +1579,4 @@ const styles = StyleSheet.create({
 });
 
 export default PostATripScreen;
+

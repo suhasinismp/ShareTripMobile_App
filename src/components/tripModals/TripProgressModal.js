@@ -20,7 +20,7 @@ const TripProgressModal = ({
       <Text style={styles.modalTitle}>Trip Status</Text>
       <Text style={styles.tripStatus}>Your Trip is in Progress</Text>
       {transfer ? null : (<TouchableOpacity
-        style={[styles.actionButton]}
+        style={[styles.actionButton1]}
         onPress={handleContinueForNextDay}
       >
         <Text style={styles.actionButtonText}>Continue for Next Day</Text>
@@ -54,7 +54,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   actionButton: {
-    backgroundColor: '#1e4976',
+    backgroundColor: 'red',
+    padding: 16,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+
+  actionButton1: {
+    backgroundColor: 'green',
     padding: 16,
     borderRadius: 8,
     marginVertical: 8,

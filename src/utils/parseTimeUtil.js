@@ -6,6 +6,7 @@ export const parseTime = (formattedTime) => {
     return null; // Return null or handle invalid input
   }
 
+
   // Convert to IST timezone offset (Asia/Kolkata is UTC+5:30)
   const istOffset = 5 * 60 + 30; // 5 hours 30 minutes in minutes
   const utcOffset = date.getTimezoneOffset(); // Get current UTC offset in minutes
@@ -20,7 +21,8 @@ export const parseTime = (formattedTime) => {
   hours = hours % 12 || 12; // Convert 0 or 12 hours to 12-hour format
 
   // Format the time as "hh:mm AM/PM"
-  const formattedISTTime = `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
-
+  const formattedISTTime = `${hours}:${minutes.toString().padStart(2, "0")} ${period}`;
+  console.log('ccc', formattedISTTime);
   return formattedISTTime;
 };
+// utils / parseTime.js
