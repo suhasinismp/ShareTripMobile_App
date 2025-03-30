@@ -134,7 +134,7 @@ const Bills = () => {
   const fetchSelfTripBills = async () => {
     try {
       const response = await getMySelfTripBills(userId, userToken);
-      console.log("Fetching data for Self Trip", response);
+      
 
     } catch (error) {
       console.error('Error fetching Self Trip bills:', error);

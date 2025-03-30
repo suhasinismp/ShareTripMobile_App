@@ -49,48 +49,7 @@ const ResetPasswordScreen = () => {
             confirmPassword: '',
         },
     });
-    // const onSubmit = async (data) => {
-    //     try {
-    //         // Check if passwords match
-    //         if (data.newPassword !== data.confirmPassword) {
-    //             dispatch(showSnackbar({
-    //                 message: 'Passwords do not match',
-    //                 type: 'error',
-    //             }));
-    //             return;
-    //         }
-
-    //         // Send only mobile number and newPassword
-    //         const finalData = {
-    //             u_mob_num: phoneNumber,
-    //             u_pswd: data.newPassword  // Send only the newPassword value
-    //         };
-    //         console.log('Final Datatt:', finalData);
-    //         const response = await resetPassword(finalData);
-    //         console.log('Reset Password Response:', response);
-
-    //         // Check if the response contains a success message or any other relevant inf
-    //         if (response?.message === "Password reset successfully") {
-    //             dispatch(showSnackbar({
-    //                 message: 'Password reset successful',
-    //                 type: 'success',
-    //             }));
-    //             navigation.replace('Login');
-    //         } else {
-    //             dispatch(showSnackbar({
-    //                 message: response?.message || 'Failed to reset password',
-    //                 type: 'error',
-    //             }));
-    //         }
-    //     } catch (error) {
-    //         console.error('Reset Password Error:', error);
-    //         dispatch(showSnackbar({
-    //             message: 'Something went wrong. Please try again.',
-    //             type: 'error',
-    //         }));
-    //     }
-    // };
-
+   
 
     const onSubmit = async (data) => {
         try {
@@ -115,9 +74,9 @@ const ResetPasswordScreen = () => {
                 u_pswd: data.newPassword
             };
 
-            console.log('Reset Password Payload:', finalData);
+            
             const response = await resetPassword(finalData);
-            console.log('Reset Password Response:', response);
+            
 
             if (response?.error === false && response?.message?.includes("updated")) {
                 dispatch(showSnackbar({

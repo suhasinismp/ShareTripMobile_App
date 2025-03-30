@@ -17,7 +17,7 @@ export const uploadVehicleDocs = async (data, token) => {
       data,
       token,
     );
-    console.log('uploadVehicleDocs response', response);
+    
     return response;
   } catch (error) {
     console.error('Error in uploadVehicleDocs:', error);

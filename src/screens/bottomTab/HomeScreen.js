@@ -191,7 +191,7 @@ const HomeScreen = () => {
 
 
   const renderPostCard = ({ item }) => {
-    console.log('PickUpTime:', item?.pick_up_time);
+    
 
     return (
       <PostCard

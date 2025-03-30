@@ -55,9 +55,9 @@ const CreateSelfTrip = () => {
   const [dayBatta, setDayBatta] = useState('');
 
   const [selectedTime, setSelectedTime] = useState(new Date());
-  console.log('www', selectedTime)
+  
   const [selectedTripType, setSelectedTripType] = useState(null);
-  console.log('ttt', selectedTripType)
+  
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [pickupLocation, setPickupLocation] = useState('');
@@ -101,7 +101,7 @@ const CreateSelfTrip = () => {
     // setPackages('');
   };
 
-  console.log({ resetFields })
+  
 
   useEffect(() => {
     getUserVehicles();
@@ -180,7 +180,7 @@ const CreateSelfTrip = () => {
 
   const fetchSelfTrips = async () => {
     const response = await getTripTypes(userToken);
-    // console.log('uuu', response)
+    
     if (response.error === false) {
       setSelfTripTypes(response.data);
     }
@@ -384,7 +384,7 @@ const CreateSelfTrip = () => {
                 item,
                 isSelected: selectedTripType === item.id,
                 onPress: () => {
-                  console.log('Trip Type Selected:', item);
+                  
                   setSelectedTripType(item.id);
                   // const packages = item.bookingTypePackageAsBookingType;
                   // if (packages.length > 0) {
@@ -394,7 +394,7 @@ const CreateSelfTrip = () => {
                   // }
 
                   const packages = item.bookingTypePackageAsBookingType;
-                  console.log('Packages:', packages);
+                  
                   if (packages.length > 0) {
                     setSelectedPackage(packages[0].id);
                   } else {

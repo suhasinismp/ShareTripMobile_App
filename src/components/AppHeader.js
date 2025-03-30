@@ -59,7 +59,7 @@ const AppHeader = ({
         navigation.openDrawer();
       }
     } catch (error) {
-      console.log('Drawer navigation error:', error);
+      console.error('Error opening drawer:', error);
     }
   };
 

@@ -44,10 +44,10 @@ const EnterNumberScreen = () => {
     });
 
     const onSubmit = async (data) => {
-        console.log()
+        
         try {
             const response = await verifyPasswordOTP(data);
-            console.log('API Response:', response);
+            
 
             if (response?.message === "SMS sent successfully" && response?.data?.Status === "Success") {
                 navigation.navigate('OTPVerifyForgotScreen', {
