@@ -1,4 +1,5 @@
 import {
+  deleteAPI,
   getAPI,
   patchAPI,
   patchFormDataAPI,
@@ -16,12 +17,81 @@ export const getDriverInProgressTrips = async (userId, token) => {
 
 export const getPostedGuyInProgressTrips = async (userId, token) => {
   const response = await getAPI(
-    `share-trip/post-trip-accept/based-posted-user/${userId}`,
+    `share-trip/post-booking/post-booking-list-for-posted-user/${userId}`,
     token,
   );
 
   return response;
 };
+
+// Fix the function name and parameters
+export const DriverData = async (postId, token) => {
+  try {
+    const response = await getAPI(
+      `share-trip/post-trip-accept/based-post-booking/${postId}`,
+      token,
+    );
+    return response;
+  } catch (error) {
+    console.error('Driver data error:', error);
+    return {
+      error: true,
+      message: error?.message || 'Failed to fetch driver data',
+      data: []
+    };
+  }
+};
+
+
+export const deletePostedTrip = async (postId, userId, token) => {
+  try {
+    if (!postId || !userId || !token) {
+      throw new Error('Missing required parameters');
+    }
+
+    const response = await deleteAPI({
+      endUrl: `share-trip/post-booking/delete-post?id=${postId}&posted_user_id=${userId}`,
+      token: token
+    });
+    console.log('delete response:', response); // Fixed syntax error
+    return response;
+  } catch (error) {
+    console.error('Delete post error:', error);
+    return {
+      error: true,
+      message: error?.message || 'Failed to delete post',
+      data: null
+    };
+  }
+};
+
+export const driverData = async (postId, token) => {
+  try {
+    if (!postId || !token) {
+      throw new Error('Missing required parameters');
+    }
+
+    const response = await getAPI(
+      `share-trip/post-trip-accept/based-post-booking/${postId}`,
+      token
+    );
+
+    if (!response) {
+      throw new Error('No response from server');
+    }
+
+    return response;
+  } catch (error) {
+    console.error('Error in driverData:', error);
+    return {
+      error: true,
+      message: error?.message || 'Failed to fetch driver data',
+      data: null
+    };
+  }
+};
+
+
 
 export const confirmedDriverTrips = async (userId, token) => {
   const response = await getAPI(
@@ -41,7 +111,7 @@ export const confirmedPostedGuyTrips = async (userId, token) => {
 
 export const acceptDriverRequest = async (data, token) => {
   const response = await postAPI('share-trip/post-trip-confirm/', data, token);
-
+  console.log('Accept driver response:', response);
   return response;
 };
 
@@ -85,7 +155,7 @@ export const postAdditionCharges = async (data, token) => {
     data,
     token,
   );
-  
+
   return response;
 };
 

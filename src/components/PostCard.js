@@ -37,7 +37,7 @@ const PostCard = ({
   // Comment/Voice Props
   postComments,
   postVoiceMessage,
-
+  numberOfDays,
   // Amount Props
   baseFareRate,
   extrakms,
@@ -59,14 +59,17 @@ const PostCard = ({
   customerBillOnPress,
   billsScreen,
 }) => {
+  // console.log({ user })
 
-  
   const requestStatus = isRequested ? isRequested : 'Accept';
   const isAvailable = postStatus === 'Available' || postStatus === 'available';
 
   const hasCommentOrVoice = postComments || postVoiceMessage;
 
   const getHeaderColor = () => {
+    if (billsScreen) {
+      return '#CCE3F4';  // Always use this color for bills screen
+    }
     return isAvailable ? '#CCE3F4' : '#FF9C7D';
   };
 
@@ -201,6 +204,23 @@ const PostCard = ({
                     </Text>
                   )}
                 </View>
+                {numberOfDays && (
+                  <View style={styles.daysInfo}>
+                    <Ionicons
+                      name="calendar-outline"
+                      size={20}
+                      color={getIconColor()}
+                    />
+                    <Text
+                      style={[
+                        styles.tripTime,
+                        { color: isAvailable ? '#171661' : '#666' },
+                      ]}
+                    >
+                      {`${numberOfDays} Days`}
+                    </Text>
+                  </View>
+                )}
                 <View style={styles.distanceAndVehicle}>
                   <View style={styles.distanceInfo}>
                     {packageName && (
@@ -318,7 +338,7 @@ const PostCard = ({
                     <View style={styles.amountSection}>
                       <Text style={styles.amountLabel}>Amount:</Text>
                       <Text style={styles.amountText}>
-                        {`Rs ${baseFareRate}${extrakms ? `/extrakm ${extrakms}` : ''}/-`}
+                        {`Rs ${baseFareRate}/${extrakms ? ` ${extrakms}` : ''}/`}
                       </Text>
                     </View>
                   )}
@@ -387,7 +407,7 @@ const PostCard = ({
             <Text style={styles.buttonText}>View Trip Sheet</Text>
           </TouchableOpacity>
         )}
-        
+
         {driverTripBill && (
           <TouchableOpacity
             onPress={driverTripBillOnPress}
@@ -437,6 +457,11 @@ const styles = StyleSheet.create({
   cardDate: {
     color: '#000000',
     fontSize: 12,
+  },
+  daysInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   cardStatus: {
     fontSize: 14,
@@ -543,7 +568,7 @@ const styles = StyleSheet.create({
   vehicleText: {
     marginLeft: 8,
     fontSize: 12,
-    fontFamily: FONTS.Regular400,
+    fontFamily: FONTS.Bold700,
     lineHeight: 22,
   },
   locationInfo: {

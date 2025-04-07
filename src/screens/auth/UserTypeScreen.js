@@ -61,7 +61,7 @@ const UserTypeScreen = () => {
           containerStyle={{ width: '80%' }}
           icon={driverIcon}
         />
-        {/* <CustomSelect
+        <CustomSelect
           text={i18n.t('USER_TYPE_TRAVEL_AGENCY')}
           isSelected={userType === userTypesAndRoleIds.TRAVEL_AGENCY}
           onPress={() => {
@@ -70,7 +70,7 @@ const UserTypeScreen = () => {
           }}
           containerStyle={{ width: '80%' }}
           icon={travelAgencyIcon}
-        /> */}
+        />
 
         {/* Error Message */}
         {error ? (

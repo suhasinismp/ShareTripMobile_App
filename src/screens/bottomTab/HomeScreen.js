@@ -31,6 +31,8 @@ import ModalProfileIcon from '../../../assets/svgs/modalProfile.svg';
 import AddPostIcon from '../../../assets/svgs/addPost.svg';
 import { getAllVehiclesByUserId } from '../../services/vehicleDetailsService';
 import { formatDate } from '../../utils/formatdateUtil';
+import { getOnlineStatusSelector, getShowOnlyAvailableSelector } from '../../store/selectors';
+import { setShowOnlyAvailable } from '../../store/slices/statusOnlineSlice';
 // import { getRingToneScreen } from '../../services/ringtoneScreenService';
 
 export const handleCall = (phoneNumber) => {
@@ -43,6 +45,7 @@ const HomeScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
+  const showOnlyAvailable = useSelector(getShowOnlyAvailableSelector);
 
   // State
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -74,7 +77,7 @@ const HomeScreen = () => {
       return () => {
         clearInterval(intervalId);
       };
-    }, [userId, userToken]),
+    }, [userId, userToken, showOnlyAvailable]),
   );
 
   useEffect(() => {
@@ -117,19 +120,51 @@ const HomeScreen = () => {
     setUserVehicles(response.data);
   };
 
+  // const getUserPosts = async () => {
+  //   setIsLoading(true);
+  //   const response = await fetchPostsByUserId(userId, userToken);
+
+  //   if (response?.error === false) {
+  //     const filteredPosts = response?.data.filter(
+  //       (post) =>
+  //         post.post_status === ('Available' || 'available') ||
+  //         post.post_status === ('Closed' || 'closed'),
+  //     );
+  //     setUserPostsData(filteredPosts);
+  //   }
+  //   setIsLoading(false);
+  // };
+
+  useEffect(() => {
+    if (userId && userToken) {
+      getUserPosts();
+    }
+  }, [showOnlyAvailable]);
+
   const getUserPosts = async () => {
     setIsLoading(true);
-    const response = await fetchPostsByUserId(userId, userToken);
+    try {
+      const response = await fetchPostsByUserId(userId, userToken);
 
-    if (response?.error === false) {
-      const filteredPosts = response?.data.filter(
-        (post) =>
-          post.post_status === ('Available' || 'available') ||
-          post.post_status === ('Closed' || 'closed'),
-      );
-      setUserPostsData(filteredPosts);
+      if (response?.error === false) {
+        const filteredPosts = response?.data.filter((post) => {
+          const status = post.post_status?.toLowerCase() || '';
+          if (showOnlyAvailable) {
+            return status === 'available';
+          }
+          return status === 'available' || status === 'closed';
+        });
+        setUserPostsData(filteredPosts);
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
+  };
+
+  const handleOnlineStatusToggle = () => {
+    dispatch(setShowOnlyAvailable(!showOnlyAvailable));
   };
 
   const onRefresh = useCallback(async () => {
@@ -190,39 +225,92 @@ const HomeScreen = () => {
 
 
 
-  const renderPostCard = ({ item }) => {
-    
+  // const renderPostCard = ({ item }) => {
 
+
+  //   return (
+  //     <PostCard
+  //       // Card Header Props
+  //       bookingType={item?.bookingType_name}
+  //       createdAt={formatDate(item?.created_at)}
+  //       postStatus={item?.post_status}
+  //       // User Info Props
+  //       userProfilePic={item?.User_profile || 'https://via.placeholder.com/150'}
+  //       userName={item?.User_name}
+  //       postSharedWith={
+  //         item?.post_type_id === 1
+  //           ? 'Public'
+  //           : item?.post_type_id === 2
+  //             ? item?.group_name
+  //             : 'You'
+  //       }
+
+
+  //       fromDate={item?.from_date || ''}
+  //       vehicleType={item?.Vehicle_type_name}
+
+  //       vehicleName={item?.Vehicle_name}
+  //       pickUpTime={item?.pick_up_time || ''}
+  //       numberOfDays={item?.no_of_days || ''}
+  //       pickUpLocation={item?.pick_up_location}
+  //       destination={item?.destination}
+  //       // Comment/Voice Props
+  //       postComments={item?.post_comments}
+  //       postVoiceMessage={item?.post_voice_message}
+  //       // Amount Props
+  //       baseFareRate={item?.bookingTypeTariff_base_fare_rate}
+  //       extrakms={item?.bookingTypeTariff_extra_km_rate}
+  //       // Action Props
+  //       onRequestPress={() =>
+  //         handleRequestClick(
+  //           item?.post_booking_id,
+  //           userId,
+  //           item?.posted_user_id,
+  //           userVehicles[0]?.st_vehicles_id,
+  //         )
+  //       }
+  //       onCallPress={() => handleCall(item?.User_phone)}
+  //       onTripSheetPress={() => {
+  //         navigation.navigate('ViewTripSheet', {
+  //           from: 'home',
+  //           postId: item?.post_booking_id,
+  //         });
+  //       }}
+  //       isRequested={item?.request_status || false}
+  //       packageName={item?.bookingTypePackage_name || ''}
+  //     />
+  //   );
+  // }
+  const renderPostCard = ({ item }) => {
     return (
       <PostCard
         // Card Header Props
-        bookingType={item?.bookingType_name}
-        createdAt={formatDate(item?.created_at)}
-        postStatus={item?.post_status}
+        bookingType={item?.bookingType_name?.toString() || ''}
+        createdAt={formatDate(item?.created_at) || ''}
+        postStatus={item?.post_status?.toString() || ''}
         // User Info Props
         userProfilePic={item?.User_profile || 'https://via.placeholder.com/150'}
-        userName={item?.User_name}
+        userName={item?.User_name?.toString() || ''}
         postSharedWith={
           item?.post_type_id === 1
             ? 'Public'
             : item?.post_type_id === 2
-              ? item?.group_name
+              ? item?.group_name?.toString()
               : 'You'
         }
-
-        pickUpTime={item?.pick_up_time || ''}
-        fromDate={item?.from_date || ''}
-        vehicleType={item?.Vehicle_type_name}
-
-        vehicleName={item?.Vehicle_name}
-        pickUpLocation={item?.pick_up_location}
-        destination={item?.destination}
+        fromDate={item?.from_date?.toString() || ''}
+        vehicleType={item?.Vehicle_type_name?.toString() || ''}
+        vehicleName={item?.Vehicle_name?.toString() || ''}
+        pickUpTime={item?.pick_up_time?.toString() || ''}
+        numberOfDays={item?.no_of_days?.toString() || ''}
+        pickUpLocation={item?.pick_up_location?.toString() || ''}
+        destination={item?.destination?.toString() || ''}
         // Comment/Voice Props
-        postComments={item?.post_comments}
-        postVoiceMessage={item?.post_voice_message}
+        postComments={item?.post_comments?.toString() || ''}
+        postVoiceMessage={item?.post_voice_message?.toString() || ''}
         // Amount Props
-        baseFareRate={item?.bookingTypeTariff_base_fare_rate}
-        extrakms={item?.bookingTypeTariff_extra_km_rate}
+        baseFareRate={item?.bookingTypeTariff_base_fare_rate?.toString() || ''}
+        extrakms={item?.bookingTypeTariff_extra_km_rate?.toString() || ''}
         // Action Props
         onRequestPress={() =>
           handleRequestClick(
@@ -240,10 +328,10 @@ const HomeScreen = () => {
           });
         }}
         isRequested={item?.request_status || false}
-        packageName={item?.bookingTypePackage_name || ''}
+        packageName={item?.bookingTypePackage_name?.toString() || ''}
       />
     );
-  }
+  };
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -256,17 +344,17 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <AppHeader
         drawerIcon={true}
-        // groupIcon={true}
         onlineIcon={true}
+        onlineStatus={showOnlyAvailable}
+        onOnlinePress={handleOnlineStatusToggle}
         muteIcon={true}
-      // search={true}
       />
       <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20 }}>New Booking</Text>
 
       <FlatList
         data={userPostsData}
         renderItem={renderPostCard}
-        keyExtractor={(item) => item.post_booking_id.toString()}
+        keyExtractor={(item) => item?.post_booking_id?.toString()}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -285,8 +373,8 @@ const HomeScreen = () => {
 
       <CustomModal
         visible={isModalVisible}
-        title="Complete Your Profile"
-        subtitle="Complete Your Profile To Boost Your Visibility And Build Trust With Fellow Drivers!"
+        title={<Text>Complete Your Profile</Text>}
+        subtitle={<Text>Complete Your Profile To Boost Your Visibility And Build Trust With Fellow Drivers!</Text>}
         primaryButtonText="Go To Profile"
         secondaryButtonText="Cancel"
         icon={<ModalProfileIcon />}

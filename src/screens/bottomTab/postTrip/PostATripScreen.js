@@ -244,7 +244,7 @@ const PostATripScreen = ({ route }) => {
   const [rate, setRate] = useState('');
 
   const [extraKms, setExtraKms] = useState('');
-  
+
   const [extraHours, setExtraHours] = useState('');
   const [dayBatta, setDayBatta] = useState('');
   const [nightBatta, setNightBatta] = useState('');
@@ -396,7 +396,7 @@ const PostATripScreen = ({ route }) => {
 
 
     if (initialData) {
-      
+
       const data = initialData[0] || initialData;
 
 
@@ -493,29 +493,94 @@ const PostATripScreen = ({ route }) => {
     }
   };
 
+  // const handleTripBillEdit = async () => {
+  //   try {
+  //     const finalData = {
+  //       id: selectedTripCardId,
+  //       post_booking_id: postId,
+  //       start_trip_kms: startTripKms,
+  //       start_date: startDate,
+  //       start_time: startTime,
+  //       end_trip_date: endTripDate || startDate,
+  //       end_trip_time: endTripTime,
+  //       end_trip_kms: endTripKms,
+  //     };
+  //     // console.log('Final Data:', finalData);
+  //     const response = await updateViewTripBillTable(finalData, userToken);
+  //     console.log('Response:', response);
+  //     if (response?.error === false) {
+  //       dispatch(showSnackbar({
+  //         message: 'Trip details updated successfully',
+  //         type: 'success',
+  //       }));
+  //       setShowTripBillEditModal(false);
+  //       await getTripTable(); // Refresh the trip table data
+  //     } else {
+  //       dispatch(showSnackbar({
+  //         message: response?.message || 'Failed to update trip details',
+  //         type: 'error',
+  //       }));
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating trip details:', error);
+  //     dispatch(showSnackbar({
+  //       message: 'Failed to update trip details',
+  //       type: 'error',
+  //     }));
+  //   }
+  // };
+
+
+  // Event Handlers
   const handleTripBillEdit = async () => {
-    const finalData = {
-      id: selectedTripCardId,
-      start_trip_kms: startTripKms,
-      start_date: startDate,
-      start_time: startTime,
-      end_trip_date: endTripDate || startDate,
-      end_trip_time: endTripTime,
-      end_trip_kms: endTripKms,
-    };
-    
-    const response = await updateViewTripBillTable(finalData, userToken);
+    try {
+      // Validate required fields
+      if (!startTripKms || !startDate || !startTime || !endTripKms || !endTripTime) {
+        throw new Error('Please fill all required fields');
+      }
 
-    if (response?.error === false) {
+      // Validate KMs (end KMs should be greater than start KMs)
+      if (Number(endTripKms) <= Number(startTripKms)) {
+        throw new Error('End KMs must be greater than Start KMs');
+      }
 
-      setShowTripBillEditModal(false);
-      getTripTable();
-    } else {
-      
+      const finalData = {
+        id: selectedTripCardId,
+        post_booking_id: postId,
+        start_trip_kms: startTripKms.toString(),
+        start_date: startDate,
+        start_time: startTime,
+        end_trip_date: endTripDate || startDate,
+        end_trip_time: endTripTime,
+        end_trip_kms: endTripKms.toString(),
+        total_kms: (Number(endTripKms) - Number(startTripKms)).toString(),
+      };
+
+      const response = await updateViewTripBillTable(finalData, userToken);
+
+      if (!response) {
+        throw new Error('No response from server');
+      }
+
+      if (response?.error === false) {
+        dispatch(showSnackbar({
+          message: response.message || 'Trip details updated successfully',
+          type: 'success',
+        }));
+        setShowTripBillEditModal(false);
+        await getTripTable();
+      } else {
+        throw new Error(response?.message || 'Failed to update trip details');
+      }
+    } catch (error) {
+      console.error('Error updating trip details:', error);
+      dispatch(showSnackbar({
+        message: error.message || 'Failed to update trip details',
+        type: 'error',
+      }));
     }
   };
 
-  // Event Handlers
   const handleStartRecording = useCallback(() => {
     setIsRecording(true);
   }, []);
@@ -653,7 +718,7 @@ const PostATripScreen = ({ route }) => {
       if (extraHours) finalData.extra_hr_rate = extraHours;
       if (dayBatta) finalData.day_batta_rate = dayBatta;
       if (nightBatta) finalData.night_batta_rate = nightBatta;
-      if (slabKms) finalData.slab_Kms = slabKms;
+      if (slabKms) finalData.extra_km_rate = slabKms;
       if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
       if (notes) finalData.note_1 = notes;
       if (visitingPlace) finalData.visiting_place = visitingPlace;
@@ -661,7 +726,7 @@ const PostATripScreen = ({ route }) => {
       if (selectedFromDate) finalData.from_date = selectedFromDate;
       if (selectedToDate) finalData.to_date = selectedToDate;
     }
-    
+
     if (selectedShareType === 1) {
       finalData.post_type_value = null;
       let formData = new FormData();
@@ -678,7 +743,7 @@ const PostATripScreen = ({ route }) => {
 
       try {
         const response = await createPost(formData, userToken);
-        
+
         if (
           response.error === false &&
           response.message === 'Post Booking Data created successfully'
@@ -742,7 +807,7 @@ const PostATripScreen = ({ route }) => {
     if (extraHours) finalData.extra_hr_rate = extraHours;
     if (dayBatta) finalData.day_batta_rate = dayBatta;
     if (nightBatta) finalData.night_batta_rate = nightBatta;
-    if (slabKms) finalData.slab_Kms = slabKms;
+    if (slabKms) finalData.extra_km_rate = slabKms;
     if (selectedPaymentType) finalData.payment_type = selectedPaymentType;
     if (notes) finalData.note_1 = notes;
     if (visitingPlace) finalData.visiting_place = visitingPlace;
@@ -928,85 +993,6 @@ const PostATripScreen = ({ route }) => {
 
 
       <View style={styles.sectionContainer}>
-        <CustomText
-          text={'Select Vehicle Type :'}
-          variant={'sectionTitleText'}
-        />
-        <FlatList
-          data={vehicleTypes}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <VehicleButton
-              item={item}
-              isSelected={selectedVehicleType === item.id}
-              onPress={() => setSelectedVehicleType(item.id)}
-              imageKey="v_type_pic"
-              nameKey="v_type"
-            />
-          )}
-          contentContainerStyle={styles.vehicleListContainer}
-        />
-      </View>
-
-      <View style={styles.sectionContainer}>
-        <CustomText
-          text={'Select Vehicle Name :'}
-          variant={'sectionTitleText'}
-        />
-        {filteredVehicleNames.length > 0 ? (
-          <FlatList
-            data={filteredVehicleNames}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <VehicleButton
-                item={item}
-                isSelected={selectedVehicleName === item.id}
-                onPress={() => setSelectedVehicleName(item.id)}
-                imageKey="v_pic"
-                nameKey="v_name"
-              />
-            )}
-            contentContainerStyle={styles.vehicleListContainer}
-          />
-        ) : (
-          <CustomText
-            text={'Please select a vehicle type first'}
-            style={styles.noVehicleText}
-          />
-        )}
-      </View>
-
-
-    </>
-  );
-
-  const renderTripSheetContent = () => (
-    <>
-      <View style={[styles.sectionContainer, styles.gap10]}>
-        <CustomText text={'Customer Details :'} variant={'sectionTitleText'} />
-        <CustomInput
-          placeholder="Customer Name"
-          value={customerName}
-          onChangeText={setCustomerName}
-        />
-        <CustomInput
-          placeholder="Customer Phone"
-          value={customerPhone}
-          onChangeText={setCustomerPhone}
-          keyboardType="phone-pad"
-        />
-      </View>
-
-      {renderCommonContent()}
-
-
-
-
-      <View style={styles.sectionContainer}>
         <CustomText text={'Tariff :'} variant={'sectionTitleText'} />
         <View style={styles.tariffContainer}>
           {/* Local Trip (Type 1) */}
@@ -1084,6 +1070,87 @@ const PostATripScreen = ({ route }) => {
 
       <View style={styles.sectionContainer}>
         <CustomText
+          text={'Select Vehicle Type :'}
+          variant={'sectionTitleText'}
+        />
+        <FlatList
+          data={vehicleTypes}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <VehicleButton
+              item={item}
+              isSelected={selectedVehicleType === item.id}
+              onPress={() => setSelectedVehicleType(item.id)}
+              imageKey="v_type_pic"
+              nameKey="v_type"
+            />
+          )}
+          contentContainerStyle={styles.vehicleListContainer}
+        />
+      </View>
+
+      {/* <View style={styles.sectionContainer}>
+        <CustomText
+          text={'Select Vehicle Name :'}
+          variant={'sectionTitleText'}
+        />
+        {filteredVehicleNames.length > 0 ? (
+          <FlatList
+            data={filteredVehicleNames}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <VehicleButton
+                item={item}
+                isSelected={selectedVehicleName === item.id}
+                onPress={() => setSelectedVehicleName(item.id)}
+                imageKey="v_pic"
+                nameKey="v_name"
+              />
+            )}
+            contentContainerStyle={styles.vehicleListContainer}
+          />
+        ) : (
+          <CustomText
+            text={'Please select a vehicle type first'}
+            style={styles.noVehicleText}
+          />
+        )}
+      </View> */}
+
+
+    </>
+  );
+
+  const renderTripSheetContent = () => (
+    <>
+      <View style={[styles.sectionContainer, styles.gap10]}>
+        <CustomText text={'Customer Details :'} variant={'sectionTitleText'} />
+        <CustomInput
+          placeholder="Customer Name"
+          value={customerName}
+          onChangeText={setCustomerName}
+        />
+        <CustomInput
+          placeholder="Customer Phone"
+          value={customerPhone}
+          onChangeText={setCustomerPhone}
+          keyboardType="phone-pad"
+        />
+      </View>
+
+      {renderCommonContent()}
+
+
+
+
+
+
+      <View style={styles.sectionContainer}>
+        <CustomText
           text={'Payment / Duty Type :'}
           variant={'sectionTitleText'}
         />
@@ -1114,7 +1181,7 @@ const PostATripScreen = ({ route }) => {
       </View>
 
       <View style={styles.sectionContainer}>
-        <CustomText text={'Date & Time :'} variant={'sectionTitleText'} />
+        <CustomText text={'PickUp Time :'} variant={'sectionTitleText'} />
         <View style={styles.dateTimeContainer}>
           <TimeDatePicker
             fromDate={selectedFromDate}

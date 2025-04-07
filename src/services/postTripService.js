@@ -70,7 +70,7 @@ export const generateBillPdf = async (body, token) => {
 };
 
 export const fetchTripSheetByPostId = async (postId, token) => {
-  
+
   const response = await getAPI(`/share-trip/post-booking/${postId}`, token);
 
   store.dispatch(setTripDetailsToStore({ tripDetailsInBill: response.data }));
@@ -86,12 +86,12 @@ export const fetchTripTable = async (postId, token) => {
 };
 
 export const updateViewTripBillTable = async (data, token) => {
-  
+
   const response = await patchAPI({
     endUrl: 'share-trip/trip-sheet-ride/',
     body: data,
     token: token,
   });
-  
+  console.log('navya', response)
   return response;
 };

@@ -17,7 +17,8 @@ import {
 import AppHeader from '../../../components/AppHeader';
 import CustomSelect from '../../../components/ui/CustomSelect';
 import PostCard from '../../../components/PostCard';
-import FilterIcon from '../../../../assets/svgs/filter.svg';
+// import FilterIcon from '../../../../assets/svgs/filter.svg';
+import ArrowDown from '../../../../assets/svgs/arrowDown.svg';
 import { useNavigation } from '@react-navigation/native';
 import { handleCall } from '../HomeScreen';
 
@@ -38,6 +39,7 @@ const Bills = () => {
   const [showFilters, setShowFilters] = useState(true);
   const [dataSource, setDataSource] = useState([]);
   const [isSelfTrip, setIsSelfTrip] = useState(false);
+
   // const [showFilters, setShowFilters] = useState(false);
 
   // const [selectedFilterTwo, setSelectedFilterTwo] = useState('PostedTrips');
@@ -71,38 +73,43 @@ const Bills = () => {
     let filteredData = [];
 
     // Add null checks and ensure arrays
-    if (selectedFilterOne === 'myDuties') {
-      filteredData = MyDutiesBill || [];
-    } else if (selectedFilterOne === 'PostedTrips') {
-      filteredData = postedTripBills || [];
+    if (!selectedFilterOne || !showLocationFilters) {
+      filteredData = [...(MyDutiesBill || []), ...(postedTripBills || []), ...(selfTripBills || [])];
     } else {
-      filteredData = selfTripBills || [];
-    }
+      // Apply filters when selected
+      if (selectedFilterOne === 'myDuties') {
+        filteredData = MyDutiesBill || [];
+      } else if (selectedFilterOne === 'PostedTrips') {
+        filteredData = postedTripBills || [];
+      } else {
+        filteredData = selfTripBills || [];
+      }
 
-    // Filter based on booking type with improved outstation handling
-    // if (selectedFilterTwo && filteredData.length > 0) {
-    //   filteredData = filteredData.filter(item => {
-    //     if (!item) return false;  // Skip null/undefined items
+      // Filter based on booking type with improved outstation handling
+      // if (selectedFilterTwo && filteredData.length > 0) {
+      //   filteredData = filteredData.filter(item => {
+      //     if (!item) return false;  // Skip null/undefined items
 
-    if (showLocationFilters && selectedFilterTwo && filteredData.length > 0) {
-      filteredData = filteredData.filter(item => {
-        if (!item) return false;
+      if (showLocationFilters && selectedFilterTwo && filteredData.length > 0) {
+        filteredData = filteredData.filter(item => {
+          if (!item) return false;
 
-        const bookingType = (
-          item?.booking_type_name ||
-          item?.postBooking?.bookingType?.booking_type_name ||
-          ''
-        ).toLowerCase();
+          const bookingType = (
+            item?.booking_type_name ||
+            item?.postBooking?.bookingType?.booking_type_name ||
+            ''
+          ).toLowerCase();
 
-        const selectedType = selectedFilterTwo.toLowerCase();
+          const selectedType = selectedFilterTwo.toLowerCase();
 
-        // Special handling for OutStation
-        if (selectedType === 'outstation') {
-          return ['outstation', 'out station', 'outstation trip'].includes(bookingType);
-        }
-        // For Local and Transfer
-        return bookingType === selectedType.toLowerCase();
-      });
+          // Special handling for OutStation
+          if (selectedType === 'outstation') {
+            return ['outstation', 'out station', 'outstation trip'].includes(bookingType);
+          }
+          // For Local and Transfer
+          return bookingType === selectedType.toLowerCase();
+        });
+      }
     }
     setDataSource(filteredData);
   }, [
@@ -134,7 +141,7 @@ const Bills = () => {
   const fetchSelfTripBills = async () => {
     try {
       const response = await getMySelfTripBills(userId, userToken);
-      
+
 
     } catch (error) {
       console.error('Error fetching Self Trip bills:', error);
@@ -190,9 +197,11 @@ const Bills = () => {
           });
         }}
 
-        isAvailable={true}
-        postStatus={'Available'}  // Changed to 'Available'
-        requestStatus={'Request'}  // Add this
+
+        isAvailable={false}
+        postStatus={'Trip Completed'}
+        requestStatus={'Trip Completed'}
+        disableStatusBackground={true}// Add this
         onRequestPress={() => { }}  // Add this
         isRequested={false}  // Add this
         vacantTripPostedByLoggedInUser={undefined}
@@ -224,24 +233,26 @@ const Bills = () => {
   return (
     <>
       <AppHeader
-        title="TripSheet/Bills"
+        // title="TripSheet/Bills"
         backIcon={true}
+        search={true}
         onBackPress={() => navigation.goBack()}
       />
+      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>TripSheet/Bills</Text>
       <View style={styles.container}>
         <View style={styles.filterRow}>
           <CustomSelect
-            text="My Duties"
+            text="ReceiveTrips"
             isSelected={selectedFilterOne === 'myDuties'}
             onPress={() => setSelectedFilterOne('myDuties')}
           />
           <CustomSelect
-            text="Posted Trips"
+            text="PostTrips"
             isSelected={selectedFilterOne === 'PostedTrips'}
             onPress={() => setSelectedFilterOne('PostedTrips')}
           />
           <CustomSelect
-            text="Self Trips"
+            text="OwnBook"
             isSelected={selectedFilterOne === 'SelfTrips'}
             onPress={() => setSelectedFilterOne('SelfTrips')}
           />
@@ -249,7 +260,7 @@ const Bills = () => {
             onPress={() => setShowLocationFilters(!showLocationFilters)}
             style={styles.filterIconContainer}
           >
-            <FilterIcon />
+            <ArrowDown />
           </TouchableOpacity>
         </View>
 
