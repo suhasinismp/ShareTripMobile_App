@@ -618,12 +618,6 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     color: '#0F0F0F',
   },
-  amountText: {
-    fontSize: 16,
-    fontFamily: FONTS.Bold700,
-    color: '#123F67',
-    marginLeft: 8,
-  },
   acceptButton: {
     backgroundColor: '#005680',
     paddingVertical: 8,

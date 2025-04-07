@@ -382,7 +382,7 @@ const SelfTripHome = () => {
   };
   const renderSelfPostCard = ({ item }) => (
     <PostCard
-      // ... existing props ...
+      
       bookingType={item?.bookingType_name}
       createdAt={formatDate(item?.created_at)}
       postStatus={item?.post_status}
@@ -401,7 +401,6 @@ const SelfTripHome = () => {
       onCallPress={() => handleCall(item?.user_phone || item?.User?.u_phone)}
       showCallButton={true}
       userPhone={item?.user_phone || item?.User?.u_phone}
-      // ... rest of the props ...
       onRequestPress={() => handleButtonPress(item)}
       onTripSheetPress={() => {
         navigation.navigate('ViewTripSheet', {

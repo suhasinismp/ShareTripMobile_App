@@ -4,7 +4,7 @@
     "slug": "sharetripprod",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon2.png",
+    "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -20,9 +20,6 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.ganakalabs.sharetripprod"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
