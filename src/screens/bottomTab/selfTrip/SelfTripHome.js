@@ -76,9 +76,9 @@ const SelfTripHome = () => {
   const [showClosingDatePicker, setShowClosingDatePicker] = useState(false);
   const [closingActionType, setClosingActionType] = useState('end');
   const [finalDay, setFinalDay] = useState(false);
-  
+
   const [additionalChargesData, setAdditionalChargesData] = useState(null);
-  
+
   const [additionalChargesDocs, setAdditionalChargesDocs] = useState(null);
 
   useEffect(() => {
@@ -218,7 +218,7 @@ const SelfTripHome = () => {
       selectedTripData?.post_booking_id,
       userToken,
     );
-    
+
 
     if (tripDetails?.error === false) {
       setTripSummaryData({
@@ -229,7 +229,7 @@ const SelfTripHome = () => {
         closingTime: tripDetails?.data?.end_trip_time || '',
         closingDate: tripDetails?.data?.end_trip_date || closingDate,
       });
-  
+
       if (
         tripDetails?.data?.end_trip_kms?.length > 0 &&
         tripDetails?.data?.customer_signature === null
@@ -306,7 +306,7 @@ const SelfTripHome = () => {
       night_batta: charges?.nightBatta * 1,
       end_date: closingDate || tripSummaryData?.closingDate,
     };
-    
+
     if (finalDay) {
       finalData.end_trip = 'trip completing';
     }
@@ -314,8 +314,8 @@ const SelfTripHome = () => {
     setAdditionalChargesDocs(documents);
 
     if (!finalDay) {
-      
-      
+
+
       const formData = new FormData();
       formData.append('json', JSON.stringify(finalData));
 
@@ -350,13 +350,13 @@ const SelfTripHome = () => {
         }
       }
       const response = await postAdditionCharges(formData, userToken);
-      
+
       if (response?.error === false) {
         setClosingDate(''), setShowAdditionalCharges(false);
         setShowCustomerSignatureModal(true);
       }
     } else {
-      
+
       setShowAdditionalCharges(false);
       setShowCustomerSignatureModal(true);
 

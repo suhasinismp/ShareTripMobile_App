@@ -55,9 +55,9 @@ const CreateSelfTrip = () => {
   const [dayBatta, setDayBatta] = useState('');
 
   const [selectedTime, setSelectedTime] = useState(new Date());
-  
+
   const [selectedTripType, setSelectedTripType] = useState(null);
-  
+
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [pickupLocation, setPickupLocation] = useState('');
@@ -101,7 +101,7 @@ const CreateSelfTrip = () => {
     // setPackages('');
   };
 
-  
+
 
   useEffect(() => {
     getUserVehicles();
@@ -180,7 +180,7 @@ const CreateSelfTrip = () => {
 
   const fetchSelfTrips = async () => {
     const response = await getTripTypes(userToken);
-    
+
     if (response.error === false) {
       setSelfTripTypes(response.data);
     }
@@ -280,10 +280,10 @@ const CreateSelfTrip = () => {
     <>
       <AppHeader
         drawerIcon={true}
-        groupIcon={true}
+        // groupIcon={true}
         onlineIcon={true}
         muteIcon={true}
-        search={true}
+      // search={true}
       />
       <Text
         style={{
@@ -293,7 +293,7 @@ const CreateSelfTrip = () => {
           marginBottom: 10,
         }}
       >
-        Self Trips
+        Own Booking
       </Text>
 
       <KeyboardAwareScrollView
@@ -384,7 +384,7 @@ const CreateSelfTrip = () => {
                 item,
                 isSelected: selectedTripType === item.id,
                 onPress: () => {
-                  
+
                   setSelectedTripType(item.id);
                   // const packages = item.bookingTypePackageAsBookingType;
                   // if (packages.length > 0) {
@@ -394,7 +394,7 @@ const CreateSelfTrip = () => {
                   // }
 
                   const packages = item.bookingTypePackageAsBookingType;
-                  
+
                   if (packages.length > 0) {
                     setSelectedPackage(packages[0].id);
                   } else {
@@ -583,7 +583,7 @@ const CreateSelfTrip = () => {
           />
 
         </View> */}
-        <View style={styles.sectionContainer}>
+        {/* <View style={styles.sectionContainer}>
           <CustomText text={'Date & Time :'} variant={'sectionTitleText'} />
           <View style={styles.dateTimeContainer}>
             <TimeDatePicker
@@ -594,8 +594,8 @@ const CreateSelfTrip = () => {
               onToDateChange={handleToDateChange}
               onTimeChange={handleTimeChange}
             />
-          </View>
-        </View>
+          </View> */}
+        {/* </View> */}
 
         {/* <View style={styles.sectionContainer}>
           <CustomText

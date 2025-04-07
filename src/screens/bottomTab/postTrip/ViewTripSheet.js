@@ -24,14 +24,14 @@ function formatTime(isoString) {
   // Convert to 12-hour format
   hours = hours % 12 || 12; // Converts 0 hours to 12
   const formattedMinutes = minutes.toString().padStart(2, "00");
-  
+
   return `${hours}:${formattedMinutes} ${ampm}`;
 }
 
 
 const ViewTripSheet = ({ route }) => {
   const { postId, from, edit, isSelfTrip } = route.params;
-  
+
 
   const navigation = useNavigation();
 
@@ -47,7 +47,7 @@ const ViewTripSheet = ({ route }) => {
 
 
   useEffect(() => {
-    
+
     fetchTripSheetByPostId(postId, userToken)
 
   }, [postId, userToken]);
@@ -60,7 +60,11 @@ const ViewTripSheet = ({ route }) => {
       return [];
     }
 
-    const tripData = tripDetails[0].tripSheetFinal[0].tripSheetRide;
+
+    const tripSheetFinal = tripDetails[0]?.tripSheetFinal?.[0];
+    const tripData = tripSheetFinal?.tripSheetRide || [];
+    // const lengthOfData = tripData.length;
+    // const tripData = tripDetails[0].tripSheetFinal[0].tripSheetRide;
     const lengthOfData = tripData.length;
     let totalHours = 0;
     let totalMinutes = 0;
@@ -97,17 +101,41 @@ const ViewTripSheet = ({ route }) => {
       { label: 'Package', value: tripDetails[0].bookingTypePackage_name || '-' },
       { label: 'Vehicle Type', value: tripDetails[0].Vehicle_type_name || '-' },
       { label: 'Vehicle name', value: tripDetails[0].Vehicle_name || '-' },
-      { label: 'Trip Starts On', value: tripDetails[0].from_date || '-' },
-      { label: 'Trip Ends On', value: tripDetails[0].to_date || '-' },
+      // { label: 'Trip Starts On', value: tripDetails[0].from_date || '-' },
+      // { label: 'Trip Ends On', value: tripDetails[0].to_date || '-' },
+      { label: 'Fare Details', value: tripSheetFinal?.base_fare_rate || '-' },
+    ];
+    const bookingType = tripDetails[0].bookingType_name?.toLowerCase();
+    if (bookingType === 'local') {
+      data.push(
+        { label: 'Extra kms', value: tripSheetFinal?.extra_km_rate || '-' },
+        { label: 'Extra hours', value: tripSheetFinal?.extra_hr_rate || '-' }
+      );
+    } else if (bookingType === 'outstation') {
+      data.push(
+        { label: 'Day Batta', value: tripData[0]?.day_batta_rate || '-' }
+      );
+    } else if (bookingType === 'transfer') {
+      data.push(
+        { label: 'Slab KMs', value: tripSheetFinal?.slab_kms || '-' }
+      );
+    }
+
+    // { label: 'Extra kms', value: tripSheetFinal?.extra_km_rate || '-' },
+    // { label: 'Extra hours', value: tripSheetFinal?.extra_hr_rate || '-' },
+    data.push(
       { label: 'Pick Up Location', value: tripDetails[0].pick_up_location || '-' },
       { label: 'Destination', value: tripDetails[0].destination || '-' },
       { label: 'Visiting Places', value: tripDetails[0].visiting_place || '-' },
       { label: 'From Date', value: tripDetails[0].from_date || '-' },
       { label: 'To Date', value: tripDetails[0].to_date || '-' },
+      { label: 'NumberOfDays', value: tripDetails[0].no_of_days || '-' },
       { label: 'Pick Up Time', value: tripDetails[0].pick_up_time || '-' },
       { label: 'Payment Type', value: tripDetails[0].payment_type || '-' },
-      { label: 'Note', value: tripDetails[0].note_1 || '-' },
-    ];
+      { label: 'Note/Remarks', value: tripDetails[0].note_1 || '-' },
+
+    );
+
 
     if (from === 'bills') {
       data.push(

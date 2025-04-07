@@ -12,6 +12,6 @@ export const postSendGroupInvite = async (payload, token) => {
     payload,
     token,
   );
-
+  console.log('qqq', response)
   return response;
 };

@@ -310,9 +310,20 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         padding: 16,
         borderRadius: 8,
-        marginTop: 'auto',
+        marginTop: 'auto',  // Changed from '10' to 'auto'
         marginBottom: 16,
-
+        shadowColor: '#000',  // Added shadow properties
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        position: 'absolute',  // Added position
+        bottom: 0,            // Added bottom
+        left: 16,            // Added left
+        right: 16,           // Added right
     },
     youtubeTextContainer: {
         marginLeft: 70,

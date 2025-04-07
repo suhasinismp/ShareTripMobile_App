@@ -412,10 +412,11 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   actionButton: {
-    backgroundColor: '#1e4976',
+    backgroundColor: '#FFD700', // Changed to yellow
     padding: 16,
     borderRadius: 8,
     marginVertical: 8,
+    elevation: 2,
   },
   actionButtonText: {
     color: 'white',

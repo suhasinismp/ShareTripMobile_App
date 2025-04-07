@@ -469,13 +469,13 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'mirror',
     borderWidth: 1,
     borderColor: '#008B8B',
   },
   saveButton: {
     flex: 1,
-    backgroundColor: '#008B8B',
+    backgroundColor: 'green',
   },
   listContentContainer: {
     flex: 1,

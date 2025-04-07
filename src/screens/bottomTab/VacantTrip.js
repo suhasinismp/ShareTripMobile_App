@@ -24,6 +24,7 @@ import PostCard from '../../components/PostCard';
 import { formatDate } from '../../utils/formatdateUtil';
 import AudioContainer from '../../components/AudioContainer';
 import { handleCall } from './HomeScreen';
+import { FontAwesome } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -40,9 +41,13 @@ const VacantTripModal = ({
   handleStopRecording,
   handleDeleteRecording,
   handlePostVacantTrip,
+  onClose,
 }) => {
   return (
     <View style={styles.modalContent}>
+      <TouchableOpacity style={styles.closeButton} onPress={handleCancelVacantModal}>
+        <FontAwesome name="times" size={24} color="#333" />
+      </TouchableOpacity>
       <Text style={styles.modalTitle}>Post Vacant Trip</Text>
       <Text style={styles.modalTitlee}>Type your Message or record Voice</Text>
       <View style={styles.inputGroup}>
@@ -253,10 +258,10 @@ const VacantTrip = () => {
     <>
       <AppHeader
         drawerIcon={true}
-      // groupIcon={true}
-      // onlineIcon={true}
-      // muteIcon={true}
-      // search={true}
+        // groupIcon={true}
+        // onlineIcon={true}
+        // muteIcon={true}
+        search={true}
       />
       <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>Vacant Trips</Text>
 
@@ -309,8 +314,11 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    // paddingHorizontal: 20,
+    marginTop: 20,
+    gap: 20,
   },
   modalContent: {
     padding: 20,
@@ -337,13 +345,22 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     width: width * 0.2,
     alignItems: 'center',
+    height: 40,
+    justifyContent: 'center',
   },
   inputGroup: {
     marginBottom: 20,
   },
+  closeButton: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    padding: 5,
+    zIndex: 1,
+  },
   submitButton: {
     width: width * 0.4,
-    alignItems: 'right',
+    alignItems: 'center',
     backgroundColor: '#123F67',
     borderRadius: 4,
   },

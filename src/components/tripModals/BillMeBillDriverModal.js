@@ -12,7 +12,7 @@ const BillMeBillDriverModal = ({ onClose, SetBillToDriver, handleContinue, SetBi
     // Options
     const options = [
         // { id: '1', label: 'Bill to Me', value: false },
-        { id: '1', label: 'Bill to Driver', value: true }
+        { id: '1', label: 'Permission to driver to provide bill to customer', value: true }
     ];
 
 
@@ -29,7 +29,7 @@ const BillMeBillDriverModal = ({ onClose, SetBillToDriver, handleContinue, SetBi
                 <FontAwesome name="times" size={24} color="#333" />
 
             </TouchableOpacity>
-            <Text style={StyleSheet.modalTitle}>Billing Details</Text>
+            <Text style={StyleSheet.modalTitle}>Billing options</Text>
             {options.map((option) => (
                 <TouchableOpacity
                     key={option.id}
@@ -95,7 +95,7 @@ const style = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 30,
-        fontWeight: 'bold',
+        fontWeight: '600',
         marginBottom: 15,
         textAlign: 'center',
         color: '#333',

@@ -9,6 +9,7 @@ import {
   Text,
   ActivityIndicator,
   Modal,
+  Alert,
 } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -21,7 +22,7 @@ import UploadOptionsModal from '../../components/UploadOptionsModal';
 import { fieldNames } from '../../constants/strings/fieldNames';
 import {
   deleteGroup,
-  DeleteGroupUser,
+  deleteGroupUser,
   exitGroup,
   getGroupUserDetailsById,
   updateGroup,
@@ -90,23 +91,54 @@ const GroupDetailScreen = () => {
     fetchGroupMembers();
   }, []);
 
+  // const fetchGroupMembers = async () => {
+  //   try {
+  //     const response = await getGroupUserDetailsById(groupId, userToken);
+  //     const members = response?.data || [];
+
+  //     const admins = members
+  //       .filter((member) => member.is_admin)
+  //       .map((member) => member.user_id);
+  //     setAdminId(admins);
+  //     setGroupMembers(response?.data);
+  //   } catch (error) {
+  //     console.error('Error fetching group members:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const fetchGroupMembers = async () => {
     try {
       const response = await getGroupUserDetailsById(groupId, userToken);
-      const members = response?.data || [];
+      console.log('Group members response:', response); // Add logging
 
-      const admins = members
+      // Validate response data
+      if (!response?.data || !Array.isArray(response.data)) {
+        console.error('Invalid response data:', response);
+        setGroupMembers([]);
+        return;
+      }
+
+      // Filter out any invalid member data
+      const validMembers = response.data.filter(member =>
+        member && member.user_id && member.User
+      );
+
+      console.log('Valid members:', validMembers); // Add logging
+
+      const admins = validMembers
         .filter((member) => member.is_admin)
         .map((member) => member.user_id);
+
       setAdminId(admins);
-      setGroupMembers(response?.data);
+      setGroupMembers(validMembers);
     } catch (error) {
       console.error('Error fetching group members:', error);
+      setGroupMembers([]);
     } finally {
       setLoading(false);
     }
   };
-
   const updateAdminStatus = async ({ recordId, groupId, userId, status }) => {
     const finalData = {
       id: recordId,
@@ -114,17 +146,23 @@ const GroupDetailScreen = () => {
       user_id: userId,
       is_admin: status,
     };
+    console.log('Data being sent:', finalData);  // Log the data to be sent
 
     const response = await updateUserAdminStatus(finalData, userToken);
-    if (response.includes(1)) {
+    console.log("API Response:", response); // Log the response
+
+    if (response && response.includes(1)) {
       setIsMenuVisible(null);
       fetchGroupMembers();
+    } else {
+      console.error("Failed to update admin status:", response); // Log failure response
     }
   };
 
-  const handleDelete = async ({ groupId, userId }) => {
-    const response = await DeleteGroupUser(userToken, userId, groupId);
 
+  const handleDelete = async ({ groupId, userId }) => {
+    const response = await deleteGroupUser(userToken, userId, groupId);
+    console.log('ttt', response)
     if (response?.message === 'User successfully removed from the group') {
       setIsMenuVisible(null);
       fetchGroupMembers();
@@ -151,16 +189,12 @@ const GroupDetailScreen = () => {
   );
 
   const renderRightIcon = () => (
-    <TouchableOpacity
-      onPress={() => {
-        setIsEditMenuVisible((prev) => {
-          !prev;
-        });
-      }}
-    >
+    <TouchableOpacity onPress={toggleMenu}>
       <MenuIcon width={24} height={24} fill="#000000" />
     </TouchableOpacity>
   );
+
+
 
   const handleMenuOption = (option) => {
     setIsMenuVisible(false);
@@ -175,39 +209,107 @@ const GroupDetailScreen = () => {
     setIsDeleteModalVisible(true);
   };
 
+  // const handleSave = async (data) => {
+  //   const finalData = {
+  //     id: groupId,
+  //     group_name: data.groupName,
+  //     group_details: data.groupDescription,
+  //   };
+
+  //   const formData = new FormData();
+  //   formData.append('json', JSON.stringify(finalData));
+
+  //   const response = await updateGroup(formData, userToken);
+
+  //   if (response?.error === false) {
+  //     setIsEditModeOn(false);
+  //     setIsEditMenuVisible(false); // Show edit menu on success
+  //   } else {
+  //     console.error('Failed to update group:', response.message);
+  //   }
+  // };
+
+
   const handleSave = async (data) => {
-    const finalData = {
-      id: groupId,
-      group_name: data.groupName,
-      group_details: data.groupDescription,
-    };
+    try {
+      setIsSaving(true);
+      const finalData = {
+        id: groupId,
+        group_name: data[fieldNames.GROUP_NAME],
+        group_details: data[fieldNames.GROUP_DESCRIPTION],
+      };
 
-    const formData = new FormData();
-    formData.append('json', JSON.stringify(finalData));
+      const formData = new FormData();
+      formData.append('json', JSON.stringify(finalData));
 
-    const response = await updateGroup(formData, userToken);
+      const response = await updateGroup(formData, userToken);
+      console.log('Update group response:', response);
 
-    if (response?.error === false) {
-      setIsEditModeOn(false);
-      setIsEditMenuVisible(false); // Show edit menu on success
-    } else {
-      console.error('Failed to update group:', response.message);
+      if (response?.error === false) {
+        // Update local state with new values
+        setValue(fieldNames.GROUP_NAME, data[fieldNames.GROUP_NAME]);
+        setValue(fieldNames.GROUP_DESCRIPTION, data[fieldNames.GROUP_DESCRIPTION]);
+
+        setIsEditModeOn(false);
+        setIsEditMenuVisible(false);
+
+        // Navigate back to refresh the group details
+        navigation.navigate('Groups', { refresh: Date.now() });
+      } else {
+        Alert.alert('Error', response?.message || 'Failed to update group');
+      }
+    } catch (error) {
+      console.error('Update group error:', error);
+      Alert.alert('Error', error?.message || 'Failed to update group');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleDeleteGroup = async () => {
-    const response = await deleteGroup(groupId, userToken);
+    try {
+      const response = await deleteGroup(groupId, userToken);
+      console.log('Delete group response:', response);
 
-    if (response.message === 'Successfully delete the Group') {
-      navigation.goBack();
+      if (response?.message === 'Successfully delete the Group') {
+        setIsDeleteModalVisible(false);
+        setIsEditMenuVisible(false);
+        // Force a refresh of the groups list before navigating back
+        navigation.navigate('Groups', { refresh: Date.now() });
+      } else {
+        Alert.alert('Error', 'Failed to delete group');
+      }
+    } catch (error) {
+      console.error('Delete group error:', error);
+      Alert.alert('Error', error?.message || 'Failed to delete group');
     }
   };
 
-  const handleExitGroup = async () => {
-    const response = await exitGroup(userId, groupId, userToken);
+  // const handleExitGroup = async () => {
+  //   const response = await exitGroup(userId, groupId, userToken);
 
-    if (response.message === 'Successfully exit the Group') {
-      navigation.goBack();
+  //   if (response.message === 'Successfully exit the Group') {
+  //     navigation.goBack();
+  //   }
+  // };
+  const handleExitGroup = async () => {
+    try {
+      const response = await exitGroup(userId, groupId, userToken);
+      console.log('Exit group response:', response);
+
+      if (response?.message === 'Successfully exit the Group') {
+        // Clear any local state if needed
+        setGroupMembers([]);
+        setAdminId([]);
+
+        // Navigate back to Groups screen with refresh parameter
+        navigation.navigate('Groups', { refresh: Date.now() });
+      } else {
+        Alert.alert('Error', 'Failed to exit group');
+      }
+    } catch (error) {
+      console.error('Exit group error:', error);
+      Alert.alert('Error', error?.message || 'Failed to exit group');
     }
   };
 
@@ -414,13 +516,25 @@ const GroupDetailScreen = () => {
         gallery
       />
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.menu}
         onPress={isEditModeOn ? handleSubmit(handleSave) : handleExitGroup}
       >
         <CustomText
           variant="body"
           text={isEditModeOn ? 'Save' : 'ExitGroup'}
+          textStyle={{ color: 'red' }}
+        />
+        {isEditModeOn ? null : <ExitGroupIcon style={{ marginLeft: 8 }} />}
+      </TouchableOpacity> */}
+      <TouchableOpacity
+        style={styles.menu}
+        onPress={isEditModeOn ? handleSubmit(handleSave) : handleExitGroup}
+        disabled={isSaving}
+      >
+        <CustomText
+          variant="body"
+          text={isEditModeOn ? (isSaving ? 'Saving...' : 'Save') : 'ExitGroup'}
           textStyle={{ color: 'red' }}
         />
         {isEditModeOn ? null : <ExitGroupIcon style={{ marginLeft: 8 }} />}

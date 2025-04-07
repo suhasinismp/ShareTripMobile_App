@@ -27,7 +27,13 @@ export const getTripBillSelector = (state) => {
 
   return state?.tripBill.data;
 }
+export const getOnlineStatusSelector = (state) => {
+  return state?.statusOnline.isOnline;
+};
 
+export const getShowOnlyAvailableSelector = (state) => {
+  return state?.statusOnline.showOnlyAvailable;
+};
 
 export const getSelfTripDetailsSelector = (state) => {
   return state?.selfTrip.tripDetails;

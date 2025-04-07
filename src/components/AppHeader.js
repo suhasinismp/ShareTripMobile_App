@@ -16,6 +16,12 @@ import UnMuteIcon from '../../assets/svgs/unMute.svg';
 import OnlineIcon from '../../assets/svgs/online.svg';
 import OfflineIcon from '../../assets/svgs/offline.svg';
 import SearchIcon from '../../assets/svgs/search.svg';
+import { useDispatch, useSelector } from 'react-redux';
+import { setOnlineStatus } from '../store/slices/statusOnlineSlice';
+import { getOnlineStatusSelector } from '../store/selectors';
+import { setShowOnlyAvailable } from '../store/slices/statusOnlineSlice';
+import { getShowOnlyAvailableSelector } from '../store/selectors';
+
 
 const AppHeader = ({
   title,
@@ -26,19 +32,29 @@ const AppHeader = ({
   groupIcon,
   onlineIcon,
   muteIcon,
-  onOnlineStatusChange,
+  // onlineIcon,
+  onOnlinePress,
+  onlineStatus,
 }) => {
   const navigation = useNavigation();
   const [searchText, setSearchText] = useState('');
-  const [isOnline, setIsOnline] = useState(true);
+  // const [isOnline, setIsOnline] = useState(true);
   const [isMute, setIsMute] = useState(true);
+  const dispatch = useDispatch();
+  // const isOnline = useSelector(getOnlineStatusSelector);
+  const showOnlyAvailable = useSelector(getShowOnlyAvailableSelector);
+
 
   const handleSearch = (text) => {
     setSearchText(text);
   };
 
+  // const toggleOnlineStatus = () => {
+  //   setIsOnline((prevState) => !prevState); // Toggle online/offline
+  // };
+
   const toggleOnlineStatus = () => {
-    setIsOnline((prevState) => !prevState); // Toggle online/offline
+    dispatch(setShowOnlyAvailable(!showOnlyAvailable));
   };
   // const toggleOnlineStatus = () => {
   //   const newStatus = !isOnline;
@@ -93,8 +109,8 @@ const AppHeader = ({
         </TouchableOpacity>
       )}
       {onlineIcon && (
-        <TouchableOpacity style={styles.iconButton} onPress={toggleOnlineStatus}>
-          {isOnline ? (
+        <TouchableOpacity style={styles.iconButton} onPress={onOnlinePress}>
+          {onlineStatus ? (
             <OnlineIcon width={24} height={24} />
           ) : (
             <OfflineIcon width={24} height={24} />
