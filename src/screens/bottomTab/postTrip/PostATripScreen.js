@@ -740,7 +740,7 @@ const PostATripScreen = ({ route }) => {
           name: filename,
         });
       }
-
+      console.log(finalData.post_type_value)
       try {
         const response = await createPost(formData, userToken);
 

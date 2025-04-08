@@ -62,14 +62,16 @@ const GroupDetailScreen = () => {
   const { theme } = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
-  const { groupId, groupName, groupDescription } = route.params;
+  const { groupImage, groupId, groupName, groupDescription } = route.params;
+
   const userData = useSelector(getUserDataSelector);
   const userToken = userData.userToken;
   const userId = userData.userId;
 
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
-  const [groupLogo, setGroupLogo] = useState(null);
+  const [groupLogo, setGroupLogo] = useState(groupImage);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isMenuVisible, setIsMenuVisible] = useState(null);

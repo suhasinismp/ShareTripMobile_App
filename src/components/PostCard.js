@@ -1,3 +1,7 @@
+
+
+
+
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -59,9 +63,10 @@ const PostCard = ({
   customerBillOnPress,
   billsScreen,
 }) => {
-  // console.log({ user })
+
 
   const requestStatus = isRequested ? isRequested : 'Accept';
+
   const isAvailable = postStatus === 'Available' || postStatus === 'available';
 
   const hasCommentOrVoice = postComments || postVoiceMessage;
@@ -95,6 +100,30 @@ const PostCard = ({
   const getIconColor = () => {
     return isAvailable ? '#005680' : '#666';
   };
+
+  const getButtonStyle = (buttonText) => {
+    switch (buttonText.toLowerCase()) {
+      case 'start trip':
+        return '#FFD700'; // Yellow color for Start Trip
+      case 'end trip':
+        return '#FF0000'; // Red color for End Trip
+      case 'on duty':
+      case 'continue for next day':
+        return '#4CAF50'; // Green color for On Duty and Continue buttons
+      default:
+        return '#005680'; // Default blue color for other buttons
+    }
+  };
+  const getButtonTextStyle = (buttonText) => {
+    switch (buttonText.toLowerCase()) {
+      case 'start trip':
+      case 'on duty':
+        return '#000000'; // Black text for Start Trip and On Duty
+      default:
+        return '#FFFFFF'; // White text for other buttons
+    }
+  };
+
 
   return (
     <View style={styles.card}>
@@ -348,13 +377,17 @@ const PostCard = ({
 
               {!billsScreen && vacantTripPostedByLoggedInUser === undefined && (
                 <View style={styles.footerRight}>
+
                   <TouchableOpacity
-                    style={styles.acceptButton}
+                    style={[styles.acceptButton, { backgroundColor: getButtonStyle(requestStatus) }]}
                     onPress={onRequestPress}
                     disabled={isRequested === 'Quoted' ? true : false}
                   >
-                    <Text style={styles.acceptButtonText}>{requestStatus}</Text>
+                    <Text style={[styles.acceptButtonText, { color: getButtonTextStyle(requestStatus) }]}>
+                      {requestStatus}
+                    </Text>
                   </TouchableOpacity>
+
                 </View>
               )}
               {vacantTripPostedByLoggedInUser === true && (

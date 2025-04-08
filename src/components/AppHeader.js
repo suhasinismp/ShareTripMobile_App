@@ -70,8 +70,10 @@ const AppHeader = ({
 
 
   const handleDrawerOpen = () => {
+
     try {
       if (navigation.openDrawer) {
+        console.log('hi')
         navigation.openDrawer();
       }
     } catch (error) {

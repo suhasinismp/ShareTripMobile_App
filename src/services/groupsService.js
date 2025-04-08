@@ -12,8 +12,9 @@ import {
 // };
 
 export const getGroupListUserId = async (userId, token) => {
-  console.log({ token, userId })
+
   const response = await getAPI(`share-trip/group-users/group-list-userId/${userId}`, token);
+  console.log('ddd', response)
   return response;
 }
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
@@ -233,12 +233,26 @@ const Bills = () => {
   return (
     <>
       <AppHeader
-        // title="TripSheet/Bills"
+        title="TripSheet/Bills"
         backIcon={true}
-        search={true}
+        // search={true}
         onBackPress={() => navigation.goBack()}
       />
-      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 10 }}>TripSheet/Bills</Text>
+
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search..."
+          placeholderTextColor="#666"
+          onChangeText={(text) => {
+            const filtered = dataSource.filter(item =>
+              (item?.user_name?.toLowerCase() || item?.postBooking?.User?.u_name?.toLowerCase() || '')
+                .includes(text.toLowerCase())
+            );
+            setDataSource(filtered);
+          }}
+        />
+      </View>
       <View style={styles.container}>
         <View style={styles.filterRow}>
           <CustomSelect
@@ -321,7 +335,20 @@ const styles = StyleSheet.create({
   },
   filterIconContainer: {
     padding: 5,
-  }
+  },
+  searchContainer: {
+    paddingHorizontal: 15,
+    paddingBottom: 10,
+  },
+  searchInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+
 });
 
 export default Bills;

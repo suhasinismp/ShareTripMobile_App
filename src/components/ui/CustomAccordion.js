@@ -1,3 +1,6 @@
+
+
+
 import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
@@ -5,7 +8,6 @@ import {
   Text,
   TouchableOpacity,
   Animated,
-  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FONTS } from '../../styles/fonts';
@@ -46,6 +48,7 @@ const CustomAccordion = ({
   const [billToDriver, setBillToDriver] = useState(true);
   const [billToMe, setBillToMe] = useState(false);
   const [driverDetails, setDriverDetails] = useState({});
+  console.log('lll', driverDetails)
   const animatedHeight = useRef(new Animated.Value(0)).current;
   const animatedRotate = useRef(new Animated.Value(0)).current;
 
@@ -87,19 +90,21 @@ const CustomAccordion = ({
     setShowBillMeBillDriverModal(true);
   };
   const handleContinue = async (driver) => {
+
     try {
+      console.log('driverDetails', driverDetails);
       let finalData = {
-        post_bookings_id: driverDetails?.post_id,
-        accepted_user_id: driverDetails?.user_id,
+        post_bookings_id: driverDetails?.post_booking_id,
+        accepted_user_id: driverDetails?.id,
         vehicle_id: driverDetails?.vehicle_id,
         post_chat: 'SOME CHATS HERE',
         final_bill_by_poster: true,
         posted_user_id: loggedInUserId,
         bill_access: billToMe ? false : true,
       };
-
+      console.log('finalData', finalData);
       const response = await acceptDriverRequest(finalData, userToken);
-      console.log('ppp', response)
+      console.log('yyy', response)
       if (response?.status === 'Start Trip') {
         setShowBillMeBillDriverModal(false);
         dispatch(
@@ -165,19 +170,18 @@ const CustomAccordion = ({
 
   return (
     <View style={styles.card}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.bookingType}>{bookingType}</Text>
-          <Text style={styles.amount}>Amount: {amount}</Text>
+      <TouchableOpacity onPress={toggleAccordion}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.bookingType}>{bookingType}</Text>
+            <Text style={styles.amount}>Amount: ₹{amount}</Text>
+          </View>
+          <Animated.View style={{ transform: [{ rotate: rotateArrow }] }}>
+            <Ionicons name="chevron-down" size={24} color="#666" />
+          </Animated.View>
         </View>
+      </TouchableOpacity>
 
-        {isExpanded && (
-          <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
-            <Ionicons name="trash-outline" size={24} color="#D33D0E" />
-          </TouchableOpacity>
-        )}
-      </View>
       <DotDivider />
 
       {/* Main Content */}
@@ -216,59 +220,48 @@ const CustomAccordion = ({
         </View>
 
         {/* Toggle Button */}
-        {drivers.length > 0 &&
+        {/* {drivers.length > 0 && */}
 
-          <TouchableOpacity style={styles.toggleButton} onPress={toggleAccordion}>
-            <Animated.View
-              style={[
-                styles.arrowContainer,
-                { transform: [{ rotate: rotateArrow }] },
-              ]}
-            >
-              <Ionicons name="chevron-down" size={14} color="white" />
-            </Animated.View>
-          </TouchableOpacity>
-        }
+        <TouchableOpacity style={styles.toggleButton} onPress={toggleAccordion}>
+          <Animated.View
+            style={[
+              styles.arrowContainer,
+              { transform: [{ rotate: rotateArrow }] },
+            ]}
+          >
+            <Ionicons name="chevron-down" size={14} color="white" />
+          </Animated.View>
+        </TouchableOpacity>
+        {/* } */}
 
       </View>
 
-      {/* Expandable Content for Drivers */}
-      {/* <Animated.View style={[styles.expandableContent, { maxHeight }]}>
-        {drivers.map((driver, index) => (
-          <View key={index} style={styles.driverCard}>
-            <DriverCard
-              name={driver.User_name}
-              phone={driver.User_phone}
-              vehicleName={driver.Vehicle_name}
-              vehicleType={driver.Vehicle_type_name}
-              vehicleNumber={driver.vehicle_registration_number}
-              profileImage={
-                driver.User_profile || 'https://via.placeholder.com/150'
-              }
-              amount={driver.bookingTypeTariff_base_fare_rate}
-              onAccept={() => handleAcceptDriver(driver)}
-              onReject={() => handleRejectDriver(driver)}
-              onCall={() => { }}
-            />
-          </View>
-        ))}
-      </Animated.View> */}
-      <Animated.View style={[styles.expandableContent, { maxHeight }]}>
-        {drivers.map((driver, index) => (
-          <View key={index} style={styles.driverCard}>
-            <DriverCard
-              name={driver.user_name}
-              phone={driver.user_phone}
-              vehicleName={driver.vehicle_name}
-              vehicleType={driver.vehicle_type}
-              vehicleNumber={driver.vehicle_number}
-              profileImage={driver.user_profile || 'https://via.placeholder.com/150'}
-              amount={driver.base_fare_rate} // if available
-              onAccept={() => handleAcceptDriver(driver)}
-              onReject={() => handleRejectDriver(driver)}
-              onCall={() => handleCall(driver.user_phone)}
-            />
-          </View>
+
+      <Animated.View style={[styles.driversContainer, { maxHeight }]}>
+        {isExpanded && drivers?.map((driver, index) => (
+
+          <DriverCard
+            key={index}
+
+            name={driver.user_name}
+            phone={driver.user_phone}
+            vehicleNumber={driver.vehicle_number}
+            vehicleName={driver.vehicle_name}
+            vehicleType={driver.vehicle_type}
+            profileImage={driver.user_profile}
+            onCallPress={() => onCallPress(driver.user_phone)}
+            onMessagePress={() => onMessagePress(driver)}
+            onRefresh={onRefreshData}
+            userToken={userToken}
+            driverId={driver.user_id}
+            postId={driver.post_id}
+            vehicleId={driver.vehicle_id}
+            amount={driver.base_fare_rate} // if available
+
+            onAccept={() => handleAcceptDriver(driver)}
+            onReject={() => handleRejectDriver(driver)}
+            onCall={() => handleCall(driver.user_phone)}
+          />
         ))}
       </Animated.View>
       <CustomModal
