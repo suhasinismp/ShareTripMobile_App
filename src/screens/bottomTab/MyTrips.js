@@ -360,7 +360,7 @@ const MyTrips = ({ route }) => {
 
                   id: driver.id,
                   user_name: driver.name,
-                  user_id: driver.accepted_user_id,
+                  user_id: driver.id,
                   user_profile: driver.profile_pic,
                   user_phone: driver.phone_number,
                   vehicle_number: driver.vehicle_registration,
@@ -374,10 +374,7 @@ const MyTrips = ({ route }) => {
 
                 }));
 
-                console.log('Item and tracking details:', {
-                  ...item,
-                  trackingDetails
-                });
+
                 return {
                   ...item,
                   trackingDetails
@@ -747,7 +744,7 @@ const MyTrips = ({ route }) => {
       item?.request_status === 'Quoted'
     ) {
 
-      console.log({ item })
+
       return (
 
 
@@ -766,15 +763,14 @@ const MyTrips = ({ route }) => {
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
 
-          // ... other props remain same ...
+          onRefreshData={fetchUiData}
           onCallPress={() => handleCall(item?.User_phone)}
           onMessagePress={() => handleChatPress(item)}
-          onRefreshData={fetchUiData}
+
           userToken={userToken}
-          customerName={item?.customer_name}
-          customerPhone={item?.customer_phone_no}
-          packageName={item?.booking_package_name}
+
         />
+
       )
     }
     const userProfilePic = selectedFilterTwo === 'PostedTrips'

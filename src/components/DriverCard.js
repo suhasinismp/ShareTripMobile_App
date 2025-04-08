@@ -15,7 +15,6 @@ const DriverCard = ({
   onReject,
   onCall,
 }) => {
-
   return (
     <View style={styles.container}>
       {/* Driver Info Section */}
@@ -27,7 +26,7 @@ const DriverCard = ({
           />
           <View style={styles.infoContainer}>
             <Text style={styles.driverName}>{name}</Text>
-            {/* <Text style={styles.phoneNumber}>{phone}</Text> */}
+            <Text style={styles.phoneNumber}>{phone}</Text>
             <View style={styles.vehicleInfo}>
               <Text style={styles.vehicleText}>
                 Vehicle: {`${vehicleType} ${vehicleName}`}
