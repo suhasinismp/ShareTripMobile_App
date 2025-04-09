@@ -201,21 +201,21 @@ const AppStack = () => {
             component={PostATripScreen}
             options={{ headerShown: false }}
           />
-          <Stack.Screen
+          {/* <Stack.Screen
             name="SelfTripHome"
             component={SelfTripHome}
             options={{ headerShown: false }}
-          />
-          <Stack.Screen
+          /> */}
+          {/* <Stack.Screen
             name="Home"
             component={HomeScreen}
             options={{ headerShown: false }}
-          />
-          <Stack.Screen
+          /> */}
+          {/* <Stack.Screen
             name="VacantTrip"
             component={VacantTrip}
             options={{ headerShown: false }}
-          />
+          /> */}
           <Stack.Screen
             name="Bills"
             component={Bills}

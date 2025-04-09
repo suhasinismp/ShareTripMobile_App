@@ -34,7 +34,14 @@ const CustomAccordion = ({
   drivers = [],
   onRefreshData,
   userToken,
+  postId,
 }) => {
+  console.log('CustomAccordion postId', postId);
+
+  console.log('Drivers array in CustomAccordion:', {
+    driversLength: drivers.length,
+    driversData: drivers
+  });
 
   const dispatch = useDispatch();
 
@@ -91,7 +98,7 @@ const CustomAccordion = ({
     console.log('handleContinue', driver);
     try {
       let finalData = {
-        post_bookings_id: driverDetails?.post_id,
+        post_booking_id: postId,
         accepted_user_id: driverDetails?.user_id,
         vehicle_id: driverDetails?.vehicle_id,
         post_chat: 'SOME CHATS HERE',
@@ -99,9 +106,9 @@ const CustomAccordion = ({
         posted_user_id: loggedInUserId,
         bill_access: billToMe ? false : true,
       };
-      // console.log("finalData", finalData)
+      console.log("finalData", finalData)
       const response = await acceptDriverRequest(finalData, userToken);
-
+      console.log("response", response)
       if (response?.status === 'Start Trip') {
         setShowBillMeBillDriverModal(false);
         dispatch(
@@ -234,6 +241,8 @@ const CustomAccordion = ({
               phone={driver.user_phone}
               vehicleName={driver.vehicle_name}
               vehicleType={driver.vehicle_type}
+              vehicleId={driver.vehicle_id}
+              postId={postId}
               vehicleNumber={driver.vehicle_registration_number}
               profileImage={
                 driver.user_profile || 'https://via.placeholder.com/150'

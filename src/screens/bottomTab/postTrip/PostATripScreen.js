@@ -555,9 +555,9 @@ const PostATripScreen = ({ route }) => {
         end_trip_kms: endTripKms.toString(),
         total_kms: (Number(endTripKms) - Number(startTripKms)).toString(),
       };
-
+      console.log('Final======> :', finalData);
       const response = await updateViewTripBillTable(finalData, userToken);
-
+      console.log('Response=========>:', response);
       if (!response) {
         throw new Error('No response from server');
       }

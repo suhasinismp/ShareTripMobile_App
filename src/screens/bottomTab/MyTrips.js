@@ -374,7 +374,10 @@ const MyTrips = ({ route }) => {
 
                 }));
 
-
+                console.log('Final tracking details for post_booking_id:', item.post_booking_id, {
+                  trackingDetails,
+                  itemData: item
+                });
                 return {
                   ...item,
                   trackingDetails
@@ -737,6 +740,7 @@ const MyTrips = ({ route }) => {
     return 'No data available';
   };
 
+
   const renderItem = ({ item }) => {
     if (
       selectedFilterOne === 'InProgress' &&
@@ -744,7 +748,7 @@ const MyTrips = ({ route }) => {
       item?.request_status === 'Quoted'
     ) {
 
-
+      console.log({ item })
       return (
 
 
@@ -762,7 +766,7 @@ const MyTrips = ({ route }) => {
           postComments={item?.post_comments}
           postVoiceMessage={item?.post_voice_message}
           drivers={item?.trackingDetails}
-
+          postId={item?.post_booking_id}
           onRefreshData={fetchUiData}
           onCallPress={() => handleCall(item?.User_phone)}
           onMessagePress={() => handleChatPress(item)}

@@ -480,6 +480,8 @@ import NewHomeScreen from '../screens/bottomTab/NewHomeScreen';
 import MyTripsStack from './MyTripStack';
 import BillStack from './BillStack';
 import HomeScreen from '../screens/bottomTab/HomeScreen';
+import VacantTrip from '../screens/bottomTab/VacantTrip';
+import SelfTripHome from '../screens/bottomTab/selfTrip/SelfTripHome';
 
 const Drawer = createDrawerNavigator();
 
@@ -806,6 +808,9 @@ const DrawerStack = () => {
       <Drawer.Screen name="MyTrips" component={MyTripsStack} />
       <Drawer.Screen name="Group" component={GroupStack} />
       <Drawer.Screen name="Bills" component={BillStack} />
+      <Drawer.Screen name="VacantTrip" component={VacantTrip} />
+      <Drawer.Screen name="Home" component={HomeScreen} />
+      <Drawer.Screen name="SelfTripHome" component={SelfTripHome} />
       {/* <Drawer.Screen name="PostedTrips" component={PostedTrips} /> */}
       <Drawer.Screen name="PostTrip" component={PostATripScreen} />
       <Drawer.Screen name="SelectGroups" component={SelectGroupScreen} />
