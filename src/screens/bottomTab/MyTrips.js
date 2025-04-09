@@ -64,6 +64,7 @@ const MyTrips = ({ route }) => {
 
   // Trip data states
   const [inProgressDriverData, setInProgressDriverData] = useState([]);
+  console.log({ inProgressDriverData })
   const [inProgressPostedData, setInProgressPostedData] = useState([]);
 
 
@@ -299,39 +300,37 @@ const MyTrips = ({ route }) => {
   };
 
 
+  // const fetchDriverInProgressData = async () => {
+  //   try {
+  //     const response = await getDriverInProgressTrips(userId, userToken);
+
+  //     if (response?.error === false) {
+  //       let data = response?.data;
+  //       // If coming from a booking acceptance, ensure the data is properly filtered
+  //       if (route?.params?.fromBooking && route?.params?.bookingType) {
+  //         data = data.filter(item =>
+  //           item?.booking_type_name === route?.params?.bookingType
+  //         );
+  //       }
+  //       setInProgressDriverData(data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching driver in progress data:', error);
+  //   }
+  // };
+
   const fetchDriverInProgressData = async () => {
     try {
       const response = await getDriverInProgressTrips(userId, userToken);
-
       if (response?.error === false) {
-        let data = response?.data;
-        // If coming from a booking acceptance, ensure the data is properly filtered
-        if (route?.params?.fromBooking && route?.params?.bookingType) {
-          data = data.filter(item =>
-            item?.booking_type_name === route?.params?.bookingType
-          );
-        }
-        setInProgressDriverData(data);
+        setInProgressDriverData(response?.data);
       }
     } catch (error) {
       console.error('Error fetching driver in progress data:', error);
     }
   };
 
-  // const fetchPostedGuyInProgressData = async () => {
-  //   try {
-  //     const response = await getPostedGuyInProgressTrips(userId, userToken);
-  //     if (response?.error === false) {
-  //       let data = response?.data;
 
-  //       // If coming from booking acceptance, don't filter here
-  //       // Let the useEffect handle the filtering
-  //       setInProgressPostedData(data);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching posted guy in progress data:', error);
-  //   }
-  // };
 
   const fetchPostedGuyInProgressData = async () => {
     try {
