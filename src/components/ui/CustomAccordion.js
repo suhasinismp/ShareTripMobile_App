@@ -5,7 +5,6 @@ import {
   Text,
   TouchableOpacity,
   Animated,
-  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FONTS } from '../../styles/fonts';
@@ -35,7 +34,15 @@ const CustomAccordion = ({
   drivers = [],
   onRefreshData,
   userToken,
+  postId,
 }) => {
+  console.log('CustomAccordion postId', postId);
+
+  console.log('Drivers array in CustomAccordion:', {
+    driversLength: drivers.length,
+    driversData: drivers
+  });
+
   const dispatch = useDispatch();
 
   const userData = useSelector(getUserDataSelector);
@@ -83,13 +90,15 @@ const CustomAccordion = ({
   };
 
   const handleAcceptDriver = async (driver) => {
+    console.log('handleAcceptDriver', driver);
     setDriverDetails(driver);
     setShowBillMeBillDriverModal(true);
   };
   const handleContinue = async (driver) => {
+    console.log('handleContinue', driver);
     try {
       let finalData = {
-        post_bookings_id: driverDetails?.post_id,
+        post_booking_id: postId,
         accepted_user_id: driverDetails?.user_id,
         vehicle_id: driverDetails?.vehicle_id,
         post_chat: 'SOME CHATS HERE',
@@ -97,9 +106,9 @@ const CustomAccordion = ({
         posted_user_id: loggedInUserId,
         bill_access: billToMe ? false : true,
       };
-
+      console.log("finalData", finalData)
       const response = await acceptDriverRequest(finalData, userToken);
-      console.log('ppp', response)
+      console.log("response", response)
       if (response?.status === 'Start Trip') {
         setShowBillMeBillDriverModal(false);
         dispatch(
@@ -122,11 +131,6 @@ const CustomAccordion = ({
           type: 'error',
         }),
       );
-    }
-  };
-  const handleCall = (phoneNumber) => {
-    if (phoneNumber) {
-      Linking.openURL(`tel:${phoneNumber}`);
     }
   };
 
@@ -216,43 +220,19 @@ const CustomAccordion = ({
         </View>
 
         {/* Toggle Button */}
-        {drivers.length > 0 &&
-
-          <TouchableOpacity style={styles.toggleButton} onPress={toggleAccordion}>
-            <Animated.View
-              style={[
-                styles.arrowContainer,
-                { transform: [{ rotate: rotateArrow }] },
-              ]}
-            >
-              <Ionicons name="chevron-down" size={14} color="white" />
-            </Animated.View>
-          </TouchableOpacity>
-        }
-
+        <TouchableOpacity style={styles.toggleButton} onPress={toggleAccordion}>
+          <Animated.View
+            style={[
+              styles.arrowContainer,
+              { transform: [{ rotate: rotateArrow }] },
+            ]}
+          >
+            <Ionicons name="chevron-down" size={14} color="white" />
+          </Animated.View>
+        </TouchableOpacity>
       </View>
 
       {/* Expandable Content for Drivers */}
-      {/* <Animated.View style={[styles.expandableContent, { maxHeight }]}>
-        {drivers.map((driver, index) => (
-          <View key={index} style={styles.driverCard}>
-            <DriverCard
-              name={driver.User_name}
-              phone={driver.User_phone}
-              vehicleName={driver.Vehicle_name}
-              vehicleType={driver.Vehicle_type_name}
-              vehicleNumber={driver.vehicle_registration_number}
-              profileImage={
-                driver.User_profile || 'https://via.placeholder.com/150'
-              }
-              amount={driver.bookingTypeTariff_base_fare_rate}
-              onAccept={() => handleAcceptDriver(driver)}
-              onReject={() => handleRejectDriver(driver)}
-              onCall={() => { }}
-            />
-          </View>
-        ))}
-      </Animated.View> */}
       <Animated.View style={[styles.expandableContent, { maxHeight }]}>
         {drivers.map((driver, index) => (
           <View key={index} style={styles.driverCard}>
@@ -261,14 +241,19 @@ const CustomAccordion = ({
               phone={driver.user_phone}
               vehicleName={driver.vehicle_name}
               vehicleType={driver.vehicle_type}
-              vehicleNumber={driver.vehicle_number}
-              profileImage={driver.user_profile || 'https://via.placeholder.com/150'}
-              amount={driver.base_fare_rate} // if available
+              vehicleId={driver.vehicle_id}
+              postId={postId}
+              vehicleNumber={driver.vehicle_registration_number}
+              profileImage={
+                driver.user_profile || 'https://via.placeholder.com/150'
+              }
+              amount={amount}
               onAccept={() => handleAcceptDriver(driver)}
               onReject={() => handleRejectDriver(driver)}
-              onCall={() => handleCall(driver.user_phone)}
+              onCall={() => { }}
             />
           </View>
+
         ))}
       </Animated.View>
       <CustomModal

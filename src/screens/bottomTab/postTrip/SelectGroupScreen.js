@@ -264,6 +264,7 @@ import {
   Image,
   Text,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import { useTheme } from '../../../hooks/useTheme';
 import AppHeader from '../../../components/AppHeader';
@@ -282,10 +283,13 @@ const SelectGroupScreen = ({ route }) => {
   const navigation = useNavigation();
   const userData = useSelector(getUserDataSelector);
   const userToken = userData?.userToken;
+  const userId = userData?.userId;
 
   const [groups, setGroups] = useState([]);
+  console.log('Groups data:', groups);
   const [filteredGroups, setFilteredGroups] = useState([]);
   const [selectedGroupIds, setSelectedGroupIds] = useState([]);
+  console.log('Selected Group IDs:', selectedGroupIds);
   const [searchQuery, setSearchQuery] = useState('');
 
   // useEffect(() => {
@@ -293,7 +297,7 @@ const SelectGroupScreen = ({ route }) => {
   // }, [userData]);
 
   useEffect(() => {
-    fetchGroupListUserId(userData?.userId, userToken);
+    fetchGroupsByUserId();
   }, [userData?.userId, userToken]);
 
   // const fetchGroups = async () => {
@@ -310,27 +314,40 @@ const SelectGroupScreen = ({ route }) => {
   //   }
   // };
 
-  const fetchGroupListUserId = async (userId, token) => {
+  // const fetchGroupListUserId = async (userId, token) => {
+  //   try {
+  //     const response = await getGroupListUserId(token, userId);
+  //     if (response && Array.isArray(response.data)) {
+  //       setGroups(response.data);
+  //       setFilteredGroups(response.data);
+  //     } else {
+  //       setGroups([]);
+  //       setFilteredGroups([]);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching groups:', error);
+  //     setGroups([]);
+  //     setFilteredGroups([]);
+  //   }
+  // };
+
+  const fetchGroupsByUserId = async () => {
     try {
-      const response = await getGroupListUserId(token, userId);
-      if (response && Array.isArray(response.data)) {
+      const response = await getGroupListUserId(userId, userToken); // Fix: swap parameters order
+      console.log('Groups response:', response);
+      if (response?.data) {
         setGroups(response.data);
-        setFilteredGroups(response.data);
-      } else {
-        setGroups([]);
-        setFilteredGroups([]);
+        setFilteredGroups(response.data); // Add this line to initialize filtered groups
       }
     } catch (error) {
       console.error('Error fetching groups:', error);
-      setGroups([]);
-      setFilteredGroups([]);
     }
   };
 
   const handleSend = async () => {
-    if (selectedGroupIds) {
+    if (Array.isArray(selectedGroupIds) && selectedGroupIds.length > 0) {
       try {
-        finalData.post_type_value = JSON.stringify([selectedGroupIds]); // Wrap in array as required by API
+        finalData.post_type_value = JSON.stringify(selectedGroupIds); // Wrap in array as required by API
 
         const formData = new FormData();
         formData.append('json', JSON.stringify(finalData));
@@ -363,23 +380,33 @@ const SelectGroupScreen = ({ route }) => {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    const filtered = groups.filter((group) =>
-      group.group_name.toLowerCase().includes(query.toLowerCase()),
-    );
-    setFilteredGroups(filtered);
+    if (groups && groups.length > 0) {
+      const filtered = groups.filter((group) =>
+        group.group_name.toLowerCase().includes(query.toLowerCase()),
+      );
+      setFilteredGroups(filtered);
+    }
   };
 
   const toggleGroupSelection = (groupId) => {
-    setSelectedGroupIds((prevId) => (prevId === groupId ? null : groupId));
-  };
+    if (!groupId) return;
 
+    setSelectedGroupIds((prevIds) => {
+
+      if (prevIds.includes(groupId)) {
+        return prevIds.filter(id => id !== groupId);
+      }
+
+      return [...prevIds, groupId];
+    });
+  };
   const renderGroupItem = ({ item }) => (
     <TouchableOpacity
       style={styles.groupItem}
-      onPress={() => toggleGroupSelection(item.id)}
+      onPress={() => toggleGroupSelection(item?.group_id)}
     >
       <Image
-        source={{ uri: item.group_logo || 'https://via.placeholder.com/50' }}
+        source={{ uri: item?.group_logo || 'https://via.placeholder.com/50' }}
         style={styles.groupLogo}
       />
       <View style={styles.groupInfo}>
@@ -387,7 +414,7 @@ const SelectGroupScreen = ({ route }) => {
           {item.group_name}
         </Text>
       </View>
-      {selectedGroupIds === item.id ? (
+      {selectedGroupIds.includes(item?.group_id) ? (
         <Feather name="check-circle" size={24} color="green" />
       ) : (
         <Feather name="circle" size={24} color="#D3D3D3" />
@@ -438,15 +465,15 @@ const SelectGroupScreen = ({ route }) => {
         /> */}
 
         <FlatList
-          data={filteredGroups}
+          data={filteredGroups.length > 0 ? filteredGroups : groups}
           renderItem={renderGroupItem}
           keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
           contentContainerStyle={styles.listContainer}
-          scrollEnabled={false}
+          scrollEnabled={true} // Change to true to allow scrolling
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                {searchQuery.trim() === '' ? 'No groups available' : 'No group found'}
+                {searchQuery.trim() === '' ? 'No groups available' : 'No groups found'}
               </Text>
             </View>
           }
@@ -516,6 +543,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 15,
   },
+
   groupInfo: {
     flex: 1,
   },

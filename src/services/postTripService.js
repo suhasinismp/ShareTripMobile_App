@@ -86,12 +86,12 @@ export const fetchTripTable = async (postId, token) => {
 };
 
 export const updateViewTripBillTable = async (data, token) => {
-
+  console.log({ data })
   const response = await patchAPI({
     endUrl: 'share-trip/trip-sheet-ride/',
     body: data,
     token: token,
   });
-  console.log('navya', response)
+
   return response;
 };

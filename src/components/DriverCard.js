@@ -14,7 +14,9 @@ const DriverCard = ({
   onAccept,
   onReject,
   onCall,
+  postId,
 }) => {
+  // console.log('postId', postId);
   return (
     <View style={styles.container}>
       {/* Driver Info Section */}

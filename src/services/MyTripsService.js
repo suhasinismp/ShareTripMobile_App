@@ -24,25 +24,13 @@ export const getPostedGuyInProgressTrips = async (userId, token) => {
   return response;
 };
 
-// Fix the function name and parameters
-export const DriverData = async (postId, token) => {
-  try {
-    const response = await getAPI(
-      `share-trip/post-trip-accept/based-post-booking/${postId}`,
-      token,
-    );
-    return response;
-  } catch (error) {
-    console.error('Driver data error:', error);
-    return {
-      error: true,
-      message: error?.message || 'Failed to fetch driver data',
-      data: []
-    };
-  }
-};
-
-
+// export const postedTripToSeePostGuy = async (userId, token) => {
+//   const response = await getAPI(
+//     `share-trip/post-booking/post-booking-list-by-posted-user/${userId}`,
+//     token,
+//   );
+//   return response;
+// }
 export const deletePostedTrip = async (postId, userId, token) => {
   try {
     if (!postId || !userId || !token) {
@@ -53,7 +41,7 @@ export const deletePostedTrip = async (postId, userId, token) => {
       endUrl: `share-trip/post-booking/delete-post?id=${postId}&posted_user_id=${userId}`,
       token: token
     });
-    console.log('delete response:', response); // Fixed syntax error
+    // Fixed syntax error
     return response;
   } catch (error) {
     console.error('Delete post error:', error);
@@ -65,7 +53,7 @@ export const deletePostedTrip = async (postId, userId, token) => {
   }
 };
 
-export const driverData = async (postId, token) => {
+export const getDriverDataByPostId = async (postId, token) => {
   try {
     if (!postId || !token) {
       throw new Error('Missing required parameters');
@@ -111,7 +99,7 @@ export const confirmedPostedGuyTrips = async (userId, token) => {
 
 export const acceptDriverRequest = async (data, token) => {
   const response = await postAPI('share-trip/post-trip-confirm/', data, token);
-  console.log('Accept driver response:', response);
+
   return response;
 };
 

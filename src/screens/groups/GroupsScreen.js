@@ -65,6 +65,7 @@ const GroupsScreen = () => {
 
   const handleGroupPress = (item) => {
     navigation.navigate('GroupDetailScreen', {
+      groupImage: item.group_logo,
       groupId: item.group_id,
       groupName: item.group_name, // Pass group name
       groupDescription: item.group_details,
